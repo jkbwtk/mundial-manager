@@ -1,0 +1,13 @@
+export declare const active: string;
+export declare const albumCover: string;
+export declare const albumCoverContainer: string;
+export declare const container: string;
+export declare const first: string;
+export declare const lowerControls: string;
+export declare const muted: string;
+export declare const playerContainer: string;
+export declare const progressBar: string;
+export declare const volumeContainer: string;
+export declare const volumeDisplay: string;
+export declare const volumeIndicator: string;
+export declare const volumeSlider: string;

@@ -1,0 +1,16 @@
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - ${NGINX_PORT:-8090}:80
+    environment:
+      - NGINX_PARAM_KEY=${NGINX_PARAM_KEY:-key}
+      - NGINX_SECRET=${NGINX_SECRET:-secret}
+    volumes:
+      - ./static/public:/app/public:ro
+      - ./static/auth:/app/auth:ro
+      # - ./dist/static:/app/private/pages:ro
+      # - ./dist/client/assets:/app/private/assets:ro
+      - ./nginx.conf:/etc/nginx/templates/nginx.conf.template:ro

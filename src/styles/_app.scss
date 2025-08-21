@@ -1,0 +1,52 @@
+@use 'sass:color';
+
+$gray: #767676;
+$grayBright: #d9d9d9;
+
+$red: #a62130;
+$redBright: #df2137;
+
+$green: #16ad82;
+$greenBright: #1bd9a0;
+
+$blue: #136fac;
+$blueBright: #1a8cdd;
+
+$yellow: #dcb543;
+$yellowBright: #ffd42a;
+
+$textColor: $gray;
+$textBrightColor: $grayBright;
+
+$codeColor: #d7ba7d;
+
+$primaryColor: $red;
+$primaryBrightColor: $redBright;
+
+$backgroundColor: #0d0d0d;
+$borderColor: $textColor;
+$widgetColor: $backgroundColor;
+
+$fontFamily: 'JetBrains Mono', monospace;
+$monoFontFamily: 'JetBrains Mono', monospace;
+
+$baseFontSize: 10px;
+
+$defaultFontSize: 2rem;
+$defaultIconSize: 2rem;
+
+$borderRadius: 0.3rem;
+$borderSize: 0.1rem;
+
+:root {
+  --console-unit-height: round(#{$defaultFontSize} * 1.32, 1px);
+  --console-unit-width: #{$defaultFontSize * 0.6};
+}
+
+@function ch($units, $fontSize: $defaultFontSize) {
+  @return calc(var(--console-unit-height) * $units);
+}
+
+@function cw($units, $fontSize: $defaultFontSize) {
+  @return calc(var(--console-unit-width) * $units);
+}

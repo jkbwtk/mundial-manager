@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <title>Test</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+
+  <style>
+    @font-face {
+      font-family: 'JetBrains Mono';
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+      src: url(/assets/JetBrainsMono-Regular.woff2) format('woff2');
+    }
+
+    :root {
+      font-size: 10px;
+      scrollbar-color: #767676 #0d0d0d;
+      scrollbar-width: thin;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'JetBrains Mono', monospace;
+      background-color: #0d0d0d;
+      font-size: 2rem;
+      color: #767676;
+
+      ::selection {
+        background-color: #d9d9d9;
+        color: #0d0d0d;
+      }
+    }
+
+    html,
+    body {
+      min-height: 100dvh;
+    }
+
+    #root {
+      min-height: inherit;
+      position: relative;
+    }
+
+    ::-webkit-scrollbar {
+      width: 0.7rem;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #0d0d0d;
+      border-radius: 50rem;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #767676;
+      border-radius: 50rem;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background-color: #5a5a5a;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      height: 100vh;
+
+      .animation {
+        max-width: round(down, 100%, 8px);
+        max-height: round(down, 100%, 8px);
+      }
+
+      .text {
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <image src='assets/spin.gif' class="animation" alt='Loading...' />
+    <span class="text">This is not the way</span>
+  </div>
+</body>
+
+</html>

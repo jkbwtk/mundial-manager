@@ -1,0 +1,18 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+    -   id: trailing-whitespace
+    -   id: end-of-file-fixer
+    -   id: mixed-line-ending
+        args: ['--fix=lf']
+    -   id: check-case-conflict
+    -   id: check-illegal-windows-names
+
+-   repo: local
+    hooks:
+      - id: local-biome-check
+        name: biome check
+        entry: bun run --bun biome check --write --no-errors-on-unmatched
+        language: system
+        types: [text]

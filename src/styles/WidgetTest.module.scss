@@ -1,0 +1,18 @@
+@use 'app' as *;
+
+.widget {
+  min-width: cw(20);
+  min-height: ch(5);
+
+  // background-color: #0000ff;
+}
+
+.horizontal {
+  display: flex;
+
+  height: ch(2);
+}
+
+.test {
+  background-color: blue;
+}

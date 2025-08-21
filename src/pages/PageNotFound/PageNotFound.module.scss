@@ -1,0 +1,19 @@
+@use 'app' as *;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  height: 100vh;
+
+  .animation {
+    max-width: round(down, 100%, cw(1));
+    max-height: round(down, 100%, ch(1));
+  }
+
+  .text {
+    text-align: center;
+  }
+}

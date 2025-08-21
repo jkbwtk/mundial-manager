@@ -1,0 +1,131 @@
+@use 'app' as *;
+
+.player-container {
+  display: flex;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+
+  width: cw(20);
+}
+
+.lowerControls {
+  display: flex;
+  gap: cw(1);
+}
+
+.volume-container {
+  width: cw(5);
+  height: ch(1);
+
+  // margin: 0 cw(0.5);
+
+  position: relative;
+
+  &.muted {
+    .volume-display {
+      .volume-indicator {
+        background-color: $primaryColor;
+      }
+    }
+
+    .volume-slider {
+      &::-webkit-slider-thumb {
+        background-color: $primaryColor;
+      }
+
+      &::-moz-range-thumb {
+        background-color: $primaryColor;
+      }
+    }
+  }
+
+  .volume-slider {
+    position: absolute;
+
+    left: 0;
+    top: 0;
+
+    width: 100%;
+    height: 100%;
+
+    margin: 0;
+    appearance: none;
+
+    background-color: transparent;
+
+    @mixin thumbStyle() {
+      cursor: pointer;
+      width: cw(0.25);
+      height: ch(0.75);
+
+      appearance: none;
+
+      border: none;
+
+      background-color: $textBrightColor;
+      border-radius: 9000px;
+    }
+
+    &::-webkit-slider-thumb {
+      @include thumbStyle();
+    }
+
+    &::-moz-range-thumb {
+      @include thumbStyle();
+    }
+  }
+
+  .volume-display {
+    display: flex;
+
+    height: 100%;
+    width: 100%;
+
+    align-items: center;
+    justify-content: space-between;
+
+    .volume-indicator {
+      width: cw(0.25);
+      height: ch(0.1);
+
+      background-color: $textColor;
+      border-radius: $borderRadius;
+
+      transition: all 0.2s ease-in-out;
+
+      &.first {
+        background-color: $green;
+      }
+
+      &.active {
+        height: ch(0.75);
+      }
+    }
+  }
+}
+
+.album-cover-container {
+  height: ch(3);
+  width: cw(6);
+
+  position: relative;
+
+  .album-cover {
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+
+    max-height: ch(3);
+    max-width: cw(6);
+  }
+}
+
+.progress-bar {
+  background-color: red;
+}

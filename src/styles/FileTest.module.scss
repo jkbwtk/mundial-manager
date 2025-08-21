@@ -1,0 +1,23 @@
+@use 'app' as *;
+
+.file-picker {
+  width: cw(20);
+  height: ch(4);
+}
+
+.preview-container {
+  width: cw(60);
+  // height: ch(10);
+
+  max-width: round(down, calc(100vw - cw(2)), cw(1));
+
+  .preview {
+    object-fit: cover;
+
+    max-height: 100%;
+    max-width: 100%;
+
+    height: auto;
+    width: auto;
+  }
+}

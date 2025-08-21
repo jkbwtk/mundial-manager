@@ -1,0 +1,122 @@
+@use 'app' as *;
+
+.container {
+  position: relative;
+
+  height: ch(1);
+
+  // :where(&) {
+  border-color: red;
+  // }
+
+  .progress-bar-background {
+    position: absolute;
+
+    left: 50%;
+    top: calc(50% + $borderSize / 2);
+
+    height: $borderSize;
+    width: calc(100% - cw(1));
+
+    transform: translate(-50%, -50%);
+
+    // border-color: $textColor;
+    border-color: inherit;
+    border-top: $borderSize solid;
+
+    @mixin endDecorator {
+      content: '';
+
+      position: absolute;
+      top: calc(50% - $borderSize);
+
+      height: calc(ch(0.5) + 2 * $borderSize);
+      width: calc(cw(0.5) - $borderSize);
+
+      transform: translateY(-50%);
+
+      border-color: inherit;
+      border-radius: inherit;
+
+      border-top: solid $borderSize;
+      border-bottom: solid $borderSize;
+
+      @content;
+    }
+
+    &:before {
+      @include endDecorator() {
+        left: -2 * $borderSize;
+
+        border-left: solid $borderSize;
+      }
+    }
+
+    &:after {
+      @include endDecorator() {
+        right: -2 * $borderSize;
+
+        border-right: solid $borderSize;
+      }
+    }
+  }
+}
+
+.progress-bar-container {
+  position: absolute;
+
+  top: 50%;
+  left: 50%;
+
+  height: ch(0.5);
+  width: calc(100% - cw(1));
+  transform: translate(-50%, -50%);
+
+  .progress-bar {
+    position: absolute;
+
+    height: 100%;
+
+    background-color: $textColor;
+    // background-color: $textBrightColor;
+  }
+
+  .progress-bar-input {
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+
+    width: 100%;
+    height: 100%;
+
+    transform: translate(-50%, -50%);
+
+    margin: 0;
+    appearance: none;
+
+    background-color: transparent;
+
+    @mixin thumbStyle() {
+      cursor: pointer;
+
+      width: cw(0.25);
+      height: ch(0.5);
+
+      appearance: none;
+
+      border: none;
+
+      background-color: $textBrightColor;
+      border-radius: 9000px;
+    }
+
+    &::-webkit-slider-thumb {
+      @include thumbStyle();
+    }
+
+    &::-moz-range-thumb {
+      @include thumbStyle();
+    }
+  }
+}

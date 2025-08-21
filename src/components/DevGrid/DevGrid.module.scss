@@ -1,0 +1,28 @@
+@use 'app' as *;
+
+.dev-grid {
+  position: absolute;
+
+  pointer-events: none;
+
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+
+  z-index: 9999;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  --grid-width: #{cw(1)};
+  --grid-height: #{ch(1)};
+  --grid-color: rgba(255, 255, 255, 0.034);
+
+  --gradient: linear-gradient(to top left, var(--grid-color) 25.1%, transparent 0, transparent 74.9%, var(--grid-color) 0);
+
+  background: var(--gradient) 0 0 / calc(var(--grid-width) * 2) calc(var(--grid-height) * 2),
+    var(--gradient) var(--grid-width) var(--grid-height) / calc(var(--grid-width) * 2) calc(var(--grid-height) * 2);
+}

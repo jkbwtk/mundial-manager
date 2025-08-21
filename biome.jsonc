@@ -1,0 +1,64 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.9.3/schema.json",
+  "vcs": {
+    "enabled": false,
+    "clientKind": "git",
+    "useIgnoreFile": false
+  },
+  "files": {
+    "ignoreUnknown": true,
+    "include": [
+      "./typed-scss-modules.config.ts",
+      "./vite.config.ts",
+      "./src/**/*",
+      "./tools/**/*"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2
+  },
+  "organizeImports": {
+    "enabled": true
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "all": true,
+      "correctness": {
+        "useImportExtensions": "off",
+        "noNodejsModules": "off",
+        "noUndeclaredDependencies": "off"
+      },
+      "suspicious": {
+        "noConsole": "off",
+        "noConsoleLog": "off"
+      },
+      "style": {
+        "noDefaultExport": "off",
+        "useNamingConvention": "off",
+        "useFilenamingConvention": "off",
+        "noNonNullAssertion": "off"
+      },
+      "performance": {
+        "noReExportAll": "off",
+        "noBarrelFile": "off"
+      },
+      "complexity": {
+        "noExcessiveCognitiveComplexity": {
+          "level": "warn",
+          "options": {
+            "maxAllowedComplexity": 22
+          }
+        }
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single"
+    },
+    "globals": ["Component", "ParentComponent", "Bun"]
+  }
+}

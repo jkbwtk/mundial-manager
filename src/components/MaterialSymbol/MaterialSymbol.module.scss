@@ -1,0 +1,102 @@
+@use 'app';
+@use 'symbolUtils';
+
+@font-face {
+  font-family: 'Material Symbols Rounded';
+  font-style: normal;
+  font-weight: 100 700;
+  src: url(/src/assets/fonts/MaterialSymbolsRounded.woff2) format('woff2');
+}
+
+.material-symbol {
+  @include symbolUtils.symbolFont(0);
+  @include symbolUtils.symbolSize();
+
+  color: white;
+  font-family: 'Material Symbols Rounded' !important;
+
+  user-select: none;
+
+  transition: all ease-in-out 0.1s;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  flex-shrink: 0;
+
+  line-height: 1;
+  text-transform: none;
+  display: inline-block;
+  word-wrap: normal;
+  direction: ltr;
+  font-feature-settings: 'liga';
+  -moz-osx-font-smoothing: grayscale;
+
+  text-align: center;
+  vertical-align: top;
+}
+
+.medium {
+  @include symbolUtils.symbolSize(app.$defaultIconSize, app.$defaultFontSize);
+}
+
+.gray {
+  color: app.$gray;
+}
+
+.red {
+  color: app.$red;
+}
+
+.green {
+  color: app.$green;
+}
+
+.blue {
+  color: app.$blue;
+}
+
+.yellow {
+  color: app.$yellow;
+}
+
+.primary {
+  color: app.$primaryColor;
+}
+
+.inherit {
+  color: inherit;
+}
+
+.interactive {
+  @include symbolUtils.interactive();
+}
+
+.gray-highlight {
+  @include symbolUtils.highlight(app.$grayBright);
+}
+
+.red-highlight {
+  @include symbolUtils.highlight(app.$redBright);
+}
+
+.green-highlight {
+  @include symbolUtils.highlight(app.$greenBright);
+}
+
+.blue-highlight {
+  @include symbolUtils.highlight(app.$blueBright);
+}
+
+.yellow-highlight {
+  @include symbolUtils.highlight(app.$yellowBright);
+}
+
+.primary-highlight {
+  @include symbolUtils.highlight(app.$primaryBrightColor);
+}
+
+.filled {
+  @include symbolUtils.symbolFont(1);
+}

@@ -1,0 +1,72 @@
+@use 'app';
+@use 'fontFaces.scss';
+
+:root {
+  font-size: app.$baseFontSize;
+  scrollbar-color: app.$borderColor app.$widgetColor;
+  scrollbar-width: thin;
+}
+
+body {
+  margin: 0;
+  font-family: app.$fontFamily;
+  background-color: app.$backgroundColor;
+  font-size: app.$defaultFontSize;
+  color: app.$textColor;
+
+  ::selection {
+    background-color: app.$textBrightColor;
+    color: app.$backgroundColor;
+  }
+}
+
+html,
+body {
+  min-height: 100dvh;
+}
+
+#root {
+  min-height: inherit;
+  position: relative;
+}
+
+::-webkit-scrollbar {
+  width: 0.7rem;
+}
+
+::-webkit-scrollbar-track {
+  background: app.$widgetColor;
+  border-radius: 50rem;
+}
+
+::-webkit-scrollbar-thumb {
+  background: app.$borderColor;
+  border-radius: 50rem;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: app.$primaryColor;
+}
+
+button {
+  user-select: none;
+  text-decoration: none;
+  font-family: app.$fontFamily;
+  color: inherit;
+  background-color: transparent;
+
+  border: none;
+  outline: none;
+  margin: 0;
+  padding: 0;
+
+  height: min-content;
+  width: min-content;
+
+  cursor: pointer;
+}
+
+code {
+  font-family: app.$monoFontFamily;
+  color: app.$codeColor;
+}

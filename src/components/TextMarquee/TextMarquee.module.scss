@@ -1,0 +1,71 @@
+@use 'app' as *;
+
+.container {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+}
+
+.marquee {
+  text-indent: 99999px !important;
+
+  position: relative;
+
+  --anim1-units: calc(var(--total-width-chars) + var(--text-gap));
+  --anim2-units: calc(var(--total-width-chars) + var(--text-gap));
+
+  &::before {
+    position: absolute;
+
+    // color: $textColor;
+    color: inherit;
+    text-indent: 0px;
+
+    content: var(--text-content);
+
+    left: 0;
+  }
+
+  &::after {
+    position: absolute;
+
+    color: inherit;
+    text-indent: 0px;
+
+    content: var(--text-content);
+
+    left: calc(var(--anim2-units) * cw(1));
+  }
+}
+
+.scrolling {
+  &::before {
+    left: unset;
+
+    animation: scroll-1 calc(var(--anim1-units) * var(--scroll-speed)) steps(var(--anim1-units)) infinite;
+  }
+
+  &::after {
+    left: unset;
+
+    animation: scroll-2 calc(var(--anim2-units) * var(--scroll-speed)) steps(var(--anim2-units)) infinite;
+  }
+}
+
+@keyframes scroll-1 {
+  from {
+    left: 0;
+  }
+  to {
+    left: calc(var(--anim1-units) * cw(-1));
+  }
+}
+
+@keyframes scroll-2 {
+  from {
+    left: calc(var(--anim2-units) * cw(1));
+  }
+  to {
+    left: 0;
+  }
+}
