@@ -6,4 +6,5 @@ export * from './extensionSymbols';
 export * from './fileUtils';
 export * from './signal';
 export * from './supportedMaterialSymbols';
+export * from './trpc';
 export * from './utils';

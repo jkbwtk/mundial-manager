@@ -1,7 +1,9 @@
 import { readFileSync } from 'node:fs';
+import { createExpressMiddleware } from '@trpc/server/adapters/express';
 import compression from 'compression';
 import express from 'express';
 import sirv from 'sirv';
+import { appRouter } from '../src/lib/trpc';
 import { environment } from './constants';
 
 const app = express();
@@ -9,6 +11,14 @@ const app = express();
 const pageNotFoundHtml = readFileSync('./dist/static/404.html', 'utf-8');
 
 const maxAge = 365 * 24 * 60 * 60; // 7 days
+
+app.use(
+  '/trpc',
+  createExpressMiddleware({
+    router: appRouter,
+    createContext: () => ({}),
+  }),
+);
 
 app.use(compression({ level: 9 }));
 app.use('/assets', sirv('./dist/client/assets', { extensions: [], maxAge }));

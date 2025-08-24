@@ -16,11 +16,17 @@
     "fetch-symbols": "bun run ./tools/fetchMaterialSymbols"
   },
   "dependencies": {
-    "@googleapis/docs": "^5.0.1",
     "@solid-primitives/scheduled": "^1.5.1",
     "@solidjs/meta": "^0.29.4",
     "@solidjs/router": "^0.15.3",
+    "@trpc/client": "^11.5.0",
+    "@trpc/server": "^11.5.0",
+    "@types/cors": "^2.8.19",
+    "@types/gapi": "^0.0.47",
+    "cors": "^2.8.5",
     "dayjs": "^1.11.13",
+    "dotenv": "^17.2.1",
+    "google-spreadsheet": "^5.0.2",
     "music-metadata": "^11.3.0",
     "pure-rand": "^7.0.1",
     "solid-js": "^1.9.7",

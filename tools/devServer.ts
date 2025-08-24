@@ -1,7 +1,9 @@
 import fs from 'node:fs/promises';
+import { createExpressMiddleware } from '@trpc/server/adapters/express';
 import express from 'express';
 import { generateHydrationScript } from 'solid-js/web';
 import { createServer } from 'vite';
+import { appRouter } from '../src/lib/trpc';
 import { environment } from './constants.js';
 
 const app = express();
@@ -11,6 +13,14 @@ const vite = await createServer({
 });
 
 app.use(vite.middlewares);
+
+app.use(
+  '/trpc',
+  createExpressMiddleware({
+    router: appRouter,
+    createContext: () => ({}),
+  }),
+);
 
 app.use('*', async (req, res) => {
   try {
