@@ -5,5 +5,4 @@ export * from './ChartTest';
 export * from './FileTest';
 export * from './FontTest';
 export * from './TableTest';
-export * from './Auth';
 export * from './PageNotFound';
