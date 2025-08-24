@@ -33,9 +33,6 @@
     "rootDir": "src/",
     "baseUrl": "src",
     "paths": {
-      "#/*": [
-        "./*"
-      ],
       "#components/*": [
         "./components/*"
       ],
@@ -66,7 +63,7 @@
     }
   },
   "include": [
-    "src"
+    "src",
   ],
   "references": [
     {

@@ -1,6 +1,6 @@
 import { A } from '@solidjs/router';
 import { For } from 'solid-js';
-import { routes } from '#/routes';
+import { routes } from '../../routes';
 
 const Index: Component = () => {
   const routesWithInfo = Object.values(routes).filter(

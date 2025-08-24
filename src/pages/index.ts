@@ -6,5 +6,4 @@ export * from './FileTest';
 export * from './FontTest';
 export * from './TableTest';
 export * from './Auth';
-export * from './Index';
 export * from './PageNotFound';

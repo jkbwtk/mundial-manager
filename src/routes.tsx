@@ -1,13 +1,13 @@
 import type { RouteDefinition } from '@solidjs/router';
 import { lazy } from 'solid-js';
 
-import PageNotFound from '#/pages/PageNotFound/PageNotFound';
+import PageNotFound from '#pages/PageNotFound/PageNotFound';
 
 export const routes: RouteDefinition[] = [
   {
     path: '/',
     info: { title: 'Mundial Manager - Home' },
-    component: lazy(() => import('#pages/Index/Index')),
+    component: lazy(() => import('#pages/Index/Index.tsx')),
   },
   {
     path: '/chart-test',

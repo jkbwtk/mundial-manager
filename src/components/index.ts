@@ -13,5 +13,5 @@ export * from './MaterialSymbol';
 export * from './ProgresBar';
 export * from './Table';
 export * from './TextMarquee';
-export * from './Widget';
 export * from './WidgetAlt';
+export * from './Widget';

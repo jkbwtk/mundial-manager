@@ -54,7 +54,6 @@ export default defineConfig({
 
   resolve: {
     alias: [
-      { find: '#', replacement: resolve('src') },
       { find: '#components', replacement: resolve('src/components') },
       { find: '#pages', replacement: resolve('src/pages') },
       { find: '#styles', replacement: resolve('src/styles') },
