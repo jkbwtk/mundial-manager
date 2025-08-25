@@ -15,6 +15,11 @@ export const routes: RouteDefinition[] = [
     component: lazy(() => import('#pages/ChartTest')),
   },
   {
+    path: '/button-test',
+    info: { title: 'Mundial Manager - Button Test' },
+    component: lazy(() => import('#pages/ButtonTest/ButtonTest')),
+  },
+  {
     path: '/404',
     component: () => <PageNotFound />,
   },

@@ -1,0 +1,81 @@
+@use 'app' as *;
+
+.button {
+  width: fit-content;
+
+  border-radius: $borderRadius;
+
+  transition: background-color 0.1s, color 0.1s;
+
+  &::before {
+    content: '[ ';
+  }
+
+  &::after {
+    content: ' ]';
+  }
+}
+
+.primary {
+  background-color: $gray;
+  color: $backgroundColor;
+
+  &:hover {
+    background-color: $grayBright;
+    color: $backgroundColor;
+  }
+
+  &:active {
+    background-color: $gray;
+    color: $backgroundColor;
+  }
+}
+
+.secondary {
+  &:hover {
+    background-color: $grayBright;
+    color: $backgroundColor;
+  }
+
+  &:active {
+    background-color: $gray;
+    color: $backgroundColor;
+  }
+}
+
+.danger {
+  background-color: $red;
+  color: $backgroundColor;
+
+  &:hover {
+    background-color: $redBright;
+    color: $backgroundColor;
+  }
+
+  &:active {
+    background-color: $red;
+    color: $backgroundColor;
+  }
+}
+
+.disabled {
+  cursor: not-allowed;
+
+  &::before {
+    content: '| ';
+  }
+
+  &::after {
+    content: ' |';
+  }
+
+  &:hover {
+    &::before {
+      content: '| ';
+    }
+
+    &::after {
+      content: ' |';
+    }
+  }
+}

@@ -5,4 +5,6 @@ export * from './ChartTest';
 export * from './FileTest';
 export * from './FontTest';
 export * from './TableTest';
+export * from './ButtonTest';
+export * from './Index';
 export * from './PageNotFound';
