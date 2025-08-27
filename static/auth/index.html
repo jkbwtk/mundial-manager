@@ -17,7 +17,9 @@
       document.cookie = `${key}=${value}; max-age=${lifetime}; SameSite=Lax;`;
     }
 
-    location.search = '';
+    setTimeout(() => {
+      location.search = '';
+    }, 1000);
   </script>
 </body>
 
