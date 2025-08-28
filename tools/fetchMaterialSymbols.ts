@@ -1,6 +1,11 @@
 import { mkdirSync } from 'node:fs';
-import { join } from 'node:path';
+import { writeFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { SupportedMaterialSymbol } from '../src/lib/supportedMaterialSymbols';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const userAgent =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/131.0';
@@ -30,4 +35,4 @@ const font = await fetch(fontUrl, {
 }).then((response) => response.blob());
 
 mkdirSync(fontsOutDir, { recursive: true });
-await Bun.write(fontPath, font);
+await writeFile(fontPath, Buffer.from(await font.arrayBuffer()));
