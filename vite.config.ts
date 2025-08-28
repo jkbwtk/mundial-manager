@@ -21,6 +21,7 @@ export default defineConfig({
       rootDir: 'src',
       skipRootIndex: true,
       watch: true,
+      ignorePatterns: ['**/backend/**'],
     }),
     isDev
       ? checker({

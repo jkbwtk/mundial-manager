@@ -56,10 +56,15 @@ export function autoIndexPlugin(options: AutoIndexPluginOptions = {}): Plugin {
     rootDir = 'src',
     watch = true,
     pattern = DEFAULT_PATTERN,
-    ignorePatterns = DEFAULT_IGNORE_PATTERNS,
+    // ignorePatterns = DEFAULT_IGNORE_PATTERNS,
     templatePath = resolve(__dirname, '..', 'templates/index.njk'),
     skipRootIndex = false,
   } = options;
+
+  const ignorePatterns = [
+    ...(options.ignorePatterns ?? []),
+    ...DEFAULT_IGNORE_PATTERNS,
+  ];
 
   let isDevMode = false;
   let projectRoot = '';
