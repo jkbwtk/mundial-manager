@@ -8,7 +8,7 @@ RUN corepack enable && pnpm install --frozen-lockfile
 
 COPY . .
 
-RUN cp resources/fonts src/assets/fonts -r && \
+RUN cp resources/fonts src/assets -r && \
   pnpm fetch-symbols && \
   pnpm build && \
   pnpm prerender
@@ -19,8 +19,16 @@ WORKDIR /app
 
 ENV NGINX_ENVSUBST_OUTPUT_DIR=/etc/nginx/
 
+RUN apk add --no-cache supervisor
 
+COPY --from=build /usr/local/bin/node /usr/local/bin/node
+
+COPY --from=build /build/static /app
 COPY --from=build /build/dist/client/assets /app/private/assets
 COPY --from=build /build/dist/static /app/private
+COPY --from=build /build/dist/backend /app/backend
 
 COPY nginx.conf /etc/nginx/templates/nginx.conf.template
+COPY supervisord.conf /etc/supervisord.conf
+
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
