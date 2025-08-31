@@ -4,3 +4,4 @@
 export * from './extensionSymbols';
 export * from './fileUtils';
 export * from './supportedMaterialSymbols';
+export * from './utils';

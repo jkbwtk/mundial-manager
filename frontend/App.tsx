@@ -3,9 +3,9 @@ import { MetaProvider } from '@solidjs/meta';
 import { Router } from '@solidjs/router';
 import { Show, Suspense, isServer } from 'solid-js/web';
 import { DevGrid } from '#components/DevGrid';
+import { isDev } from '#flib/utils';
 import { ConsoleUnitPrototypeProvider } from '#providers/ConsoleUnitPrototypeProvider';
 import { TRPCProvider } from '#providers/TRPCProvider';
-import { isDev } from '#shared/utils';
 import { routes } from './routes';
 
 const App: Component<{ url?: string }> = (props) => {
