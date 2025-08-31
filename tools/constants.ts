@@ -1,17 +1,5 @@
 import { z } from 'zod';
 
-const booleanLiteral = z.preprocess((v) => {
-  try {
-    if (typeof v === 'string') {
-      return JSON.parse(v.toLowerCase());
-    }
-
-    return v;
-  } catch {
-    return v;
-  }
-}, z.boolean());
-
 export const Environment = z.object({
   WEB_PORT: z.coerce.number().int().positive().default(4200),
   HMR_PORT: z.coerce.number().int().positive().default(5555),
@@ -19,10 +7,10 @@ export const Environment = z.object({
     .union([
       z.literal('terser'),
       z.literal('esbuild'),
-      booleanLiteral.pipe(z.literal(false)),
+      z.stringbool().pipe(z.literal(false)),
     ])
     .default('terser'),
-  BUILD_SOURCEMAP: booleanLiteral.default(false),
+  BUILD_SOURCEMAP: z.stringbool().default(false),
 });
 
 export type Environment = z.infer<typeof Environment>;
