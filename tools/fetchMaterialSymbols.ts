@@ -2,7 +2,7 @@ import { mkdirSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { SupportedMaterialSymbol } from '../src/lib/supportedMaterialSymbols';
+import { SupportedMaterialSymbol } from '#flib/supportedMaterialSymbols';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -12,7 +12,7 @@ const userAgent =
 
 const url = `https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=${SupportedMaterialSymbol.toSorted().join(',')}`;
 
-const fontsOutDir = join(__dirname, '../src/assets/fonts');
+const fontsOutDir = join(__dirname, '../frontend/assets/fonts');
 
 const fontPath = join(fontsOutDir, 'MaterialSymbolsRounded.woff2');
 

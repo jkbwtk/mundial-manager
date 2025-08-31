@@ -10,7 +10,9 @@
     "include": [
       "./typed-scss-modules.config.ts",
       "./vite.config.ts",
-      "./src/**/*",
+      "./rollup.config.js",
+      "./frontend/**/*",
+      "./backend/**/*",
       "./tools/**/*"
     ]
   },

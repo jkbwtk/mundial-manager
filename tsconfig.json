@@ -35,29 +35,49 @@
     "baseUrl": "./",
     "paths": {
       "#components/*": [
-        "./src/components/*"
+        "frontend/components/*"
       ],
       "#pages/*": [
-        "./src/pages/*"
+        "frontend/pages/*"
       ],
       "#styles/*": [
-        "./src/styles/*"
+        "frontend/styles/*"
       ],
       "#assets/*": [
-        "./src/assets/*"
+        "frontend/assets/*"
       ],
       "#providers/*": [
-        "./src/providers/*"
+        "frontend/providers/*"
       ],
-      "#lib/*": [
-        "./src/lib/*"
+      "#flib/*": [
+        "frontend/lib/*"
       ],
+      "#frontend/*": [
+        "frontend/*"
+      ],
+      "#blib/*": [
+        "backend/lib/*"
+      ],
+      "#backend/*": [
+        "backend/*"
+      ],
+      "#shared/*": [
+        "shared/*"
+      ],
+      "#tools/*": [
+        "tools/*"
+      ],
+      "#dist/*": [
+        "dist/*"
+      ]
     }
   },
   "include": [
-    "src",
-    "vite.config.ts",
+    "frontend/",
+    "backend/",
+    "shared/",
     "tools/",
+    "vite.config.ts",
     "dist/server/"
   ],
 }

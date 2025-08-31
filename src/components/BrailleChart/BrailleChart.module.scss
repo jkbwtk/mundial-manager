@@ -1,9 +1,0 @@
-@use 'app' as *;
-
-.container {
-  mask: url('/src/assets/images/braille.svg') 0 0 / cw(1) ch(1);
-
-  .bar {
-    position: absolute;
-  }
-}

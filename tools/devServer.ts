@@ -3,8 +3,8 @@ import { createExpressMiddleware } from '@trpc/server/adapters/express';
 import express from 'express';
 import { generateHydrationScript } from 'solid-js/web';
 import { createServer } from 'vite';
-import { appRouter } from '../src/backend/trpc';
-import { environment } from './constants.js';
+import { appRouter } from '#backend/trpc';
+import { environment } from '#tools/constants';
 
 const app = express();
 const vite = await createServer({
@@ -28,7 +28,8 @@ app.use('*', async (req, res) => {
 
     const template = await fs.readFile('./index.html', 'utf-8');
     const transformedTemplate = await vite.transformIndexHtml(url, template);
-    const render = (await vite.ssrLoadModule('/src/entryServer.tsx')).render;
+    const render = (await vite.ssrLoadModule('/frontend/entryServer.tsx'))
+      .render;
 
     const rendered = await render(url);
 

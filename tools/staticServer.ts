@@ -3,8 +3,8 @@ import { createExpressMiddleware } from '@trpc/server/adapters/express';
 import compression from 'compression';
 import express from 'express';
 import sirv from 'sirv';
-import { appRouter } from '../src/backend/trpc';
-import { environment } from './constants';
+import { appRouter } from '#backend/trpc';
+import { environment } from '#tools/constants';
 
 const app = express();
 

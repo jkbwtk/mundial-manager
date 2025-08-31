@@ -8,7 +8,7 @@ RUN corepack enable && pnpm install --frozen-lockfile
 
 COPY . .
 
-RUN cp resources/fonts src/assets -r && \
+RUN cp resources/fonts frontend/assets -r && \
   pnpm fetch-symbols && \
   pnpm build && \
   pnpm prerender

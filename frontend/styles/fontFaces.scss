@@ -1,0 +1,31 @@
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url(/frontend/assets/fonts/JetBrainsMono-Regular.woff2) format('woff2');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url(/frontend/assets/fonts/JetBrainsMono-Bold.woff2) format('woff2');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+  src: url(/frontend/assets/fonts/JetBrainsMono-Italic.woff2) format('woff2');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+  src: url(/frontend/assets/fonts/JetBrainsMono-BoldItalic.woff2) format('woff2');
+}

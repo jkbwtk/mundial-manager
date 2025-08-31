@@ -7,7 +7,7 @@ import pathlib
 root_dir = pathlib.Path(__file__).parent.parent.absolute()
 
 fonts_dir = root_dir.joinpath("resources/fonts")
-fonts_out_dir = root_dir.joinpath("src/assets/fonts")
+fonts_out_dir = root_dir.joinpath("frontend/assets/fonts")
 
 fonts = filter(lambda path: path.endswith(".woff2") or path.endswith('.ttf'), os.listdir(fonts_dir))
 

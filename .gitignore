@@ -27,7 +27,7 @@ dist-ssr
 playground.ts
 
 bundle.html
-src/assets/fonts/
+frontend/assets/fonts/
 *storybook.log
 
 .venv/

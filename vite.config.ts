@@ -15,18 +15,17 @@ export default defineConfig({
   plugins: [
     solid({ ssr: true }),
     scssTypesPlugin({
-      rootDir: 'src',
+      rootDir: 'frontend',
       watch: true,
     }),
     autoIndexPlugin({
-      rootDir: 'src',
+      rootDir: 'frontend',
       skipRootIndex: true,
       watch: true,
-      ignorePatterns: ['**/backend/**'],
     }),
     dts({
-      include: ['src/**/*'],
-      exclude: ['src/**/*.test.*', 'src/**/*.spec.*'],
+      include: ['frontend/**/*'],
+      exclude: ['frontend/**/*.test.*', 'frontend/**/*.spec.*'],
       rollupTypes: true,
       insertTypesEntry: true,
     }),
@@ -62,15 +61,16 @@ export default defineConfig({
 
   resolve: {
     alias: [
-      { find: '#components', replacement: resolve('src/components') },
-      { find: '#pages', replacement: resolve('src/pages') },
-      { find: '#styles', replacement: resolve('src/styles') },
-      { find: '#assets', replacement: resolve('src/assets') },
-      { find: '#lib', replacement: resolve('src/lib') },
-      { find: '#providers', replacement: resolve('src/providers') },
-      { find: '#routes', replacement: resolve('src/routes') },
-      // { find: '#locales', replacement: resolve('src/locales') },
-      // { find: '#shared', replacement: resolve(cwd(), 'shared/src') },
+      { find: '#frontend', replacement: resolve('frontend') },
+      { find: '#components', replacement: resolve('frontend/components') },
+      { find: '#pages', replacement: resolve('frontend/pages') },
+      { find: '#styles', replacement: resolve('frontend/styles') },
+      { find: '#assets', replacement: resolve('frontend/assets') },
+      { find: '#flib', replacement: resolve('frontend/lib') },
+      { find: '#providers', replacement: resolve('frontend/providers') },
+      { find: '#routes', replacement: resolve('frontend/routes') },
+      { find: '#shared', replacement: resolve('shared') },
+      { find: '#backend', replacement: resolve('backend') },
     ],
   },
 
@@ -80,7 +80,8 @@ export default defineConfig({
     },
     preprocessorOptions: {
       scss: {
-        loadPaths: [resolve(__dirname, 'src/styles')],
+        api: 'modern',
+        loadPaths: [resolve(__dirname, 'frontend/styles')],
       },
     },
   },
