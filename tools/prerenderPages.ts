@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import { join } from 'node:path';
 import { generateHydrationScript } from 'solid-js/web';
-import { render, routes } from '../dist/server/entryServer.js';
+import { render, routes } from '../dist/server/entryServer';
 
 const template = fs.readFileSync('./dist/client/index.html', 'utf-8');
 

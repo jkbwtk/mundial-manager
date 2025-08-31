@@ -4,6 +4,7 @@
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import checker from 'vite-plugin-checker';
+import dts from 'vite-plugin-dts';
 import solid from 'vite-plugin-solid';
 import { environment, isDev } from './tools/constants';
 import { autoIndexPlugin } from './tools/plugins/auto-index';
@@ -22,6 +23,12 @@ export default defineConfig({
       skipRootIndex: true,
       watch: true,
       ignorePatterns: ['**/backend/**'],
+    }),
+    dts({
+      include: ['src/**/*'],
+      exclude: ['src/**/*.test.*', 'src/**/*.spec.*'],
+      rollupTypes: true,
+      insertTypesEntry: true,
     }),
     isDev
       ? checker({
@@ -73,7 +80,6 @@ export default defineConfig({
     },
     preprocessorOptions: {
       scss: {
-        api: 'modern',
         loadPaths: [resolve(__dirname, 'src/styles')],
       },
     },

@@ -20,9 +20,11 @@ const TableTest: Component = () => {
     { person: 'Karen', interest: 'Web performance', age: null },
   ]);
 
-  const onSort = (key: string, direction: 'asc' | 'desc' | null) => {
+  const onSort = (
+    key: keyof ReturnType<typeof data>[0],
+    direction: 'asc' | 'desc' | null,
+  ) => {
     setData((d) =>
-      // @ts-expect-error
       d.toSorted((a, b) => {
         if (a[key] === null) {
           return 1;
@@ -45,6 +47,7 @@ const TableTest: Component = () => {
     );
   };
 
+  // @ts-expect-error
   return <Table columns={columns} data={data()} sortBy="age" onSort={onSort} />;
 };
 

@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ES2024",
     "useDefineForClassFields": true,
     "lib": [
-      "ES2020",
+      "ES2021",
+      "ES2023",
       "DOM",
       "DOM.Iterable",
       "DOM.AsyncIterable"
@@ -12,7 +13,7 @@
       "vite/client",
       "@testing-library/jest-dom"
     ],
-    "module": "ESNext",
+    "module": "es2022",
     "skipLibCheck": true,
     /* Bundler mode */
     "moduleResolution": "Bundler",
@@ -30,44 +31,33 @@
     "strictNullChecks": true,
     "noUncheckedIndexedAccess": true,
     /* Paths */
-    "rootDir": "src/",
-    "baseUrl": "src",
+    "rootDir": "./",
+    "baseUrl": "./",
     "paths": {
       "#components/*": [
-        "./components/*"
-      ],
-      "#components": [
-        ".components/index.ts"
+        "./src/components/*"
       ],
       "#pages/*": [
-        "./pages/*"
+        "./src/pages/*"
       ],
       "#styles/*": [
-        "./styles/*"
+        "./src/styles/*"
       ],
       "#assets/*": [
-        "./assets/*"
+        "./src/assets/*"
       ],
       "#providers/*": [
-        "./providers/*"
-      ],
-      "#providers": [
-        "./providers/index.ts"
+        "./src/providers/*"
       ],
       "#lib/*": [
-        "./lib/*"
-      ],
-      "#lib": [
-        "./lib/index.ts"
+        "./src/lib/*"
       ],
     }
   },
   "include": [
     "src",
+    "vite.config.ts",
+    "tools/",
+    "dist/server/"
   ],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    }
-  ]
 }
