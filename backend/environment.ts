@@ -1,7 +1,5 @@
-import { logger } from '#shared/logger';
-import 'dotenv/config';
-
 import { z } from 'zod';
+import { logger } from '#shared/logger';
 
 export const Environment = z.object({
   SERVER_PORT: z.coerce.number().int().positive().max(65535).default(5020),
