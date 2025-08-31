@@ -6,5 +6,5 @@ export * from './FileTest';
 export * from './FontTest';
 export * from './TableTest';
 export * from './ButtonTest';
-export * from './Index';
+export * from './Homepage';
 export * from './PageNotFound';

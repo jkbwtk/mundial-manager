@@ -2,7 +2,7 @@ import { A } from '@solidjs/router';
 import { For } from 'solid-js';
 import { routes } from '../../routes';
 
-const Index: Component = () => {
+const Homepage: Component = () => {
   const routesWithInfo = Object.values(routes).filter(
     (route) => route.info?.title,
   );
@@ -20,4 +20,4 @@ const Index: Component = () => {
   );
 };
 
-export default Index;
+export default Homepage;

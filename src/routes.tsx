@@ -7,7 +7,7 @@ export const routes: RouteDefinition[] = [
   {
     path: '/',
     info: { title: 'Mundial Manager - Home' },
-    component: lazy(() => import('#pages/Index/Index.tsx')),
+    component: lazy(() => import('#pages/Homepage/Homepage')),
   },
   {
     path: '/chart-test',
