@@ -10,7 +10,6 @@ COPY . .
 
 RUN cp resources/fonts frontend/assets -r && \
   pnpm fetch-symbols && \
-  pnpm build && \
   pnpm prerender
 
 FROM nginx:alpine-slim AS runtime
