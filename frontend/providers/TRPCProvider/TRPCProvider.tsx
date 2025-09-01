@@ -1,14 +1,15 @@
 import { createTRPCClient, httpBatchLink } from '@trpc/client';
 import { createContext, onMount, useContext } from 'solid-js';
 import { createStore } from 'solid-js/store';
-import type { AppRouter } from '../../../backend/trpc';
+import type { AppRouter } from '#backend/routes/app';
 
 export interface TRPCContextState {
   client: ReturnType<typeof createTRPCClient<AppRouter>>;
 }
 
-// biome-ignore lint/suspicious/noEmptyInterface: yeah
-export interface TRPCContextActions {}
+export interface TRPCContextActions {
+  ping(): Promise<string>;
+}
 
 export type TRPCContextValue = [
   state: TRPCContextState,
@@ -27,16 +28,28 @@ function createDefaultState(): TRPCContextState {
   };
 }
 
-const TRPCContext = createContext<TRPCContextValue>([createDefaultState(), {}]);
+const TRPCContext = createContext<TRPCContextValue>([
+  createDefaultState(),
+  {
+    ping: () => {
+      throw new Error('TRPCContext: ping() called before provider');
+    },
+  },
+]);
 
 export const TRPCProvider: ParentComponent = (props) => {
   const [state] = createStore<TRPCContextState>(createDefaultState());
 
-  const actions: TRPCContextActions = {};
+  const actions: TRPCContextActions = {
+    ping: () => {
+      return state.client.system.ping.query();
+    },
+  };
 
   onMount(async () => {
-    const result = await state.client.add.query({ a: 1, b: 2 });
-    console.log('TRPC test query result:', result);
+    const result = await state.client.system.ping.query();
+
+    console.log('TRPC ping result:', result);
   });
 
   return (

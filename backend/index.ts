@@ -1,6 +1,6 @@
 import { createHTTPServer } from '@trpc/server/adapters/standalone';
 import { environment } from '#backend/environment';
-import { appRouter } from '#backend/trpc';
+import { appRouter } from '#backend/routes/app';
 import { logger } from '#shared/logger';
 
 const server = createHTTPServer({

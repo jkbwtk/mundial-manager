@@ -3,7 +3,7 @@ import { createExpressMiddleware } from '@trpc/server/adapters/express';
 import express from 'express';
 import { generateHydrationScript } from 'solid-js/web';
 import { createServer } from 'vite';
-import { appRouter } from '#backend/trpc';
+import { appRouter } from '#backend/routes/app';
 import { environment } from '#tools/constants';
 
 const app = express();
