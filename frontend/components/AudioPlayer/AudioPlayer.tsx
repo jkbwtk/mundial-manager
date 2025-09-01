@@ -18,7 +18,8 @@ import { MaterialSymbol } from '#components/MaterialSymbol';
 import { ProgressBar } from '#components/ProgresBar';
 import { TextMarquee } from '#components/TextMarquee';
 import { Divider, Widget } from '#components/Widget';
-import { type RequiredDefaults, bytesToBase64, isDev } from '#shared/utils';
+import { bytesToBase64, isDev } from '#flib/utils';
+import type { RequiredDefaults } from '#shared/utils';
 import style from './AudioPlayer.module.scss';
 
 dayjs.extend(duration);

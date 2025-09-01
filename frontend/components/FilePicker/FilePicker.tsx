@@ -1,6 +1,7 @@
 import { type Setter, mergeProps, onMount } from 'solid-js';
 import { Widget } from '#components/Widget';
-import { type RequiredDefaults, isDev } from '#shared/utils';
+import { isDev } from '#flib/utils';
+import type { RequiredDefaults } from '#shared/utils';
 import style from './FilePicker.module.scss';
 
 export type FilePickerProps = {
