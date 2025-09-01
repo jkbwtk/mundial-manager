@@ -9,10 +9,9 @@ import {
 } from '#shared/logger/types';
 
 export type RequestLogEntry = {
-  method: string;
-  url: string;
-  statusCode: number;
-  statusMessage: string;
+  type: string;
+  path: string;
+  ok: boolean;
   contentLength: number;
   responseTime: number;
 };
@@ -36,12 +35,12 @@ const colorStrings = (color: typeof chalk.white, entry: TransformableEntry) => {
   return entry;
 };
 
-const colorUrl = (url: string) => {
+const colorPath = (url: string) => {
   const coloredSlash = chalk.bold.white('/');
-  return url.replaceAll('/', coloredSlash);
+  return url.replaceAll('.', coloredSlash);
 };
 
-const prettyRequest = (requestLevel: string, entry: TransformableEntry) => {
+const pretyCall = (requestLevel: string, entry: TransformableEntry) => {
   if (entry[LEVEL] !== requestLevel) {
     return entry;
   }
@@ -50,9 +49,9 @@ const prettyRequest = (requestLevel: string, entry: TransformableEntry) => {
 
   let message = '';
 
-  message += `${chalk.bold.yellow(request.method)} ${colorUrl(request.url)}`;
+  message += `${chalk.bold.yellow(request.type.toUpperCase())} ${colorPath(request.path)}`;
   message += `${chalk.gray(' - ')}`;
-  message += `${chalk.blue.bold(request.statusCode)} ${chalk.blue.italic(request.statusMessage)}`;
+  message += `${chalk.blue.bold(request.ok ?'OK' : 'ERR')}`;
   message += `${chalk.gray(' - ')}`;
   message += chalk.magenta`total: ${chalk.bold.italic`${request.responseTime.toFixed(3)}ms`}`;
   message += `${chalk.gray(' - ')}`;
@@ -64,7 +63,7 @@ const prettyRequest = (requestLevel: string, entry: TransformableEntry) => {
 };
 
 const prettyFormat = Logger.createOutputAssembler()
-  .chain(prettyRequest.bind(null, 'http'))
+  .chain(pretyCall.bind(null, 'trpc'))
   .chain(Logger.pretty);
 
 const instance = new Logger({
@@ -81,7 +80,7 @@ const instance = new Logger({
       level: 2,
       color: 'green',
     },
-    http: {
+    trpc: {
       level: 3,
       color: 'gray',
     },
@@ -95,14 +94,6 @@ const instance = new Logger({
     },
     time: {
       level: 6,
-      color: 'gray',
-    },
-    queryTime: {
-      level: 7,
-      color: 'gray',
-    },
-    logQuery: {
-      level: 8,
       color: 'gray',
     },
   },
@@ -119,67 +110,27 @@ const instance = new Logger({
         'error',
         'warn',
         'info',
-        'http',
+        'trpc',
         'verbose',
         'debug',
         'time',
-        'queryTime',
-        'logQuery',
       ],
     }),
-    // new WebhookOutput({
-    //   format: prettyFormat.copy().chain(Logger.removeColors),
-    //   level: ['error', 'info'],
-    // }),
-    // new ConsoleOutput({
-    //   format: fileJsonFormat,
-    //   level: Number.POSITIVE_INFINITY,
-    // }),
-    // new FileOutput({
-    //   format: fileJsonFormat,
-    //   level: Number.POSITIVE_INFINITY,
-    //   filename: 'combined_json.log',
-    //   directory: 'logs',
-    //   rotationFormat: FileOutput.rotateDate,
-    //   maxAge: dayjs.duration({ days: 7 }),
-    // }),
-    // new FileOutput({
-    //   format: fileJsonFormat,
-    //   level: ['error', 'warn'],
-    //   filename: 'important_json.log',
-    //   directory: 'logs',
-    //   rotationFormat: FileOutput.rotateDate,
-    // }),
-    // new FileOutput({
-    //   format: prettyFormat.copy().chain(Logger.removeColors),
-    //   level: ['error', 'warn'],
-    //   filename: 'important_human.log',
-    //   directory: 'logs',
-    //   rotationFormat: FileOutput.rotateDate,
-    // }),
-    // new FileOutput({
-    //   format: prettyFormat.copy().chain(Logger.removeColors),
-    //   level: Number.POSITIVE_INFINITY,
-    //   filename: 'combined_human.log',
-    //   directory: 'logs',
-    //   rotationFormat: FileOutput.rotateDate,
-    //   maxFiles: 5,
-    // }),
   ],
 })
   .registerLevelFunction(
-    'http',
+    'trpc',
     (callback, level, request: RequestLogEntry) => {
-      if (level !== 'http') {
+      if (level !== 'trpc') {
         return;
       }
 
       callback({
         level,
-        message: 'HTTP Request',
+        message: 'tRPC Request',
         request: Object.assign({}, request),
         [LEVEL]: level,
-        [MESSAGE]: 'HTTP Request',
+        [MESSAGE]: 'tRPC Request',
         [ARGS]: [],
       });
     },
@@ -208,48 +159,5 @@ const instance = new Logger({
       });
     },
   )
-  .registerLevelFunction(
-    'queryTime',
-    (
-      callback,
-      level,
-      data: QueryTimerData,
-      start: number,
-      finish: number = performance.now(),
-    ) => {
-      if (level !== 'queryTime') {
-        return;
-      }
-
-      const message = chalk.gray`Query ${data.model ?? '[MODEL]'}.${chalk.bold(data.operation)} took %o ${chalk.gray`ms`}`;
-
-      callback({
-        level,
-        message,
-        data: Object.assign({}, data),
-        [LEVEL]: level,
-        [MESSAGE]: message,
-        [ARGS]: [Math.round((finish - start) * 1000) / 1000],
-      });
-    },
-  )
-  .registerLevelFunction(
-    'logQuery',
-    (callback, level, query: string, _params: unknown[]) => {
-      if (level !== 'logQuery') {
-        return;
-      }
-
-      const message = chalk.gray`Query: ${query.trimEnd()}`;
-
-      callback({
-        level,
-        message,
-        [LEVEL]: level,
-        [MESSAGE]: message,
-        [ARGS]: [],
-      });
-    },
-  );
 
 export const logger = instance.logFunctions;
