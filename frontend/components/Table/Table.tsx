@@ -3,6 +3,7 @@ import {
   type JSX,
   Show,
   batch,
+  children,
   createSignal,
   mergeProps,
   splitProps,
@@ -12,14 +13,16 @@ import type { SupportedMaterialSymbol } from '#flib/supportedMaterialSymbols';
 import type { RequiredDefaults } from '#shared/utils';
 import style from './Table.module.scss';
 
-export type Column = {
-  key: string;
+export type Column<T = string> = {
+  key: T;
   header: string;
   minWidth?: number | 'auto';
   width?: number | 'auto';
   maxWidth?: number | 'auto';
   align?: 'left' | 'center' | 'right';
   sortable?: boolean;
+  // biome-ignore lint/suspicious/noExplicitAny: yeah
+  transform?: ((value: any, row: any) => JSX.Element) | null;
 };
 
 export type TableBaseProps = {
@@ -40,6 +43,7 @@ const defaultColumn: RequiredDefaults<Column> = {
   width: 'auto',
   maxWidth: 'auto',
   sortable: false,
+  transform: null,
 };
 
 const defaultProps: RequiredDefaults<TableBaseProps> = {
@@ -150,7 +154,12 @@ export const Table: Component<TableProps> = (userProps) => {
             >
               <For each={props.columns}>
                 {(column, colIndex) => {
-                  const value = row[column.key];
+                  const value = column.transform
+                    ? column.transform(row[column.key], row)
+                    : row[column.key];
+
+                  // @ts-expect-error
+                  const resolved = children(() => value ?? '-');
 
                   return (
                     <td
@@ -163,7 +172,7 @@ export const Table: Component<TableProps> = (userProps) => {
                           colIndex() < props.columns.length - 1,
                       }}
                     >
-                      {String(value ?? '-')}
+                      {resolved()}
                     </td>
                   );
                 }}
