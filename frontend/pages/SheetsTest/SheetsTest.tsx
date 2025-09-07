@@ -14,6 +14,7 @@ export const SheetsTest: Component = () => {
   const [sheets] = useSheets();
 
   const columns: Column<keyof Match>[] = [
+    { key: 'id', header: 'ID', align: 'right', sortable: true, width: 4 },
     {
       key: 'team1',
       header: 'Team 1',
