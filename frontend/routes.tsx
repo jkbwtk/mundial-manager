@@ -20,6 +20,11 @@ export const routes: RouteDefinition[] = [
     component: lazy(() => import('#pages/ButtonTest/ButtonTest')),
   },
   {
+    path: '/sheets-test',
+    info: { title: 'Mundial Manager - Sheets Test' },
+    component: lazy(() => import('#pages/SheetsTest/SheetsTest')),
+  },
+  {
     path: '/404',
     component: () => <PageNotFound />,
   },

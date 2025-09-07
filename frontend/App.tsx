@@ -5,6 +5,7 @@ import { Show, Suspense, isServer } from 'solid-js/web';
 import { DevGrid } from '#components/DevGrid';
 import { isDev } from '#flib/utils';
 import { ConsoleUnitPrototypeProvider } from '#providers/ConsoleUnitPrototypeProvider';
+import { SheetsProvider } from '#providers/SheetsProvider';
 import { TRPCProvider } from '#providers/TRPCProvider';
 import { routes } from './routes';
 
@@ -13,14 +14,16 @@ const App: Component<{ url?: string }> = (props) => {
     <MetaProvider>
       <ConsoleUnitPrototypeProvider>
         <TRPCProvider>
-          {/* Pre rendering fails without <Suspense>, dev server works fine without it */}
-          <Suspense>
-            <Show when={isDev()}>
-              <DevGrid />
-            </Show>
+          <SheetsProvider>
+            {/* Pre rendering fails without <Suspense>, dev server works fine without it */}
+            <Suspense>
+              <Show when={isDev()}>
+                <DevGrid />
+              </Show>
 
-            <Router url={isServer ? props.url : ''}>{routes}</Router>
-          </Suspense>
+              <Router url={isServer ? props.url : ''}>{routes}</Router>
+            </Suspense>
+          </SheetsProvider>
         </TRPCProvider>
       </ConsoleUnitPrototypeProvider>
     </MetaProvider>
