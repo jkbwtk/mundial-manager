@@ -18,9 +18,9 @@ WORKDIR /app
 
 ENV NGINX_ENVSUBST_OUTPUT_DIR=/etc/nginx/
 
-RUN apk add --no-cache supervisor
-
 COPY --from=build /usr/local/bin/node /usr/local/bin/node
+
+RUN apk add --no-cache supervisor
 
 COPY --from=build /build/static /app
 COPY --from=build /build/dist/client/assets /app/private/assets

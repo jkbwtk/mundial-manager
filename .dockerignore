@@ -4,6 +4,7 @@ playground.ts
 .gitignore
 
 .git/
+.gitea/
 .vscode/
 dist/
 node_modules/
