@@ -114,7 +114,7 @@ export class SheetStore extends Store {
     });
   }
 
-  @AsyncCached({ ttl: 60 * 60 * 1000 }) // 1 hour
+  @AsyncCached({ ttl: 10 * 60 * 1000 }) // 10 minutes
   private async loadMatchesCells(): Promise<void> {
     await this.sheet.loadCells({
       startRowIndex: SheetStore.CONSTANTS.MATCHES_FIRST_ROW,
