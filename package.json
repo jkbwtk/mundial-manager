@@ -1,7 +1,7 @@
 {
   "name": "mundial-manager",
+  "version": "0.0.3",
   "private": true,
-  "version": "0.0.1",
   "type": "module",
   "exports": {
     ".": {
