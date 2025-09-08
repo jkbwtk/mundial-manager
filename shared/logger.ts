@@ -51,7 +51,7 @@ const pretyCall = (requestLevel: string, entry: TransformableEntry) => {
 
   message += `${chalk.bold.yellow(request.type.toUpperCase())} ${colorPath(request.path)}`;
   message += `${chalk.gray(' - ')}`;
-  message += `${chalk.blue.bold(request.ok ?'OK' : 'ERR')}`;
+  message += `${chalk.blue.bold(request.ok ? 'OK' : 'ERR')}`;
   message += `${chalk.gray(' - ')}`;
   message += chalk.magenta`total: ${chalk.bold.italic`${request.responseTime.toFixed(3)}ms`}`;
   message += `${chalk.gray(' - ')}`;
@@ -106,15 +106,7 @@ const instance = new Logger({
   outputs: [
     new ConsoleOutput({
       format: prettyFormat,
-      level: [
-        'error',
-        'warn',
-        'info',
-        'trpc',
-        'verbose',
-        'debug',
-        'time',
-      ],
+      level: ['error', 'warn', 'info', 'trpc', 'verbose', 'debug', 'time'],
     }),
   ],
 })
@@ -158,6 +150,6 @@ const instance = new Logger({
         [ARGS]: [Math.round((finish - start) * 1000) / 1000],
       });
     },
-  )
+  );
 
 export const logger = instance.logFunctions;

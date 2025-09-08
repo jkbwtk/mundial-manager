@@ -13,7 +13,8 @@
       "./rollup.config.js",
       "./frontend/**/*",
       "./backend/**/*",
-      "./tools/**/*"
+      "./tools/**/*",
+      "./shared/**/*"
     ]
   },
   "formatter": {

@@ -3,6 +3,7 @@ import { formatWithOptions } from 'node:util';
 import colors from '@colors/colors/safe';
 import chalk from 'chalk';
 import { configure as configureStringify } from 'safe-stable-stringify';
+import z from 'zod';
 import { Assembler } from '#shared/Assembler';
 import { ConsoleOutput } from '#shared/logger/outputs/ConsoleOutput';
 import {
@@ -25,7 +26,6 @@ import {
   type TransformableEntry,
 } from '#shared/logger/types';
 import { arrayFrom, quickSwitch } from '#shared/utils';
-import z from 'zod';
 
 export declare interface Logger<
   T extends Partial<LoggerOptions> = DefaultLoggerOptions,

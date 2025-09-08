@@ -180,9 +180,8 @@ export function range(a: number, b?: number | boolean, c = false): number[] {
   return Array.from({ length }).map(mapper);
 }
 
-export function objectToEntries<T extends object>(obj: T): [
-  keyof T,
-  T[keyof T],
-][] {
+export function objectToEntries<T extends object>(
+  obj: T,
+): [keyof T, T[keyof T]][] {
   return Object.entries(obj) as [keyof T, T[keyof T]][];
 }

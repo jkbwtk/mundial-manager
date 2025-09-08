@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 
-
 export default class Deferred<T> {
   public promise: Promise<T>;
   public resolve: (value: T | PromiseLike<T>) => void = () => {};
