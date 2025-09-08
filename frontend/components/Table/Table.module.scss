@@ -5,7 +5,7 @@
 
   padding: ch(1) cw(1);
 
-  max-width: round(down, 100%, cw(1));
+  max-width: round(down, calc(100% + 1px), cw(1));
 
   // border-collapse: collapse;
   border-spacing: 0;
