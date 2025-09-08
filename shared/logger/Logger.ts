@@ -25,6 +25,7 @@ import {
   type TransformableEntry,
 } from '#shared/logger/types';
 import { arrayFrom, quickSwitch } from '#shared/utils';
+import z from 'zod';
 
 export declare interface Logger<
   T extends Partial<LoggerOptions> = DefaultLoggerOptions,
@@ -395,6 +396,10 @@ export class Logger<
   }
 
   private static convertError(error: unknown): Error {
+    if (error instanceof z.ZodError) {
+      return new Error(z.prettifyError(error));
+    }
+
     if (error instanceof Error) {
       return error;
     }
