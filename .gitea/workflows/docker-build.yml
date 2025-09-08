@@ -47,7 +47,7 @@ jobs:
         run: |
           ssh-keyscan -p ${{ secrets.DEPLOY_PORT || '22' }} ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
 
-          echo "${{ secrets.DEPLOY_SSH_KEY }" > /tmp/deploy_key
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > /tmp/deploy_key
           chmod 600 /tmp/deploy_key
 
           ssh -o "IdentitiesOnly=yes" -i /tmp/deploy_key -p ${{ secrets.DEPLOY_PORT || '22' }} ${{ secrets.DEPLOY_USERNAME }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
