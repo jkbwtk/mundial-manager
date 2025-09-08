@@ -165,7 +165,6 @@ export class SheetStore extends Store {
         cell.numberFormat = columnConfig.numberFormat;
       }
 
-      // @ts-expect-error
       cell.value = value;
     }
   }

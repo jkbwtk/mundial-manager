@@ -1,5 +1,5 @@
-import dayjs from "dayjs";
-import z from "zod";
+import dayjs from 'dayjs';
+import z from 'zod';
 
 export interface SheetMetadata {
   title: string;
@@ -13,18 +13,12 @@ export const Match = z.object({
   id: z.number().int().nonnegative(),
   team1: z.string(),
   team2: z.string(),
-  score1: z.coerce.number().int().min(0),
-  score2: z.coerce.number().int().min(0),
-  floor: z.coerce
-    .number()
-    .int()
-    .optional()
-    .nullable()
-    .default(null)
-    .catch(null),
+  score1: z.number().int().min(0),
+  score2: z.number().int().min(0),
+  floor: z.number().int().optional().nullable().default(null).catch(null),
   winningColor: z.string().optional().default('unknown').catch('unknown'),
   duration: z.codec(
-    z.coerce.number().optional().nullable().default(null).catch(null),
+    z.number().optional().nullable().default(null).catch(null),
     z.number().optional().nullable().default(null),
     {
       decode: (val) => (val ? val * 24 * 60 : null),
@@ -32,7 +26,7 @@ export const Match = z.object({
     },
   ),
   date: z.codec(
-    z.coerce.number().int().optional().nullable().default(null).catch(null),
+    z.number().int().optional().nullable().default(null).catch(null),
     z.number().int().optional().nullable().default(null),
     {
       decode: (val) =>
