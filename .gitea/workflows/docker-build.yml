@@ -47,7 +47,10 @@ jobs:
         run: |
           ssh-keyscan -p ${{ secrets.DEPLOY_PORT || '22' }} ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
 
-          echo "${{ secrets.DEPLOY_SSH_KEY }}" | ssh -o "IdentitiesOnly=yes" -i /dev/stdin -p ${{ secrets.DEPLOY_PORT || '22' }} ${{ secrets.DEPLOY_USERNAME }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
+          echo "${{ secrets.DEPLOY_SSH_KEY }" > /tmp/deploy_key
+          chmod 600 /tmp/deploy_key
+
+          ssh -o "IdentitiesOnly=yes" -i /tmp/deploy_key -p ${{ secrets.DEPLOY_PORT || '22' }} ${{ secrets.DEPLOY_USERNAME }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
             cd ${{ secrets.DEPLOY_PATH }}
             echo "Pulling latest image..."
             docker compose pull
