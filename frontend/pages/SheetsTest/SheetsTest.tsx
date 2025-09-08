@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
+import { batch, createSignal } from 'solid-js';
 import { AnimatedText } from '#components/AnimatedText';
 import { type Column, Table } from '#components/Table';
 import { Widget } from '#components/Widget';
@@ -12,6 +13,11 @@ dayjs.extend(duration);
 
 export const SheetsTest: Component = () => {
   const [sheets] = useSheets();
+
+  const [sortColumn, setSortColumn] = createSignal<keyof Match | null>(null);
+  const [sortDirection, setSortDirection] = createSignal<'asc' | 'desc' | null>(
+    null,
+  );
 
   const columns: Column<keyof Match>[] = [
     { key: 'id', header: 'ID', align: 'right', sortable: true, width: 4 },
@@ -98,6 +104,43 @@ export const SheetsTest: Component = () => {
     },
   ];
 
+  const sortedData = () => {
+    const key = sortColumn();
+    const direction = sortDirection();
+
+    if (key === null || direction === null) {
+      return sheets.matches;
+    }
+
+    return sheets.matches.toSorted((a, b) => {
+      if (a[key] === null) {
+        return 1;
+      }
+      if (b[key] === null) {
+        return -1;
+      }
+
+      switch (direction) {
+        case 'asc':
+          return a[key] > b[key] ? 1 : -1;
+
+        case 'desc':
+          return a[key] < b[key] ? 1 : -1;
+
+        default:
+          return 0;
+      }
+    });
+  };
+
+  function onSort(column: string, direction: 'asc' | 'desc') {
+    batch(() => {
+      // @ts-expect-error
+      setSortColumn(column);
+      setSortDirection(direction);
+    });
+  }
+
   return (
     <Widget title="Sheets Test Page" class={style.container}>
       <Widget title="Metadata" class={style.metadata}>
@@ -131,7 +174,12 @@ export const SheetsTest: Component = () => {
           <AnimatedText>{sheets.ready ? 'Yes' : 'No'}</AnimatedText>
         </strong>
       </Widget>
-      <Table columns={columns} data={sheets.matches} class={style.matches} />
+      <Table
+        columns={columns}
+        data={sortedData()}
+        class={style.matches}
+        onSort={onSort}
+      />
     </Widget>
   );
 };
