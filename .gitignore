@@ -31,3 +31,6 @@ frontend/assets/fonts/
 *storybook.log
 
 .venv/
+
+*playground*
+*Playground*
