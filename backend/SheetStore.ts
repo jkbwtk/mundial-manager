@@ -170,7 +170,7 @@ export class SheetStore extends Store {
     }
   }
 
-  // @AsyncCached({ ttl: 10 * 1000 }) // 10 seconds
+  @AsyncCached({ ttl: 10 * 1000 }) // 10 seconds
   public async getMatches(): Promise<Match[]> {
     await this.loadMatchesCells();
 
