@@ -190,7 +190,7 @@ export const SheetsTest: Component = () => {
         </AnimatedText>
       </Widget>
 
-      <Widget title="Total play time" class={style.metadata}>
+      <Widget title="Total playtime" class={style.metadata}>
         <For each={playtimeStats()}>
           {(stat) => (
             <div>

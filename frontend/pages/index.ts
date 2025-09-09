@@ -8,4 +8,5 @@ export * from './TableTest';
 export * from './ButtonTest';
 export * from './Homepage';
 export * from './PageNotFound';
+export * from './RouteMap';
 export * from './SheetsTest';
