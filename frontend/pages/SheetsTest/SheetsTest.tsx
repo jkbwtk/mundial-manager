@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import { For, batch, createSignal } from 'solid-js';
 import { AnimatedText } from '#components/AnimatedText';
+import { HighlightedCode } from '#components/HighlightedCode';
 import { type Column, Table } from '#components/Table';
 import { Widget } from '#components/Widget';
 import { useSheets } from '#providers/SheetsProvider';
@@ -12,8 +13,7 @@ import style from './SheetsTest.module.scss';
 dayjs.extend(duration);
 
 export const SheetsTest: Component = () => {
-  const [sheets, { playtimeStats, totalPlaytime, totalIndividualPlaytime }] =
-    useSheets();
+  const [sheets, { playerStats, generalStats, matchStats }] = useSheets();
 
   const [sortColumn, setSortColumn] = createSignal<keyof Match | null>(null);
   const [sortDirection, setSortDirection] = createSignal<'asc' | 'desc' | null>(
@@ -176,31 +176,87 @@ export const SheetsTest: Component = () => {
         </strong>
       </Widget>
 
-      <Widget title="Stats" class={style.metadata}>
+      <Widget title="Players" class={style.metadata}>
+        <For each={generalStats().uniquePlayers}>
+          {(player) => <div>{player}</div>}
+        </For>
+      </Widget>
+
+      <Widget title="General Stats" class={style.metadata}>
         <strong>Total playtime:</strong>{' '}
         <AnimatedText>
-          {dayjs.duration(totalPlaytime(), 'seconds').format('HH:mm:ss')}
+          {dayjs
+            .duration(generalStats().totalPlaytime, 'seconds')
+            .format('HH:mm:ss')}
         </AnimatedText>
         <br />
         <strong>Total individual playtime:</strong>{' '}
         <AnimatedText>
           {dayjs
-            .duration(totalIndividualPlaytime(), 'seconds')
+            .duration(generalStats().totalIndividualPlaytime, 'seconds')
             .format('HH:mm:ss')}
         </AnimatedText>
+        <br />
+        <strong>Average match duration:</strong>{' '}
+        <AnimatedText>
+          {dayjs
+            .duration(generalStats().averageMatchDuration, 'seconds')
+            .format('HH:mm:ss')}
+        </AnimatedText>
+        <br />
+        <strong>Total playtime (extrapolated):</strong>{' '}
+        <AnimatedText>
+          {dayjs
+            .duration(generalStats().totalPlaytimeExtrapolated, 'seconds')
+            .format('HH:mm:ss')}
+        </AnimatedText>
+        <br />
+        <strong>Total individual playtime (extrapolated):</strong>{' '}
+        <AnimatedText>
+          {dayjs
+            .duration(
+              generalStats().totalIndividualPlaytimeExtrapolated,
+              'seconds',
+            )
+            .format('HH:mm:ss')}
+        </AnimatedText>
+        <br />
+        <strong>Raw:</strong>
+        <HighlightedCode
+          language="json"
+          code={JSON.stringify(generalStats(), null, 2)}
+        />
       </Widget>
 
-      <Widget title="Total playtime" class={style.metadata}>
-        <For each={playtimeStats()}>
+      <Widget title="Player Stats" class={style.metadata}>
+        <strong>Playtime per player:</strong>
+        <For each={Object.values(playerStats())}>
           {(stat) => (
             <div>
               <strong>{stat.player}: </strong>
               <AnimatedText>
-                {dayjs.duration(stat.time, 'seconds').format('HH:mm:ss')}
+                {dayjs
+                  .duration(stat.totalPlaytime, 'seconds')
+                  .format('HH:mm:ss')}
               </AnimatedText>
             </div>
           )}
         </For>
+        <br />
+
+        <strong>Raw:</strong>
+        <HighlightedCode
+          language="json"
+          code={JSON.stringify(playerStats(), null, 2)}
+        />
+      </Widget>
+
+      <Widget title="Match Stats" class={style.metadata}>
+        <strong>Raw:</strong>
+        <HighlightedCode
+          language="json"
+          code={JSON.stringify(matchStats(), null, 2)}
+        />
       </Widget>
 
       <Table
