@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
-import { batch, createSignal } from 'solid-js';
+import { For, batch, createSignal } from 'solid-js';
 import { AnimatedText } from '#components/AnimatedText';
 import { type Column, Table } from '#components/Table';
 import { Widget } from '#components/Widget';
@@ -12,7 +12,8 @@ import style from './SheetsTest.module.scss';
 dayjs.extend(duration);
 
 export const SheetsTest: Component = () => {
-  const [sheets] = useSheets();
+  const [sheets, { playtimeStats, totalPlaytime, totalIndividualPlaytime }] =
+    useSheets();
 
   const [sortColumn, setSortColumn] = createSignal<keyof Match | null>(null);
   const [sortDirection, setSortDirection] = createSignal<'asc' | 'desc' | null>(
@@ -174,6 +175,34 @@ export const SheetsTest: Component = () => {
           <AnimatedText>{sheets.ready ? 'Yes' : 'No'}</AnimatedText>
         </strong>
       </Widget>
+
+      <Widget title="Stats" class={style.metadata}>
+        <strong>Total playtime:</strong>{' '}
+        <AnimatedText>
+          {dayjs.duration(totalPlaytime(), 'seconds').format('HH:mm:ss')}
+        </AnimatedText>
+        <br />
+        <strong>Total individual playtime:</strong>{' '}
+        <AnimatedText>
+          {dayjs
+            .duration(totalIndividualPlaytime(), 'seconds')
+            .format('HH:mm:ss')}
+        </AnimatedText>
+      </Widget>
+
+      <Widget title="Total play time" class={style.metadata}>
+        <For each={playtimeStats()}>
+          {(stat) => (
+            <div>
+              <strong>{stat.player}: </strong>
+              <AnimatedText>
+                {dayjs.duration(stat.time, 'seconds').format('HH:mm:ss')}
+              </AnimatedText>
+            </div>
+          )}
+        </For>
+      </Widget>
+
       <Table
         columns={columns}
         data={sortedData()}
