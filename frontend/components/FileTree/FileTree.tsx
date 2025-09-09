@@ -48,7 +48,7 @@ const Levels: Component<LevelsProps> = (props) => {
   );
 };
 
-const Directory: Component<DirectoryProps> = (props) => {
+export const Directory: Component<DirectoryProps> = (props) => {
   const [open, setOpen] = createSignal(true);
 
   const levels = createMemo(() => {

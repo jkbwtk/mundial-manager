@@ -3,19 +3,19 @@
 .container {
   width: cw(40);
   height: ch(20);
+}
 
-  .entry {
-    cursor: pointer;
-    transition: 0.1s background-color, 0.1s color;
+.entry {
+  cursor: pointer;
+  transition: 0.1s background-color, 0.1s color;
 
-    &:hover {
-      background: $textBrightColor;
-      color: $backgroundColor;
+  &:hover {
+    background: $textBrightColor;
+    color: $backgroundColor;
 
-      &::selection {
-        background-color: $backgroundColor;
-        color: $textBrightColor;
-      }
+    &::selection {
+      background-color: $backgroundColor;
+      color: $textBrightColor;
     }
   }
 }
