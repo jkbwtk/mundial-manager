@@ -10,6 +10,7 @@ export * from './FilePicker';
 export * from './FileSizeWithUnit';
 export * from './FileTree';
 export * from './FreeSpaceGauge';
+export * from './HighlightedCode';
 export * from './MaterialSymbol';
 export * from './ProgresBar';
 export * from './Table';

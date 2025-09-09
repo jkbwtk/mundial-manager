@@ -37,6 +37,7 @@
     "cors": "^2.8.5",
     "dayjs": "^1.11.18",
     "google-spreadsheet": "^5.0.2",
+    "highlight.js": "^11.11.1",
     "music-metadata": "^11.8.3",
     "pure-rand": "^7.0.1",
     "safe-stable-stringify": "^2.5.0",
