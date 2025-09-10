@@ -25,14 +25,18 @@ const RouteMap: Component = () => {
     children: routes.map(mapRoutes),
   };
 
-  const flatRoutes = routes
-    .flatMap((route) => [
-      route,
-      ...arrayFrom(route.children ?? []).map((child) => ({
+  const mapFlatRoutes = (route: RouteDefinition): RouteDefinition[] => [
+    route,
+    ...arrayFrom(route.children ?? [])
+      .map((child) => ({
         ...child,
-        path: (route.path === '/' ? '' : route.path) + (child.path ?? ''),
-      })),
-    ])
+        path: (route.path ?? '') + (child.path ?? ''),
+      }))
+      .flatMap(mapFlatRoutes),
+  ];
+
+  const flatRoutes = routes
+    .flatMap(mapFlatRoutes)
     .filter((route) => route.component);
 
   return (

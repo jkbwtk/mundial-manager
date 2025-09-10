@@ -1,12 +1,28 @@
 import fs from 'node:fs';
-import { join } from 'node:path';
+import path, { join } from 'node:path';
+import type { RouteDefinition } from '@solidjs/router';
 import { generateHydrationScript } from 'solid-js/web';
 import { render, routes } from '#dist/server/entryServer';
+import { arrayFrom } from '#shared/utils';
 
 const template = fs.readFileSync('./dist/client/index.html', 'utf-8');
 
-const routesToPrerender = routes
-  .map((route) => route.path)
+const mapRoutes = (route: RouteDefinition): RouteDefinition[] => [
+  route,
+  ...arrayFrom(route.children ?? [])
+    .map((child) => ({
+      ...child,
+      path: path.join(route.path ?? '', child.path ?? ''),
+    }))
+    .flatMap(mapRoutes),
+];
+
+const flatRoutes = routes.flatMap(mapRoutes).filter((route) => route.component);
+
+const trailingSlashRegex = /\/+$/;
+
+const routesToPrerender = flatRoutes
+  .map((route) => route.path.replace(trailingSlashRegex, ''))
   .filter((path) => !path.includes('*'));
 
 if (!fs.existsSync('./dist/static')) {
@@ -22,7 +38,7 @@ for (const url of routesToPrerender) {
     .replace('<!--app-head-->', head)
     .replace('<!--app-html-->', rendered.html ?? '');
 
-  const filePath = join('./dist/static', `${url === '/' ? 'index' : url}.html`);
+  const filePath = join('./dist/static', `${url || 'index'}.html`);
 
   if (!fs.existsSync(filePath)) {
     const urlParts = url.split('/');
