@@ -259,6 +259,8 @@ export const SheetsProvider: ParentComponent = (props) => {
       date: 0,
       humanDate: '',
 
+      players: [],
+
       matches: 0,
       goals: 0,
       playtime: 0,
@@ -297,9 +299,19 @@ export const SheetsProvider: ParentComponent = (props) => {
 
       stats.goals += match.score1 + match.score2;
       stats.playtime += match.duration ?? 0;
+
+      const team1Players = match.team1.split(/\s+/g);
+      const team2Players = match.team2.split(/\s+/g);
+      const players = [...team1Players, ...team2Players];
+
+      for (const player of players) {
+        if (player && stats.players.includes(player) === false) {
+          stats.players.push(player);
+        }
+      }
     }
 
-    for (const [date, stats] of dayMap) {
+    for (const [, stats] of dayMap) {
       stats.averageMatchDuration =
         stats.playtime / (stats._matchesWithDuration || 1);
 

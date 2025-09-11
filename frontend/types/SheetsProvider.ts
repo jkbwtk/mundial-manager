@@ -44,6 +44,8 @@ export interface DayStats {
   date: number;
   humanDate: string;
 
+  players: string[];
+
   matches: number;
   goals: number;
   playtime: number;
