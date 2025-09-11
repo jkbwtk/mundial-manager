@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import {
   batch,
   createContext,
@@ -6,7 +7,12 @@ import {
   useContext,
 } from 'solid-js';
 import { createStore } from 'solid-js/store';
-import type { GeneralStats, MatchStats, PlayerStats } from '#frontend/types';
+import type {
+  DayStats,
+  GeneralStats,
+  MatchStats,
+  PlayerStats,
+} from '#frontend/types';
 import { useTRPC } from '#providers/TRPCProvider';
 import type { Match } from '#shared/types/Sheets';
 import type { SheetMetadata } from '#shared/types/Sheets';
@@ -22,6 +28,7 @@ export interface SheetsContextActions {
   playerStats: () => Record<string, PlayerStats>;
   generalStats: () => GeneralStats;
   matchStats: () => Record<number, MatchStats>;
+  dayStats: () => Record<number, DayStats>;
 }
 
 export type SheetsContextValue = [
@@ -55,6 +62,9 @@ const SheetsContext = createContext<SheetsContextValue>([
     },
     matchStats: () => {
       throw new Error('SheetsContext: matchStats() called before provider');
+    },
+    dayStats: () => {
+      throw new Error('SheetsContext: dayStats() called before provider');
     },
   },
 ]);
@@ -187,6 +197,8 @@ export const SheetsProvider: ParentComponent = (props) => {
 
     const averageMatchDuration = totalPlaytime / _matchesWithDuration || 1;
 
+    const averageGoals = totalGoals / (totalMatches || 1);
+
     const totalPlaytimeExtrapolated =
       totalPlaytime +
       (averageMatchDuration * totalMatches - _matchesWithDuration);
@@ -210,6 +222,7 @@ export const SheetsProvider: ParentComponent = (props) => {
       totalIndividualPlaytime,
 
       averageMatchDuration,
+      averageGoals,
 
       totalPlaytimeExtrapolated,
       totalIndividualPlaytimeExtrapolated,
@@ -241,11 +254,71 @@ export const SheetsProvider: ParentComponent = (props) => {
     return Object.fromEntries(matchMap);
   });
 
+  const dayStats = createMemo<Record<number, DayStats>>(() => {
+    const defaultStats: DayStats = {
+      date: 0,
+      humanDate: '',
+
+      matches: 0,
+      goals: 0,
+      playtime: 0,
+
+      averageMatchDuration: 0,
+      averageGoals: 0,
+
+      goalsPerMinute: 0,
+
+      _matchesWithDuration: 0,
+      _goalsWithDuration: 0,
+    };
+
+    const dayMap: Map<number, DayStats> = new Map();
+
+    for (const match of state.matches) {
+      if (match.date === null) {
+        continue;
+      }
+
+      if (dayMap.has(match.date) === false) {
+        dayMap.set(match.date, {
+          ...structuredClone(defaultStats),
+          humanDate: dayjs.unix(match.date).format('YYYY-MM-DD'),
+          date: match.date,
+        });
+      }
+
+      const stats = dayMap.get(match.date)!;
+
+      stats.matches += 1;
+      stats._matchesWithDuration += match.duration ? 1 : 0;
+      stats._goalsWithDuration += match.duration
+        ? match.score1 + match.score2
+        : 0;
+
+      stats.goals += match.score1 + match.score2;
+      stats.playtime += match.duration ?? 0;
+    }
+
+    for (const [date, stats] of dayMap) {
+      stats.averageMatchDuration =
+        stats.playtime / (stats._matchesWithDuration || 1);
+
+      stats.averageGoals = stats.goals / (stats.matches || 1);
+
+      stats.goalsPerMinute = stats.playtime
+        ? (60 * stats._goalsWithDuration) / stats.playtime
+        : 0;
+    }
+
+    return Object.fromEntries(dayMap);
+  });
+
   const actions: SheetsContextActions = {
     initialize,
     playerStats,
     generalStats,
     matchStats,
+    dayStats,
   };
 
   onMount(() => {

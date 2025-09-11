@@ -13,7 +13,8 @@ import style from './SheetsTest.module.scss';
 dayjs.extend(duration);
 
 export const SheetsTest: Component = () => {
-  const [sheets, { playerStats, generalStats, matchStats }] = useSheets();
+  const [sheets, { playerStats, generalStats, matchStats, dayStats }] =
+    useSheets();
 
   const [sortColumn, setSortColumn] = createSignal<keyof Match | null>(null);
   const [sortDirection, setSortDirection] = createSignal<'asc' | 'desc' | null>(
@@ -256,6 +257,14 @@ export const SheetsTest: Component = () => {
         <HighlightedCode
           language="json"
           code={JSON.stringify(matchStats(), null, 2)}
+        />
+      </Widget>
+
+      <Widget title="Day Stats" class={style.metadata}>
+        <strong>Raw:</strong>
+        <HighlightedCode
+          language="json"
+          code={JSON.stringify(dayStats(), null, 2)}
         />
       </Widget>
 
