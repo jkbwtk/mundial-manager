@@ -45,20 +45,24 @@
       position: relative;
     }
 
-    .container {
+    #container {
+      position: absolute;
+
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-
-      height: 100vh;
 
       .animation {
         max-width: round(down, 100%, 8px);
         max-height: round(down, 100%, 8px);
       }
 
-      .text {
+      #text {
         text-align: center;
       }
     }
@@ -66,10 +70,55 @@
 </head>
 
 <body>
-  <div class="container">
+  <div id="container">
     <image src='/assets/spin.gif' class="animation" alt='Loading...' />
-    <span class="text">Loading...</span>
+    <span id="text">Loading</span>
   </div>
 </body>
+
+<script>
+  if (container !== null) {
+    const rotation = Math.random() * Math.PI * 2;
+
+    const vector = [
+      Math.cos(rotation),
+      Math.sin(rotation),
+    ];
+
+    let x = 0;
+    let y = 0;
+
+    const animate = () => {
+      const actualLeft = window.innerWidth / 2 + x - container.offsetWidth / 2;
+      const actualTop = window.innerHeight / 2 + y - container.offsetHeight / 2;
+      const actualRight = actualLeft + container.offsetWidth;
+      const actualBottom = actualTop + container.offsetHeight;
+
+      if (actualLeft <= 0 || actualRight >= window.innerWidth) {
+        vector[ 0 ] = -vector[ 0 ];
+      }
+      if (actualTop <= 0 || actualBottom >= window.innerHeight) {
+        vector[ 1 ] = -vector[ 1 ];
+      }
+
+      x += vector[ 0 ];
+      y += vector[ 1 ];
+
+      container.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
+
+      requestAnimationFrame(animate);
+    };
+
+    requestAnimationFrame(animate);
+  }
+
+  if (text !== null) {
+    setInterval(() => {
+      const dots = (text.textContent.match(/\./g) || []).length;
+      const newDots = (dots + 1) % 4;
+      text.textContent = text.textContent.replace(/\.*$/, '.'.repeat(newDots));
+    }, 500);
+  }
+</script>
 
 </html>
