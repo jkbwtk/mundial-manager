@@ -68,9 +68,12 @@ button {
   cursor: pointer;
 }
 
-code:not(pre > code) {
+code {
   font-family: app.$monoFontFamily;
-  color: app.$codeColor;
+
+  &:not(pre > code) {
+    color: app.$codeColor;
+  }
 }
 
 a {
