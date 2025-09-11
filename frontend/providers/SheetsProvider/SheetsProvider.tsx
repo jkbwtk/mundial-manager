@@ -6,7 +6,12 @@ import {
   useContext,
 } from 'solid-js';
 import { createStore } from 'solid-js/store';
-import { formatDate, formatDuration } from '#flib/sheetUtils';
+import {
+  formatDate,
+  formatDuration,
+  getPlayersFromMatch,
+  getPlayersFromTeam,
+} from '#flib/sheetUtils';
 import type {
   DayStats,
   GeneralStats,
@@ -93,12 +98,10 @@ export const SheetsProvider: ParentComponent = (props) => {
     const playersSet: Set<string> = new Set();
 
     for (const match of state.matches) {
-      const players = [match.team1, match.team2].join(' ').split(/\s+/g);
+      const players = getPlayersFromMatch(match);
 
       for (const player of players) {
-        if (player) {
-          playersSet.add(player);
-        }
+        playersSet.add(player);
       }
     }
 
@@ -129,17 +132,19 @@ export const SheetsProvider: ParentComponent = (props) => {
       _matchesWithDuration: 0,
     };
 
-    const playerMap: Map<string, PlayerStats> = new Map(
-      uniquePlayers().map((p) => [p, structuredClone(defaultStats)]),
-    );
+    const playerMap: Map<string, PlayerStats> = new Map();
 
     for (const match of state.matches) {
-      const team1Players = match.team1.split(/\s+/g);
-      const team2Players = match.team2.split(/\s+/g);
+      const team1Players = getPlayersFromTeam(match.team1);
+      const team2Players = getPlayersFromTeam(match.team2);
       const players = [...team1Players, ...team2Players];
 
       for (const player of players) {
-        const stats = playerMap.get(player) ?? structuredClone(defaultStats);
+        if (playerMap.has(player) === false) {
+          playerMap.set(player, structuredClone(defaultStats));
+        }
+
+        const stats = playerMap.get(player)!;
 
         stats.totalPlaytime += match.duration ?? 0;
         stats.totalMatches += 1;
@@ -197,20 +202,20 @@ export const SheetsProvider: ParentComponent = (props) => {
       0,
     );
 
-    const humanTotalPlaytime = formatDuration(totalPlaytime);
+    const totalPlaytimeFormatted = formatDuration(totalPlaytime);
 
     const totalIndividualPlaytime = Object.values(playerStats()).reduce(
       (total, stats) => total + stats.totalPlaytime,
       0,
     );
 
-    const humanTotalIndividualPlaytime = formatDuration(
+    const totalIndividualPlaytimeFormatted = formatDuration(
       totalIndividualPlaytime,
     );
 
     const averageMatchDuration = totalPlaytime / _matchesWithDuration || 1;
 
-    const humanAverageMatchDuration = formatDuration(averageMatchDuration);
+    const averageMatchDurationFormatted = formatDuration(averageMatchDuration);
 
     const averageGoals = totalGoals / (totalMatches || 1);
 
@@ -218,7 +223,7 @@ export const SheetsProvider: ParentComponent = (props) => {
       totalPlaytime +
       (averageMatchDuration * totalMatches - _matchesWithDuration);
 
-    const humanTotalPlaytimeExtrapolated = formatDuration(
+    const totalPlaytimeExtrapolatedFormatted = formatDuration(
       totalPlaytimeExtrapolated,
     );
 
@@ -232,7 +237,7 @@ export const SheetsProvider: ParentComponent = (props) => {
         );
       }, 0);
 
-    const humanTotalIndividualPlaytimeExtrapolated = formatDuration(
+    const totalIndividualPlaytimeExtrapolatedFormatted = formatDuration(
       totalIndividualPlaytimeExtrapolated,
     );
 
@@ -242,19 +247,18 @@ export const SheetsProvider: ParentComponent = (props) => {
       uniquePlayers: uniquePlayers(),
 
       totalPlaytime,
-      totalPlaytimeFormatted: humanTotalPlaytime,
+      totalPlaytimeFormatted,
       totalIndividualPlaytime,
-      totalIndividualPlaytimeFormatted: humanTotalIndividualPlaytime,
+      totalIndividualPlaytimeFormatted,
 
       averageMatchDuration,
-      averageMatchDurationFormatted: humanAverageMatchDuration,
+      averageMatchDurationFormatted,
       averageGoals,
 
       totalPlaytimeExtrapolated,
-      totalPlaytimeExtrapolatedFormatted: humanTotalPlaytimeExtrapolated,
+      totalPlaytimeExtrapolatedFormatted,
       totalIndividualPlaytimeExtrapolated,
-      totalIndividualPlaytimeExtrapolatedFormatted:
-        humanTotalIndividualPlaytimeExtrapolated,
+      totalIndividualPlaytimeExtrapolatedFormatted,
     };
   });
 

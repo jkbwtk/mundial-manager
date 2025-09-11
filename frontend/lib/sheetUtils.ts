@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
+import type { Match } from '#shared/types/Sheets';
 
 dayjs.extend(duration);
 
@@ -20,4 +21,15 @@ export function formatDuration(seconds: number): string {
 
 export function formatDate(timestamp: number): string {
   return dayjs.unix(timestamp).format('YYYY-MM-DD');
+}
+
+export function getPlayersFromTeam(team: string): string[] {
+  return team.split(/\s+/g);
+}
+
+export function getPlayersFromMatch(match: Match): string[] {
+  return [
+    ...getPlayersFromTeam(match.team1),
+    ...getPlayersFromTeam(match.team2),
+  ];
 }

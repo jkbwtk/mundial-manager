@@ -12,3 +12,7 @@ export function bytesToBase64(bytes: Uint8Array) {
   ).join('');
   return btoa(binString);
 }
+
+export function toJson(data: unknown): string {
+  return JSON.stringify(data, null, 2);
+}

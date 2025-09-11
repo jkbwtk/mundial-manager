@@ -5,6 +5,8 @@ import { AnimatedText } from '#components/AnimatedText';
 import { HighlightedCode } from '#components/HighlightedCode';
 import { type Column, Table } from '#components/Table';
 import { Widget } from '#components/Widget';
+import { formatDate, formatDuration } from '#flib/sheetUtils';
+import { toJson } from '#flib/utils';
 import { useSheets } from '#providers/SheetsProvider';
 import type { Match } from '#shared/types/Sheets';
 import { quickSwitch } from '#shared/utils';
@@ -95,14 +97,13 @@ export const SheetsTest: Component = () => {
       header: 'Time',
       sortable: true,
       transform: (value: number | null) =>
-        value ? dayjs.duration(value, 'seconds').format('mm:ss') : null,
+        value ? formatDuration(value) : null,
     },
     {
       key: 'date',
       header: 'Date',
       sortable: true,
-      transform: (value: number | null) =>
-        value ? dayjs(value * 1000).format('YYYY-MM-DD') : null,
+      transform: (value: number | null) => (value ? formatDate(value) : null),
     },
   ];
 
@@ -185,48 +186,30 @@ export const SheetsTest: Component = () => {
 
       <Widget title="General Stats" class={style.metadata}>
         <strong>Total playtime:</strong>{' '}
-        <AnimatedText>
-          {dayjs
-            .duration(generalStats().totalPlaytime, 'seconds')
-            .format('HH:mm:ss')}
-        </AnimatedText>
+        <AnimatedText>{generalStats().totalPlaytimeFormatted}</AnimatedText>
         <br />
         <strong>Total individual playtime:</strong>{' '}
         <AnimatedText>
-          {dayjs
-            .duration(generalStats().totalIndividualPlaytime, 'seconds')
-            .format('HH:mm:ss')}
+          {generalStats().totalIndividualPlaytimeFormatted}
         </AnimatedText>
         <br />
         <strong>Average match duration:</strong>{' '}
         <AnimatedText>
-          {dayjs
-            .duration(generalStats().averageMatchDuration, 'seconds')
-            .format('HH:mm:ss')}
+          {generalStats().averageMatchDurationFormatted}
         </AnimatedText>
         <br />
         <strong>Total playtime (extrapolated):</strong>{' '}
         <AnimatedText>
-          {dayjs
-            .duration(generalStats().totalPlaytimeExtrapolated, 'seconds')
-            .format('HH:mm:ss')}
+          {generalStats().totalPlaytimeExtrapolatedFormatted}
         </AnimatedText>
         <br />
         <strong>Total individual playtime (extrapolated):</strong>{' '}
         <AnimatedText>
-          {dayjs
-            .duration(
-              generalStats().totalIndividualPlaytimeExtrapolated,
-              'seconds',
-            )
-            .format('HH:mm:ss')}
+          {generalStats().totalIndividualPlaytimeExtrapolatedFormatted}
         </AnimatedText>
         <br />
         <strong>Raw:</strong>
-        <HighlightedCode
-          language="json"
-          code={JSON.stringify(generalStats(), null, 2)}
-        />
+        <HighlightedCode language="json" code={toJson(generalStats())} />
       </Widget>
 
       <Widget title="Player Stats" class={style.metadata}>
@@ -235,37 +218,24 @@ export const SheetsTest: Component = () => {
           {(stat) => (
             <div>
               <strong>{stat.player}: </strong>
-              <AnimatedText>
-                {dayjs
-                  .duration(stat.totalPlaytime, 'seconds')
-                  .format('HH:mm:ss')}
-              </AnimatedText>
+              <AnimatedText>{stat.totalPlaytimeFormatted}</AnimatedText>
             </div>
           )}
         </For>
         <br />
 
         <strong>Raw:</strong>
-        <HighlightedCode
-          language="json"
-          code={JSON.stringify(playerStats(), null, 2)}
-        />
+        <HighlightedCode language="json" code={toJson(playerStats())} />
       </Widget>
 
       <Widget title="Match Stats" class={style.metadata}>
         <strong>Raw:</strong>
-        <HighlightedCode
-          language="json"
-          code={JSON.stringify(matchStats(), null, 2)}
-        />
+        <HighlightedCode language="json" code={toJson(matchStats())} />
       </Widget>
 
       <Widget title="Day Stats" class={style.metadata}>
         <strong>Raw:</strong>
-        <HighlightedCode
-          language="json"
-          code={JSON.stringify(dayStats(), null, 2)}
-        />
+        <HighlightedCode language="json" code={toJson(dayStats())} />
       </Widget>
 
       <Table
