@@ -77,20 +77,21 @@ code {
 }
 
 a {
-  color: app.$primaryColor;
-  font-weight: 500;
   text-decoration: none;
 
-  cursor: pointer;
-
-  transition: color 0.2s ease-in-out, text-decoration 0.2s ease-in-out;
-
-  &:visited {
+  &:not(.no-style) {
     color: app.$primaryColor;
-  }
+    font-weight: 500;
 
-  &:hover {
-    text-decoration: solid underline;
-    color: app.$primaryBrightColor;
+    transition: color 0.2s ease-in-out, text-decoration 0.2s ease-in-out;
+
+    &:visited {
+      color: app.$primaryColor;
+    }
+
+    &:hover {
+      text-decoration: solid underline;
+      color: app.$primaryBrightColor;
+    }
   }
 }

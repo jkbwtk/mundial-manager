@@ -1,25 +1,15 @@
-import { type JSX, mergeProps } from 'solid-js';
-import type { RequiredDefaults } from '#shared/utils';
+import { A, type AnchorProps } from '@solidjs/router';
+import { mergeProps } from 'solid-js';
+import { type CustomButtonProps, buttonDefaultProps } from '#components/Button';
 import style from './Button.module.scss';
 
-export type CustomButtonProps = {
-  disabled?: boolean;
-  severity?: 'primary' | 'secondary' | 'danger';
-};
+export type AnchorButtonProps = AnchorProps & CustomButtonProps;
 
-export type ButtonProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> &
-  CustomButtonProps;
-
-export const buttonDefaultProps: RequiredDefaults<CustomButtonProps> = {
-  disabled: false,
-  severity: 'primary',
-};
-
-export const Button: ParentComponent<ButtonProps> = (userProps) => {
+export const AnchorButton: ParentComponent<AnchorButtonProps> = (userProps) => {
   const props = mergeProps(buttonDefaultProps, userProps);
 
   return (
-    <button
+    <A
       {...props}
       classList={{
         [props.class ?? '']: !!props.class,
@@ -29,10 +19,11 @@ export const Button: ParentComponent<ButtonProps> = (userProps) => {
         [style.secondary]: props.severity === 'secondary',
         [style.danger]: props.severity === 'danger',
         [style.disabled]: props.disabled,
+        'no-style': true,
         ...(props.classList ?? {}),
       }}
     >
       {props.children}
-    </button>
+    </A>
   );
 };
