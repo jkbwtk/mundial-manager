@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import {
   batch,
   createContext,
@@ -7,6 +6,7 @@ import {
   useContext,
 } from 'solid-js';
 import { createStore } from 'solid-js/store';
+import { formatDate, formatDuration } from '#flib/sheetUtils';
 import type {
   DayStats,
   GeneralStats,
@@ -110,9 +110,11 @@ export const SheetsProvider: ParentComponent = (props) => {
       player: '',
 
       totalPlaytime: 0,
+      totalPlaytimeFormatted: '',
       totalMatches: 0,
 
       averageMatchDuration: 0,
+      averageMatchDurationFormatted: '',
 
       wins: 0,
       losses: 0,
@@ -170,6 +172,11 @@ export const SheetsProvider: ParentComponent = (props) => {
 
       stats.goalDifference = stats.goalsFor - stats.goalsAgainst;
       stats.goalRatio = stats.goalsFor / (stats.goalsAgainst || 1);
+
+      stats.totalPlaytimeFormatted = formatDuration(stats.totalPlaytime);
+      stats.averageMatchDurationFormatted = formatDuration(
+        stats.averageMatchDuration,
+      );
     }
 
     return Object.fromEntries(playerMap);
@@ -190,18 +197,30 @@ export const SheetsProvider: ParentComponent = (props) => {
       0,
     );
 
+    const humanTotalPlaytime = formatDuration(totalPlaytime);
+
     const totalIndividualPlaytime = Object.values(playerStats()).reduce(
       (total, stats) => total + stats.totalPlaytime,
       0,
     );
 
+    const humanTotalIndividualPlaytime = formatDuration(
+      totalIndividualPlaytime,
+    );
+
     const averageMatchDuration = totalPlaytime / _matchesWithDuration || 1;
+
+    const humanAverageMatchDuration = formatDuration(averageMatchDuration);
 
     const averageGoals = totalGoals / (totalMatches || 1);
 
     const totalPlaytimeExtrapolated =
       totalPlaytime +
       (averageMatchDuration * totalMatches - _matchesWithDuration);
+
+    const humanTotalPlaytimeExtrapolated = formatDuration(
+      totalPlaytimeExtrapolated,
+    );
 
     const totalIndividualPlaytimeExtrapolated =
       totalIndividualPlaytime +
@@ -213,19 +232,29 @@ export const SheetsProvider: ParentComponent = (props) => {
         );
       }, 0);
 
+    const humanTotalIndividualPlaytimeExtrapolated = formatDuration(
+      totalIndividualPlaytimeExtrapolated,
+    );
+
     return {
       totalMatches,
       totalGoals,
       uniquePlayers: uniquePlayers(),
 
       totalPlaytime,
+      totalPlaytimeFormatted: humanTotalPlaytime,
       totalIndividualPlaytime,
+      totalIndividualPlaytimeFormatted: humanTotalIndividualPlaytime,
 
       averageMatchDuration,
+      averageMatchDurationFormatted: humanAverageMatchDuration,
       averageGoals,
 
       totalPlaytimeExtrapolated,
+      totalPlaytimeExtrapolatedFormatted: humanTotalPlaytimeExtrapolated,
       totalIndividualPlaytimeExtrapolated,
+      totalIndividualPlaytimeExtrapolatedFormatted:
+        humanTotalIndividualPlaytimeExtrapolated,
     };
   });
 
@@ -264,8 +293,10 @@ export const SheetsProvider: ParentComponent = (props) => {
       matches: 0,
       goals: 0,
       playtime: 0,
+      playtimeFormatted: '',
 
       averageMatchDuration: 0,
+      averageMatchDurationFormatted: '',
       averageGoals: 0,
 
       goalsPerMinute: 0,
@@ -284,7 +315,7 @@ export const SheetsProvider: ParentComponent = (props) => {
       if (dayMap.has(match.date) === false) {
         dayMap.set(match.date, {
           ...structuredClone(defaultStats),
-          humanDate: dayjs.unix(match.date).format('YYYY-MM-DD'),
+          humanDate: formatDate(match.date),
           date: match.date,
         });
       }
@@ -320,6 +351,11 @@ export const SheetsProvider: ParentComponent = (props) => {
       stats.goalsPerMinute = stats.playtime
         ? (60 * stats._goalsWithDuration) / stats.playtime
         : 0;
+
+      stats.playtimeFormatted = formatDuration(stats.playtime);
+      stats.averageMatchDurationFormatted = formatDuration(
+        stats.averageMatchDuration,
+      );
     }
 
     return Object.fromEntries(dayMap);

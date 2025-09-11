@@ -5,21 +5,28 @@ export interface GeneralStats {
   uniquePlayers: string[];
 
   totalPlaytime: number;
+  totalPlaytimeFormatted: string;
   totalIndividualPlaytime: number;
+  totalIndividualPlaytimeFormatted: string;
 
   averageMatchDuration: number;
+  averageMatchDurationFormatted: string;
   averageGoals: number;
 
   totalPlaytimeExtrapolated: number;
+  totalPlaytimeExtrapolatedFormatted: string;
   totalIndividualPlaytimeExtrapolated: number;
+  totalIndividualPlaytimeExtrapolatedFormatted: string;
 }
 export interface PlayerStats {
   player: string;
 
   totalPlaytime: number;
+  totalPlaytimeFormatted: string;
   totalMatches: number;
 
   averageMatchDuration: number;
+  averageMatchDurationFormatted: string;
 
   wins: number;
   losses: number;
@@ -49,8 +56,10 @@ export interface DayStats {
   matches: number;
   goals: number;
   playtime: number;
+  playtimeFormatted: string;
 
   averageMatchDuration: number;
+  averageMatchDurationFormatted: string;
   averageGoals: number;
 
   goalsPerMinute: number;

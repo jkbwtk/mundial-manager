@@ -3,5 +3,6 @@
 
 export * from './extensionSymbols';
 export * from './fileUtils';
+export * from './sheetUtils';
 export * from './supportedMaterialSymbols';
 export * from './utils';
