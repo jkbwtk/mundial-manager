@@ -78,17 +78,14 @@
 
 <script>
   if (container !== null) {
-    const rotation = Math.random() * Math.PI * 2;
+    const rotation = Math.random() * 3.1415 * 2;
 
-    const vector = [
-      Math.cos(rotation),
-      Math.sin(rotation),
-    ];
+    const vector = [Math.sin(rotaion), Math.cos(rotation)];
 
     let x = 0;
     let y = 0;
 
-    const animate = () => {
+    const animate = function() {
       const actualLeft = window.innerWidth / 2 + x - container.offsetWidth / 2;
       const actualTop = window.innerHeight / 2 + y - container.offsetHeight / 2;
       const actualRight = actualLeft + container.offsetWidth;
@@ -113,7 +110,7 @@
   }
 
   if (text !== null) {
-    setInterval(() => {
+    setInterval(function() {
       const dots = (text.textContent.match(/\./g) || []).length;
       const newDots = (dots + 1) % 4;
       text.textContent = text.textContent.replace(/\.*$/, '.'.repeat(newDots));
