@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import z from 'zod';
+import { jsonCodec } from '#shared/zod';
 
 export interface SheetMetadata {
   title: string;
@@ -8,6 +9,69 @@ export interface SheetMetadata {
   rows: number;
   columns: number;
 }
+
+export const MatchEventType = z.enum([
+  'GOAL',
+  'POSITION_CHANGE',
+  'BALL_OUT',
+  'EQUIPMENT_FAILURE',
+]);
+
+export type MatchEventType = z.infer<typeof MatchEventType>;
+
+const MatchEventBase = z.object({
+  time: z.number().int(), // unix timestamp
+});
+
+export const MatchEventGoal = MatchEventBase.extend({
+  type: z.literal('GOAL'),
+  for: z.string(), // team color
+  by: z.string(), //team color
+  player: z.string().nullable().catch(null),
+});
+
+export type MatchEventGoal = z.infer<typeof MatchEventGoal>;
+
+export const MatchEventPositionChange = MatchEventBase.extend({
+  type: z.literal('POSITION_CHANGE'),
+  side: z.string(), // team color
+});
+
+export type MatchEventPositionChange = z.infer<typeof MatchEventPositionChange>;
+
+export const MatchEventBallOut = MatchEventBase.extend({
+  type: z.literal('BALL_OUT'),
+});
+
+export type MatchEventBallOut = z.infer<typeof MatchEventBallOut>;
+
+export const MatchEventEquipmentFailure = MatchEventBase.extend({
+  type: z.literal('EQUIPMENT_FAILURE'),
+  details: z.string().nullable().catch(null),
+});
+
+export const MatchEvent = z.discriminatedUnion('type', [
+  MatchEventGoal,
+  MatchEventPositionChange,
+  MatchEventBallOut,
+  MatchEventEquipmentFailure,
+]);
+
+export type MatchEvent = z.infer<typeof MatchEvent>;
+
+export const MatchReplayMetadata = z.object({
+  startedAt: z.number().int(), // unix timestamp
+  events: z.codec(
+    z.array(MatchEvent.nullable().catch(null)),
+    z.array(MatchEvent),
+    {
+      decode: (val) => val.filter((e) => e !== null),
+      encode: (val) => val,
+    },
+  ),
+});
+
+export type MatchReplayMetadata = z.infer<typeof MatchReplayMetadata>;
 
 export const Match = z.object({
   id: z.number().int().nonnegative(),
@@ -40,6 +104,7 @@ export const Match = z.object({
           : null,
     },
   ),
+  replayMetadata: jsonCodec(MatchReplayMetadata).nullable().catch(null),
 });
 
 export type Match = z.infer<typeof Match>;

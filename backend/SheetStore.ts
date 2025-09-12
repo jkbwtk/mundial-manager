@@ -69,6 +69,10 @@ export class SheetStore extends Store {
         index: 7,
         numberFormat: { type: 'DATE', pattern: 'dd.mm.yyyy' },
       },
+      replayMetadata: {
+        index: 9,
+        wrapStrategy: 'CLIP',
+      },
     } satisfies Record<keyof MatchWithoutId, MatchColumnConfig>,
   };
 
@@ -165,11 +169,15 @@ export class SheetStore extends Store {
         cell.numberFormat = columnConfig.numberFormat;
       }
 
+      if (columnConfig.wrapStrategy !== undefined) {
+        cell.wrapStrategy = columnConfig.wrapStrategy;
+      }
+
       cell.value = value;
     }
   }
 
-  @AsyncCached({ ttl: 10 * 1000 }) // 10 seconds
+  // @AsyncCached({ ttl: 10 * 1000 }) // 10 seconds
   public async getMatches(): Promise<Match[]> {
     await this.loadMatchesCells();
 

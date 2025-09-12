@@ -14,7 +14,10 @@ export type SheetStoreOptions = {
 
 type NumberFormatType = GoogleSpreadsheetCell['numberFormat'];
 
+type WrapStrategy = GoogleSpreadsheetCell['wrapStrategy'];
+
 export interface MatchColumnConfig {
   index: number;
   numberFormat?: NumberFormatType;
+  wrapStrategy?: WrapStrategy;
 }
