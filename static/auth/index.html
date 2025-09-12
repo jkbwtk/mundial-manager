@@ -14,7 +14,7 @@
     const lifetime = 60 * 60 * 24 * 30;
 
     for (const [ key, value ] of params.entries()) {
-      document.cookie = `${key}=${value}; max-age=${lifetime}; SameSite=Lax;`;
+      document.cookie = `${key}=${value}; max-age=${lifetime}; SameSite=Lax;Secure`;
     }
 
     location.search = '';
