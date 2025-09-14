@@ -45,6 +45,10 @@ export interface MatchStats {
   id: number;
 
   goalsPerMinute: number;
+
+  playerElos: Record<string, number>;
+  teamElos: Record<string, number>;
+  hybridElos: Record<string, number>;
 }
 
 export interface DayStats {

@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
-import { For, batch, createSignal } from 'solid-js';
+import { For, batch, createMemo, createSignal } from 'solid-js';
 import { AnimatedText } from '#components/AnimatedText';
 import { HighlightedCode } from '#components/HighlightedCode';
 import { type Column, Table } from '#components/Table';
@@ -144,6 +144,8 @@ export const SheetsTest: Component = () => {
     });
   }
 
+  const eloStats = createMemo(() => Object.values(matchStats()).at(-1)!);
+
   return (
     <Widget title="Sheets Test Page" class={style.container}>
       <Widget title="Metadata" class={style.metadata}>
@@ -219,6 +221,36 @@ export const SheetsTest: Component = () => {
             <div>
               <strong>{stat.player}: </strong>
               <AnimatedText>{stat.totalPlaytimeFormatted}</AnimatedText>
+            </div>
+          )}
+        </For>
+        <br />
+        <strong>Player Elo:</strong>
+        <For each={Object.entries(eloStats().playerElos)}>
+          {([player, elo]) => (
+            <div>
+              <strong>{player}: </strong>
+              <AnimatedText>{elo}</AnimatedText>
+            </div>
+          )}
+        </For>
+        <br />
+        <strong>Team Elo:</strong>
+        <For each={Object.entries(eloStats().teamElos)}>
+          {([team, elo]) => (
+            <div>
+              <strong>{team}: </strong>
+              <AnimatedText>{elo}</AnimatedText>
+            </div>
+          )}
+        </For>
+        <br />
+        <strong>Hybrid Elo:</strong>
+        <For each={Object.entries(eloStats().hybridElos)}>
+          {([player, elo]) => (
+            <div>
+              <strong>{player}: </strong>
+              <AnimatedText>{elo}</AnimatedText>
             </div>
           )}
         </For>

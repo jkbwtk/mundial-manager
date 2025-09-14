@@ -7,6 +7,7 @@ import {
 } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import {
+  calculateElos,
   formatDate,
   formatDuration,
   getPlayersFromMatch,
@@ -266,18 +267,36 @@ export const SheetsProvider: ParentComponent = (props) => {
     const defaultStats: MatchStats = {
       id: -1,
       goalsPerMinute: 0,
+
+      playerElos: {},
+      teamElos: {},
+      hybridElos: {},
     };
 
-    const matchMap: Map<number, MatchStats> = new Map(
-      state.matches.map((m) => [m.id, structuredClone(defaultStats)]),
-    );
+    const matchMap: Map<number, MatchStats> = new Map();
+
+    let previousPlayerElos = structuredClone(defaultStats.playerElos);
+    let previousTeamElos = structuredClone(defaultStats.teamElos);
+    let previousHybridElos = structuredClone(defaultStats.hybridElos);
 
     for (const match of state.matches) {
-      const stats = matchMap.get(match.id) ?? structuredClone(defaultStats);
+      if (matchMap.has(match.id) === false) {
+        matchMap.set(match.id, structuredClone(defaultStats));
+      }
+
+      const stats = matchMap.get(match.id)!;
 
       stats.goalsPerMinute = match.duration
         ? (60 * (match.score1 + match.score2)) / (match.duration || 1)
         : 0;
+
+      stats.playerElos = calculateElos(match, previousPlayerElos, 'player');
+      stats.teamElos = calculateElos(match, previousTeamElos, 'team');
+      stats.hybridElos = calculateElos(match, previousHybridElos, 'hybrid');
+
+      previousPlayerElos = structuredClone(stats.playerElos);
+      previousTeamElos = structuredClone(stats.teamElos);
+      previousHybridElos = structuredClone(stats.hybridElos);
     }
 
     for (const [id, stats] of matchMap) {
