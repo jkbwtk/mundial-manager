@@ -1,0 +1,40 @@
+@use 'app' as *;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo {
+  color: $yellowBright;
+
+  padding: ch(1) cw(1);
+  width: fit-content;
+}
+
+.elo-stats {
+  box-sizing: border-box;
+  max-width: cw(50);
+  width: round(down, 100%, cw(1));
+
+  .header {
+    text-align: center;
+    color: $textBrightColor;
+  }
+
+  .list {
+    display: grid;
+    grid-template-columns: 1fr min-content cw(8);
+    gap: 0 cw(1);
+  }
+
+  .negative {
+    color: $redBright;
+  }
+
+  .positive {
+    color: $greenBright;
+  }
+}

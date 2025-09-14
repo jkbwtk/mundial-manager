@@ -1,0 +1,7 @@
+export declare const container: string;
+export declare const eloStats: string;
+export declare const header: string;
+export declare const list: string;
+export declare const logo: string;
+export declare const negative: string;
+export declare const positive: string;

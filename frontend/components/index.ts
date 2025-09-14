@@ -4,6 +4,7 @@
 export * from './AnimatedText';
 export * from './AudioPlayer';
 export * from './BrailleChart';
+export * from './Break';
 export * from './Button';
 export * from './DevGrid';
 export * from './FilePicker';

@@ -36,6 +36,7 @@
     "commander": "^14.0.0",
     "cors": "^2.8.5",
     "dayjs": "^1.11.18",
+    "figlet": "^1.9.1",
     "google-spreadsheet": "^5.0.2",
     "highlight.js": "^11.11.1",
     "music-metadata": "^11.8.3",

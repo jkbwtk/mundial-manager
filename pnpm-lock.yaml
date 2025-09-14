@@ -44,6 +44,9 @@ importers:
       dayjs:
         specifier: ^1.11.18
         version: 1.11.18
+      figlet:
+        specifier: ^1.9.1
+        version: 1.9.1
       google-spreadsheet:
         specifier: ^5.0.2
         version: 5.0.2(google-auth-library@10.3.0)
@@ -1670,6 +1673,11 @@ packages:
 
   fflate@0.8.2:
     resolution: {integrity: sha512-cPJU47OaAoCbg0pBvzsgpTPhmhqI5eJjh/JIu8tPj5q+T7iLvW/JAYUqmE7KOB4R1ZyEhzBaIQpQpardBF5z8A==}
+
+  figlet@1.9.1:
+    resolution: {integrity: sha512-DpKC89iXFjq6NCaIQ1O91R+ofpfyvkwuBfoVd8LpP/JZGZQpelMXgiTStGOfksuMYaDoBAwFlvx7mk+wX+3rrA==}
+    engines: {node: '>= 17.0.0'}
+    hasBin: true
 
   file-type@21.0.0:
     resolution: {integrity: sha512-ek5xNX2YBYlXhiUXui3D/BXa3LdqPmoLJ7rqEx2bKJ7EAUEfmXgW0Das7Dc6Nr9MvqaOnIqiPV0mZk/r/UpNAg==}
@@ -4579,6 +4587,10 @@ snapshots:
       web-streams-polyfill: 3.3.3
 
   fflate@0.8.2: {}
+
+  figlet@1.9.1:
+    dependencies:
+      commander: 14.0.0
 
   file-type@21.0.0:
     dependencies:
