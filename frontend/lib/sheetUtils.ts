@@ -115,7 +115,7 @@ export function calculateElos(
 
       return (
         players.reduce(
-          (sum, player) => sum + (elos[player] ?? DEFAULT_ELO),
+          (sum, player) => sum + (previousElos[player] ?? DEFAULT_ELO),
           0,
         ) / players.length
       );
