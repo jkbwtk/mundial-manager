@@ -446,9 +446,6 @@ export const SheetsProvider: ParentComponent = (props) => {
       }
     }
 
-    console.log(currentElos.playerElos);
-    console.log(previousElos.playerElos);
-
     return {
       playerElos: currentElos.playerElos,
       teamElos: currentElos.teamElos,
