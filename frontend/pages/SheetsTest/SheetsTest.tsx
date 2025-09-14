@@ -144,7 +144,14 @@ export const SheetsTest: Component = () => {
     });
   }
 
-  const eloStats = createMemo(() => Object.values(matchStats()).at(-1)!);
+  const eloStats = createMemo(
+    () =>
+      Object.values(matchStats()).at(-1) ?? {
+        playerElos: {},
+        teamElos: {},
+        hybridElos: {},
+      },
+  );
 
   return (
     <Widget title="Sheets Test Page" class={style.container}>
