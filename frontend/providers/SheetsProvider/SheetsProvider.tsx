@@ -7,6 +7,7 @@ import {
 } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import {
+  DEFAULT_ELO,
   calculateElos,
   formatDate,
   formatDuration,
@@ -15,6 +16,7 @@ import {
 } from '#flib/sheetUtils';
 import type {
   DayStats,
+  EloStats,
   GeneralStats,
   MatchStats,
   PlayerStats,
@@ -35,6 +37,7 @@ export interface SheetsContextActions {
   generalStats: () => GeneralStats;
   matchStats: () => Record<number, MatchStats>;
   dayStats: () => Record<number, DayStats>;
+  eloStats: () => EloStats;
 }
 
 export type SheetsContextValue = [
@@ -71,6 +74,9 @@ const SheetsContext = createContext<SheetsContextValue>([
     },
     dayStats: () => {
       throw new Error('SheetsContext: dayStats() called before provider');
+    },
+    eloStats: () => {
+      throw new Error('SheetsContext: eloStats() called before provider');
     },
   },
 ]);
@@ -384,12 +390,98 @@ export const SheetsProvider: ParentComponent = (props) => {
     return Object.fromEntries(dayMap);
   });
 
+  const eloStats = createMemo<EloStats>(() => {
+    const matches = Object.values(matchStats()).toReversed();
+
+    const currentElos =
+      matches.shift() ??
+      ({
+        playerElos: {},
+        teamElos: {},
+        hybridElos: {},
+      } as MatchStats);
+
+    const previousElos = {
+      playerElos: {},
+      teamElos: {},
+      hybridElos: {},
+    } as MatchStats;
+
+    const missingPlayerElos = new Set<string>(
+      Object.keys(currentElos.playerElos),
+    );
+    const missingTeamElos = new Set<string>(Object.keys(currentElos.teamElos));
+    const missingHybridElos = new Set<string>(
+      Object.keys(currentElos.hybridElos),
+    );
+
+    for (const matchStat of matches) {
+      for (const player of missingPlayerElos) {
+        if (matchStat.playerElos[player] !== undefined) {
+          previousElos.playerElos[player] = matchStat.playerElos[player];
+          missingPlayerElos.delete(player);
+        }
+      }
+
+      for (const team of missingTeamElos) {
+        if (matchStat.teamElos[team] !== undefined) {
+          previousElos.teamElos[team] = matchStat.teamElos[team];
+          missingTeamElos.delete(team);
+        }
+      }
+
+      for (const player of missingHybridElos) {
+        if (matchStat.hybridElos[player] !== undefined) {
+          previousElos.hybridElos[player] = matchStat.hybridElos[player];
+          missingHybridElos.delete(player);
+        }
+      }
+
+      if (
+        missingPlayerElos.size === 0 &&
+        missingTeamElos.size === 0 &&
+        missingHybridElos.size === 0
+      ) {
+        break;
+      }
+    }
+
+    console.log(currentElos.playerElos);
+    console.log(previousElos.playerElos);
+
+    return {
+      playerElos: currentElos.playerElos,
+      teamElos: currentElos.teamElos,
+      hybridElos: currentElos.hybridElos,
+
+      playerElosChange: Object.fromEntries(
+        Object.entries(currentElos.playerElos).map(([player, elo]) => [
+          player,
+          elo - (previousElos.playerElos[player] ?? DEFAULT_ELO),
+        ]),
+      ),
+      teamElosChange: Object.fromEntries(
+        Object.entries(currentElos.teamElos).map(([team, elo]) => [
+          team,
+          elo - (previousElos.teamElos[team] ?? DEFAULT_ELO),
+        ]),
+      ),
+      hybridElosChange: Object.fromEntries(
+        Object.entries(currentElos.hybridElos).map(([player, elo]) => [
+          player,
+          elo - (previousElos.hybridElos[player] ?? DEFAULT_ELO),
+        ]),
+      ),
+    };
+  });
+
   const actions: SheetsContextActions = {
     initialize,
     playerStats,
     generalStats,
     matchStats,
     dayStats,
+    eloStats,
   };
 
   onMount(() => {

@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
-import { For, batch, createMemo, createSignal } from 'solid-js';
+import { For, batch, createSignal } from 'solid-js';
 import { AnimatedText } from '#components/AnimatedText';
 import { HighlightedCode } from '#components/HighlightedCode';
 import { type Column, Table } from '#components/Table';
@@ -15,8 +15,10 @@ import style from './SheetsTest.module.scss';
 dayjs.extend(duration);
 
 export const SheetsTest: Component = () => {
-  const [sheets, { playerStats, generalStats, matchStats, dayStats }] =
-    useSheets();
+  const [
+    sheets,
+    { playerStats, generalStats, matchStats, dayStats, eloStats },
+  ] = useSheets();
 
   const [sortColumn, setSortColumn] = createSignal<keyof Match | null>(null);
   const [sortDirection, setSortDirection] = createSignal<'asc' | 'desc' | null>(
@@ -143,15 +145,6 @@ export const SheetsTest: Component = () => {
       setSortDirection(direction);
     });
   }
-
-  const eloStats = createMemo(
-    () =>
-      Object.values(matchStats()).at(-1) ?? {
-        playerElos: {},
-        teamElos: {},
-        hybridElos: {},
-      },
-  );
 
   return (
     <Widget title="Sheets Test Page" class={style.container}>

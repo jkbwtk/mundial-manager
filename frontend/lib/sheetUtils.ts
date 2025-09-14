@@ -5,7 +5,7 @@ import { quickSwitch } from '#shared/utils';
 
 dayjs.extend(duration);
 
-const DEFAULT_ELO = 1500;
+export const DEFAULT_ELO = 1500;
 
 export function formatDuration(seconds: number): string {
   if (seconds < 3600) {

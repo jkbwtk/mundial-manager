@@ -71,3 +71,13 @@ export interface DayStats {
   _matchesWithDuration: number;
   _goalsWithDuration: number;
 }
+
+export interface EloStats {
+  playerElos: Record<string, number>;
+  teamElos: Record<string, number>;
+  hybridElos: Record<string, number>;
+
+  playerElosChange: Record<string, number>;
+  teamElosChange: Record<string, number>;
+  hybridElosChange: Record<string, number>;
+}
