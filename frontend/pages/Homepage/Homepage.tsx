@@ -1,10 +1,12 @@
 import { A } from '@solidjs/router';
+import Chart from 'chart.js/auto';
 import figlet from 'figlet';
 import smallSlant from 'figlet/fonts/Small Slant';
 import {
   For,
   Match,
   Switch,
+  createEffect,
   createMemo,
   createSignal,
   onCleanup,
@@ -19,9 +21,28 @@ import style from './Homepage.module.scss';
 
 figlet.parseFont('Small Slant', smallSlant);
 
+Chart.defaults.font.family = 'JetBrains Mono';
+Chart.defaults.font.size = 14;
+
 const Homepage: Component = () => {
   const [{ unit: consoleUnit }] = useConsoleUnitPrototype();
-  const [, { eloStats }] = useSheets();
+  const [, { eloStats, matchStats }] = useSheets();
+
+  // biome-ignore lint/style/useConst: yeah
+  let playerChartRef: HTMLCanvasElement = null!;
+  let playerChart: Chart = null!;
+
+  // biome-ignore lint/style/useConst: yeah
+  let hybridChartRef: HTMLCanvasElement = null!;
+  let hybridChart: Chart = null!;
+
+  // biome-ignore lint/style/useConst: yeah
+  let teamIndividualChartRef: HTMLCanvasElement = null!;
+  let teamIndividualChart: Chart = null!;
+
+  // biome-ignore lint/style/useConst: yeah
+  let teamChartRef: HTMLCanvasElement = null!;
+  let teamChart: Chart = null!;
 
   const [pageWidth, setPageWidth] = createSignal(120);
 
@@ -33,12 +54,46 @@ const Homepage: Component = () => {
     if (isServer === false) {
       window.addEventListener('resize', handleResize);
       handleResize();
+
+      playerChart = new Chart(playerChartRef, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [],
+        },
+      });
+
+      hybridChart = new Chart(hybridChartRef, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [],
+        },
+      });
+
+      teamIndividualChart = new Chart(teamIndividualChartRef, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [],
+        },
+      });
+
+      teamChart = new Chart(teamChartRef, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [],
+        },
+      });
     }
   });
 
   onCleanup(() => {
     if (isServer === false) {
       window.removeEventListener('resize', handleResize);
+
+      playerChart.destroy();
     }
   });
 
@@ -63,6 +118,54 @@ const Homepage: Component = () => {
       Object.entries(eloStats().hybridElos).sort((a, b) => b[1] - a[1]),
     ),
   }));
+
+  createEffect(() => {
+    const stats = matchStats();
+
+    if (isServer) {
+      return;
+    }
+
+    const players = Array.from(
+      Object.keys(Object.values(stats).at(-1)?.playerElos ?? {}),
+    );
+
+    const teams = Array.from(
+      Object.keys(Object.values(stats).at(-1)?.teamElos ?? {}),
+    );
+
+    playerChart.data.labels = Object.values(stats).map((s) => `#${s.id}`);
+    playerChart.data.datasets = players.map((player) => ({
+      label: player,
+      data: Object.values(stats).map((s) => s.playerElos[player] ?? null),
+    }));
+    playerChart.update();
+
+    hybridChart.data.labels = Object.values(stats).map((s) => `#${s.id}`);
+    hybridChart.data.datasets = players.map((player) => ({
+      label: player,
+      data: Object.values(stats).map((s) => s.hybridElos[player] ?? null),
+    }));
+    hybridChart.update();
+
+    teamIndividualChart.data.labels = Object.values(stats).map(
+      (s) => `#${s.id}`,
+    );
+    teamIndividualChart.data.datasets = players.map((player) => ({
+      label: player,
+      data: Object.values(stats).map(
+        (s) => s.teamIndividualElos[player] ?? null,
+      ),
+    }));
+    teamIndividualChart.update();
+
+    teamChart.data.labels = Object.values(stats).map((s) => `#${s.id}`);
+    teamChart.data.datasets = teams.map((team) => ({
+      label: team,
+      data: Object.values(stats).map((s) => s.teamElos[team] ?? null),
+    }));
+    teamChart.update();
+  });
 
   return (
     <div class={style.container}>
@@ -263,6 +366,22 @@ const Homepage: Component = () => {
             )}
           </For>
         </div>
+      </Widget>
+
+      <Widget title="Player Elo Chart" class={style.eloChart}>
+        <canvas ref={playerChartRef} />
+      </Widget>
+
+      <Widget title="Hybrid Elo Chart" class={style.eloChart}>
+        <canvas ref={hybridChartRef} />
+      </Widget>
+
+      <Widget title="Team Individual Elo Chart" class={style.eloChart}>
+        <canvas ref={teamIndividualChartRef} />
+      </Widget>
+
+      <Widget title="Team Elo Chart" class={style.eloChart}>
+        <canvas ref={teamChartRef} />
       </Widget>
     </div>
   );

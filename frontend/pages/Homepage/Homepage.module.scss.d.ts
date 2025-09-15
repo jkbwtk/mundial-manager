@@ -1,4 +1,5 @@
 export declare const container: string;
+export declare const eloChart: string;
 export declare const eloStats: string;
 export declare const header: string;
 export declare const list: string;

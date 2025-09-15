@@ -38,3 +38,14 @@
     color: $greenBright;
   }
 }
+
+.elo-chart {
+  box-sizing: border-box;
+
+  // max-width: cw(100);
+
+  width: round(down, 100%, cw(1));
+  // height: round(down ch(10), ch(1));
+
+  position: relative;
+}
