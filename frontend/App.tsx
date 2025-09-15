@@ -13,6 +13,7 @@ import { TRPCProvider } from '#providers/TRPCProvider';
 import { routes } from './routes';
 
 import 'highlight.js/styles/gml.min.css';
+import { AcrylicBackground } from '#components/AcrylicBackground';
 
 hljs.registerLanguage('json', json);
 
@@ -24,6 +25,7 @@ const App: Component<{ url?: string }> = (props) => {
           <SheetsProvider>
             {/* Pre rendering fails without <Suspense>, dev server works fine without it */}
             <Suspense>
+              <AcrylicBackground />
               <Show when={isDev()}>
                 <DevGrid />
               </Show>
