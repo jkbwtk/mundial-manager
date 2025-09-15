@@ -69,7 +69,7 @@ const Homepage: Component = () => {
 
       <div>Still in development</div>
       <div>
-        Test pages are available at <A href="/tests">here</A>
+        Test pages are available <A href="/tests">here</A>
       </div>
 
       <Break />
@@ -83,12 +83,11 @@ const Homepage: Component = () => {
           <For each={Object.entries(sortedElos().playerElos)}>
             {([player, elo], index) => (
               <>
-                <div>
-                  {index() + 1}. {player}
-                </div>
-                <div>{elo.toFixed(2)}</div>
+                <span>{index() + 1}.</span>
+                <span> {player}</span>
+                <span>{elo.toFixed(2)}</span>
 
-                <div
+                <span
                   classList={{
                     [style.positive]:
                       (eloStats().playerElosChange[player] ?? 0) > 0,
@@ -112,8 +111,10 @@ const Homepage: Component = () => {
                     </Match>
                   </Switch>
 
-                  {eloStats().playerElosChange[player]?.toFixed(2) ?? 0}
-                </div>
+                  {Math.abs(eloStats().playerElosChange[player] ?? 0).toFixed(
+                    2,
+                  )}
+                </span>
               </>
             )}
           </For>
@@ -129,12 +130,11 @@ const Homepage: Component = () => {
           <For each={Object.entries(sortedElos().hybridElos)}>
             {([player, elo], index) => (
               <>
-                <div>
-                  {index() + 1}. {player}
-                </div>
-                <div>{elo.toFixed(2)}</div>
+                <span>{index() + 1}.</span>
+                <span> {player}</span>
+                <span>{elo.toFixed(2)}</span>
 
-                <div
+                <span
                   classList={{
                     [style.positive]:
                       (eloStats().hybridElosChange[player] ?? 0) > 0,
@@ -158,8 +158,10 @@ const Homepage: Component = () => {
                     </Match>
                   </Switch>
 
-                  {eloStats().hybridElosChange[player]?.toFixed(2) ?? 0}
-                </div>
+                  {Math.abs(eloStats().hybridElosChange[player] ?? 0).toFixed(
+                    2,
+                  )}
+                </span>
               </>
             )}
           </For>
@@ -175,12 +177,11 @@ const Homepage: Component = () => {
           <For each={Object.entries(sortedElos().teamElos)}>
             {([team, elo], index) => (
               <>
-                <div>
-                  {index() + 1}. {team}
-                </div>
-                <div>{elo.toFixed(2)}</div>
+                <span>{index() + 1}.</span>
+                <span> {team}</span>
+                <span>{elo.toFixed(2)}</span>
 
-                <div
+                <span
                   classList={{
                     [style.positive]:
                       (eloStats().teamElosChange[team] ?? 0) > 0,
@@ -200,8 +201,8 @@ const Homepage: Component = () => {
                     </Match>
                   </Switch>
 
-                  {eloStats().teamElosChange[team]?.toFixed(2) ?? 0}
-                </div>
+                  {Math.abs(eloStats().teamElosChange[team] ?? 0).toFixed(2)}
+                </span>
               </>
             )}
           </For>
