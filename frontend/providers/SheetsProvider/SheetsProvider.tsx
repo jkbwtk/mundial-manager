@@ -276,6 +276,7 @@ export const SheetsProvider: ParentComponent = (props) => {
 
       playerElos: {},
       teamElos: {},
+      teamIndividualElos: {},
       hybridElos: {},
     };
 
@@ -283,6 +284,9 @@ export const SheetsProvider: ParentComponent = (props) => {
 
     let previousPlayerElos = structuredClone(defaultStats.playerElos);
     let previousTeamElos = structuredClone(defaultStats.teamElos);
+    let previousTeamIndividualElos = structuredClone(
+      defaultStats.teamIndividualElos,
+    );
     let previousHybridElos = structuredClone(defaultStats.hybridElos);
 
     for (const match of state.matches) {
@@ -298,10 +302,16 @@ export const SheetsProvider: ParentComponent = (props) => {
 
       stats.playerElos = calculateElos(match, previousPlayerElos, 'player');
       stats.teamElos = calculateElos(match, previousTeamElos, 'team');
+      stats.teamIndividualElos = calculateElos(
+        match,
+        previousTeamIndividualElos,
+        'team-individual',
+      );
       stats.hybridElos = calculateElos(match, previousHybridElos, 'hybrid');
 
       previousPlayerElos = structuredClone(stats.playerElos);
       previousTeamElos = structuredClone(stats.teamElos);
+      previousTeamIndividualElos = structuredClone(stats.teamIndividualElos);
       previousHybridElos = structuredClone(stats.hybridElos);
     }
 
@@ -398,12 +408,14 @@ export const SheetsProvider: ParentComponent = (props) => {
       ({
         playerElos: {},
         teamElos: {},
+        teamIndividualElos: {},
         hybridElos: {},
       } as MatchStats);
 
     const previousElos = {
       playerElos: {},
       teamElos: {},
+      teamIndividualElos: {},
       hybridElos: {},
     } as MatchStats;
 
@@ -411,6 +423,9 @@ export const SheetsProvider: ParentComponent = (props) => {
       Object.keys(currentElos.playerElos),
     );
     const missingTeamElos = new Set<string>(Object.keys(currentElos.teamElos));
+    const missingTeamIndividualElos = new Set<string>(
+      Object.keys(currentElos.teamIndividualElos),
+    );
     const missingHybridElos = new Set<string>(
       Object.keys(currentElos.hybridElos),
     );
@@ -427,6 +442,14 @@ export const SheetsProvider: ParentComponent = (props) => {
         if (matchStat.teamElos[team] !== undefined) {
           previousElos.teamElos[team] = matchStat.teamElos[team];
           missingTeamElos.delete(team);
+        }
+      }
+
+      for (const team of missingTeamIndividualElos) {
+        if (matchStat.teamIndividualElos[team] !== undefined) {
+          previousElos.teamIndividualElos[team] =
+            matchStat.teamIndividualElos[team];
+          missingTeamIndividualElos.delete(team);
         }
       }
 
@@ -449,6 +472,7 @@ export const SheetsProvider: ParentComponent = (props) => {
     return {
       playerElos: currentElos.playerElos,
       teamElos: currentElos.teamElos,
+      teamIndividualElos: currentElos.teamIndividualElos,
       hybridElos: currentElos.hybridElos,
 
       playerElosChange: Object.fromEntries(
@@ -461,6 +485,12 @@ export const SheetsProvider: ParentComponent = (props) => {
         Object.entries(currentElos.teamElos).map(([team, elo]) => [
           team,
           elo - (previousElos.teamElos[team] ?? DEFAULT_ELO),
+        ]),
+      ),
+      teamIndividualElosChange: Object.fromEntries(
+        Object.entries(currentElos.teamIndividualElos).map(([team, elo]) => [
+          team,
+          elo - (previousElos.teamIndividualElos[team] ?? DEFAULT_ELO),
         ]),
       ),
       hybridElosChange: Object.fromEntries(

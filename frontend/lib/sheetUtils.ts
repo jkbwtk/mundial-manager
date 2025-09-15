@@ -90,7 +90,7 @@ export function calculateEloDiff(
 export function calculateElos(
   match: Match,
   previousElos: Record<string, number>,
-  mode: 'team' | 'hybrid' | 'player',
+  mode: 'player' | 'team' | 'team-individual' | 'hybrid',
 ): Record<string, number> {
   const elos = structuredClone(previousElos);
 
@@ -100,14 +100,16 @@ export function calculateElos(
     }
   }
 
-  if (mode === 'team') {
+  if (mode === 'team' || mode === 'team-individual') {
     if (getPlayersFromMatch(match).length === 2) {
       return elos;
     }
   }
 
   const playersToCalculate =
-    mode === 'hybrid' ? getPlayersFromMatch(match) : [match.team1, match.team2];
+    mode === 'hybrid' || mode === 'team-individual'
+      ? getPlayersFromMatch(match)
+      : [match.team1, match.team2];
 
   const getTeamElo = (team: string): number => {
     if (mode === 'hybrid') {

@@ -56,6 +56,9 @@ const Homepage: Component = () => {
     teamElos: Object.fromEntries(
       Object.entries(eloStats().teamElos).sort((a, b) => b[1] - a[1]),
     ),
+    teamIndividualElos: Object.fromEntries(
+      Object.entries(eloStats().teamIndividualElos).sort((a, b) => b[1] - a[1]),
+    ),
     hybridElos: Object.fromEntries(
       Object.entries(eloStats().hybridElos).sort((a, b) => b[1] - a[1]),
     ),
@@ -161,6 +164,59 @@ const Homepage: Component = () => {
                   {Math.abs(eloStats().hybridElosChange[player] ?? 0).toFixed(
                     2,
                   )}
+                </span>
+              </>
+            )}
+          </For>
+        </div>
+
+        <Divider />
+
+        <div class={style.header}>
+          <strong>Team Individual Stats</strong>
+        </div>
+
+        <div class={style.list}>
+          <For each={Object.entries(sortedElos().teamIndividualElos)}>
+            {([player, elo], index) => (
+              <>
+                <span>{index() + 1}.</span>
+                <span> {player}</span>
+                <span>{elo.toFixed(2)}</span>
+
+                <span
+                  classList={{
+                    [style.positive]:
+                      (eloStats().teamIndividualElosChange[player] ?? 0) > 0,
+                    [style.negative]:
+                      (eloStats().teamIndividualElosChange[player] ?? 0) < 0,
+                  }}
+                >
+                  <Switch>
+                    <Match
+                      when={eloStats().teamIndividualElosChange[player] === 0}
+                    >
+                      =
+                    </Match>
+                    <Match
+                      when={
+                        (eloStats().teamIndividualElosChange[player] ?? 0) > 0
+                      }
+                    >
+                      ↑
+                    </Match>
+                    <Match
+                      when={
+                        (eloStats().teamIndividualElosChange[player] ?? 0) < 0
+                      }
+                    >
+                      ↓
+                    </Match>
+                  </Switch>
+
+                  {Math.abs(
+                    eloStats().teamIndividualElosChange[player] ?? 0,
+                  ).toFixed(2)}
                 </span>
               </>
             )}
