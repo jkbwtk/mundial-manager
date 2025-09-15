@@ -1,5 +1,7 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
+import hljs from 'highlight.js/lib/core';
+import json from 'highlight.js/lib/languages/json';
 import { For, batch, createSignal } from 'solid-js';
 import { AnimatedText } from '#components/AnimatedText';
 import { HighlightedCode } from '#components/HighlightedCode';
@@ -10,9 +12,12 @@ import { toJson } from '#flib/utils';
 import { useSheets } from '#providers/SheetsProvider';
 import type { Match } from '#shared/types/Sheets';
 import { quickSwitch } from '#shared/utils';
+import 'highlight.js/styles/gml.min.css';
 import style from './SheetsTest.module.scss';
 
 dayjs.extend(duration);
+
+hljs.registerLanguage('json', json);
 
 export const SheetsTest: Component = () => {
   const [
