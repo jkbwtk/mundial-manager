@@ -1,7 +1,7 @@
 @use 'app' as *;
 
 .acrylic-background {
-  position: absolute;
+  position: fixed;
 
   z-index: -9001;
 
@@ -15,7 +15,7 @@
 }
 
 .overlay {
-  position: absolute;
+  position: fixed;
 
   z-index: -9000;
 
@@ -25,11 +25,11 @@
   height: 100%;
 
   background-color: rgba($backgroundColor, 0.75);
-  backdrop-filter: blur(25px) saturate(180%);
+  backdrop-filter: blur(2dvmax) saturate(180%);
 }
 
 .noise-pattern {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
