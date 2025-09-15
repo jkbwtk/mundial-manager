@@ -130,6 +130,14 @@ const Homepage: Component = () => {
       Object.keys(Object.values(stats).at(-1)?.playerElos ?? {}),
     );
 
+    const hybridPlayers = Array.from(
+      Object.keys(Object.values(stats).at(-1)?.hybridElos ?? {}),
+    );
+
+    const teamIndividualPlayers = Array.from(
+      Object.keys(Object.values(stats).at(-1)?.teamIndividualElos ?? {}),
+    );
+
     const teams = Array.from(
       Object.keys(Object.values(stats).at(-1)?.teamElos ?? {}),
     );
@@ -142,7 +150,7 @@ const Homepage: Component = () => {
     playerChart.update();
 
     hybridChart.data.labels = Object.values(stats).map((s) => `#${s.id}`);
-    hybridChart.data.datasets = players.map((player) => ({
+    hybridChart.data.datasets = hybridPlayers.map((player) => ({
       label: player,
       data: Object.values(stats).map((s) => s.hybridElos[player] ?? null),
     }));
@@ -151,7 +159,7 @@ const Homepage: Component = () => {
     teamIndividualChart.data.labels = Object.values(stats).map(
       (s) => `#${s.id}`,
     );
-    teamIndividualChart.data.datasets = players.map((player) => ({
+    teamIndividualChart.data.datasets = teamIndividualPlayers.map((player) => ({
       label: player,
       data: Object.values(stats).map(
         (s) => s.teamIndividualElos[player] ?? null,
