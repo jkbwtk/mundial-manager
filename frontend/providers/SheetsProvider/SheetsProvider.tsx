@@ -6,6 +6,7 @@ import {
   useContext,
 } from 'solid-js';
 import { createStore } from 'solid-js/store';
+import { isServer } from 'solid-js/web';
 import {
   DEFAULT_ELO,
   calculateElos,
@@ -89,10 +90,18 @@ export const SheetsProvider: ParentComponent = (props) => {
   );
 
   const initialize = async () => {
+    const cachedMatches = loadCachedMatches();
+
+    if (cachedMatches) {
+      setState('matches', cachedMatches);
+    }
+
     const [metadata, matches] = await Promise.all([
       client.sheets.metadata.query(),
       client.sheets.matches.query(),
     ]);
+
+    cacheMatches(matches);
 
     batch(() => {
       setState('metadata', metadata);
@@ -100,6 +109,36 @@ export const SheetsProvider: ParentComponent = (props) => {
       setState('ready', true);
     });
   };
+
+  function cacheMatches(matches: Match[]) {
+    if (isServer) {
+      return;
+    }
+
+    localStorage.setItem('matchesCache', JSON.stringify(matches));
+  }
+
+  function loadCachedMatches(): Match[] | null {
+    if (isServer) {
+      return null;
+    }
+
+    const cached = localStorage.getItem('matchesCache');
+
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached) as Match[];
+
+        if (Array.isArray(parsed)) {
+          return parsed;
+        }
+      } catch {
+        return null;
+      }
+    }
+
+    return null;
+  }
 
   const uniquePlayers = createMemo(() => {
     const playersSet: Set<string> = new Set();
