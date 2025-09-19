@@ -1,6 +1,6 @@
 {
   "name": "mundial-manager",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "private": true,
   "type": "module",
   "exports": {
@@ -37,6 +37,7 @@
     "commander": "^14.0.0",
     "cors": "^2.8.5",
     "dayjs": "^1.11.18",
+    "echarts": "^6.0.0",
     "figlet": "^1.9.1",
     "google-spreadsheet": "^5.0.2",
     "highlight.js": "^11.11.1",
