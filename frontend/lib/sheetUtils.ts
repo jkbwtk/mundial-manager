@@ -27,7 +27,7 @@ export function formatDate(timestamp: number): string {
 }
 
 export function getPlayersFromTeam(team: string): string[] {
-  return team.split(/\s+/g);
+  return team.split(/\s+/g).sort();
 }
 
 export function getPlayersFromMatch(match: Match): string[] {

@@ -73,10 +73,15 @@ export const MatchReplayMetadata = z.object({
 
 export type MatchReplayMetadata = z.infer<typeof MatchReplayMetadata>;
 
+const NormalizedTeamName = z.codec(z.string(), z.string(), {
+  decode: (str) => str.split(/\s+/g).sort().join(' '),
+  encode: (str) => str,
+});
+
 export const Match = z.object({
   id: z.number().int().nonnegative(),
-  team1: z.string(),
-  team2: z.string(),
+  team1: NormalizedTeamName,
+  team2: NormalizedTeamName,
   score1: z.number().int().min(0),
   score2: z.number().int().min(0),
   floor: z.number().int().optional().nullable().default(null).catch(null),
