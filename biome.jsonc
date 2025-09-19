@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.3/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.0.6/schema.json",
   "vcs": {
     "enabled": false,
     "clientKind": "git",
@@ -7,14 +7,14 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "include": [
-      "./typed-scss-modules.config.ts",
-      "./vite.config.ts",
-      "./rollup.config.js",
-      "./frontend/**/*",
-      "./backend/**/*",
-      "./tools/**/*",
-      "./shared/**/*"
+    "includes": [
+      "typed-scss-modules.config.ts",
+      "vite.config.ts",
+      "rollup.config.js",
+      "frontend/**/*",
+      "backend/**/*",
+      "tools/**/*",
+      "shared/**/*"
     ]
   },
   "formatter": {
@@ -22,27 +22,33 @@
     "indentStyle": "space",
     "indentWidth": 2
   },
-  "organizeImports": {
-    "enabled": true
-  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "linter": {
     "enabled": true,
     "rules": {
-      "all": true,
       "correctness": {
         "useImportExtensions": "off",
         "noNodejsModules": "off",
         "noUndeclaredDependencies": "off"
       },
       "suspicious": {
-        "noConsole": "off",
-        "noConsoleLog": "off"
+        "noConsole": "off"
       },
       "style": {
         "noDefaultExport": "off",
         "useNamingConvention": "off",
         "useFilenamingConvention": "off",
-        "noNonNullAssertion": "off"
+        "noNonNullAssertion": "off",
+        "noParameterAssign": "error",
+        "useAsConstAssertion": "error",
+        "useDefaultParameterLast": "error",
+        "useEnumInitializers": "error",
+        "useSelfClosingElements": "error",
+        "useSingleVarDeclarator": "error",
+        "noUnusedTemplateLiteral": "error",
+        "useNumberNamespace": "error",
+        "noInferrableTypes": "error",
+        "noUselessElse": "error"
       },
       "performance": {
         "noReExportAll": "off",
