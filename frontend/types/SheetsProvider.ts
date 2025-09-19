@@ -18,6 +18,13 @@ export interface GeneralStats {
   totalIndividualPlaytimeExtrapolated: number;
   totalIndividualPlaytimeExtrapolatedFormatted: string;
 }
+
+export interface Glicko2Rating {
+  rating: number;
+  rd: number;
+  volatility: number;
+}
+
 export interface PlayerStats {
   player: string;
 
@@ -50,6 +57,11 @@ export interface MatchStats {
   teamElos: Record<string, number>;
   teamIndividualElos: Record<string, number>;
   hybridElos: Record<string, number>;
+
+  playerGlicko2: Record<string, Glicko2Rating>;
+  teamGlicko2: Record<string, Glicko2Rating>;
+  teamIndividualGlicko2: Record<string, Glicko2Rating>;
+  hybridGlicko2: Record<string, Glicko2Rating>;
 }
 
 export interface DayStats {
@@ -83,4 +95,16 @@ export interface EloStats {
   teamElosChange: Record<string, number>;
   teamIndividualElosChange: Record<string, number>;
   hybridElosChange: Record<string, number>;
+}
+
+export interface Glicko2Stats {
+  playerGlicko2: Record<string, Glicko2Rating>;
+  teamGlicko2: Record<string, Glicko2Rating>;
+  teamIndividualGlicko2: Record<string, Glicko2Rating>;
+  hybridGlicko2: Record<string, Glicko2Rating>;
+
+  playerGlicko2Change: Record<string, Glicko2Rating>;
+  teamGlicko2Change: Record<string, Glicko2Rating>;
+  teamIndividualGlicko2Change: Record<string, Glicko2Rating>;
+  hybridGlicko2Change: Record<string, Glicko2Rating>;
 }

@@ -15,6 +15,7 @@ import {
 import { isServer } from 'solid-js/web';
 import { Break } from '#components/Break';
 import { Divider, Widget } from '#components/Widget';
+import { getGlicko2Confidence } from '#flib/sheetUtils';
 import { useConsoleUnitPrototype } from '#providers/ConsoleUnitPrototypeProvider';
 import { useSheets } from '#providers/SheetsProvider';
 import style from './Homepage.module.scss';
@@ -26,7 +27,7 @@ Chart.defaults.font.size = 14;
 
 const Homepage: Component = () => {
   const [{ unit: consoleUnit }] = useConsoleUnitPrototype();
-  const [, { eloStats, matchStats }] = useSheets();
+  const [, { eloStats, glicko2Stats, matchStats }] = useSheets();
 
   // biome-ignore lint/style/useConst: yeah
   let playerChartRef: HTMLCanvasElement = null!;
@@ -43,6 +44,22 @@ const Homepage: Component = () => {
   // biome-ignore lint/style/useConst: yeah
   let teamChartRef: HTMLCanvasElement = null!;
   let teamChart: Chart = null!;
+
+  // biome-ignore lint/style/useConst: yeah
+  let playerGlicko2ChartRef: HTMLCanvasElement = null!;
+  let playerGlicko2Chart: Chart = null!;
+
+  // biome-ignore lint/style/useConst: yeah
+  let hybridGlicko2ChartRef: HTMLCanvasElement = null!;
+  let hybridGlicko2Chart: Chart = null!;
+
+  // biome-ignore lint/style/useConst: yeah
+  let teamIndividualGlicko2ChartRef: HTMLCanvasElement = null!;
+  let teamIndividualGlicko2Chart: Chart = null!;
+
+  // biome-ignore lint/style/useConst: yeah
+  let teamGlicko2ChartRef: HTMLCanvasElement = null!;
+  let teamGlicko2Chart: Chart = null!;
 
   const [pageWidth, setPageWidth] = createSignal(120);
 
@@ -86,6 +103,38 @@ const Homepage: Component = () => {
           datasets: [],
         },
       });
+
+      playerGlicko2Chart = new Chart(playerGlicko2ChartRef, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [],
+        },
+      });
+
+      hybridGlicko2Chart = new Chart(hybridGlicko2ChartRef, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [],
+        },
+      });
+
+      teamIndividualGlicko2Chart = new Chart(teamIndividualGlicko2ChartRef, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [],
+        },
+      });
+
+      teamGlicko2Chart = new Chart(teamGlicko2ChartRef, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [],
+        },
+      });
     }
   });
 
@@ -94,6 +143,13 @@ const Homepage: Component = () => {
       window.removeEventListener('resize', handleResize);
 
       playerChart.destroy();
+      hybridChart.destroy();
+      teamIndividualChart.destroy();
+      teamChart.destroy();
+      playerGlicko2Chart.destroy();
+      hybridGlicko2Chart.destroy();
+      teamIndividualGlicko2Chart.destroy();
+      teamGlicko2Chart.destroy();
     }
   });
 
@@ -116,6 +172,29 @@ const Homepage: Component = () => {
     ),
     hybridElos: Object.fromEntries(
       Object.entries(eloStats().hybridElos).sort((a, b) => b[1] - a[1]),
+    ),
+  }));
+
+  const sortedGlicko2 = createMemo(() => ({
+    playerGlicko2: Object.fromEntries(
+      Object.entries(glicko2Stats().playerGlicko2).sort(
+        (a, b) => b[1].rating - a[1].rating,
+      ),
+    ),
+    teamGlicko2: Object.fromEntries(
+      Object.entries(glicko2Stats().teamGlicko2).sort(
+        (a, b) => b[1].rating - a[1].rating,
+      ),
+    ),
+    teamIndividualGlicko2: Object.fromEntries(
+      Object.entries(glicko2Stats().teamIndividualGlicko2).sort(
+        (a, b) => b[1].rating - a[1].rating,
+      ),
+    ),
+    hybridGlicko2: Object.fromEntries(
+      Object.entries(glicko2Stats().hybridGlicko2).sort(
+        (a, b) => b[1].rating - a[1].rating,
+      ),
     ),
   }));
 
@@ -173,6 +252,68 @@ const Homepage: Component = () => {
       data: Object.values(stats).map((s) => s.teamElos[team] ?? null),
     }));
     teamChart.update();
+
+    // Glicko-2 chart updates
+    const glicko2Players = Array.from(
+      Object.keys(Object.values(stats).at(-1)?.playerGlicko2 ?? {}),
+    );
+
+    const hybridGlicko2Players = Array.from(
+      Object.keys(Object.values(stats).at(-1)?.hybridGlicko2 ?? {}),
+    );
+
+    playerGlicko2Chart.data.labels = Object.values(stats).map(
+      (s) => `#${s.id}`,
+    );
+    playerGlicko2Chart.data.datasets = glicko2Players.map((player) => ({
+      label: player,
+      data: Object.values(stats).map(
+        (s) => s.playerGlicko2[player]?.rating ?? null,
+      ),
+    }));
+    playerGlicko2Chart.update();
+
+    hybridGlicko2Chart.data.labels = Object.values(stats).map(
+      (s) => `#${s.id}`,
+    );
+    hybridGlicko2Chart.data.datasets = hybridGlicko2Players.map((player) => ({
+      label: player,
+      data: Object.values(stats).map(
+        (s) => s.hybridGlicko2[player]?.rating ?? null,
+      ),
+    }));
+    hybridGlicko2Chart.update();
+
+    // Team Individual and Team Glicko-2 charts
+    const teamIndividualGlicko2Players = Array.from(
+      Object.keys(Object.values(stats).at(-1)?.teamIndividualGlicko2 ?? {}),
+    );
+
+    const teamGlicko2Teams = Array.from(
+      Object.keys(Object.values(stats).at(-1)?.teamGlicko2 ?? {}),
+    );
+
+    teamIndividualGlicko2Chart.data.labels = Object.values(stats).map(
+      (s) => `#${s.id}`,
+    );
+    teamIndividualGlicko2Chart.data.datasets = teamIndividualGlicko2Players.map(
+      (player) => ({
+        label: player,
+        data: Object.values(stats).map(
+          (s) => s.teamIndividualGlicko2[player]?.rating ?? null,
+        ),
+      }),
+    );
+    teamIndividualGlicko2Chart.update();
+
+    teamGlicko2Chart.data.labels = Object.values(stats).map((s) => `#${s.id}`);
+    teamGlicko2Chart.data.datasets = teamGlicko2Teams.map((team) => ({
+      label: team,
+      data: Object.values(stats).map(
+        (s) => s.teamGlicko2[team]?.rating ?? null,
+      ),
+    }));
+    teamGlicko2Chart.update();
   });
 
   return (
@@ -188,192 +329,441 @@ const Homepage: Component = () => {
 
       <Break />
 
-      <Widget title="Elo Stats" class={style.eloStats}>
-        <div class={style.header}>
-          <strong>Player Stats</strong>
-        </div>
+      <Widget title="Stats" class={style.statsContainer}>
+        <Widget title="Elo Stats" class={style.eloStats}>
+          <div class={style.header}>
+            <strong>Player Stats</strong>
+          </div>
 
-        <div class={style.list}>
-          <For each={Object.entries(sortedElos().playerElos)}>
-            {([player, elo], index) => (
-              <>
-                <span>{index() + 1}.</span>
-                <span> {player}</span>
-                <span>{elo.toFixed(2)}</span>
+          <div class={style.list}>
+            <For each={Object.entries(sortedElos().playerElos)}>
+              {([player, elo], index) => (
+                <>
+                  <span>{index() + 1}.</span>
+                  <span> {player}</span>
+                  <span>{elo.toFixed(2)}</span>
 
-                <span
-                  classList={{
-                    [style.positive]:
-                      (eloStats().playerElosChange[player] ?? 0) > 0,
-                    [style.negative]:
-                      (eloStats().playerElosChange[player] ?? 0) < 0,
-                  }}
-                >
-                  <Switch>
-                    <Match when={eloStats().playerElosChange[player] === 0}>
-                      =
-                    </Match>
-                    <Match
-                      when={(eloStats().playerElosChange[player] ?? 0) > 0}
-                    >
-                      ↑
-                    </Match>
-                    <Match
-                      when={(eloStats().playerElosChange[player] ?? 0) < 0}
-                    >
-                      ↓
-                    </Match>
-                  </Switch>
+                  <span
+                    classList={{
+                      [style.positive]:
+                        (eloStats().playerElosChange[player] ?? 0) > 0,
+                      [style.negative]:
+                        (eloStats().playerElosChange[player] ?? 0) < 0,
+                    }}
+                  >
+                    <Switch>
+                      <Match when={eloStats().playerElosChange[player] === 0}>
+                        =
+                      </Match>
+                      <Match
+                        when={(eloStats().playerElosChange[player] ?? 0) > 0}
+                      >
+                        ↑
+                      </Match>
+                      <Match
+                        when={(eloStats().playerElosChange[player] ?? 0) < 0}
+                      >
+                        ↓
+                      </Match>
+                    </Switch>
 
-                  {Math.abs(eloStats().playerElosChange[player] ?? 0).toFixed(
-                    2,
-                  )}
-                </span>
-              </>
-            )}
-          </For>
-        </div>
+                    {Math.abs(eloStats().playerElosChange[player] ?? 0).toFixed(
+                      2,
+                    )}
+                  </span>
+                </>
+              )}
+            </For>
+          </div>
 
-        <Divider />
+          <Divider />
 
-        <div class={style.header}>
-          <strong>Hybrid Stats</strong>
-        </div>
+          <div class={style.header}>
+            <strong>Hybrid Stats</strong>
+          </div>
 
-        <div class={style.list}>
-          <For each={Object.entries(sortedElos().hybridElos)}>
-            {([player, elo], index) => (
-              <>
-                <span>{index() + 1}.</span>
-                <span> {player}</span>
-                <span>{elo.toFixed(2)}</span>
+          <div class={style.list}>
+            <For each={Object.entries(sortedElos().hybridElos)}>
+              {([player, elo], index) => (
+                <>
+                  <span>{index() + 1}.</span>
+                  <span> {player}</span>
+                  <span>{elo.toFixed(2)}</span>
 
-                <span
-                  classList={{
-                    [style.positive]:
-                      (eloStats().hybridElosChange[player] ?? 0) > 0,
-                    [style.negative]:
-                      (eloStats().hybridElosChange[player] ?? 0) < 0,
-                  }}
-                >
-                  <Switch>
-                    <Match when={eloStats().hybridElosChange[player] === 0}>
-                      =
-                    </Match>
-                    <Match
-                      when={(eloStats().hybridElosChange[player] ?? 0) > 0}
-                    >
-                      ↑
-                    </Match>
-                    <Match
-                      when={(eloStats().hybridElosChange[player] ?? 0) < 0}
-                    >
-                      ↓
-                    </Match>
-                  </Switch>
+                  <span
+                    classList={{
+                      [style.positive]:
+                        (eloStats().hybridElosChange[player] ?? 0) > 0,
+                      [style.negative]:
+                        (eloStats().hybridElosChange[player] ?? 0) < 0,
+                    }}
+                  >
+                    <Switch>
+                      <Match when={eloStats().hybridElosChange[player] === 0}>
+                        =
+                      </Match>
+                      <Match
+                        when={(eloStats().hybridElosChange[player] ?? 0) > 0}
+                      >
+                        ↑
+                      </Match>
+                      <Match
+                        when={(eloStats().hybridElosChange[player] ?? 0) < 0}
+                      >
+                        ↓
+                      </Match>
+                    </Switch>
 
-                  {Math.abs(eloStats().hybridElosChange[player] ?? 0).toFixed(
-                    2,
-                  )}
-                </span>
-              </>
-            )}
-          </For>
-        </div>
+                    {Math.abs(eloStats().hybridElosChange[player] ?? 0).toFixed(
+                      2,
+                    )}
+                  </span>
+                </>
+              )}
+            </For>
+          </div>
 
-        <Divider />
+          <Divider />
 
-        <div class={style.header}>
-          <strong>Team Individual Stats</strong>
-        </div>
+          <div class={style.header}>
+            <strong>Team Individual Stats</strong>
+          </div>
 
-        <div class={style.list}>
-          <For each={Object.entries(sortedElos().teamIndividualElos)}>
-            {([player, elo], index) => (
-              <>
-                <span>{index() + 1}.</span>
-                <span> {player}</span>
-                <span>{elo.toFixed(2)}</span>
+          <div class={style.list}>
+            <For each={Object.entries(sortedElos().teamIndividualElos)}>
+              {([player, elo], index) => (
+                <>
+                  <span>{index() + 1}.</span>
+                  <span> {player}</span>
+                  <span>{elo.toFixed(2)}</span>
 
-                <span
-                  classList={{
-                    [style.positive]:
-                      (eloStats().teamIndividualElosChange[player] ?? 0) > 0,
-                    [style.negative]:
-                      (eloStats().teamIndividualElosChange[player] ?? 0) < 0,
-                  }}
-                >
-                  <Switch>
-                    <Match
-                      when={eloStats().teamIndividualElosChange[player] === 0}
-                    >
-                      =
-                    </Match>
-                    <Match
-                      when={
-                        (eloStats().teamIndividualElosChange[player] ?? 0) > 0
-                      }
-                    >
-                      ↑
-                    </Match>
-                    <Match
-                      when={
-                        (eloStats().teamIndividualElosChange[player] ?? 0) < 0
-                      }
-                    >
-                      ↓
-                    </Match>
-                  </Switch>
+                  <span
+                    classList={{
+                      [style.positive]:
+                        (eloStats().teamIndividualElosChange[player] ?? 0) > 0,
+                      [style.negative]:
+                        (eloStats().teamIndividualElosChange[player] ?? 0) < 0,
+                    }}
+                  >
+                    <Switch>
+                      <Match
+                        when={eloStats().teamIndividualElosChange[player] === 0}
+                      >
+                        =
+                      </Match>
+                      <Match
+                        when={
+                          (eloStats().teamIndividualElosChange[player] ?? 0) > 0
+                        }
+                      >
+                        ↑
+                      </Match>
+                      <Match
+                        when={
+                          (eloStats().teamIndividualElosChange[player] ?? 0) < 0
+                        }
+                      >
+                        ↓
+                      </Match>
+                    </Switch>
 
-                  {Math.abs(
-                    eloStats().teamIndividualElosChange[player] ?? 0,
-                  ).toFixed(2)}
-                </span>
-              </>
-            )}
-          </For>
-        </div>
+                    {Math.abs(
+                      eloStats().teamIndividualElosChange[player] ?? 0,
+                    ).toFixed(2)}
+                  </span>
+                </>
+              )}
+            </For>
+          </div>
 
-        <Divider />
+          <Divider />
 
-        <div class={style.header}>
-          <strong>Team Stats</strong>
-        </div>
+          <div class={style.header}>
+            <strong>Team Stats</strong>
+          </div>
 
-        <div class={style.list}>
-          <For each={Object.entries(sortedElos().teamElos)}>
-            {([team, elo], index) => (
-              <>
-                <span>{index() + 1}.</span>
-                <span> {team}</span>
-                <span>{elo.toFixed(2)}</span>
+          <div class={style.list}>
+            <For each={Object.entries(sortedElos().teamElos)}>
+              {([team, elo], index) => (
+                <>
+                  <span>{index() + 1}.</span>
+                  <span> {team}</span>
+                  <span>{elo.toFixed(2)}</span>
 
-                <span
-                  classList={{
-                    [style.positive]:
-                      (eloStats().teamElosChange[team] ?? 0) > 0,
-                    [style.negative]:
-                      (eloStats().teamElosChange[team] ?? 0) < 0,
-                  }}
-                >
-                  <Switch>
-                    <Match when={eloStats().teamElosChange[team] === 0}>
-                      =
-                    </Match>
-                    <Match when={(eloStats().teamElosChange[team] ?? 0) > 0}>
-                      ↑
-                    </Match>
-                    <Match when={(eloStats().teamElosChange[team] ?? 0) < 0}>
-                      ↓
-                    </Match>
-                  </Switch>
+                  <span
+                    classList={{
+                      [style.positive]:
+                        (eloStats().teamElosChange[team] ?? 0) > 0,
+                      [style.negative]:
+                        (eloStats().teamElosChange[team] ?? 0) < 0,
+                    }}
+                  >
+                    <Switch>
+                      <Match when={eloStats().teamElosChange[team] === 0}>
+                        =
+                      </Match>
+                      <Match when={(eloStats().teamElosChange[team] ?? 0) > 0}>
+                        ↑
+                      </Match>
+                      <Match when={(eloStats().teamElosChange[team] ?? 0) < 0}>
+                        ↓
+                      </Match>
+                    </Switch>
 
-                  {Math.abs(eloStats().teamElosChange[team] ?? 0).toFixed(2)}
-                </span>
-              </>
-            )}
-          </For>
-        </div>
+                    {Math.abs(eloStats().teamElosChange[team] ?? 0).toFixed(2)}
+                  </span>
+                </>
+              )}
+            </For>
+          </div>
+        </Widget>
+
+        <Widget
+          title="Glicko-2 Stats"
+          classList={{ [style.eloStats]: true, [style.glickoStats]: true }}
+        >
+          <div class={style.header}>
+            <strong>Player Glicko-2</strong>
+          </div>
+
+          <div class={style.list}>
+            <For each={Object.entries(sortedGlicko2().playerGlicko2)}>
+              {([player, rating], index) => (
+                <>
+                  <span>{index() + 1}.</span>
+                  <span> {player}</span>
+                  <span>{rating.rating.toFixed(2)}</span>
+                  <span>({getGlicko2Confidence(rating).toFixed(0)}%)</span>
+
+                  <span
+                    classList={{
+                      [style.positive]:
+                        (glicko2Stats().playerGlicko2Change[player]?.rating ??
+                          0) > 0,
+                      [style.negative]:
+                        (glicko2Stats().playerGlicko2Change[player]?.rating ??
+                          0) < 0,
+                    }}
+                  >
+                    <Switch>
+                      <Match
+                        when={
+                          glicko2Stats().playerGlicko2Change[player]?.rating ===
+                          0
+                        }
+                      >
+                        =
+                      </Match>
+                      <Match
+                        when={
+                          (glicko2Stats().playerGlicko2Change[player]?.rating ??
+                            0) > 0
+                        }
+                      >
+                        ↑
+                      </Match>
+                      <Match
+                        when={
+                          (glicko2Stats().playerGlicko2Change[player]?.rating ??
+                            0) < 0
+                        }
+                      >
+                        ↓
+                      </Match>
+                    </Switch>
+
+                    {Math.abs(
+                      glicko2Stats().playerGlicko2Change[player]?.rating ?? 0,
+                    ).toFixed(2)}
+                  </span>
+                </>
+              )}
+            </For>
+          </div>
+
+          <Divider />
+
+          <div class={style.header}>
+            <strong>Hybrid Glicko-2</strong>
+          </div>
+
+          <div class={style.list}>
+            <For each={Object.entries(sortedGlicko2().hybridGlicko2)}>
+              {([player, rating], index) => (
+                <>
+                  <span>{index() + 1}.</span>
+                  <span> {player}</span>
+                  <span>{rating.rating.toFixed(2)} </span>
+                  <span>({getGlicko2Confidence(rating).toFixed(0)}%)</span>
+
+                  <span
+                    classList={{
+                      [style.positive]:
+                        (glicko2Stats().hybridGlicko2Change[player]?.rating ??
+                          0) > 0,
+                      [style.negative]:
+                        (glicko2Stats().hybridGlicko2Change[player]?.rating ??
+                          0) < 0,
+                    }}
+                  >
+                    <Switch>
+                      <Match
+                        when={
+                          glicko2Stats().hybridGlicko2Change[player]?.rating ===
+                          0
+                        }
+                      >
+                        =
+                      </Match>
+                      <Match
+                        when={
+                          (glicko2Stats().hybridGlicko2Change[player]?.rating ??
+                            0) > 0
+                        }
+                      >
+                        ↑
+                      </Match>
+                      <Match
+                        when={
+                          (glicko2Stats().hybridGlicko2Change[player]?.rating ??
+                            0) < 0
+                        }
+                      >
+                        ↓
+                      </Match>
+                    </Switch>
+
+                    {Math.abs(
+                      glicko2Stats().hybridGlicko2Change[player]?.rating ?? 0,
+                    ).toFixed(2)}
+                  </span>
+                </>
+              )}
+            </For>
+          </div>
+
+          <Divider />
+
+          <div class={style.header}>
+            <strong>Team Individual Glicko-2</strong>
+          </div>
+
+          <div class={style.list}>
+            <For each={Object.entries(sortedGlicko2().teamIndividualGlicko2)}>
+              {([player, rating], index) => (
+                <>
+                  <span>{index() + 1}.</span>
+                  <span> {player}</span>
+                  <span>{rating.rating.toFixed(2)} </span>
+                  <span>({getGlicko2Confidence(rating).toFixed(0)}%)</span>
+
+                  <span
+                    classList={{
+                      [style.positive]:
+                        (glicko2Stats().teamIndividualGlicko2Change[player]
+                          ?.rating ?? 0) > 0,
+                      [style.negative]:
+                        (glicko2Stats().teamIndividualGlicko2Change[player]
+                          ?.rating ?? 0) < 0,
+                    }}
+                  >
+                    <Switch>
+                      <Match
+                        when={
+                          glicko2Stats().teamIndividualGlicko2Change[player]
+                            ?.rating === 0
+                        }
+                      >
+                        =
+                      </Match>
+                      <Match
+                        when={
+                          (glicko2Stats().teamIndividualGlicko2Change[player]
+                            ?.rating ?? 0) > 0
+                        }
+                      >
+                        ↑
+                      </Match>
+                      <Match
+                        when={
+                          (glicko2Stats().teamIndividualGlicko2Change[player]
+                            ?.rating ?? 0) < 0
+                        }
+                      >
+                        ↓
+                      </Match>
+                    </Switch>
+
+                    {Math.abs(
+                      glicko2Stats().teamIndividualGlicko2Change[player]
+                        ?.rating ?? 0,
+                    ).toFixed(2)}
+                  </span>
+                </>
+              )}
+            </For>
+          </div>
+
+          <Divider />
+
+          <div class={style.header}>
+            <strong>Team Glicko-2</strong>
+          </div>
+
+          <div class={style.list}>
+            <For each={Object.entries(sortedGlicko2().teamGlicko2)}>
+              {([team, rating], index) => (
+                <>
+                  <span>{index() + 1}.</span>
+                  <span> {team}</span>
+                  <span>{rating.rating.toFixed(2)} </span>
+                  <span>({getGlicko2Confidence(rating).toFixed(0)}%)</span>
+
+                  <span
+                    classList={{
+                      [style.positive]:
+                        (glicko2Stats().teamGlicko2Change[team]?.rating ?? 0) >
+                        0,
+                      [style.negative]:
+                        (glicko2Stats().teamGlicko2Change[team]?.rating ?? 0) <
+                        0,
+                    }}
+                  >
+                    <Switch>
+                      <Match
+                        when={
+                          glicko2Stats().teamGlicko2Change[team]?.rating === 0
+                        }
+                      >
+                        =
+                      </Match>
+                      <Match
+                        when={
+                          (glicko2Stats().teamGlicko2Change[team]?.rating ??
+                            0) > 0
+                        }
+                      >
+                        ↑
+                      </Match>
+                      <Match
+                        when={
+                          (glicko2Stats().teamGlicko2Change[team]?.rating ??
+                            0) < 0
+                        }
+                      >
+                        ↓
+                      </Match>
+                    </Switch>
+
+                    {Math.abs(
+                      glicko2Stats().teamGlicko2Change[team]?.rating ?? 0,
+                    ).toFixed(2)}
+                  </span>
+                </>
+              )}
+            </For>
+          </div>
+        </Widget>
       </Widget>
 
       <Widget title="Player Elo Chart" class={style.eloChart}>
@@ -390,6 +780,22 @@ const Homepage: Component = () => {
 
       <Widget title="Team Elo Chart" class={style.eloChart}>
         <canvas ref={teamChartRef} />
+      </Widget>
+
+      <Widget title="Player Glicko-2 Chart" class={style.eloChart}>
+        <canvas ref={playerGlicko2ChartRef} />
+      </Widget>
+
+      <Widget title="Hybrid Glicko-2 Chart" class={style.eloChart}>
+        <canvas ref={hybridGlicko2ChartRef} />
+      </Widget>
+
+      <Widget title="Team Individual Glicko-2 Chart" class={style.eloChart}>
+        <canvas ref={teamIndividualGlicko2ChartRef} />
+      </Widget>
+
+      <Widget title="Team Glicko-2 Chart" class={style.eloChart}>
+        <canvas ref={teamGlicko2ChartRef} />
       </Widget>
     </div>
   );

@@ -7,7 +7,7 @@ import { AnimatedText } from '#components/AnimatedText';
 import { HighlightedCode } from '#components/HighlightedCode';
 import { type Column, Table } from '#components/Table';
 import { Widget } from '#components/Widget';
-import { formatDate, formatDuration } from '#flib/sheetUtils';
+import { formatDate, formatDuration, getGlicko2Confidence } from '#flib/sheetUtils';
 import { toJson } from '#flib/utils';
 import { useSheets } from '#providers/SheetsProvider';
 import type { Match } from '#shared/types/Sheets';
@@ -22,7 +22,7 @@ hljs.registerLanguage('json', json);
 export const SheetsTest: Component = () => {
   const [
     sheets,
-    { playerStats, generalStats, matchStats, dayStats, eloStats },
+    { playerStats, generalStats, matchStats, dayStats, eloStats, glicko2Stats },
   ] = useSheets();
 
   const [sortColumn, setSortColumn] = createSignal<keyof Match | null>(null);
@@ -263,6 +263,59 @@ export const SheetsTest: Component = () => {
 
         <strong>Raw:</strong>
         <HighlightedCode language="json" code={toJson(playerStats())} />
+      </Widget>
+
+      <Widget title="Glicko-2 Stats" class={style.metadata}>
+        <strong>Player Glicko-2:</strong>
+        <For each={Object.entries(glicko2Stats().playerGlicko2)}>
+          {([player, rating]) => (
+            <div>
+              <strong>{player}: </strong>
+              <AnimatedText>{rating.rating.toFixed(1)}</AnimatedText>
+              {' '}(RD: <AnimatedText>{rating.rd.toFixed(1)}</AnimatedText>
+              , Confidence: <AnimatedText>{getGlicko2Confidence(rating).toFixed(1)}%</AnimatedText>)
+            </div>
+          )}
+        </For>
+        <br />
+        <strong>Team Glicko-2:</strong>
+        <For each={Object.entries(glicko2Stats().teamGlicko2)}>
+          {([team, rating]) => (
+            <div>
+              <strong>{team}: </strong>
+              <AnimatedText>{rating.rating.toFixed(1)}</AnimatedText>
+              {' '}(RD: <AnimatedText>{rating.rd.toFixed(1)}</AnimatedText>
+              , Confidence: <AnimatedText>{getGlicko2Confidence(rating).toFixed(1)}%</AnimatedText>)
+            </div>
+          )}
+        </For>
+        <br />
+        <strong>Hybrid Glicko-2:</strong>
+        <For each={Object.entries(glicko2Stats().hybridGlicko2)}>
+          {([player, rating]) => (
+            <div>
+              <strong>{player}: </strong>
+              <AnimatedText>{rating.rating.toFixed(1)}</AnimatedText>
+              {' '}(RD: <AnimatedText>{rating.rd.toFixed(1)}</AnimatedText>
+              , Confidence: <AnimatedText>{getGlicko2Confidence(rating).toFixed(1)}%</AnimatedText>)
+            </div>
+          )}
+        </For>
+        <br />
+        <strong>Glicko-2 Rating Changes:</strong>
+        <For each={Object.entries(glicko2Stats().playerGlicko2Change)}>
+          {([player, change]) => (
+            <div>
+              <strong>{player}: </strong>
+              Rating: <AnimatedText>{change.rating > 0 ? '+' : ''}{change.rating.toFixed(1)}</AnimatedText>
+              {', '}RD: <AnimatedText>{change.rd > 0 ? '+' : ''}{change.rd.toFixed(1)}</AnimatedText>
+            </div>
+          )}
+        </For>
+        <br />
+
+        <strong>Raw:</strong>
+        <HighlightedCode language="json" code={toJson(glicko2Stats())} />
       </Widget>
 
       <Widget title="Match Stats" class={style.metadata}>

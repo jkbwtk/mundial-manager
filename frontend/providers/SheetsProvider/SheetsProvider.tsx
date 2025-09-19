@@ -10,14 +10,20 @@ import { isServer } from 'solid-js/web';
 import {
   DEFAULT_ELO,
   calculateElos,
+  calculateGlicko2Ratings,
   formatDate,
   formatDuration,
   getPlayersFromMatch,
   getPlayersFromTeam,
+  type Glicko2Rating,
+  DEFAULT_GLICKO2_RATING,
+  DEFAULT_GLICKO2_RD,
+  DEFAULT_GLICKO2_VOLATILITY,
 } from '#flib/sheetUtils';
 import type {
   DayStats,
   EloStats,
+  Glicko2Stats,
   GeneralStats,
   MatchStats,
   PlayerStats,
@@ -39,6 +45,7 @@ export interface SheetsContextActions {
   matchStats: () => Record<number, MatchStats>;
   dayStats: () => Record<number, DayStats>;
   eloStats: () => EloStats;
+  glicko2Stats: () => Glicko2Stats;
 }
 
 export type SheetsContextValue = [
@@ -78,6 +85,9 @@ const SheetsContext = createContext<SheetsContextValue>([
     },
     eloStats: () => {
       throw new Error('SheetsContext: eloStats() called before provider');
+    },
+    glicko2Stats: () => {
+      throw new Error('SheetsContext: glicko2Stats() called before provider');
     },
   },
 ]);
@@ -317,6 +327,11 @@ export const SheetsProvider: ParentComponent = (props) => {
       teamElos: {},
       teamIndividualElos: {},
       hybridElos: {},
+
+      playerGlicko2: {},
+      teamGlicko2: {},
+      teamIndividualGlicko2: {},
+      hybridGlicko2: {},
     };
 
     const matchMap: Map<number, MatchStats> = new Map();
@@ -327,6 +342,13 @@ export const SheetsProvider: ParentComponent = (props) => {
       defaultStats.teamIndividualElos,
     );
     let previousHybridElos = structuredClone(defaultStats.hybridElos);
+
+    let previousPlayerGlicko2 = structuredClone(defaultStats.playerGlicko2);
+    let previousTeamGlicko2 = structuredClone(defaultStats.teamGlicko2);
+    let previousTeamIndividualGlicko2 = structuredClone(
+      defaultStats.teamIndividualGlicko2,
+    );
+    let previousHybridGlicko2 = structuredClone(defaultStats.hybridGlicko2);
 
     for (const match of state.matches) {
       if (matchMap.has(match.id) === false) {
@@ -348,10 +370,24 @@ export const SheetsProvider: ParentComponent = (props) => {
       );
       stats.hybridElos = calculateElos(match, previousHybridElos, 'hybrid');
 
+      stats.playerGlicko2 = calculateGlicko2Ratings(match, previousPlayerGlicko2, 'player');
+      stats.teamGlicko2 = calculateGlicko2Ratings(match, previousTeamGlicko2, 'team');
+      stats.teamIndividualGlicko2 = calculateGlicko2Ratings(
+        match,
+        previousTeamIndividualGlicko2,
+        'team-individual',
+      );
+      stats.hybridGlicko2 = calculateGlicko2Ratings(match, previousHybridGlicko2, 'hybrid');
+
       previousPlayerElos = structuredClone(stats.playerElos);
       previousTeamElos = structuredClone(stats.teamElos);
       previousTeamIndividualElos = structuredClone(stats.teamIndividualElos);
       previousHybridElos = structuredClone(stats.hybridElos);
+
+      previousPlayerGlicko2 = structuredClone(stats.playerGlicko2);
+      previousTeamGlicko2 = structuredClone(stats.teamGlicko2);
+      previousTeamIndividualGlicko2 = structuredClone(stats.teamIndividualGlicko2);
+      previousHybridGlicko2 = structuredClone(stats.hybridGlicko2);
     }
 
     for (const [id, stats] of matchMap) {
@@ -541,6 +577,123 @@ export const SheetsProvider: ParentComponent = (props) => {
     };
   });
 
+  const glicko2Stats = createMemo<Glicko2Stats>(() => {
+    const matches = Object.values(matchStats()).toReversed();
+
+    const currentGlicko2 =
+      matches.shift() ??
+      ({
+        playerGlicko2: {},
+        teamGlicko2: {},
+        teamIndividualGlicko2: {},
+        hybridGlicko2: {},
+      } as MatchStats);
+
+    const previousGlicko2 = {
+      playerGlicko2: {},
+      teamGlicko2: {},
+      teamIndividualGlicko2: {},
+      hybridGlicko2: {},
+    } as MatchStats;
+
+    const defaultRating: Glicko2Rating = {
+      rating: DEFAULT_GLICKO2_RATING,
+      rd: DEFAULT_GLICKO2_RD,
+      volatility: DEFAULT_GLICKO2_VOLATILITY,
+    };
+
+    const missingPlayerGlicko2 = new Set<string>(
+      Object.keys(currentGlicko2.playerGlicko2),
+    );
+    const missingTeamGlicko2 = new Set<string>(Object.keys(currentGlicko2.teamGlicko2));
+    const missingTeamIndividualGlicko2 = new Set<string>(
+      Object.keys(currentGlicko2.teamIndividualGlicko2),
+    );
+    const missingHybridGlicko2 = new Set<string>(
+      Object.keys(currentGlicko2.hybridGlicko2),
+    );
+
+    for (const matchStat of matches) {
+      for (const player of missingPlayerGlicko2) {
+        if (matchStat.playerGlicko2[player] !== undefined) {
+          previousGlicko2.playerGlicko2[player] = matchStat.playerGlicko2[player];
+          missingPlayerGlicko2.delete(player);
+        }
+      }
+
+      for (const team of missingTeamGlicko2) {
+        if (matchStat.teamGlicko2[team] !== undefined) {
+          previousGlicko2.teamGlicko2[team] = matchStat.teamGlicko2[team];
+          missingTeamGlicko2.delete(team);
+        }
+      }
+
+      for (const team of missingTeamIndividualGlicko2) {
+        if (matchStat.teamIndividualGlicko2[team] !== undefined) {
+          previousGlicko2.teamIndividualGlicko2[team] =
+            matchStat.teamIndividualGlicko2[team];
+          missingTeamIndividualGlicko2.delete(team);
+        }
+      }
+
+      for (const player of missingHybridGlicko2) {
+        if (matchStat.hybridGlicko2[player] !== undefined) {
+          previousGlicko2.hybridGlicko2[player] = matchStat.hybridGlicko2[player];
+          missingHybridGlicko2.delete(player);
+        }
+      }
+
+      if (
+        missingPlayerGlicko2.size === 0 &&
+        missingTeamGlicko2.size === 0 &&
+        missingHybridGlicko2.size === 0
+      ) {
+        break;
+      }
+    }
+
+    const calculateRatingChange = (current: Glicko2Rating, previous?: Glicko2Rating): Glicko2Rating => {
+      const prev = previous ?? defaultRating;
+      return {
+        rating: current.rating - prev.rating,
+        rd: current.rd - prev.rd,
+        volatility: current.volatility - prev.volatility,
+      };
+    };
+
+    return {
+      playerGlicko2: currentGlicko2.playerGlicko2,
+      teamGlicko2: currentGlicko2.teamGlicko2,
+      teamIndividualGlicko2: currentGlicko2.teamIndividualGlicko2,
+      hybridGlicko2: currentGlicko2.hybridGlicko2,
+
+      playerGlicko2Change: Object.fromEntries(
+        Object.entries(currentGlicko2.playerGlicko2).map(([player, rating]) => [
+          player,
+          calculateRatingChange(rating, previousGlicko2.playerGlicko2[player]),
+        ]),
+      ),
+      teamGlicko2Change: Object.fromEntries(
+        Object.entries(currentGlicko2.teamGlicko2).map(([team, rating]) => [
+          team,
+          calculateRatingChange(rating, previousGlicko2.teamGlicko2[team]),
+        ]),
+      ),
+      teamIndividualGlicko2Change: Object.fromEntries(
+        Object.entries(currentGlicko2.teamIndividualGlicko2).map(([team, rating]) => [
+          team,
+          calculateRatingChange(rating, previousGlicko2.teamIndividualGlicko2[team]),
+        ]),
+      ),
+      hybridGlicko2Change: Object.fromEntries(
+        Object.entries(currentGlicko2.hybridGlicko2).map(([player, rating]) => [
+          player,
+          calculateRatingChange(rating, previousGlicko2.hybridGlicko2[player]),
+        ]),
+      ),
+    };
+  });
+
   const actions: SheetsContextActions = {
     initialize,
     playerStats,
@@ -548,6 +701,7 @@ export const SheetsProvider: ParentComponent = (props) => {
     matchStats,
     dayStats,
     eloStats,
+    glicko2Stats,
   };
 
   onMount(() => {

@@ -14,6 +14,12 @@
   width: fit-content;
 }
 
+.stats-container {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+}
+
 .elo-stats {
   box-sizing: border-box;
   max-width: cw(50);
@@ -28,6 +34,10 @@
     display: grid;
     grid-template-columns: cw(3) 1fr min-content cw(8);
     gap: 0 cw(1);
+
+    & > * {
+      white-space: nowrap;
+    }
   }
 
   .negative {
@@ -48,4 +58,10 @@
   // height: round(down ch(10), ch(1));
 
   position: relative;
+}
+
+.glicko-stats {
+  .list {
+    grid-template-columns: cw(3) 1fr min-content cw(5) cw(8);
+  }
 }
