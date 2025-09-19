@@ -2,14 +2,14 @@ import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import { parseWebStream } from 'music-metadata';
 import {
-  For,
-  Match,
-  Show,
-  Switch,
   createMemo,
   createResource,
+  For,
+  Match,
   mergeProps,
   onMount,
+  Show,
+  Switch,
 } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import { isServer } from 'solid-js/web';
@@ -199,98 +199,96 @@ export const AudioPlayer: Component<AudioPlayerProps> = (userProps) => {
   });
 
   return (
-    <>
-      <Widget title="Audio Player">
-        <div class={style.playerContainer}>
-          <div class={style.container}>
-            <TextMarquee>
-              <Switch fallback="Unknown media">
-                <Match when={metadata().title && metadata().artist}>
-                  {metadata().title} - {metadata().artist}
-                </Match>
+    <Widget title="Audio Player">
+      <div class={style.playerContainer}>
+        <div class={style.container}>
+          <TextMarquee>
+            <Switch fallback="Unknown media">
+              <Match when={metadata().title && metadata().artist}>
+                {metadata().title} - {metadata().artist}
+              </Match>
 
-                <Match when={metadata().title}>{metadata().title}</Match>
+              <Match when={metadata().title}>{metadata().title}</Match>
 
-                <Match when={metadata().artist}>
-                  Unknown track - {metadata().artist}
-                </Match>
-              </Switch>
-            </TextMarquee>
+              <Match when={metadata().artist}>
+                Unknown track - {metadata().artist}
+              </Match>
+            </Switch>
+          </TextMarquee>
 
-            <ProgressBar
-              value={state.currentTime}
-              valueSetter={setProgress}
-              max={state.duration}
-            />
+          <ProgressBar
+            value={state.currentTime}
+            valueSetter={setProgress}
+            max={state.duration}
+          />
 
-            <div class={style.lowerControls}>
-              <audio ref={audioRef} src={props.src} preload="metadata">
-                <track kind="captions" />
-              </audio>
+          <div class={style.lowerControls}>
+            <audio ref={audioRef} src={props.src} preload="metadata">
+              <track kind="captions" />
+            </audio>
 
-              <button type="button" onClick={togglePlay}>
-                <MaterialSymbol
-                  symbol={state.isPlaying ? 'pause' : 'play_arrow'}
-                  color="gray"
-                  active={true}
-                  highlightColor="gray"
-                  interactive={true}
-                />
-              </button>
+            <button type="button" onClick={togglePlay}>
+              <MaterialSymbol
+                symbol={state.isPlaying ? 'pause' : 'play_arrow'}
+                color="gray"
+                active={true}
+                highlightColor="gray"
+                interactive={true}
+              />
+            </button>
 
-              <div>
-                {currentTimeString()}/{durationString()}
-              </div>
-
-              <div
-                classList={{
-                  [style.volumeContainer]: true,
-                  [style.muted]: state.volume === 0,
-                }}
-                onWheel={handleVolumeScroll}
-              >
-                <div class={style.volumeDisplay}>
-                  <For each={Array.from({ length: volumeSliderSteps + 1 })}>
-                    {(_item, index) => (
-                      <span
-                        classList={{
-                          [style.volumeIndicator]: true,
-                          [style.active]:
-                            index() + 1 <= state.volume * volumeSliderSteps + 1,
-                          [style.first]: index() === 0,
-                        }}
-                      />
-                    )}
-                  </For>
-                </div>
-
-                <input
-                  ref={volumeRef}
-                  type="range"
-                  min="0"
-                  max="1"
-                  step={1 / volumeSliderSteps}
-                  value={state.volume}
-                  onInput={handleVolumeChange}
-                  class={style.volumeSlider}
-                />
-              </div>
+            <div>
+              {currentTimeString()}/{durationString()}
             </div>
-          </div>
 
-          <Show when={props.showAlbumCover}>
-            <Divider direction="vertical" connect={0b11} />
+            <div
+              classList={{
+                [style.volumeContainer]: true,
+                [style.muted]: state.volume === 0,
+              }}
+              onWheel={handleVolumeScroll}
+            >
+              <div class={style.volumeDisplay}>
+                <For each={Array.from({ length: volumeSliderSteps + 1 })}>
+                  {(_item, index) => (
+                    <span
+                      classList={{
+                        [style.volumeIndicator]: true,
+                        [style.active]:
+                          index() + 1 <= state.volume * volumeSliderSteps + 1,
+                        [style.first]: index() === 0,
+                      }}
+                    />
+                  )}
+                </For>
+              </div>
 
-            <div class={style.albumCoverContainer}>
-              <img
-                class={style.albumCover}
-                src={metadata()?.artwork ?? albumCover}
-                aria-label="Album artwork"
+              <input
+                ref={volumeRef}
+                type="range"
+                min="0"
+                max="1"
+                step={1 / volumeSliderSteps}
+                value={state.volume}
+                onInput={handleVolumeChange}
+                class={style.volumeSlider}
               />
             </div>
-          </Show>
+          </div>
         </div>
-      </Widget>
-    </>
+
+        <Show when={props.showAlbumCover}>
+          <Divider direction="vertical" connect={0b11} />
+
+          <div class={style.albumCoverContainer}>
+            <img
+              class={style.albumCover}
+              src={metadata()?.artwork ?? albumCover}
+              aria-label="Album artwork"
+            />
+          </div>
+        </Show>
+      </div>
+    </Widget>
   );
 };

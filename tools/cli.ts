@@ -1,9 +1,8 @@
-import { Command } from 'commander';
-import { z } from 'zod';
-
 import { readdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { Command } from 'commander';
+import { z } from 'zod';
 import { logger } from '#shared/logger';
 
 const __filename = fileURLToPath(import.meta.url);

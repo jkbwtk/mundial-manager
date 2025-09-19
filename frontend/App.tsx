@@ -2,16 +2,14 @@
 import { MetaProvider } from '@solidjs/meta';
 import { Router } from '@solidjs/router';
 
-import { Show, Suspense, isServer } from 'solid-js/web';
+import { isServer, Show, Suspense } from 'solid-js/web';
+import { AcrylicBackground } from '#components/AcrylicBackground';
 import { DevGrid } from '#components/DevGrid';
 import { isDev } from '#flib/utils';
-
 import { ConsoleUnitPrototypeProvider } from '#providers/ConsoleUnitPrototypeProvider';
 import { SheetsProvider } from '#providers/SheetsProvider';
 import { TRPCProvider } from '#providers/TRPCProvider';
 import { routes } from './routes';
-
-import { AcrylicBackground } from '#components/AcrylicBackground';
 
 const App: Component<{ url?: string }> = (props) => {
   return (

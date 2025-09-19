@@ -1,4 +1,4 @@
-import { For, createSignal, onCleanup, onMount } from 'solid-js';
+import { createSignal, For, onCleanup, onMount } from 'solid-js';
 import { useConsoleUnitPrototype } from '#providers/ConsoleUnitPrototypeProvider';
 import styles from './BrailleChart.module.scss';
 

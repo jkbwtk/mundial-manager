@@ -7,19 +7,19 @@ import z from 'zod';
 import { Assembler } from '#shared/Assembler';
 import { ConsoleOutput } from '#shared/logger/outputs/ConsoleOutput';
 import {
-  ARGS,
   type AllowedLoggerTypes,
+  ARGS,
   type DefaultLoggerOptions,
   type JsonOptions,
   LEVEL,
   type LevelLogEntry,
   type LogCallback,
   type LogEntry,
-  type LogLevel,
-  type LogLevels,
   type LoggerLevelMethods,
   type LoggerMethods,
   type LoggerOptions,
+  type LogLevel,
+  type LogLevels,
   MESSAGE,
   type MergedOptions,
   type OmitMetadata,

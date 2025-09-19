@@ -2,12 +2,16 @@ import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import hljs from 'highlight.js/lib/core';
 import json from 'highlight.js/lib/languages/json';
-import { For, batch, createSignal } from 'solid-js';
+import { batch, createSignal, For } from 'solid-js';
 import { AnimatedText } from '#components/AnimatedText';
 import { HighlightedCode } from '#components/HighlightedCode';
 import { type Column, Table } from '#components/Table';
 import { Widget } from '#components/Widget';
-import { formatDate, formatDuration, getGlicko2Confidence } from '#flib/sheetUtils';
+import {
+  formatDate,
+  formatDuration,
+  getGlicko2Confidence,
+} from '#flib/sheetUtils';
 import { toJson } from '#flib/utils';
 import { useSheets } from '#providers/SheetsProvider';
 import type { Match } from '#shared/types/Sheets';
@@ -271,9 +275,12 @@ export const SheetsTest: Component = () => {
           {([player, rating]) => (
             <div>
               <strong>{player}: </strong>
-              <AnimatedText>{rating.rating.toFixed(1)}</AnimatedText>
-              {' '}(RD: <AnimatedText>{rating.rd.toFixed(1)}</AnimatedText>
-              , Confidence: <AnimatedText>{getGlicko2Confidence(rating).toFixed(1)}%</AnimatedText>)
+              <AnimatedText>{rating.rating.toFixed(1)}</AnimatedText> (RD:{' '}
+              <AnimatedText>{rating.rd.toFixed(1)}</AnimatedText>, Confidence:{' '}
+              <AnimatedText>
+                {getGlicko2Confidence(rating).toFixed(1)}%
+              </AnimatedText>
+              )
             </div>
           )}
         </For>
@@ -283,9 +290,12 @@ export const SheetsTest: Component = () => {
           {([team, rating]) => (
             <div>
               <strong>{team}: </strong>
-              <AnimatedText>{rating.rating.toFixed(1)}</AnimatedText>
-              {' '}(RD: <AnimatedText>{rating.rd.toFixed(1)}</AnimatedText>
-              , Confidence: <AnimatedText>{getGlicko2Confidence(rating).toFixed(1)}%</AnimatedText>)
+              <AnimatedText>{rating.rating.toFixed(1)}</AnimatedText> (RD:{' '}
+              <AnimatedText>{rating.rd.toFixed(1)}</AnimatedText>, Confidence:{' '}
+              <AnimatedText>
+                {getGlicko2Confidence(rating).toFixed(1)}%
+              </AnimatedText>
+              )
             </div>
           )}
         </For>
@@ -295,9 +305,12 @@ export const SheetsTest: Component = () => {
           {([player, rating]) => (
             <div>
               <strong>{player}: </strong>
-              <AnimatedText>{rating.rating.toFixed(1)}</AnimatedText>
-              {' '}(RD: <AnimatedText>{rating.rd.toFixed(1)}</AnimatedText>
-              , Confidence: <AnimatedText>{getGlicko2Confidence(rating).toFixed(1)}%</AnimatedText>)
+              <AnimatedText>{rating.rating.toFixed(1)}</AnimatedText> (RD:{' '}
+              <AnimatedText>{rating.rd.toFixed(1)}</AnimatedText>, Confidence:{' '}
+              <AnimatedText>
+                {getGlicko2Confidence(rating).toFixed(1)}%
+              </AnimatedText>
+              )
             </div>
           )}
         </For>
@@ -307,8 +320,16 @@ export const SheetsTest: Component = () => {
           {([player, change]) => (
             <div>
               <strong>{player}: </strong>
-              Rating: <AnimatedText>{change.rating > 0 ? '+' : ''}{change.rating.toFixed(1)}</AnimatedText>
-              {', '}RD: <AnimatedText>{change.rd > 0 ? '+' : ''}{change.rd.toFixed(1)}</AnimatedText>
+              Rating:{' '}
+              <AnimatedText>
+                {change.rating > 0 ? '+' : ''}
+                {change.rating.toFixed(1)}
+              </AnimatedText>
+              {', '}RD:{' '}
+              <AnimatedText>
+                {change.rd > 0 ? '+' : ''}
+                {change.rd.toFixed(1)}
+              </AnimatedText>
             </div>
           )}
         </For>

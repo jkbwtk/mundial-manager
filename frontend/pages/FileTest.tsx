@@ -1,7 +1,6 @@
-import { Show, createMemo, createSignal } from 'solid-js';
-import { FilePicker } from '#components/FilePicker';
-
+import { createMemo, createSignal, Show } from 'solid-js';
 import { AnimatedText } from '#components/AnimatedText';
+import { FilePicker } from '#components/FilePicker';
 import { FreeSpaceGauge } from '#components/FreeSpaceGauge';
 import { Widget } from '#components/Widget';
 import { useFilesystem } from '#providers/FilesystemProvider';

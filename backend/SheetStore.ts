@@ -4,8 +4,8 @@ import {
   GoogleSpreadsheet,
   type GoogleSpreadsheetWorksheet,
 } from 'google-spreadsheet';
-import { Store } from '#backend/Store';
 import { environment } from '#backend/environment';
+import { Store } from '#backend/Store';
 import type {
   MatchColumnConfig,
   SheetStoreOptions,
@@ -14,9 +14,9 @@ import { AsyncCached, bypassCache } from '#blib/cache';
 import { logger } from '#shared/logger';
 import { Match, MatchCreate, type MatchWithoutId } from '#shared/types/Sheets';
 import {
-  type RequiredDefaults,
   mergeOptions,
   objectToEntries,
+  type RequiredDefaults,
   range,
   shortUUID,
 } from '#shared/utils';

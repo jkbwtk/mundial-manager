@@ -5,7 +5,7 @@ export const jsonCodec = <T extends z.core.$ZodType>(schema: T) =>
     decode: (jsonString, ctx) => {
       try {
         return JSON.parse(jsonString);
-        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+        // biome-ignore lint/suspicious/noExplicitAny: yeah
       } catch (err: any) {
         ctx.issues.push({
           code: 'invalid_format',

@@ -1,11 +1,11 @@
 import {
-  For,
-  type JSX,
-  Show,
   batch,
   children,
   createSignal,
+  For,
+  type JSX,
   mergeProps,
+  Show,
   splitProps,
 } from 'solid-js';
 import { MaterialSymbol } from '#components/MaterialSymbol';
@@ -49,7 +49,6 @@ const defaultColumn: RequiredDefaults<Column> = {
 const defaultProps: RequiredDefaults<TableBaseProps> = {
   sortBy: null,
   sortDirection: null,
-  // biome-ignore lint/suspicious/noEmptyBlockStatements: <explanation>
   onSort: () => {},
 };
 

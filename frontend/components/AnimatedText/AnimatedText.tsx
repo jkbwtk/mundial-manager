@@ -1,14 +1,13 @@
 import {
-  type JSX,
   children,
   createEffect,
   createMemo,
+  type JSX,
   mergeProps,
   onCleanup,
 } from 'solid-js';
-import type { RequiredDefaults } from '#shared/utils';
-
 import { basicSignal } from '#shared/signal';
+import type { RequiredDefaults } from '#shared/utils';
 
 export type AnimatedTextBaseProps = {
   duration?: number;

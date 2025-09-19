@@ -133,7 +133,7 @@ export const mergeOptions = <T extends Record<string, Defined>>(
 
 // https://stackoverflow.com/questions/57593022/reverse-required-and-optional-properties
 type OptionalKeys<T> = {
-  // biome-ignore lint/complexity/noBannedTypes: <explanation>
+  // biome-ignore lint/complexity/noBannedTypes: yeah
   [K in keyof T]-?: {} extends Pick<T, K> ? K : never;
 }[keyof T];
 

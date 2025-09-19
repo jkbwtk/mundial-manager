@@ -1,4 +1,4 @@
-import { For, Match, Show, Switch, createMemo, createSignal } from 'solid-js';
+import { createMemo, createSignal, For, Match, Show, Switch } from 'solid-js';
 import type { Store } from 'solid-js/store';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import { Widget } from '#components/Widget';

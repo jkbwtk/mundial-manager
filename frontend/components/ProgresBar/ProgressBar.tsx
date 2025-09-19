@@ -1,4 +1,4 @@
-import { type JSX, Show, mergeProps } from 'solid-js';
+import { type JSX, mergeProps, Show } from 'solid-js';
 import type { RequiredDefaults } from '#shared/utils';
 
 import style from './ProgressBar.module.scss';

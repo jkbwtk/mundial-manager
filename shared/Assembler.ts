@@ -1,7 +1,7 @@
 export type Maybe<T> = T | null;
 
 export class Assembler<InputType, ContextType = void, V = InputType> {
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  // biome-ignore lint/suspicious/noExplicitAny: yeah
   private transformers: ((value: any, context: ContextType) => any)[] = [];
 
   private failed = false;

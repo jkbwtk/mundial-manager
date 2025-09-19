@@ -92,7 +92,6 @@ export const TextMarquee: Component<TextMarquee> = (userProps) => {
     <span
       {...props}
       ref={ref}
-      aria-label={textContent()}
       classList={{
         [style.container]: true,
         [style.marquee]: shouldScroll(),

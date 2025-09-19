@@ -3,14 +3,14 @@ import Chart from 'chart.js/auto';
 import figlet from 'figlet';
 import smallSlant from 'figlet/fonts/Small Slant';
 import {
-  For,
-  Match,
-  Switch,
   createEffect,
   createMemo,
   createSignal,
+  For,
+  Match,
   onCleanup,
   onMount,
+  Switch,
 } from 'solid-js';
 import { isServer } from 'solid-js/web';
 import { Break } from '#components/Break';

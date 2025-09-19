@@ -1,6 +1,6 @@
 import { A, type AnchorProps } from '@solidjs/router';
 import { mergeProps } from 'solid-js';
-import { type CustomButtonProps, buttonDefaultProps } from '#components/Button';
+import { buttonDefaultProps, type CustomButtonProps } from '#components/Button';
 import style from './Button.module.scss';
 
 export type AnchorButtonProps = AnchorProps & CustomButtonProps;

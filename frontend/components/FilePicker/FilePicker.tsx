@@ -1,4 +1,4 @@
-import { type Setter, mergeProps, onMount } from 'solid-js';
+import { mergeProps, onMount, type Setter } from 'solid-js';
 import { Widget } from '#components/Widget';
 import { isDev } from '#flib/utils';
 import type { RequiredDefaults } from '#shared/utils';
@@ -18,7 +18,7 @@ const defaultProps: RequiredDefaults<FilePickerProps> = {
 export const FilePicker: Component<FilePickerProps> = (unmergedProps) => {
   const props = mergeProps(defaultProps, unmergedProps);
 
-  // biome-ignore lint/style/useConst: <explanation>
+  // biome-ignore lint/style/useConst: yeah
   let inputRef: HTMLInputElement = null!;
 
   function handleFileAfterReload() {

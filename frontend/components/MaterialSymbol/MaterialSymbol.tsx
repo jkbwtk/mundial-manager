@@ -1,6 +1,6 @@
 import { mergeProps } from 'solid-js';
 import type { SupportedMaterialSymbol } from '#flib/supportedMaterialSymbols';
-import { type RequiredDefaults, quickSwitch } from '#shared/utils';
+import { quickSwitch, type RequiredDefaults } from '#shared/utils';
 
 import style from './MaterialSymbol.module.scss';
 

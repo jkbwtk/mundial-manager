@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { type RequiredDefaults, arrayFrom, mergeOptions } from '#shared/utils';
+import { arrayFrom, mergeOptions, type RequiredDefaults } from '#shared/utils';
 
 export type CacheOptions = {
   maxSize?: number;
