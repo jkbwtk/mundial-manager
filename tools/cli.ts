@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 import { readdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { logger } from '#shared/logger';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -28,7 +28,8 @@ export async function discoverAndRegisterCommands(
 
     for (const commandFile of commandFiles) {
       try {
-        const rawCommandModule = await import(join(commandsDir, commandFile));
+        const modulePath = pathToFileURL(join(commandsDir, commandFile)).href;
+        const rawCommandModule = await import(modulePath);
         const commandModule = CommandModuleSchema.parse(rawCommandModule);
         const registerCommand = commandModule.default;
 
