@@ -3,7 +3,7 @@
 .container {
   box-sizing: border-box;
   align-self: flex-start;
-  width: round(down, 100%, cw(1));
+  width: round(down, calc(100% + 1px), cw(1));
 }
 
 .header {
