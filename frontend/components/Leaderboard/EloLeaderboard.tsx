@@ -1,5 +1,7 @@
 import { createMemo, For, Match, Switch } from 'solid-js';
+import { MaterialSymbol } from '#components/MaterialSymbol';
 import { Divider, Widget } from '#components/Widget';
+import { getTeamColor } from '#flib/sheetUtils';
 import { useSheets } from '#providers/SheetsProvider';
 import style from './Leaderboard.module.scss';
 
@@ -33,7 +35,12 @@ export const EloLeaderboard = () => {
             {([player, elo], index) => (
               <tr>
                 <td class={style.minWidth}>{index() + 1}.</td>
-                <td> {player}</td>
+                <td>
+                  <span style={{ color: getTeamColor(player) }}>
+                    <MaterialSymbol symbol="atr" />
+                  </span>
+                  {player}
+                </td>
                 <td class={style.minWidth}>{elo.toFixed(2)}</td>
 
                 <td
@@ -85,7 +92,12 @@ export const EloLeaderboard = () => {
             {([player, elo], index) => (
               <tr>
                 <td class={style.minWidth}>{index() + 1}.</td>
-                <td> {player}</td>
+                <td>
+                  <span style={{ color: getTeamColor(player) }}>
+                    <MaterialSymbol symbol="atr" />
+                  </span>
+                  {player}
+                </td>
                 <td class={style.minWidth}>{elo.toFixed(2)}</td>
 
                 <td
@@ -137,7 +149,12 @@ export const EloLeaderboard = () => {
             {([player, elo], index) => (
               <tr>
                 <td class={style.minWidth}>{index() + 1}.</td>
-                <td>{player}</td>
+                <td>
+                  <span style={{ color: getTeamColor(player) }}>
+                    <MaterialSymbol symbol="atr" />
+                  </span>
+                  {player}
+                </td>
                 <td class={style.minWidth}>{elo.toFixed(2)}</td>
 
                 <td
@@ -195,7 +212,13 @@ export const EloLeaderboard = () => {
             {([team, elo], index) => (
               <tr>
                 <td class={style.minWidth}>{index() + 1}.</td>
-                <td>{team}</td>
+
+                <td>
+                  <span style={{ color: getTeamColor(team) }}>
+                    <MaterialSymbol symbol="atr" />
+                  </span>
+                  {team}
+                </td>
                 <td class={style.minWidth}>{elo.toFixed(2)}</td>
 
                 <td

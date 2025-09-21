@@ -1,6 +1,7 @@
 import { createMemo, For, Match, Switch } from 'solid-js';
+import { MaterialSymbol } from '#components/MaterialSymbol';
 import { Divider, Widget } from '#components/Widget';
-import { getGlicko2Confidence } from '#flib/sheetUtils';
+import { getGlicko2Confidence, getTeamColor } from '#flib/sheetUtils';
 import { useSheets } from '#providers/SheetsProvider';
 import style from './Leaderboard.module.scss';
 
@@ -42,7 +43,12 @@ export const Glicko2Leaderboard = () => {
             {([player, rating], index) => (
               <tr>
                 <td class={style.minWidth}>{index() + 1}.</td>
-                <td> {player}</td>
+                <td>
+                  <span style={{ color: getTeamColor(player) }}>
+                    <MaterialSymbol symbol="atr" />
+                  </span>
+                  {player}
+                </td>
                 <td class={style.minWidth}>{rating.rating.toFixed(2)}</td>
                 <td class={style.minWidth}>
                   ({getGlicko2Confidence(rating).toFixed(0)}%)
@@ -110,7 +116,12 @@ export const Glicko2Leaderboard = () => {
             {([player, rating], index) => (
               <tr>
                 <td class={style.minWidth}>{index() + 1}.</td>
-                <td> {player}</td>
+                <td>
+                  <span style={{ color: getTeamColor(player) }}>
+                    <MaterialSymbol symbol="atr" />
+                  </span>
+                  {player}
+                </td>
                 <td class={style.minWidth}>{rating.rating.toFixed(2)}</td>
                 <td class={style.minWidth}>
                   ({getGlicko2Confidence(rating).toFixed(0)}%)
@@ -178,7 +189,12 @@ export const Glicko2Leaderboard = () => {
             {([player, rating], index) => (
               <tr>
                 <td class={style.minWidth}>{index() + 1}.</td>
-                <td>{player}</td>
+                <td>
+                  <span style={{ color: getTeamColor(player) }}>
+                    <MaterialSymbol symbol="atr" />
+                  </span>
+                  {player}
+                </td>
                 <td class={style.minWidth}>{rating.rating.toFixed(2)}</td>
                 <td class={style.minWidth}>
                   ({getGlicko2Confidence(rating).toFixed(0)}%)
@@ -247,7 +263,12 @@ export const Glicko2Leaderboard = () => {
             {([team, rating], index) => (
               <tr>
                 <td class={style.minWidth}>{index() + 1}.</td>
-                <td>{team}</td>
+                <td>
+                  <span style={{ color: getTeamColor(team) }}>
+                    <MaterialSymbol symbol="atr" />
+                  </span>
+                  {team}
+                </td>
                 <td class={style.minWidth}>{rating.rating.toFixed(2)}</td>
                 <td class={style.minWidth}>
                   ({getGlicko2Confidence(rating).toFixed(0)}%)

@@ -7,6 +7,7 @@ import { isServer } from 'solid-js/web';
 import { Break } from '#components/Break';
 import { EloLeaderboard, Glicko2Leaderboard } from '#components/Leaderboard';
 import { Widget } from '#components/Widget';
+import { getTeamColor } from '#flib/sheetUtils';
 import { useConsoleUnitPrototype } from '#providers/ConsoleUnitPrototypeProvider';
 import { useSheets } from '#providers/SheetsProvider';
 import style from './Homepage.module.scss';
@@ -187,6 +188,8 @@ const Homepage: Component = () => {
     playerChart.data.datasets = players.map((player) => ({
       label: player,
       data: Object.values(stats).map((s) => s.playerElos[player] ?? null),
+      borderColor: getTeamColor(player),
+      backgroundColor: getTeamColor(player) + '20',
     }));
     playerChart.update();
 
@@ -194,6 +197,8 @@ const Homepage: Component = () => {
     hybridChart.data.datasets = hybridPlayers.map((player) => ({
       label: player,
       data: Object.values(stats).map((s) => s.hybridElos[player] ?? null),
+      borderColor: getTeamColor(player),
+      backgroundColor: getTeamColor(player) + '20',
     }));
     hybridChart.update();
 
@@ -205,6 +210,8 @@ const Homepage: Component = () => {
       data: Object.values(stats).map(
         (s) => s.teamIndividualElos[player] ?? null,
       ),
+      borderColor: getTeamColor(player),
+      backgroundColor: getTeamColor(player) + '20',
     }));
     teamIndividualChart.update();
 
@@ -212,6 +219,8 @@ const Homepage: Component = () => {
     teamChart.data.datasets = teams.map((team) => ({
       label: team,
       data: Object.values(stats).map((s) => s.teamElos[team] ?? null),
+      borderColor: getTeamColor(team),
+      backgroundColor: getTeamColor(team) + '20',
     }));
     teamChart.update();
 
@@ -232,6 +241,8 @@ const Homepage: Component = () => {
       data: Object.values(stats).map(
         (s) => s.playerGlicko2[player]?.rating ?? null,
       ),
+      borderColor: getTeamColor(player),
+      backgroundColor: getTeamColor(player) + '20',
     }));
     playerGlicko2Chart.update();
 
@@ -243,6 +254,8 @@ const Homepage: Component = () => {
       data: Object.values(stats).map(
         (s) => s.hybridGlicko2[player]?.rating ?? null,
       ),
+      borderColor: getTeamColor(player),
+      backgroundColor: getTeamColor(player) + '20',
     }));
     hybridGlicko2Chart.update();
 
@@ -264,6 +277,8 @@ const Homepage: Component = () => {
         data: Object.values(stats).map(
           (s) => s.teamIndividualGlicko2[player]?.rating ?? null,
         ),
+        borderColor: getTeamColor(player),
+        backgroundColor: getTeamColor(player) + '20',
       }),
     );
     teamIndividualGlicko2Chart.update();
@@ -274,6 +289,8 @@ const Homepage: Component = () => {
       data: Object.values(stats).map(
         (s) => s.teamGlicko2[team]?.rating ?? null,
       ),
+      borderColor: getTeamColor(team),
+      backgroundColor: getTeamColor(team) + '20',
     }));
     teamGlicko2Chart.update();
   });

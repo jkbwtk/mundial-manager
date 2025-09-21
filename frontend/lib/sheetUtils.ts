@@ -467,3 +467,66 @@ export function compareEloVsGlicko2(
     comparison,
   };
 }
+
+const TEAM_COLOR_PALETTE = [
+  '#E53E3E',
+  '#FF6B35',
+  '#FF8C00',
+  '#FFD700',
+  '#32CD32',
+  '#00CED1',
+  '#1E90FF',
+  '#4169E1',
+  '#8A2BE2',
+  '#DDA0DD',
+  '#98FB98',
+  '#F4A460',
+  '#DB7093',
+  '#FFB6C1',
+  '#90EE90',
+  '#FFA07A',
+  '#DA70D6',
+  '#FF1493',
+  '#DC143C',
+  '#00FF7F',
+  '#40E0D0',
+  '#87CEEB',
+  '#9370DB',
+  '#FF4500',
+  '#2E8B57',
+  '#4682B4',
+  '#D2691E',
+  '#FF69B4',
+  '#00FA9A',
+  '#7B68EE',
+  '#20B2AA',
+  '#F0E68C',
+];
+
+const teamColorAssignments = new Map<string, string>();
+
+export function getTeamColor(team: string): string {
+  if (teamColorAssignments.has(team)) {
+    return teamColorAssignments.get(team)!;
+  }
+
+  const usedColors = new Set(teamColorAssignments.values());
+
+  const availableColors = TEAM_COLOR_PALETTE.filter(
+    (color) => !usedColors.has(color),
+  );
+
+  const colorPool =
+    availableColors.length > 0 ? availableColors : TEAM_COLOR_PALETTE;
+
+  const hash = team
+    .split('')
+    .reduce((acc, char) => (acc << 5) - acc + char.charCodeAt(0), 0);
+
+  const colorIndex = Math.abs(hash) % colorPool.length;
+  const selectedColor = colorPool[colorIndex]!;
+
+  teamColorAssignments.set(team, selectedColor);
+
+  return selectedColor;
+}
