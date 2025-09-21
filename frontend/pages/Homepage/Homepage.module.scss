@@ -17,51 +17,18 @@
 .stats-container {
   display: grid;
 
-  grid-template-columns: 1fr 1fr;
-}
-
-.elo-stats {
-  box-sizing: border-box;
-  max-width: cw(50);
   width: round(down, 100%, cw(1));
+  max-width: cw(100);
 
-  .header {
-    text-align: center;
-    color: $textBrightColor;
-  }
+  grid-template-columns: 1fr 1fr;
 
-  .list {
-    display: grid;
-    grid-template-columns: cw(3) 1fr min-content cw(8);
-    gap: 0 cw(1);
-
-    & > * {
-      white-space: nowrap;
-    }
-  }
-
-  .negative {
-    color: $redBright;
-  }
-
-  .positive {
-    color: $greenBright;
+  @media (max-width: 800px) {
+    grid-template-columns: 1fr;
   }
 }
 
 .elo-chart {
   box-sizing: border-box;
 
-  // max-width: cw(100);
-
   width: round(down, 100%, cw(1));
-  // height: round(down ch(10), ch(1));
-
-  position: relative;
-}
-
-.glicko-stats {
-  .list {
-    grid-template-columns: cw(3) 1fr min-content cw(5) cw(8);
-  }
 }

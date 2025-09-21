@@ -1,0 +1,47 @@
+@use 'app' as *;
+
+.container {
+  box-sizing: border-box;
+  align-self: flex-start;
+  width: round(down, 100%, cw(1));
+}
+
+.header {
+  text-align: center;
+  color: $textBrightColor;
+
+  margin-left: round(nearest, 50%, cw(1));
+  transform: translateX(-50%);
+
+  white-space: nowrap;
+}
+
+.list {
+  border-collapse: collapse;
+  width: inherit;
+
+  .min-width {
+    width: 1%;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 0;
+
+    &:not(:last-child) {
+      padding-right: cw(1);
+    }
+  }
+}
+
+.positive {
+  color: $greenBright;
+}
+
+.negative {
+  color: $redBright;
+}
+
+.delta-symbol {
+  user-select: none;
+}
