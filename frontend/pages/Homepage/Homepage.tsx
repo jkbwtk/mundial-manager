@@ -338,8 +338,8 @@ const Homepage: Component = () => {
         {logo()}
       </pre>
 
-      <div class={style.centered}>Still in development</div>
-      <div class={style.centered}>
+      <div>Still in development</div>
+      <div>
         Test pages are available <A href="/tests">here</A>
       </div>
 
