@@ -34,7 +34,7 @@ export const Glicko2Leaderboard = () => {
   return (
     <Widget title="Glicko-2 Stats" class={style.container}>
       <div class={style.header}>
-        <strong>Player Glicko-2</strong>
+        <strong>Player Stats</strong>
       </div>
 
       <table class={style.list}>
@@ -107,7 +107,7 @@ export const Glicko2Leaderboard = () => {
       <Divider />
 
       <div class={style.header}>
-        <strong>Hybrid Glicko-2</strong>
+        <strong>Hybrid Stats</strong>
       </div>
 
       <table class={style.list}>
@@ -180,7 +180,7 @@ export const Glicko2Leaderboard = () => {
       <Divider />
 
       <div class={style.header}>
-        <strong>Team Individual Glicko-2</strong>
+        <strong>Team Individual Stats</strong>
       </div>
 
       <table class={style.list}>
@@ -254,7 +254,7 @@ export const Glicko2Leaderboard = () => {
       <Divider />
 
       <div class={style.header}>
-        <strong>Team Glicko-2</strong>
+        <strong>Team Stats</strong>
       </div>
 
       <table class={style.list}>
