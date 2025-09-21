@@ -7,8 +7,16 @@
   justify-content: center;
 }
 
+.centered {
+  align-self: flex-start;
+
+  margin-left: round(nearest, 50%, cw(1));
+  transform: translateX(-50%);
+}
+
 .logo {
   color: $yellowBright;
+  font-weight: bold;
 
   padding: ch(1) cw(1);
   width: fit-content;

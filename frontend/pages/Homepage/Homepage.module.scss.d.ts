@@ -1,3 +1,4 @@
+export declare const centered: string;
 export declare const container: string;
 export declare const eloChart: string;
 export declare const logo: string;

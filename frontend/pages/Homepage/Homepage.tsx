@@ -297,12 +297,17 @@ const Homepage: Component = () => {
 
   return (
     <div class={style.container}>
-      <strong>
-        <pre class={style.logo}>{logo()}</pre>
-      </strong>
+      <pre
+        classList={{
+          [style.logo]: true,
+          [style.centered]: true,
+        }}
+      >
+        {logo()}
+      </pre>
 
-      <div>Still in development</div>
-      <div>
+      <div class={style.centered}>Still in development</div>
+      <div class={style.centered}>
         Test pages are available <A href="/tests">here</A>
       </div>
 
