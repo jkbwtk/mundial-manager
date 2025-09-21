@@ -79,6 +79,10 @@ const Homepage: Component = () => {
           labels: [],
           datasets: [],
         },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+        },
       });
 
       hybridChart = new Chart(hybridChartRef, {
@@ -86,6 +90,10 @@ const Homepage: Component = () => {
         data: {
           labels: [],
           datasets: [],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
         },
       });
 
@@ -95,6 +103,10 @@ const Homepage: Component = () => {
           labels: [],
           datasets: [],
         },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+        },
       });
 
       teamChart = new Chart(teamChartRef, {
@@ -102,6 +114,10 @@ const Homepage: Component = () => {
         data: {
           labels: [],
           datasets: [],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
         },
       });
 
@@ -111,6 +127,10 @@ const Homepage: Component = () => {
           labels: [],
           datasets: [],
         },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+        },
       });
 
       hybridGlicko2Chart = new Chart(hybridGlicko2ChartRef, {
@@ -118,6 +138,10 @@ const Homepage: Component = () => {
         data: {
           labels: [],
           datasets: [],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
         },
       });
 
@@ -127,6 +151,10 @@ const Homepage: Component = () => {
           labels: [],
           datasets: [],
         },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+        },
       });
 
       teamGlicko2Chart = new Chart(teamGlicko2ChartRef, {
@@ -134,6 +162,10 @@ const Homepage: Component = () => {
         data: {
           labels: [],
           datasets: [],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
         },
       });
     }
