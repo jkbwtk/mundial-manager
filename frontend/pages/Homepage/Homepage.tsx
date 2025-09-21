@@ -56,6 +56,15 @@ const Homepage: Component = () => {
 
   const handleResize = () => {
     setPageWidth(Math.floor(window.innerWidth / consoleUnit.width));
+
+    if (playerChart) playerChart.resize();
+    if (hybridChart) hybridChart.resize();
+    if (teamIndividualChart) teamIndividualChart.resize();
+    if (teamChart) teamChart.resize();
+    if (playerGlicko2Chart) playerGlicko2Chart.resize();
+    if (hybridGlicko2Chart) hybridGlicko2Chart.resize();
+    if (teamIndividualGlicko2Chart) teamIndividualGlicko2Chart.resize();
+    if (teamGlicko2Chart) teamGlicko2Chart.resize();
   };
 
   onMount(() => {
