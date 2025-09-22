@@ -1,7 +1,9 @@
+import type { Unsubscribable } from '@trpc/server/observable';
 import {
   batch,
   createContext,
   createMemo,
+  onCleanup,
   onMount,
   useContext,
 } from 'solid-js';
@@ -98,6 +100,8 @@ export const SheetsProvider: ParentComponent = (props) => {
     SheetsContext.defaultValue[0],
   );
 
+  let onMatchAddedSubscription: Unsubscribable | null = null;
+
   const initialize = async () => {
     const cachedMatches = loadCachedMatches();
 
@@ -111,6 +115,7 @@ export const SheetsProvider: ParentComponent = (props) => {
     ]);
 
     cacheMatches(matches);
+    subscribeToEvents();
 
     batch(() => {
       setState('metadata', metadata);
@@ -147,6 +152,34 @@ export const SheetsProvider: ParentComponent = (props) => {
     }
 
     return null;
+  }
+
+  function subscribeToEvents() {
+    if (isServer) {
+      return;
+    }
+
+    if (onMatchAddedSubscription === null) {
+      onMatchAddedSubscription = client.sheets.onMatchAdded.subscribe(void 0, {
+        onData: ({ data: match }) => {
+          setState('matches', state.matches.length, match);
+          cacheMatches(state.matches);
+        },
+
+        onError: (err) => {
+          console.error(
+            'SheetsProvider: onMatchAdded subscription error:',
+            err,
+          );
+        },
+      });
+    }
+  }
+
+  function unsubscribeFromEvents() {
+    if (onMatchAddedSubscription) {
+      onMatchAddedSubscription.unsubscribe();
+    }
   }
 
   const uniquePlayers = createMemo(() => {
@@ -733,6 +766,14 @@ export const SheetsProvider: ParentComponent = (props) => {
     actions.initialize().catch((error) => {
       console.error('Failed to load sheet metadata:', error);
     });
+
+    window.addEventListener('beforeunload', () => {
+      unsubscribeFromEvents();
+    });
+  });
+
+  onCleanup(() => {
+    unsubscribeFromEvents();
   });
 
   return (
