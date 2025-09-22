@@ -1,7 +1,11 @@
 import { initTRPC } from '@trpc/server';
 import { logger } from '#shared/logger';
 
-const t = initTRPC.create();
+const t = initTRPC.create({
+  jsonl: {
+    pingMs: 1000,
+  },
+});
 
 export const router = t.router;
 export const baseProcedure = t.procedure;

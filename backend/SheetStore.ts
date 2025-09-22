@@ -8,9 +8,11 @@ import { environment } from '#backend/environment';
 import { Store } from '#backend/Store';
 import type {
   MatchColumnConfig,
+  MatchesEmitterEvents,
   SheetStoreOptions,
 } from '#backend/types/SheetStore';
 import { AsyncCached, bypassCache } from '#blib/cache';
+import { TypedEventEmitter } from '#blib/utils';
 import { logger } from '#shared/logger';
 import { Match, MatchCreate, type MatchWithoutId } from '#shared/types/Sheets';
 import {
@@ -31,6 +33,8 @@ const defaultSheetStoreOptions: RequiredDefaults<SheetStoreOptions> = {
   spreadsheetId: environment.GOOGLE_DOCS_SPREADSHEET_ID,
 };
 
+class MatchesEmitter extends TypedEventEmitter<MatchesEmitterEvents> {}
+
 export class SheetStore extends Store {
   public readonly uuid = crypto.randomUUID();
 
@@ -38,6 +42,8 @@ export class SheetStore extends Store {
 
   public doc: GoogleSpreadsheet;
   public sheet!: GoogleSpreadsheetWorksheet;
+
+  public matchesEmitter = new MatchesEmitter();
 
   public static readonly CONSTANTS = {
     MATCHES_FIRST_ROW: 1,
@@ -194,6 +200,8 @@ export class SheetStore extends Store {
       }
     }
 
+    this.matchesEmitter.emit('synced', matches);
+
     return matches;
   }
 
@@ -222,6 +230,8 @@ export class SheetStore extends Store {
     if (createdMatch === null) {
       throw new Error('Failed to create new match.');
     }
+
+    this.matchesEmitter.emit('matchCreated', createdMatch);
 
     return createdMatch;
   }

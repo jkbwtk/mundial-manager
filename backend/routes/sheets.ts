@@ -1,3 +1,4 @@
+import { tracked } from '@trpc/server';
 import { SheetStore } from '#backend/SheetStore';
 import { procedure, router } from '#backend/trpc';
 import { MatchCreate, type SheetMetadata } from '#shared/types/Sheets';
@@ -35,4 +36,15 @@ export const sheetsRouter = router({
 
       return store.createMatch(match);
     }),
+  onMatchAdded: sheetProcedure.subscription(async function* (opts) {
+    const store = opts.ctx.sheetStore;
+
+    const iterator = store.matchesEmitter.toIterable('matchCreated', {
+      signal: opts.signal,
+    });
+
+    for await (const [match] of iterator) {
+      yield tracked(String(match.id), match);
+    }
+  }),
 });
