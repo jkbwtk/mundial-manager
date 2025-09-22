@@ -1,7 +1,15 @@
-import { createTRPCClient, httpBatchLink } from '@trpc/client';
+import {
+  createTRPCClient,
+  httpBatchStreamLink,
+  httpSubscriptionLink,
+  loggerLink,
+  retryLink,
+  splitLink,
+} from '@trpc/client';
 import { createContext, onMount, useContext } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import type { AppRouter } from '#backend/routes/app';
+import { isDev } from '#flib/utils';
 
 export interface TRPCContextState {
   client: ReturnType<typeof createTRPCClient<AppRouter>>;
@@ -20,8 +28,34 @@ function createDefaultState(): TRPCContextState {
   return {
     client: createTRPCClient<AppRouter>({
       links: [
-        httpBatchLink({
-          url: '/trpc',
+        loggerLink({
+          enabled: isDev,
+        }),
+        retryLink({
+          retry: (opts) => {
+            if (
+              opts.error.data &&
+              opts.error.data.code !== 'INTERNAL_SERVER_ERROR'
+            ) {
+              return false;
+            }
+
+            if (opts.op.type !== 'query') {
+              return false;
+            }
+
+            return opts.attempts <= 3;
+          },
+          retryDelayMs: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
+        }),
+        splitLink({
+          condition: (op) => op.type === 'subscription',
+          true: httpSubscriptionLink({
+            url: '/trpc',
+          }),
+          false: httpBatchStreamLink({
+            url: '/trpc',
+          }),
         }),
       ],
     }),

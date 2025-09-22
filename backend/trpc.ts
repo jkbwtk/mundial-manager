@@ -5,6 +5,16 @@ const t = initTRPC.create({
   jsonl: {
     pingMs: 1000,
   },
+  sse: {
+    maxDurationMs: 60000,
+    client: {
+      reconnectAfterInactivityMs: 10000,
+    },
+    ping: {
+      enabled: true,
+      intervalMs: 2000,
+    },
+  },
 });
 
 export const router = t.router;
