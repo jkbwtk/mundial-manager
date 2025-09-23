@@ -175,14 +175,14 @@ const Homepage: Component = () => {
     if (isServer === false) {
       window.removeEventListener('resize', handleResize);
 
-      playerChart.destroy();
-      hybridChart.destroy();
-      teamIndividualChart.destroy();
-      teamChart.destroy();
-      playerGlicko2Chart.destroy();
-      hybridGlicko2Chart.destroy();
-      teamIndividualGlicko2Chart.destroy();
-      teamGlicko2Chart.destroy();
+      if (playerChart) playerChart.destroy();
+      if (hybridChart) hybridChart.destroy();
+      if (teamIndividualChart) teamIndividualChart.destroy();
+      if (teamChart) teamChart.destroy();
+      if (playerGlicko2Chart) playerGlicko2Chart.destroy();
+      if (hybridGlicko2Chart) hybridGlicko2Chart.destroy();
+      if (teamIndividualGlicko2Chart) teamIndividualGlicko2Chart.destroy();
+      if (teamGlicko2Chart) teamGlicko2Chart.destroy();
     }
   });
 
