@@ -1,4 +1,5 @@
 import { tracked } from '@trpc/server';
+import { zodEncode } from '#backend/lib/utils';
 import { SheetStore } from '#backend/SheetStore';
 import { procedure, router } from '#backend/trpc';
 import { MatchCreate, type SheetMetadata } from '#shared/types/Sheets';
@@ -30,7 +31,7 @@ export const sheetsRouter = router({
     return store.getMatches();
   }),
   match: sheetProcedure
-    .input(MatchCreate)
+    .input(zodEncode(MatchCreate))
     .mutation(async ({ ctx, input: match }) => {
       const store = await ctx.sheetStore.getInitialized();
 
