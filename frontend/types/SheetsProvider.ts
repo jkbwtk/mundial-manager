@@ -86,6 +86,12 @@ export interface DayStats {
 }
 
 export interface EloStats {
+  labels: string[];
+  individualPlayers: string[];
+  teams: string[];
+  teamIndividualPlayers: string[];
+  hybridPlayers: string[];
+
   playerElos: Record<string, number>;
   teamElos: Record<string, number>;
   teamIndividualElos: Record<string, number>;
@@ -98,6 +104,12 @@ export interface EloStats {
 }
 
 export interface Glicko2Stats {
+  labels: string[];
+  individualPlayers: string[];
+  teams: string[];
+  teamIndividualPlayers: string[];
+  hybridPlayers: string[];
+
   playerGlicko2: Record<string, Glicko2Rating>;
   teamGlicko2: Record<string, Glicko2Rating>;
   teamIndividualGlicko2: Record<string, Glicko2Rating>;

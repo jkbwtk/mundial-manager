@@ -18,6 +18,7 @@ import {
   DEFAULT_GLICKO2_VOLATILITY,
   formatDate,
   formatDuration,
+  formatMatchLabel,
   type Glicko2Rating,
   getPlayersFromMatch,
   getPlayersFromTeam,
@@ -591,6 +592,20 @@ export const SheetsProvider: ParentComponent = (props) => {
     }
 
     return {
+      labels: state.matches.map(formatMatchLabel),
+      individualPlayers: Array.from(Object.keys(currentElos.playerElos)).sort(
+        (a, b) => a.localeCompare(b),
+      ),
+      teams: Array.from(Object.keys(currentElos.teamElos)).sort((a, b) =>
+        a.localeCompare(b),
+      ),
+      teamIndividualPlayers: Array.from(
+        Object.keys(currentElos.teamIndividualElos),
+      ).sort((a, b) => a.localeCompare(b)),
+      hybridPlayers: Array.from(Object.keys(currentElos.hybridElos)).sort(
+        (a, b) => a.localeCompare(b),
+      ),
+
       playerElos: currentElos.playerElos,
       teamElos: currentElos.teamElos,
       teamIndividualElos: currentElos.teamIndividualElos,
@@ -715,6 +730,20 @@ export const SheetsProvider: ParentComponent = (props) => {
     };
 
     return {
+      labels: state.matches.map(formatMatchLabel),
+      individualPlayers: Array.from(
+        Object.keys(currentGlicko2.playerGlicko2),
+      ).sort((a, b) => a.localeCompare(b)),
+      teams: Array.from(Object.keys(currentGlicko2.teamGlicko2)).sort((a, b) =>
+        a.localeCompare(b),
+      ),
+      teamIndividualPlayers: Array.from(
+        Object.keys(currentGlicko2.teamIndividualGlicko2),
+      ).sort((a, b) => a.localeCompare(b)),
+      hybridPlayers: Array.from(Object.keys(currentGlicko2.hybridGlicko2)).sort(
+        (a, b) => a.localeCompare(b),
+      ),
+
       playerGlicko2: currentGlicko2.playerGlicko2,
       teamGlicko2: currentGlicko2.teamGlicko2,
       teamIndividualGlicko2: currentGlicko2.teamIndividualGlicko2,

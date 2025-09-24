@@ -530,3 +530,7 @@ export function getTeamColor(team: string): string {
 
   return selectedColor;
 }
+
+export function formatMatchLabel(match: Match): string {
+  return `#${match.id}`;
+}
