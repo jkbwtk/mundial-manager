@@ -1,4 +1,4 @@
-import { createContext, onCleanup, onMount, useContext } from 'solid-js';
+import { batch, createContext, onCleanup, onMount, useContext } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import { isServer } from 'solid-js/web';
 
@@ -7,8 +7,14 @@ export interface ConsoleUnit {
   width: number;
 }
 
+export interface WindowSize {
+  height: number;
+  width: number;
+}
+
 export interface ConsoleUnitPrototypeContextState {
   unit: ConsoleUnit;
+  windowSize: WindowSize;
 }
 
 export interface ConsoleUnitPrototypeContextActions {
@@ -22,8 +28,12 @@ export type ConsoleUnitPrototypeContextValue = [
 
 const defaultState: ConsoleUnitPrototypeContextState = {
   unit: {
-    height: 0,
-    width: 0,
+    height: 18,
+    width: 8.4,
+  },
+  windowSize: {
+    height: 50,
+    width: 200,
   },
 };
 
@@ -54,7 +64,15 @@ export const ConsoleUnitPrototypeProvider: ParentComponent = (props) => {
       width: box.width,
     };
 
-    setState('unit', unit);
+    const windowSize: WindowSize = {
+      height: Math.floor(window.innerHeight / unit.height),
+      width: Math.floor(window.innerWidth / unit.width),
+    };
+
+    batch(() => {
+      setState('unit', unit);
+      setState('windowSize', windowSize);
+    });
 
     document.documentElement.style.setProperty(
       '--console-unit-height',
@@ -63,6 +81,15 @@ export const ConsoleUnitPrototypeProvider: ParentComponent = (props) => {
     document.documentElement.style.setProperty(
       '--console-unit-width',
       `${unit.width}px`,
+    );
+
+    document.documentElement.style.setProperty(
+      '--window-height',
+      `${windowSize.height}`,
+    );
+    document.documentElement.style.setProperty(
+      '--window-width',
+      `${windowSize.width}`,
     );
 
     return unit;
