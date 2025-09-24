@@ -1,13 +1,16 @@
 import type { RouteDefinition } from '@solidjs/router';
-import { lazy } from 'solid-js';
-
+import ButtonTest from '#pages/ButtonTest/ButtonTest';
+import ChartTest from '#pages/ChartTest';
+import Homepage from '#pages/Homepage/Homepage';
 import PageNotFound from '#pages/PageNotFound/PageNotFound';
+import RouteMap from '#pages/RouteMap/RouteMap';
+import { SheetsTest } from '#pages/SheetsTest';
 
 export const routes: RouteDefinition[] = [
   {
     path: '/',
     info: { title: 'Mundial Manager - Home' },
-    component: lazy(() => import('#pages/Homepage/Homepage')),
+    component: Homepage,
   },
   {
     path: '/tests',
@@ -15,22 +18,22 @@ export const routes: RouteDefinition[] = [
       {
         path: '/',
         info: { title: 'Mundial Manager - Route Map' },
-        component: lazy(() => import('#pages/RouteMap/RouteMap')),
+        component: RouteMap,
       },
       {
         path: '/chart-test',
         info: { title: 'Mundial Manager - Chart Test' },
-        component: lazy(() => import('#pages/ChartTest')),
+        component: ChartTest,
       },
       {
         path: '/button-test',
         info: { title: 'Mundial Manager - Button Test' },
-        component: lazy(() => import('#pages/ButtonTest/ButtonTest')),
+        component: ButtonTest,
       },
       {
         path: '/sheets-test',
         info: { title: 'Mundial Manager - Sheets Test' },
-        component: lazy(() => import('#pages/SheetsTest/SheetsTest')),
+        component: SheetsTest,
       },
     ],
   },
