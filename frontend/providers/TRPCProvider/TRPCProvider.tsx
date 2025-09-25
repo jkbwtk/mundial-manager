@@ -10,6 +10,7 @@ import { createContext, useContext } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import type { AppRouter } from '#backend/routes/app';
 import { isDev } from '#flib/utils';
+import { quickSwitch } from '#shared/utils';
 
 export interface TRPCContextState {
   client: ReturnType<typeof createTRPCClient<AppRouter>>;
@@ -34,16 +35,21 @@ function createDefaultState(): TRPCContextState {
           retry: (opts) => {
             if (
               opts.error.data &&
-              opts.error.data.code !== 'INTERNAL_SERVER_ERROR'
+              opts.error.data.code === 'INTERNAL_SERVER_ERROR'
             ) {
               return false;
             }
 
-            if (opts.op.type !== 'query') {
+            if (opts.op.type === 'mutation') {
               return false;
             }
 
-            return opts.attempts <= 3;
+            const attempts = quickSwitch<number>(opts.op.type, {
+              subscription: 120,
+              default: 3,
+            });
+
+            return opts.attempts <= attempts;
           },
           retryDelayMs: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
         }),
