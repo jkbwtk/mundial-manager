@@ -6,7 +6,7 @@ import {
   retryLink,
   splitLink,
 } from '@trpc/client';
-import { createContext, onMount, useContext } from 'solid-js';
+import { createContext, useContext } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import type { AppRouter } from '#backend/routes/app';
 import { isDev } from '#flib/utils';
@@ -15,9 +15,8 @@ export interface TRPCContextState {
   client: ReturnType<typeof createTRPCClient<AppRouter>>;
 }
 
-export interface TRPCContextActions {
-  ping(): Promise<string>;
-}
+// biome-ignore lint/suspicious/noEmptyInterface: yeah
+export interface TRPCContextActions {}
 
 export type TRPCContextValue = [
   state: TRPCContextState,
@@ -62,29 +61,12 @@ function createDefaultState(): TRPCContextState {
   };
 }
 
-const TRPCContext = createContext<TRPCContextValue>([
-  createDefaultState(),
-  {
-    ping: () => {
-      throw new Error('TRPCContext: ping() called before provider');
-    },
-  },
-]);
+const TRPCContext = createContext<TRPCContextValue>([createDefaultState(), {}]);
 
 export const TRPCProvider: ParentComponent = (props) => {
   const [state] = createStore<TRPCContextState>(createDefaultState());
 
-  const actions: TRPCContextActions = {
-    ping: () => {
-      return state.client.system.ping.query();
-    },
-  };
-
-  onMount(async () => {
-    const result = await state.client.system.ping.query();
-
-    console.log('TRPC ping result:', result);
-  });
+  const actions: TRPCContextActions = {};
 
   return (
     <TRPCContext.Provider value={[state, actions]}>
