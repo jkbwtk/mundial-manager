@@ -14,6 +14,7 @@ export * from './FileSizeWithUnit';
 export * from './FileTree';
 export * from './FreeSpaceGauge';
 export * from './HighlightedCode';
+export * from './Input';
 export * from './Leaderboard';
 export * from './MaterialSymbol';
 export * from './ProgresBar';

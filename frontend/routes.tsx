@@ -2,6 +2,7 @@ import type { RouteDefinition } from '@solidjs/router';
 import ButtonTest from '#pages/ButtonTest/ButtonTest';
 import ChartTest from '#pages/ChartTest';
 import Homepage from '#pages/Homepage/Homepage';
+import { InputTest } from '#pages/InputTest';
 import PageNotFound from '#pages/PageNotFound/PageNotFound';
 import RouteMap from '#pages/RouteMap/RouteMap';
 import { SheetsTest } from '#pages/SheetsTest';
@@ -29,6 +30,11 @@ export const routes: RouteDefinition[] = [
         path: '/button-test',
         info: { title: 'Mundial Manager - Button Test' },
         component: ButtonTest,
+      },
+      {
+        path: '/input-test',
+        info: { title: 'Mundial Manager - Input Test' },
+        component: InputTest,
       },
       {
         path: '/sheets-test',
