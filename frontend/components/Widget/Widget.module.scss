@@ -20,8 +20,6 @@
   .title {
     position: absolute;
 
-    box-sizing: border-box;
-
     max-width: calc(100% - cw(4));
 
     top: 0;
@@ -43,8 +41,6 @@
 
   .subtitle {
     position: absolute;
-
-    box-sizing: border-box;
 
     max-width: calc(100% - cw(4));
 

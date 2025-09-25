@@ -9,7 +9,7 @@
   width: cw(60);
   // height: ch(10);
 
-  max-width: round(down, calc(100vw - cw(2)), cw(1));
+  max-width: round(down, 100vw, cw(1));
 
   .preview {
     object-fit: cover;

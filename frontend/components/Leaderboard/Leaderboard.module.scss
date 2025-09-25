@@ -1,7 +1,6 @@
 @use 'app' as *;
 
 .container {
-  box-sizing: border-box;
   align-self: flex-start;
   width: round(down, calc(100% + 1px), cw(1));
 }

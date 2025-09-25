@@ -8,8 +8,6 @@
 
   width: fit-content;
 
-  box-sizing: border-box;
-
   overflow: hidden;
   contain: content;
 
@@ -17,8 +15,6 @@
 
   .borderContainer {
     position: absolute;
-
-    box-sizing: border-box;
 
     height: 100%;
     width: 100%;
@@ -29,8 +25,6 @@
     padding: calc(ch(1) / 2 - $borderSize) calc(cw(1) / 2 - $borderSize);
 
     .border {
-      box-sizing: border-box;
-
       width: 100%;
       height: 100%;
 

@@ -3,16 +3,14 @@
 .container {
   padding: ch(1) cw(1);
 
-  width: round(down, (100vw - cw(2)), cw(1));
-  min-height: round(down, (100dvh - ch(2)), ch(1));
+  width: round(down, 100vw, cw(1));
+  min-height: round(down, 100dvh, ch(1));
 
   .metadata {
-    box-sizing: border-box;
     width: 100%;
   }
 
   .matches {
-    box-sizing: border-box;
     width: 100%;
   }
 

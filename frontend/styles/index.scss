@@ -25,6 +25,10 @@ body {
   min-height: 100dvh;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 #root {
   min-height: inherit;
   position: relative;
