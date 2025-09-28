@@ -1,10 +1,11 @@
-import { createSignal, onCleanup, onMount } from 'solid-js';
+import { children, createSignal, onCleanup, onMount } from 'solid-js';
 import { isServer } from 'solid-js/web';
 import style from './InlineAction.module.scss';
 
 export type TriggerType = 'shortcut' | 'click';
 export interface InlineActionProps {
   symbol: string;
+  content?: string | undefined;
   onAction: (type: TriggerType) => void;
 }
 
@@ -12,6 +13,7 @@ const ignoredTargets = isServer ? [] : [HTMLInputElement];
 
 export const InlineAction: Component<InlineActionProps> = (props) => {
   const [activated, setActivated] = createSignal(false);
+  const content = children(() => props.content ?? props.symbol);
 
   let timeoutRef: undefined | ReturnType<typeof setTimeout>;
 
@@ -56,7 +58,7 @@ export const InlineAction: Component<InlineActionProps> = (props) => {
         [style.activated]: activated(),
       }}
     >
-      {props.symbol}
+      {content()}
     </button>
   );
 };
