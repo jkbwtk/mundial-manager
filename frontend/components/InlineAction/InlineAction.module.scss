@@ -1,0 +1,12 @@
+@use 'app' as *;
+
+.container {
+  color: $primaryColor;
+
+  transition: background-color 0.1s ease-in-out, color 0.1s ease-in-out;
+
+  &:hover {
+    background-color: $primaryBrightColor;
+    color: inherit;
+  }
+}

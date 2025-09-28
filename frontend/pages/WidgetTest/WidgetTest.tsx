@@ -1,4 +1,5 @@
 import { Button } from '#components/Button';
+import { InlineAction } from '#components/InlineAction';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import { customWidgetType, Divider, Widget } from '#components/Widget';
 import { WidgetAlt } from '#components/WidgetAlt';
@@ -107,6 +108,22 @@ const WidgetTest: Component = () => {
       <Widget topLeftLabels="Minimal Content">Short</Widget>
 
       <Widget topLeftLabels="Empty Widget" bottomRightLabels="No content" />
+
+      <Widget
+        topLeftLabels="Widget with inline action"
+        topRightLabels={
+          <span>
+            Tes
+            <InlineAction
+              symbol="t"
+              onAction={(type) => alert(`Action triggered through: ${type}`)}
+            />
+          </span>
+        }
+      >
+        Lorem ipsum dolor sit amet consectetur adipisicing elit.
+        <input />
+      </Widget>
     </div>
   );
 };
