@@ -237,10 +237,12 @@ const Homepage: Component = () => {
 
       <Break />
 
-      <Widget topLeftLabels="Stats" class={style.statsContainer}>
-        <EloLeaderboard />
+      <Widget topLeftLabels="Stats" class={style.statsWidget}>
+        <div class={style.statsContainer}>
+          <EloLeaderboard />
 
-        <Glicko2Leaderboard />
+          <Glicko2Leaderboard />
+        </div>
       </Widget>
 
       <Widget topLeftLabels="Player Elo Chart" class={style.eloChart}>
