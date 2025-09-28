@@ -6,6 +6,7 @@ import { InputTest } from '#pages/InputTest';
 import PageNotFound from '#pages/PageNotFound/PageNotFound';
 import RouteMap from '#pages/RouteMap/RouteMap';
 import { SheetsTest } from '#pages/SheetsTest';
+import WidgetTest from '#pages/WidgetTest/WidgetTest';
 
 export const routes: RouteDefinition[] = [
   {
@@ -40,6 +41,11 @@ export const routes: RouteDefinition[] = [
         path: '/sheets-test',
         info: { title: 'Mundial Manager - Sheets Test' },
         component: SheetsTest,
+      },
+      {
+        path: '/widget-test',
+        info: { title: 'Mundial Manager - Widget Test' },
+        component: WidgetTest,
       },
     ],
   },

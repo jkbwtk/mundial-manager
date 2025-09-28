@@ -11,3 +11,4 @@ export * from './InputTest';
 export * from './PageNotFound';
 export * from './RouteMap';
 export * from './SheetsTest';
+export * from './WidgetTest';

@@ -1,0 +1,11 @@
+@use 'app' as *;
+
+.container {
+  padding: ch(1) cw(1);
+
+  width: round(down, 100vw, cw(1));
+
+  display: flex;
+  flex-direction: column;
+  gap: ch(1);
+}
