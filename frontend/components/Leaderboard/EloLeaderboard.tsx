@@ -5,7 +5,7 @@ import { getTeamColor } from '#flib/sheetUtils';
 import { useSheets } from '#providers/SheetsProvider';
 import style from './Leaderboard.module.scss';
 
-export const EloLeaderboard = () => {
+export const EloLeaderboardBase = () => {
   const [, { eloStats }] = useSheets();
 
   const sortedElos = createMemo(() => ({
@@ -24,7 +24,7 @@ export const EloLeaderboard = () => {
   }));
 
   return (
-    <Widget topLeftLabels="Elo Stats" class={style.container}>
+    <>
       <div class={style.header}>
         <strong>Player Stats</strong>
       </div>
@@ -251,6 +251,14 @@ export const EloLeaderboard = () => {
           </For>
         </tbody>
       </table>
+    </>
+  );
+};
+
+export const EloLeaderboard = () => {
+  return (
+    <Widget topLeftLabels="Elo Stats" class={style.container}>
+      <EloLeaderboardBase />
     </Widget>
   );
 };

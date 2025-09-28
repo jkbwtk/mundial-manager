@@ -2,10 +2,14 @@ import { A } from '@solidjs/router';
 import type { ChartConfiguration } from 'chart.js';
 import figlet from 'figlet';
 import smallSlant from 'figlet/fonts/Small Slant';
-import { createMemo } from 'solid-js';
+import { createMemo, createSignal, Match, Switch } from 'solid-js';
 import { Break } from '#components/Break';
 import { ChartWrapper } from '#components/ChartWrapper';
-import { EloLeaderboard, Glicko2Leaderboard } from '#components/Leaderboard';
+import { InlineAction } from '#components/InlineAction';
+import {
+  EloLeaderboardBase,
+  Glicko2LeaderboardBase,
+} from '#components/Leaderboard';
 import { Widget } from '#components/Widget';
 import { getTeamColor } from '#flib/sheetUtils';
 import { useConsoleUnitPrototype } from '#providers/ConsoleUnitPrototypeProvider';
@@ -17,6 +21,8 @@ figlet.parseFont('Small Slant', smallSlant);
 const Homepage: Component = () => {
   const [{ windowSize }] = useConsoleUnitPrototype();
   const [, { matchStats, eloStats, glicko2Stats }] = useSheets();
+
+  const [statsPage, setStatsPage] = createSignal<'elo' | 'glicko2'>('elo');
 
   const playerChartConfig = createMemo((): ChartConfiguration => {
     const currentStats = matchStats();
@@ -237,12 +243,46 @@ const Homepage: Component = () => {
 
       <Break />
 
-      <Widget topLeftLabels="Stats" class={style.statsWidget}>
-        <div class={style.statsContainer}>
-          <EloLeaderboard />
-
-          <Glicko2Leaderboard />
-        </div>
+      <Widget
+        topLeftLabels="Stats"
+        topRightLabels={[
+          <span
+            classList={{
+              [style.label]: true,
+              [style.activeStats]: statsPage() === 'elo',
+            }}
+          >
+            <InlineAction
+              symbol="e"
+              content="E"
+              onAction={() => setStatsPage('elo')}
+            />
+            lo
+          </span>,
+          <span
+            classList={{
+              [style.label]: true,
+              [style.activeStats]: statsPage() === 'glicko2',
+            }}
+          >
+            <InlineAction
+              symbol="g"
+              content="G"
+              onAction={() => setStatsPage('glicko2')}
+            />
+            licko-2
+          </span>,
+        ]}
+        class={style.statsWidget}
+      >
+        <Switch>
+          <Match when={statsPage() === 'elo'}>
+            <EloLeaderboardBase />
+          </Match>
+          <Match when={statsPage() === 'glicko2'}>
+            <Glicko2LeaderboardBase />
+          </Match>
+        </Switch>
       </Widget>
 
       <Widget topLeftLabels="Player Elo Chart" class={style.eloChart}>

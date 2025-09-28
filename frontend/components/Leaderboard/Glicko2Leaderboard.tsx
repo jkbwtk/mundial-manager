@@ -5,7 +5,7 @@ import { getGlicko2Confidence, getTeamColor } from '#flib/sheetUtils';
 import { useSheets } from '#providers/SheetsProvider';
 import style from './Leaderboard.module.scss';
 
-export const Glicko2Leaderboard = () => {
+export const Glicko2LeaderboardBase = () => {
   const [, { glicko2Stats }] = useSheets();
 
   const sortedGlicko2 = createMemo(() => ({
@@ -32,7 +32,7 @@ export const Glicko2Leaderboard = () => {
   }));
 
   return (
-    <Widget topLeftLabels="Glicko-2 Stats" class={style.container}>
+    <>
       <div class={style.header}>
         <strong>Player Stats</strong>
       </div>
@@ -320,6 +320,12 @@ export const Glicko2Leaderboard = () => {
           </For>
         </tbody>
       </table>
-    </Widget>
+    </>
   );
 };
+
+export const Glicko2Leaderboard = () => (
+  <Widget topLeftLabels="Glicko-2 Stats" class={style.container}>
+    <Glicko2LeaderboardBase />
+  </Widget>
+);

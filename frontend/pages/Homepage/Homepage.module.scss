@@ -24,7 +24,7 @@
 
 .stats-widget {
   width: round(down, calc(100% + 1px), cw(1));
-  max-width: cw(100);
+  max-width: cw(50);
 
   .stats-container {
     display: grid;
@@ -34,6 +34,14 @@
     @media (max-width: 800px) {
       grid-template-columns: 1fr;
     }
+  }
+
+  .label {
+    color: $textColor;
+  }
+
+  .active-stats {
+    color: $textBrightColor;
   }
 }
 
