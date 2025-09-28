@@ -243,82 +243,89 @@ const Homepage: Component = () => {
 
       <Break />
 
-      <Widget
-        topLeftLabels="Stats"
-        topRightLabels={[
-          <span
-            classList={{
-              [style.label]: true,
-              [style.activeStats]: statsPage() === 'elo',
-            }}
+      <div class={style.dashboardContainer}>
+        <Widget
+          class={style.statsWidget}
+          topLeftLabels="Stats"
+          topRightLabels={[
+            <span
+              classList={{
+                [style.label]: true,
+                [style.activeStats]: statsPage() === 'elo',
+              }}
+            >
+              <InlineAction
+                symbol="e"
+                content="E"
+                onAction={() => setStatsPage('elo')}
+              />
+              lo
+            </span>,
+            <span
+              classList={{
+                [style.label]: true,
+                [style.activeStats]: statsPage() === 'glicko2',
+              }}
+            >
+              <InlineAction
+                symbol="g"
+                content="G"
+                onAction={() => setStatsPage('glicko2')}
+              />
+              licko-2
+            </span>,
+          ]}
+        >
+          <Switch>
+            <Match when={statsPage() === 'elo'}>
+              <EloLeaderboardBase />
+            </Match>
+            <Match when={statsPage() === 'glicko2'}>
+              <Glicko2LeaderboardBase />
+            </Match>
+          </Switch>
+        </Widget>
+
+        <div class={style.chartsContainer}>
+          <Widget topLeftLabels="Player Elo Chart" class={style.eloChart}>
+            <ChartWrapper config={playerChartConfig()} />
+          </Widget>
+
+          <Widget topLeftLabels="Hybrid Elo Chart" class={style.eloChart}>
+            <ChartWrapper config={hybridChartConfig()} />
+          </Widget>
+
+          <Widget
+            topLeftLabels="Team Individual Elo Chart"
+            class={style.eloChart}
           >
-            <InlineAction
-              symbol="e"
-              content="E"
-              onAction={() => setStatsPage('elo')}
-            />
-            lo
-          </span>,
-          <span
-            classList={{
-              [style.label]: true,
-              [style.activeStats]: statsPage() === 'glicko2',
-            }}
+            <ChartWrapper config={teamIndividualChartConfig()} />
+          </Widget>
+
+          <Widget topLeftLabels="Team Elo Chart" class={style.eloChart}>
+            <ChartWrapper config={teamChartConfig()} />
+          </Widget>
+
+          <Widget topLeftLabels="Player Glicko-2 Chart" class={style.eloChart}>
+            <ChartWrapper config={playerGlicko2ChartConfig()} />
+          </Widget>
+
+          <Widget topLeftLabels="Hybrid Glicko-2 Chart" class={style.eloChart}>
+            <ChartWrapper config={hybridGlicko2ChartConfig()} />
+          </Widget>
+
+          <Widget
+            topLeftLabels="Team Individual Glicko-2 Chart"
+            class={style.eloChart}
           >
-            <InlineAction
-              symbol="g"
-              content="G"
-              onAction={() => setStatsPage('glicko2')}
-            />
-            licko-2
-          </span>,
-        ]}
-        class={style.statsWidget}
-      >
-        <Switch>
-          <Match when={statsPage() === 'elo'}>
-            <EloLeaderboardBase />
-          </Match>
-          <Match when={statsPage() === 'glicko2'}>
-            <Glicko2LeaderboardBase />
-          </Match>
-        </Switch>
-      </Widget>
+            <ChartWrapper config={teamIndividualGlicko2ChartConfig()} />
+          </Widget>
 
-      <Widget topLeftLabels="Player Elo Chart" class={style.eloChart}>
-        <ChartWrapper config={playerChartConfig()} />
-      </Widget>
-
-      <Widget topLeftLabels="Hybrid Elo Chart" class={style.eloChart}>
-        <ChartWrapper config={hybridChartConfig()} />
-      </Widget>
-
-      <Widget topLeftLabels="Team Individual Elo Chart" class={style.eloChart}>
-        <ChartWrapper config={teamIndividualChartConfig()} />
-      </Widget>
-
-      <Widget topLeftLabels="Team Elo Chart" class={style.eloChart}>
-        <ChartWrapper config={teamChartConfig()} />
-      </Widget>
-
-      <Widget topLeftLabels="Player Glicko-2 Chart" class={style.eloChart}>
-        <ChartWrapper config={playerGlicko2ChartConfig()} />
-      </Widget>
-
-      <Widget topLeftLabels="Hybrid Glicko-2 Chart" class={style.eloChart}>
-        <ChartWrapper config={hybridGlicko2ChartConfig()} />
-      </Widget>
-
-      <Widget
-        topLeftLabels="Team Individual Glicko-2 Chart"
-        class={style.eloChart}
-      >
-        <ChartWrapper config={teamIndividualGlicko2ChartConfig()} />
-      </Widget>
-
-      <Widget topLeftLabels="Team Glicko-2 Chart" class={style.eloChart}>
-        <ChartWrapper config={teamGlicko2ChartConfig()} />
-      </Widget>
+          <Widget topLeftLabels="Team Glicko-2 Chart" class={style.eloChart}>
+            <ChartWrapper config={teamGlicko2ChartConfig()} />
+          </Widget>
+        </div>
+      </div>
     </div>
   );
 };

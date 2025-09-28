@@ -5,6 +5,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+
+  width: round(down, 100vw, cw(1));
 }
 
 .centered {
@@ -22,9 +24,33 @@
   width: fit-content;
 }
 
+.dashboard-container {
+  display: grid;
+  grid-template-columns: cw(40) 1fr;
+
+  width: 100%;
+  max-width: 100%;
+
+  @media (max-width: 800px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.charts-container {
+  width: 100%;
+  max-width: 100%;
+
+  .elo-chart {
+    height: ch(30);
+
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
 .stats-widget {
-  width: round(down, calc(100% + 1px), cw(1));
-  max-width: cw(50);
+  width: 100%;
+  height: fit-content;
 
   .stats-container {
     display: grid;
@@ -43,9 +69,4 @@
   .active-stats {
     color: $textBrightColor;
   }
-}
-
-.elo-chart {
-  width: round(down, 100%, cw(1));
-  height: ch(30);
 }

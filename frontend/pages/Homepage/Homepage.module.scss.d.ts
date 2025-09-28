@@ -1,6 +1,8 @@
 export declare const activeStats: string;
 export declare const centered: string;
+export declare const chartsContainer: string;
 export declare const container: string;
+export declare const dashboardContainer: string;
 export declare const eloChart: string;
 export declare const label: string;
 export declare const logo: string;
