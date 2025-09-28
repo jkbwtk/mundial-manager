@@ -13,6 +13,8 @@ export type DividerProps = {
    * Connection order: start, end
    */
   connect?: number;
+
+  colors?: number;
 };
 
 const defaultProps: RequiredDefaults<DividerProps> = {
@@ -20,6 +22,7 @@ const defaultProps: RequiredDefaults<DividerProps> = {
   class: '',
   classList: {},
   connect: 0b11,
+  colors: 0b11,
 };
 
 export const Divider: Component<DividerProps> = (unmergedProps) => {
@@ -36,6 +39,9 @@ export const Divider: Component<DividerProps> = (unmergedProps) => {
 
         [style.connectStart]: (props.connect & 0b10) !== 0,
         [style.connectEnd]: (props.connect & 0b01) !== 0,
+
+        [style.colorStart]: (props.colors & 0b10) !== 0,
+        [style.colorEnd]: (props.colors & 0b01) !== 0,
 
         ...props.classList,
       }}

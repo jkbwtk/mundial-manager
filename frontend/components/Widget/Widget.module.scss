@@ -1,90 +1,145 @@
 @use 'app' as *;
 
+%label-container-base {
+  display: grid;
+  grid-template-columns: auto auto;
+
+  position: absolute;
+  max-width: calc(100% - cw(2));
+  width: 100%;
+}
+
+%label-base {
+  display: flex;
+  max-width: 100%;
+  backdrop-filter: blur(100rem);
+  font-weight: bold;
+}
+
 .container {
   position: relative;
 
   padding: ch(1) cw(1);
 
-  overflow: hidden;
-
   :where(&) {
-    width: fit-content;
+    overflow: hidden;
 
-    border-color: $borderColor;
-    border-style: solid;
-
-    border-width: 0;
-    border-radius: $borderRadius;
+    --widget-border-color: #{$borderColor};
+    --widget-border-style: solid;
+    --widget-border-width: #{$borderSize};
+    --widget-border-radius: #{$borderRadius};
   }
 
-  .title {
-    position: absolute;
+  .pre-decorator-top,
+  .post-decorator-top,
+  .pre-decorator-bottom,
+  .post-decorator-bottom {
+    position: relative;
+    width: cw(1);
+    height: ch(1);
+    flex-shrink: 0;
 
-    max-width: calc(100% - cw(4));
+    &::after {
+      content: '';
+      position: absolute;
 
+      $decoratorSize: 30%;
+
+      width: calc(50% - var(--widget-border-width) / 2);
+      height: calc($decoratorSize - var(--widget-border-width) / 2);
+
+      bottom: calc(50% - $decoratorSize);
+
+      border-top: var(--widget-border-width) var(--widget-border-style) var(--widget-border-color);
+      border-right: var(--widget-border-width) var(--widget-border-style) var(--widget-border-color);
+    }
+  }
+
+  .post-decorator-top {
+    transform: scaleX(-1);
+  }
+
+  .pre-decorator-bottom {
+    transform: scaleY(-1);
+  }
+
+  .post-decorator-bottom {
+    transform: scaleX(-1) scaleY(-1);
+  }
+
+  .top-labels {
+    @extend %label-container-base;
     top: 0;
-    left: cw(2);
+  }
 
-    backdrop-filter: blur(0.2rem);
+  .bottom-labels {
+    @extend %label-container-base;
+    bottom: 0;
+  }
+
+  .left-labels {
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  .right-labels {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .top-left-label,
+  .top-right-label,
+  .bottom-left-label,
+  .bottom-right-label {
+    @extend %label-base;
 
     color: $textBrightColor;
-
-    font-weight: bold;
-
-    border-color: inherit;
-    border-style: inherit;
-
-    border-width: 0;
-
-    padding: 0 cw(0);
   }
 
-  .subtitle {
+  &::before {
+    content: '';
     position: absolute;
-
-    max-width: calc(100% - cw(4));
-
-    bottom: 0;
-    right: cw(2);
-
-    backdrop-filter: blur(0.2rem);
-
-    color: $textColor;
-
-    font-weight: bold;
-  }
-
-  .border {
-    position: absolute;
-    box-sizing: content-box;
 
     pointer-events: none;
+    user-select: none;
 
-    border-radius: $borderRadius;
+    height: calc(100% - ch(1) - var(--widget-border-width));
+    width: calc(100% - cw(1) - var(--widget-border-width));
 
-    height: calc(100% - ch(1));
-    width: calc(100% - cw(1));
+    top: calc(ch(1) / 2 - var(--widget-border-width) / 2);
+    left: calc(cw(1) / 2 - var(--widget-border-width) / 2);
 
-    top: calc(ch(1) / 2 - $borderSize);
-    left: calc(cw(1) / 2 - $borderSize);
-
-    border-color: inherit;
-    border-style: inherit;
-
-    border-width: $borderSize;
+    border-color: var(--widget-border-color);
+    border-style: var(--widget-border-style);
+    border-width: var(--widget-border-width);
+    border-radius: var(--widget-border-radius);
   }
 }
 
 .divider {
   :where(&) {
-    background-color: $borderColor;
+    --divider-border-color: #{$borderColor};
+
+    background-color: var(--divider-border-color);
+  }
+
+  &.color-start {
+    &::before {
+      --divider-border-color: var(--widget-border-color, --divider-border-color);
+    }
+  }
+
+  &.color-end {
+    &::after {
+      --divider-border-color: var(--widget-border-color, --divider-border-color);
+    }
   }
 
   &.horizontal {
-    height: $borderSize;
+    height: var(--widget-border-width, $borderSize);
 
-    margin-top: calc((ch(1) - $borderSize) / 2);
-    margin-bottom: calc((ch(1) - $borderSize) / 2);
+    margin-top: calc((ch(1) - var(--widget-border-width, $borderSize)) / 2);
+    margin-bottom: calc((ch(1) - var(--widget-border-width, $borderSize)) / 2);
 
     &.connectStart {
       position: relative;
@@ -94,12 +149,12 @@
 
         position: absolute;
 
-        left: cw(-0.5);
+        left: calc(cw(-1) / 2 + var(--widget-border-width, $borderSize) / 2);
 
-        background-color: inherit;
+        background-color: var(--divider-border-color);
 
-        width: cw(1);
-        height: $borderSize;
+        width: calc(cw(1) / 2 - var(--widget-border-width, $borderSize) / 2);
+        height: var(--widget-border-width, $borderSize);
       }
     }
 
@@ -111,21 +166,21 @@
 
         position: absolute;
 
-        right: cw(-0.5);
+        right: calc(cw(-1) / 2 + var(--widget-border-width, $borderSize) / 2);
 
-        background-color: inherit;
+        background-color: var(--divider-border-color);
 
-        width: cw(1);
-        height: $borderSize;
+        width: calc(cw(1) / 2 - var(--widget-border-width, $borderSize) / 2);
+        height: var(--widget-border-width, $borderSize);
       }
     }
   }
 
   &.vertical {
-    width: $borderSize;
+    width: var(--widget-border-width, $borderSize);
 
-    margin-left: calc((cw(1) - $borderSize) / 2);
-    margin-right: calc((cw(1) - $borderSize) / 2);
+    margin-left: calc((cw(1) - var(--widget-border-width, $borderSize)) / 2);
+    margin-right: calc((cw(1) - var(--widget-border-width, $borderSize)) / 2);
 
     &.connectStart {
       position: relative;
@@ -135,12 +190,12 @@
 
         position: absolute;
 
-        top: calc(ch(-0.5) + $borderSize / 2);
+        top: calc(ch(-1) / 2 + var(--widget-border-width, $borderSize) / 2);
 
-        background-color: inherit;
+        background-color: var(--divider-border-color);
 
-        height: ch(1);
-        width: $borderSize;
+        height: calc(ch(1) / 2 - var(--widget-border-width, $borderSize) / 2);
+        width: var(--widget-border-width, $borderSize);
       }
     }
 
@@ -150,16 +205,14 @@
       &::after {
         content: '';
 
-        z-index: 99999999;
-
         position: absolute;
 
-        bottom: ch(-0.5);
+        bottom: calc(ch(-1) / 2 + var(--widget-border-width, $borderSize) / 2);
 
-        background-color: inherit;
+        background-color: var(--divider-border-color);
 
-        height: ch(1);
-        width: $borderSize;
+        height: calc(ch(1) / 2 - var(--widget-border-width, $borderSize) / 2);
+        width: var(--widget-border-width, $borderSize);
       }
     }
   }

@@ -13,7 +13,7 @@ export const InputTest: Component = () => {
   const [rangeValue, setRangeValue] = createSignal('75');
 
   return (
-    <Widget title="Input Component Test" class={style.outerContainer}>
+    <Widget topLeftLabels="Input Component Test" class={style.outerContainer}>
       <div class={style.container}>
         <br />
         Input:{' '}

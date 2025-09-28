@@ -29,9 +29,9 @@ const FileTest: Component = () => {
       <FilePicker class={style.filePicker} setFile={setFile} accept="image/*" />
       <Show when={imageData()}>
         <Widget
-          title="File Preview"
+          topLeftLabels="File Preview"
           class={style.previewContainer}
-          subtitle={file()?.name}
+          bottomRightLabels={file()?.name}
         >
           <img src={imageData()} alt="TEST" class={style.preview} />
         </Widget>

@@ -24,7 +24,7 @@ export const EloLeaderboard = () => {
   }));
 
   return (
-    <Widget title="Elo Stats" class={style.container}>
+    <Widget topLeftLabels="Elo Stats" class={style.container}>
       <div class={style.header}>
         <strong>Player Stats</strong>
       </div>

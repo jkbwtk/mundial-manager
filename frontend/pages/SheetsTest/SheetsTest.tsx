@@ -156,8 +156,8 @@ export const SheetsTest: Component = () => {
   }
 
   return (
-    <Widget title="Sheets Test Page" class={style.container}>
-      <Widget title="Metadata" class={style.metadata}>
+    <Widget topLeftLabels="Sheets Test Page" class={style.container}>
+      <Widget topLeftLabels="Metadata" class={style.metadata}>
         Title:{' '}
         <strong>
           <AnimatedText>{sheets.metadata.title}</AnimatedText>
@@ -189,13 +189,13 @@ export const SheetsTest: Component = () => {
         </strong>
       </Widget>
 
-      <Widget title="Players" class={style.metadata}>
+      <Widget topLeftLabels="Players" class={style.metadata}>
         <For each={generalStats().uniquePlayers}>
           {(player) => <div>{player}</div>}
         </For>
       </Widget>
 
-      <Widget title="General Stats" class={style.metadata}>
+      <Widget topLeftLabels="General Stats" class={style.metadata}>
         <strong>Total playtime:</strong>{' '}
         <AnimatedText>{generalStats().totalPlaytimeFormatted}</AnimatedText>
         <br />
@@ -223,7 +223,7 @@ export const SheetsTest: Component = () => {
         <HighlightedCode language="json" code={toJson(generalStats())} />
       </Widget>
 
-      <Widget title="Player Stats" class={style.metadata}>
+      <Widget topLeftLabels="Player Stats" class={style.metadata}>
         <strong>Playtime per player:</strong>
         <For each={Object.values(playerStats())}>
           {(stat) => (
@@ -269,7 +269,7 @@ export const SheetsTest: Component = () => {
         <HighlightedCode language="json" code={toJson(playerStats())} />
       </Widget>
 
-      <Widget title="Glicko-2 Stats" class={style.metadata}>
+      <Widget topLeftLabels="Glicko-2 Stats" class={style.metadata}>
         <strong>Player Glicko-2:</strong>
         <For each={Object.entries(glicko2Stats().playerGlicko2)}>
           {([player, rating]) => (
@@ -339,12 +339,12 @@ export const SheetsTest: Component = () => {
         <HighlightedCode language="json" code={toJson(glicko2Stats())} />
       </Widget>
 
-      <Widget title="Match Stats" class={style.metadata}>
+      <Widget topLeftLabels="Match Stats" class={style.metadata}>
         <strong>Raw:</strong>
         <HighlightedCode language="json" code={toJson(matchStats())} />
       </Widget>
 
-      <Widget title="Day Stats" class={style.metadata}>
+      <Widget topLeftLabels="Day Stats" class={style.metadata}>
         <strong>Raw:</strong>
         <HighlightedCode language="json" code={toJson(dayStats())} />
       </Widget>

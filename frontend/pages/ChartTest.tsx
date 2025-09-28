@@ -141,7 +141,7 @@ const ChartTest: Component = () => {
 
   return (
     <div style="display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 20px; height: 100vh; padding: 20px;">
-      <Widget title="Animated Line Chart (Chart.js)">
+      <Widget topLeftLabels="Animated Line Chart (Chart.js)">
         <div style="height: 300px;">
           <ChartWrapper
             config={lineConfig()}
@@ -150,19 +150,19 @@ const ChartTest: Component = () => {
         </div>
       </Widget>
 
-      <Widget title="Bar Chart (Chart.js)">
+      <Widget topLeftLabels="Bar Chart (Chart.js)">
         <div style="height: 300px;">
           <ChartWrapper config={barConfig()} />
         </div>
       </Widget>
 
-      <Widget title="Doughnut Chart (Chart.js)">
+      <Widget topLeftLabels="Doughnut Chart (Chart.js)">
         <div style="height: 300px;">
           <ChartWrapper config={doughnutConfig()} />
         </div>
       </Widget>
 
-      <Widget title="Braille Chart (Custom SVG)">
+      <Widget topLeftLabels="Braille Chart (Custom SVG)">
         <BrailleChart />
       </Widget>
     </div>

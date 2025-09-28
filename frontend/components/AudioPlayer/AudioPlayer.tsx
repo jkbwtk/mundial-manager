@@ -199,7 +199,7 @@ export const AudioPlayer: Component<AudioPlayerProps> = (userProps) => {
   });
 
   return (
-    <Widget title="Audio Player">
+    <Widget topLeftLabels="Audio Player">
       <div class={style.playerContainer}>
         <div class={style.container}>
           <TextMarquee>

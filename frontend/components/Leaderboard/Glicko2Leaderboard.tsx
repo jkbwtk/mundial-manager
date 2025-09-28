@@ -32,7 +32,7 @@ export const Glicko2Leaderboard = () => {
   }));
 
   return (
-    <Widget title="Glicko-2 Stats" class={style.container}>
+    <Widget topLeftLabels="Glicko-2 Stats" class={style.container}>
       <div class={style.header}>
         <strong>Player Stats</strong>
       </div>

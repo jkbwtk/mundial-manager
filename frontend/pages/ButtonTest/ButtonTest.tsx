@@ -5,7 +5,7 @@ import style from './ButtonTest.module.scss';
 
 const ButtonTest: Component = () => {
   return (
-    <Widget title="Button Test Page" class={style.container}>
+    <Widget topLeftLabels="Button Test Page" class={style.container}>
       <br />
       Primary button: <Button>Test</Button>
       <Divider />

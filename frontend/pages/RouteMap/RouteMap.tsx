@@ -41,7 +41,7 @@ const RouteMap: Component = () => {
 
   return (
     <div>
-      <Widget title="Route List" class={style.container}>
+      <Widget topLeftLabels="Route List" class={style.container}>
         <For each={flatRoutes}>
           {(route, index) => (
             <div>
@@ -52,7 +52,7 @@ const RouteMap: Component = () => {
         </For>
       </Widget>
 
-      <Widget title="Route Map" class={style.container}>
+      <Widget topLeftLabels="Route Map" class={style.container}>
         <Directory node={routeTree} levels={[]} parentNames={[]} last={true} />
       </Widget>
     </div>

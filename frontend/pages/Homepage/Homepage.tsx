@@ -237,41 +237,44 @@ const Homepage: Component = () => {
 
       <Break />
 
-      <Widget title="Stats" class={style.statsContainer}>
+      <Widget topLeftLabels="Stats" class={style.statsContainer}>
         <EloLeaderboard />
 
         <Glicko2Leaderboard />
       </Widget>
 
-      <Widget title="Player Elo Chart" class={style.eloChart}>
+      <Widget topLeftLabels="Player Elo Chart" class={style.eloChart}>
         <ChartWrapper config={playerChartConfig()} />
       </Widget>
 
-      <Widget title="Hybrid Elo Chart" class={style.eloChart}>
+      <Widget topLeftLabels="Hybrid Elo Chart" class={style.eloChart}>
         <ChartWrapper config={hybridChartConfig()} />
       </Widget>
 
-      <Widget title="Team Individual Elo Chart" class={style.eloChart}>
+      <Widget topLeftLabels="Team Individual Elo Chart" class={style.eloChart}>
         <ChartWrapper config={teamIndividualChartConfig()} />
       </Widget>
 
-      <Widget title="Team Elo Chart" class={style.eloChart}>
+      <Widget topLeftLabels="Team Elo Chart" class={style.eloChart}>
         <ChartWrapper config={teamChartConfig()} />
       </Widget>
 
-      <Widget title="Player Glicko-2 Chart" class={style.eloChart}>
+      <Widget topLeftLabels="Player Glicko-2 Chart" class={style.eloChart}>
         <ChartWrapper config={playerGlicko2ChartConfig()} />
       </Widget>
 
-      <Widget title="Hybrid Glicko-2 Chart" class={style.eloChart}>
+      <Widget topLeftLabels="Hybrid Glicko-2 Chart" class={style.eloChart}>
         <ChartWrapper config={hybridGlicko2ChartConfig()} />
       </Widget>
 
-      <Widget title="Team Individual Glicko-2 Chart" class={style.eloChart}>
+      <Widget
+        topLeftLabels="Team Individual Glicko-2 Chart"
+        class={style.eloChart}
+      >
         <ChartWrapper config={teamIndividualGlicko2ChartConfig()} />
       </Widget>
 
-      <Widget title="Team Glicko-2 Chart" class={style.eloChart}>
+      <Widget topLeftLabels="Team Glicko-2 Chart" class={style.eloChart}>
         <ChartWrapper config={teamGlicko2ChartConfig()} />
       </Widget>
     </div>

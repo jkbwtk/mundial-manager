@@ -1,5 +1,5 @@
 import { mergeProps, onMount, type Setter } from 'solid-js';
-import { Widget } from '#components/Widget';
+import { customWidgetType } from '#components/Widget';
 import { isDev } from '#flib/utils';
 import type { RequiredDefaults } from '#shared/utils';
 import style from './FilePicker.module.scss';
@@ -9,6 +9,8 @@ export type FilePickerProps = {
   setFile: Setter<File | undefined>;
   class?: string;
 };
+
+const LabelWidget = customWidgetType('label');
 
 const defaultProps: RequiredDefaults<FilePickerProps> = {
   accept: '*/*',
@@ -48,9 +50,8 @@ export const FilePicker: Component<FilePickerProps> = (unmergedProps) => {
   });
 
   return (
-    <Widget
-      title="File Picker"
-      component="label"
+    <LabelWidget
+      topLeftLabels="File Picker"
       onDrop={handleFileDrop}
       classList={{
         [style.container]: true,
@@ -70,6 +71,6 @@ export const FilePicker: Component<FilePickerProps> = (unmergedProps) => {
           Click to pick a file <br /> or drop one here
         </span>
       </div>
-    </Widget>
+    </LabelWidget>
   );
 };

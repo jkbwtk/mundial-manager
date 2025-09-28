@@ -102,7 +102,7 @@ export const Directory: Component<DirectoryProps> = (props) => {
 
 export const FileTree: Component<FileTreeProps> = (props) => {
   return (
-    <Widget title="File Tree" class={style.container}>
+    <Widget topLeftLabels="File Tree" class={style.container}>
       <Directory
         node={props.fileTree}
         levels={[]}
