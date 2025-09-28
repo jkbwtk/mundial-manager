@@ -6,5 +6,4 @@ export declare const dashboardContainer: string;
 export declare const eloChart: string;
 export declare const label: string;
 export declare const logo: string;
-export declare const statsContainer: string;
 export declare const statsWidget: string;

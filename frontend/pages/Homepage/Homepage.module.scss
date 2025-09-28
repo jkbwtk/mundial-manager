@@ -37,30 +37,26 @@
 }
 
 .charts-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
   width: 100%;
   max-width: 100%;
 
   .elo-chart {
-    height: ch(30);
-
+    height: ch(25);
     width: 100%;
     max-width: 100%;
+  }
+
+  @media (max-width: 1200px) {
+    grid-template-columns: 1fr;
   }
 }
 
 .stats-widget {
   width: 100%;
   height: fit-content;
-
-  .stats-container {
-    display: grid;
-
-    grid-template-columns: 1fr 1fr;
-
-    @media (max-width: 800px) {
-      grid-template-columns: 1fr;
-    }
-  }
 
   .label {
     color: $textColor;
