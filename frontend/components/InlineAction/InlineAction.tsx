@@ -7,7 +7,7 @@ export interface InlineActionProps {
   onAction: (type: 'shortcut' | 'click') => void;
 }
 
-const ignoredTargets = [HTMLInputElement];
+const ignoredTargets = isServer ? [] : [HTMLInputElement];
 
 export const InlineAction: Component<InlineActionProps> = (props) => {
   const handleKeyPress = (ev: KeyboardEvent) => {
