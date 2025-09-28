@@ -14,10 +14,15 @@ export const ChartWrapper: Component<ChartWrapperProps> = (props) => {
   // biome-ignore lint/style/useConst: Canvas ref needs to be mutable for assignment
   let canvasRef: HTMLCanvasElement = null!;
   let chart: Chart | null = null;
+  let resizeObserver: ResizeObserver | null = null;
 
   const handleResize = () => {
-    if (chart) {
-      chart.resize();
+    if (chart && canvasRef) {
+      requestAnimationFrame(() => {
+        if (chart) {
+          chart.resize();
+        }
+      });
     }
   };
 
@@ -33,6 +38,7 @@ export const ChartWrapper: Component<ChartWrapperProps> = (props) => {
           options: {
             responsive: true,
             maintainAspectRatio: false,
+            resizeDelay: 50,
             interaction: {
               intersect: false,
               mode: 'index',
@@ -41,6 +47,29 @@ export const ChartWrapper: Component<ChartWrapperProps> = (props) => {
               point: {
                 radius: 3,
                 hoverRadius: 5,
+              },
+            },
+            plugins: {
+              legend: {
+                labels: {
+                  usePointStyle: true,
+                  boxWidth: 6,
+                  boxHeight: 6,
+                },
+              },
+            },
+            scales: {
+              x: {
+                ticks: {
+                  maxTicksLimit: 10,
+                  maxRotation: 45,
+                  minRotation: 0,
+                },
+              },
+              y: {
+                ticks: {
+                  maxTicksLimit: 8,
+                },
               },
             },
             ...props.config.options,
@@ -52,6 +81,13 @@ export const ChartWrapper: Component<ChartWrapperProps> = (props) => {
         }
 
         window.addEventListener('resize', handleResize);
+
+        if (typeof ResizeObserver !== 'undefined' && canvasRef.parentElement) {
+          resizeObserver = new ResizeObserver(() => {
+            handleResize();
+          });
+          resizeObserver.observe(canvasRef.parentElement);
+        }
       } catch (error) {
         console.error('Failed to create chart:', error);
       }
@@ -61,6 +97,12 @@ export const ChartWrapper: Component<ChartWrapperProps> = (props) => {
   onCleanup(() => {
     if (!isServer) {
       window.removeEventListener('resize', handleResize);
+
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+        resizeObserver = null;
+      }
+
       if (chart) {
         chart.destroy();
         chart = null;
