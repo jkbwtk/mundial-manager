@@ -1,6 +1,9 @@
 @use 'app' as *;
 
 .container {
+  position: relative;
+  overflow: visible;
+
   color: $primaryColor;
 
   transition: background-color 0.1s ease-in-out, color 0.1s ease-in-out;
@@ -8,5 +11,16 @@
   &:hover {
     background-color: $primaryBrightColor;
     color: inherit;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: cw(-1);
+    width: cw(3);
+    height: ch(1.5);
+
+    z-index: 100;
   }
 }
