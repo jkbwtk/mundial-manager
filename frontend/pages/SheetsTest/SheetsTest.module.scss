@@ -18,8 +18,10 @@
     color: $textBrightColor;
   }
 
-  :hover > * > .highlightedScore {
-    color: $backgroundColor;
+  @media (hover: hover) {
+    :hover > * > .highlightedScore {
+      color: $backgroundColor;
+    }
   }
 
   .team-color {

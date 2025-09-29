@@ -18,9 +18,11 @@
 
   border-color: $red;
 
-  &:hover {
-    .label {
-      color: $textBrightColor;
+  @media (hover: hover) {
+    &:hover {
+      .label {
+        color: $textBrightColor;
+      }
     }
   }
 

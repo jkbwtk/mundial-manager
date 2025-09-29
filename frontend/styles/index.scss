@@ -93,9 +93,11 @@ a {
       color: app.$primaryColor;
     }
 
-    &:hover {
-      text-decoration: solid underline;
-      color: app.$primaryBrightColor;
+    @media (hover: hover) {
+      &:hover {
+        text-decoration: solid underline;
+        color: app.$primaryBrightColor;
+      }
     }
   }
 }

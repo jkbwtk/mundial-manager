@@ -20,9 +20,11 @@
   background-color: $gray;
   color: $backgroundColor;
 
-  &:hover {
-    background-color: $grayBright;
-    color: $backgroundColor;
+  @media (hover: hover) {
+    &:hover {
+      background-color: $grayBright;
+      color: $backgroundColor;
+    }
   }
 
   &:active {
@@ -32,11 +34,12 @@
 }
 
 .secondary {
-  &:hover {
-    background-color: $grayBright;
-    color: $backgroundColor;
+  @media (hover: hover) {
+    &:hover {
+      background-color: $grayBright;
+      color: $backgroundColor;
+    }
   }
-
   &:active {
     background-color: $gray;
     color: $backgroundColor;
@@ -47,9 +50,11 @@
   background-color: $red;
   color: $backgroundColor;
 
-  &:hover {
-    background-color: $redBright;
-    color: $backgroundColor;
+  @media (hover: hover) {
+    &:hover {
+      background-color: $redBright;
+      color: $backgroundColor;
+    }
   }
 
   &:active {
@@ -69,13 +74,15 @@
     content: ' |';
   }
 
-  &:hover {
-    &::before {
-      content: '| ';
-    }
+  @media (hover: hover) {
+    &:hover {
+      &::before {
+        content: '| ';
+      }
 
-    &::after {
-      content: ' |';
+      &::after {
+        content: ' |';
+      }
     }
   }
 }

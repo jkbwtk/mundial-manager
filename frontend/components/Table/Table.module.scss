@@ -126,9 +126,11 @@
 
     transition: all 0.1s;
 
-    &:hover {
-      color: $backgroundColor;
-      background-color: $textBrightColor;
+    @media (hover: hover) {
+      &:hover {
+        color: $backgroundColor;
+        background-color: $textBrightColor;
+      }
     }
   }
 
