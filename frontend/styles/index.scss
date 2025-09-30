@@ -28,6 +28,7 @@ body {
 * {
   box-sizing: border-box;
   -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
 }
 
 #root {
