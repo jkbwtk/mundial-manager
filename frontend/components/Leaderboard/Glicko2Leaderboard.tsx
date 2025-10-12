@@ -6,26 +6,26 @@ import { useSheets } from '#providers/SheetsProvider';
 import style from './Leaderboard.module.scss';
 
 export const Glicko2LeaderboardBase = () => {
-  const [, { glicko2Stats }] = useSheets();
+  const [, { latestMatchStats }] = useSheets();
 
   const sortedGlicko2 = createMemo(() => ({
     playerGlicko2: Object.fromEntries(
-      Object.entries(glicko2Stats().playerGlicko2).sort(
+      Object.entries(latestMatchStats().glicko2Ratings.playerGlicko2).sort(
         (a, b) => b[1].rating - a[1].rating,
       ),
     ),
     teamGlicko2: Object.fromEntries(
-      Object.entries(glicko2Stats().teamGlicko2).sort(
+      Object.entries(latestMatchStats().glicko2Ratings.teamGlicko2).sort(
         (a, b) => b[1].rating - a[1].rating,
       ),
     ),
     teamIndividualGlicko2: Object.fromEntries(
-      Object.entries(glicko2Stats().teamIndividualGlicko2).sort(
-        (a, b) => b[1].rating - a[1].rating,
-      ),
+      Object.entries(
+        latestMatchStats().glicko2Ratings.teamIndividualGlicko2,
+      ).sort((a, b) => b[1].rating - a[1].rating),
     ),
     hybridGlicko2: Object.fromEntries(
-      Object.entries(glicko2Stats().hybridGlicko2).sort(
+      Object.entries(latestMatchStats().glicko2Ratings.hybridGlicko2).sort(
         (a, b) => b[1].rating - a[1].rating,
       ),
     ),
@@ -57,46 +57,19 @@ export const Glicko2LeaderboardBase = () => {
                 <td
                   classList={{
                     [style.minWidth]: true,
-                    [style.positive]:
-                      (glicko2Stats().playerGlicko2Change[player]?.rating ??
-                        0) > 0,
-                    [style.negative]:
-                      (glicko2Stats().playerGlicko2Change[player]?.rating ??
-                        0) < 0,
+                    [style.positive]: rating.ratingChange > 0,
+                    [style.negative]: rating.ratingChange < 0,
                   }}
                 >
                   <span class={style.deltaSymbol}>
                     <Switch>
-                      <Match
-                        when={
-                          glicko2Stats().playerGlicko2Change[player]?.rating ===
-                          0
-                        }
-                      >
-                        =
-                      </Match>
-                      <Match
-                        when={
-                          (glicko2Stats().playerGlicko2Change[player]?.rating ??
-                            0) > 0
-                        }
-                      >
-                        ↑
-                      </Match>
-                      <Match
-                        when={
-                          (glicko2Stats().playerGlicko2Change[player]?.rating ??
-                            0) < 0
-                        }
-                      >
-                        ↓
-                      </Match>
+                      <Match when={rating.ratingChange === 0}>=</Match>
+                      <Match when={rating.ratingChange > 0}>↑</Match>
+                      <Match when={rating.ratingChange < 0}>↓</Match>
                     </Switch>
                   </span>
 
-                  {Math.abs(
-                    glicko2Stats().playerGlicko2Change[player]?.rating ?? 0,
-                  ).toFixed(2)}
+                  {Math.abs(rating.ratingChange).toFixed(2)}
                 </td>
               </tr>
             )}
@@ -130,46 +103,19 @@ export const Glicko2LeaderboardBase = () => {
                 <td
                   classList={{
                     [style.minWidth]: true,
-                    [style.positive]:
-                      (glicko2Stats().hybridGlicko2Change[player]?.rating ??
-                        0) > 0,
-                    [style.negative]:
-                      (glicko2Stats().hybridGlicko2Change[player]?.rating ??
-                        0) < 0,
+                    [style.positive]: rating.ratingChange > 0,
+                    [style.negative]: rating.ratingChange < 0,
                   }}
                 >
                   <span class={style.deltaSymbol}>
                     <Switch>
-                      <Match
-                        when={
-                          glicko2Stats().hybridGlicko2Change[player]?.rating ===
-                          0
-                        }
-                      >
-                        =
-                      </Match>
-                      <Match
-                        when={
-                          (glicko2Stats().hybridGlicko2Change[player]?.rating ??
-                            0) > 0
-                        }
-                      >
-                        ↑
-                      </Match>
-                      <Match
-                        when={
-                          (glicko2Stats().hybridGlicko2Change[player]?.rating ??
-                            0) < 0
-                        }
-                      >
-                        ↓
-                      </Match>
+                      <Match when={rating.ratingChange === 0}>=</Match>
+                      <Match when={rating.ratingChange > 0}>↑</Match>
+                      <Match when={rating.ratingChange < 0}>↓</Match>
                     </Switch>
                   </span>
 
-                  {Math.abs(
-                    glicko2Stats().hybridGlicko2Change[player]?.rating ?? 0,
-                  ).toFixed(2)}
+                  {Math.abs(rating.ratingChange).toFixed(2)}
                 </td>
               </tr>
             )}
@@ -203,47 +149,19 @@ export const Glicko2LeaderboardBase = () => {
                 <td
                   classList={{
                     [style.minWidth]: true,
-                    [style.positive]:
-                      (glicko2Stats().teamIndividualGlicko2Change[player]
-                        ?.rating ?? 0) > 0,
-                    [style.negative]:
-                      (glicko2Stats().teamIndividualGlicko2Change[player]
-                        ?.rating ?? 0) < 0,
+                    [style.positive]: rating.ratingChange > 0,
+                    [style.negative]: rating.ratingChange < 0,
                   }}
                 >
                   <span class={style.deltaSymbol}>
                     <Switch>
-                      <Match
-                        when={
-                          glicko2Stats().teamIndividualGlicko2Change[player]
-                            ?.rating === 0
-                        }
-                      >
-                        =
-                      </Match>
-                      <Match
-                        when={
-                          (glicko2Stats().teamIndividualGlicko2Change[player]
-                            ?.rating ?? 0) > 0
-                        }
-                      >
-                        ↑
-                      </Match>
-                      <Match
-                        when={
-                          (glicko2Stats().teamIndividualGlicko2Change[player]
-                            ?.rating ?? 0) < 0
-                        }
-                      >
-                        ↓
-                      </Match>
+                      <Match when={rating.ratingChange === 0}>=</Match>
+                      <Match when={rating.ratingChange > 0}>↑</Match>
+                      <Match when={rating.ratingChange < 0}>↓</Match>
                     </Switch>
                   </span>
 
-                  {Math.abs(
-                    glicko2Stats().teamIndividualGlicko2Change[player]
-                      ?.rating ?? 0,
-                  ).toFixed(2)}
+                  {Math.abs(rating.ratingChange).toFixed(2)}
                 </td>
               </tr>
             )}
@@ -277,43 +195,19 @@ export const Glicko2LeaderboardBase = () => {
                 <td
                   classList={{
                     [style.minWidth]: true,
-                    [style.positive]:
-                      (glicko2Stats().teamGlicko2Change[team]?.rating ?? 0) > 0,
-                    [style.negative]:
-                      (glicko2Stats().teamGlicko2Change[team]?.rating ?? 0) < 0,
+                    [style.positive]: rating.ratingChange > 0,
+                    [style.negative]: rating.ratingChange < 0,
                   }}
                 >
                   <span class={style.deltaSymbol}>
                     <Switch>
-                      <Match
-                        when={
-                          glicko2Stats().teamGlicko2Change[team]?.rating === 0
-                        }
-                      >
-                        =
-                      </Match>
-                      <Match
-                        when={
-                          (glicko2Stats().teamGlicko2Change[team]?.rating ??
-                            0) > 0
-                        }
-                      >
-                        ↑
-                      </Match>
-                      <Match
-                        when={
-                          (glicko2Stats().teamGlicko2Change[team]?.rating ??
-                            0) < 0
-                        }
-                      >
-                        ↓
-                      </Match>
+                      <Match when={rating.ratingChange === 0}>=</Match>
+                      <Match when={rating.ratingChange > 0}>↑</Match>
+                      <Match when={rating.ratingChange < 0}>↓</Match>
                     </Switch>
                   </span>
 
-                  {Math.abs(
-                    glicko2Stats().teamGlicko2Change[team]?.rating ?? 0,
-                  ).toFixed(2)}
+                  {Math.abs(rating.ratingChange).toFixed(2)}
                 </td>
               </tr>
             )}

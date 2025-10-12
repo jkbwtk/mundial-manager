@@ -21,8 +21,13 @@ export interface GeneralStats {
 
 export interface Glicko2Rating {
   rating: number;
+  ratingChange: number;
+
   rd: number;
+  rdChange: number;
+
   volatility: number;
+  volatilityChange: number;
 }
 
 export interface PlayerStats {
@@ -48,20 +53,40 @@ export interface PlayerStats {
   _matchesWithDuration: number;
 }
 
-export interface MatchStats {
-  id: number;
+export interface EloRating {
+  rating: number;
+  ratingChange: number;
+}
 
-  goalsPerMinute: number;
+export interface EloRatings {
+  playerElos: Record<string, EloRating>;
+  teamElos: Record<string, EloRating>;
+  teamIndividualElos: Record<string, EloRating>;
+  hybridElos: Record<string, EloRating>;
+}
 
-  playerElos: Record<string, number>;
-  teamElos: Record<string, number>;
-  teamIndividualElos: Record<string, number>;
-  hybridElos: Record<string, number>;
-
+export interface Glicko2Ratings {
   playerGlicko2: Record<string, Glicko2Rating>;
   teamGlicko2: Record<string, Glicko2Rating>;
   teamIndividualGlicko2: Record<string, Glicko2Rating>;
   hybridGlicko2: Record<string, Glicko2Rating>;
+}
+
+export interface MatchStats {
+  id: number;
+  label: string;
+
+  goalsPerMinute: number;
+
+  generalStats: GeneralStats;
+
+  playerStats: Record<string, PlayerStats>;
+
+  eloRatings: EloRatings;
+  glicko2Ratings: Glicko2Ratings;
+
+  _matchCounter: number;
+  _matchesWithDuration: number;
 }
 
 export interface DayStats {
@@ -83,40 +108,4 @@ export interface DayStats {
 
   _matchesWithDuration: number;
   _goalsWithDuration: number;
-}
-
-export interface EloStats {
-  labels: string[];
-  individualPlayers: string[];
-  teams: string[];
-  teamIndividualPlayers: string[];
-  hybridPlayers: string[];
-
-  playerElos: Record<string, number>;
-  teamElos: Record<string, number>;
-  teamIndividualElos: Record<string, number>;
-  hybridElos: Record<string, number>;
-
-  playerElosChange: Record<string, number>;
-  teamElosChange: Record<string, number>;
-  teamIndividualElosChange: Record<string, number>;
-  hybridElosChange: Record<string, number>;
-}
-
-export interface Glicko2Stats {
-  labels: string[];
-  individualPlayers: string[];
-  teams: string[];
-  teamIndividualPlayers: string[];
-  hybridPlayers: string[];
-
-  playerGlicko2: Record<string, Glicko2Rating>;
-  teamGlicko2: Record<string, Glicko2Rating>;
-  teamIndividualGlicko2: Record<string, Glicko2Rating>;
-  hybridGlicko2: Record<string, Glicko2Rating>;
-
-  playerGlicko2Change: Record<string, Glicko2Rating>;
-  teamGlicko2Change: Record<string, Glicko2Rating>;
-  teamIndividualGlicko2Change: Record<string, Glicko2Rating>;
-  hybridGlicko2Change: Record<string, Glicko2Rating>;
 }

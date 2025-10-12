@@ -20,22 +20,26 @@ figlet.parseFont('Small Slant', smallSlant);
 
 const Homepage: Component = () => {
   const [{ windowSize }] = useConsoleUnitPrototype();
-  const [, { matchStats, eloStats, glicko2Stats }] = useSheets();
+  const [, { matchStats, latestMatchStats }] = useSheets();
 
   const [statsPage, setStatsPage] = createSignal<'elo' | 'glicko2'>('elo');
 
+  const matchLabels = createMemo(() =>
+    Object.values(matchStats()).map((s) => s.label),
+  );
+
   const playerChartConfig = createMemo((): ChartConfiguration => {
-    const currentStats = matchStats();
-    const elo = eloStats();
+    const stats = Object.values(matchStats());
+    const elo = latestMatchStats().eloRatings;
 
     return {
       type: 'line',
       data: {
-        labels: elo.labels,
-        datasets: elo.individualPlayers.map((player) => ({
+        labels: matchLabels(),
+        datasets: Object.keys(elo.playerElos).map((player) => ({
           label: player,
-          data: Object.values(currentStats).map(
-            (s) => s.playerElos[player] ?? null,
+          data: Object.values(stats).map(
+            (s) => s.eloRatings.playerElos[player]?.rating ?? null,
           ),
           borderColor: getTeamColor(player),
           backgroundColor: `${getTeamColor(player)}20`,
@@ -49,17 +53,17 @@ const Homepage: Component = () => {
   });
 
   const hybridChartConfig = createMemo((): ChartConfiguration => {
-    const currentStats = matchStats();
-    const elo = eloStats();
+    const stats = Object.values(matchStats());
+    const elo = latestMatchStats().eloRatings;
 
     return {
       type: 'line',
       data: {
-        labels: elo.labels,
-        datasets: elo.hybridPlayers.map((player: string) => ({
+        labels: matchLabels(),
+        datasets: Object.keys(elo.hybridElos).map((player) => ({
           label: player,
-          data: Object.values(currentStats).map(
-            (s) => s.hybridElos[player] ?? null,
+          data: Object.values(stats).map(
+            (s) => s.eloRatings.hybridElos[player]?.rating ?? null,
           ),
           borderColor: getTeamColor(player),
           backgroundColor: `${getTeamColor(player)}20`,
@@ -73,17 +77,17 @@ const Homepage: Component = () => {
   });
 
   const teamIndividualChartConfig = createMemo((): ChartConfiguration => {
-    const currentStats = matchStats();
-    const elo = eloStats();
+    const stats = Object.values(matchStats());
+    const elo = latestMatchStats().eloRatings;
 
     return {
       type: 'line',
       data: {
-        labels: elo.labels,
-        datasets: elo.teamIndividualPlayers.map((player: string) => ({
+        labels: matchLabels(),
+        datasets: Object.keys(elo.teamIndividualElos).map((player) => ({
           label: player,
-          data: Object.values(currentStats).map(
-            (s) => s.teamIndividualElos[player] ?? null,
+          data: Object.values(stats).map(
+            (s) => s.eloRatings.teamIndividualElos[player]?.rating ?? null,
           ),
           borderColor: getTeamColor(player),
           backgroundColor: `${getTeamColor(player)}20`,
@@ -97,17 +101,17 @@ const Homepage: Component = () => {
   });
 
   const teamChartConfig = createMemo((): ChartConfiguration => {
-    const currentStats = matchStats();
-    const elo = eloStats();
+    const stats = Object.values(matchStats());
+    const elo = latestMatchStats().eloRatings;
 
     return {
       type: 'line',
       data: {
-        labels: elo.labels,
-        datasets: elo.teams.map((team: string) => ({
+        labels: matchLabels(),
+        datasets: Object.keys(elo.teamElos).map((team) => ({
           label: team,
-          data: Object.values(currentStats).map(
-            (s) => s.teamElos[team] ?? null,
+          data: Object.values(stats).map(
+            (s) => s.eloRatings.teamElos[team]?.rating ?? null,
           ),
           borderColor: getTeamColor(team),
           backgroundColor: `${getTeamColor(team)}20`,
@@ -121,17 +125,17 @@ const Homepage: Component = () => {
   });
 
   const playerGlicko2ChartConfig = createMemo((): ChartConfiguration => {
-    const currentStats = matchStats();
-    const glicko2 = glicko2Stats();
+    const stats = Object.values(matchStats());
+    const elo = latestMatchStats().eloRatings;
 
     return {
       type: 'line',
       data: {
-        labels: glicko2.labels,
-        datasets: glicko2.individualPlayers.map((player: string) => ({
+        labels: matchLabels(),
+        datasets: Object.keys(elo.playerElos).map((player) => ({
           label: player,
-          data: Object.values(currentStats).map(
-            (s) => s.playerGlicko2[player]?.rating ?? null,
+          data: Object.values(stats).map(
+            (s) => s.glicko2Ratings.playerGlicko2[player]?.rating ?? null,
           ),
           borderColor: getTeamColor(player),
           backgroundColor: `${getTeamColor(player)}20`,
@@ -145,17 +149,17 @@ const Homepage: Component = () => {
   });
 
   const hybridGlicko2ChartConfig = createMemo((): ChartConfiguration => {
-    const currentStats = matchStats();
-    const glicko2 = glicko2Stats();
+    const stats = Object.values(matchStats());
+    const elo = latestMatchStats().eloRatings;
 
     return {
       type: 'line',
       data: {
-        labels: glicko2.labels,
-        datasets: glicko2.hybridPlayers.map((player: string) => ({
+        labels: matchLabels(),
+        datasets: Object.keys(elo.hybridElos).map((player) => ({
           label: player,
-          data: Object.values(currentStats).map(
-            (s) => s.hybridGlicko2[player]?.rating ?? null,
+          data: Object.values(stats).map(
+            (s) => s.glicko2Ratings.hybridGlicko2[player]?.rating ?? null,
           ),
           borderColor: getTeamColor(player),
           backgroundColor: `${getTeamColor(player)}20`,
@@ -170,17 +174,18 @@ const Homepage: Component = () => {
 
   const teamIndividualGlicko2ChartConfig = createMemo(
     (): ChartConfiguration => {
-      const currentStats = matchStats();
-      const glicko2 = glicko2Stats();
+      const stats = Object.values(matchStats());
+      const elo = latestMatchStats().eloRatings;
 
       return {
         type: 'line',
         data: {
-          labels: glicko2.labels,
-          datasets: glicko2.teamIndividualPlayers.map((player: string) => ({
+          labels: matchLabels(),
+          datasets: Object.keys(elo.teamIndividualElos).map((player) => ({
             label: player,
-            data: Object.values(currentStats).map(
-              (s) => s.teamIndividualGlicko2[player]?.rating ?? null,
+            data: Object.values(stats).map(
+              (s) =>
+                s.glicko2Ratings.teamIndividualGlicko2[player]?.rating ?? null,
             ),
             borderColor: getTeamColor(player),
             backgroundColor: `${getTeamColor(player)}20`,
@@ -195,17 +200,17 @@ const Homepage: Component = () => {
   );
 
   const teamGlicko2ChartConfig = createMemo((): ChartConfiguration => {
-    const currentStats = matchStats();
-    const glicko2 = glicko2Stats();
+    const stats = Object.values(matchStats());
+    const elo = latestMatchStats().eloRatings;
 
     return {
       type: 'line',
       data: {
-        labels: glicko2.labels,
-        datasets: glicko2.teams.map((team: string) => ({
+        labels: matchLabels(),
+        datasets: Object.keys(elo.teamElos).map((team) => ({
           label: team,
-          data: Object.values(currentStats).map(
-            (s) => s.teamGlicko2[team]?.rating ?? null,
+          data: Object.values(stats).map(
+            (s) => s.glicko2Ratings.teamGlicko2[team]?.rating ?? null,
           ),
           borderColor: getTeamColor(team),
           backgroundColor: `${getTeamColor(team)}20`,

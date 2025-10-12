@@ -6,20 +6,28 @@ import { useSheets } from '#providers/SheetsProvider';
 import style from './Leaderboard.module.scss';
 
 export const EloLeaderboardBase = () => {
-  const [, { eloStats }] = useSheets();
+  const [, { latestMatchStats }] = useSheets();
 
   const sortedElos = createMemo(() => ({
     playerElos: Object.fromEntries(
-      Object.entries(eloStats().playerElos).sort((a, b) => b[1] - a[1]),
+      Object.entries(latestMatchStats().eloRatings.playerElos).sort(
+        (a, b) => b[1].rating - a[1].rating,
+      ),
     ),
     teamElos: Object.fromEntries(
-      Object.entries(eloStats().teamElos).sort((a, b) => b[1] - a[1]),
+      Object.entries(latestMatchStats().eloRatings.teamElos).sort(
+        (a, b) => b[1].rating - a[1].rating,
+      ),
     ),
     teamIndividualElos: Object.fromEntries(
-      Object.entries(eloStats().teamIndividualElos).sort((a, b) => b[1] - a[1]),
+      Object.entries(latestMatchStats().eloRatings.teamIndividualElos).sort(
+        (a, b) => b[1].rating - a[1].rating,
+      ),
     ),
     hybridElos: Object.fromEntries(
-      Object.entries(eloStats().hybridElos).sort((a, b) => b[1] - a[1]),
+      Object.entries(latestMatchStats().eloRatings.hybridElos).sort(
+        (a, b) => b[1].rating - a[1].rating,
+      ),
     ),
   }));
 
@@ -41,38 +49,24 @@ export const EloLeaderboardBase = () => {
                   </span>
                   {player}
                 </td>
-                <td class={style.minWidth}>{elo.toFixed(2)}</td>
+                <td class={style.minWidth}>{elo.rating.toFixed(2)}</td>
 
                 <td
                   classList={{
                     [style.minWidth]: true,
-                    [style.positive]:
-                      (eloStats().playerElosChange[player] ?? 0) > 0,
-                    [style.negative]:
-                      (eloStats().playerElosChange[player] ?? 0) < 0,
+                    [style.positive]: elo.ratingChange > 0,
+                    [style.negative]: elo.ratingChange < 0,
                   }}
                 >
                   <span class={style.deltaSymbol}>
                     <Switch>
-                      <Match when={eloStats().playerElosChange[player] === 0}>
-                        =
-                      </Match>
-                      <Match
-                        when={(eloStats().playerElosChange[player] ?? 0) > 0}
-                      >
-                        ↑
-                      </Match>
-                      <Match
-                        when={(eloStats().playerElosChange[player] ?? 0) < 0}
-                      >
-                        ↓
-                      </Match>
+                      <Match when={elo.ratingChange === 0}>=</Match>
+                      <Match when={elo.ratingChange > 0}>↑</Match>
+                      <Match when={elo.ratingChange < 0}>↓</Match>
                     </Switch>
                   </span>
 
-                  {Math.abs(eloStats().playerElosChange[player] ?? 0).toFixed(
-                    2,
-                  )}
+                  {Math.abs(elo.ratingChange).toFixed(2)}
                 </td>
               </tr>
             )}
@@ -98,38 +92,24 @@ export const EloLeaderboardBase = () => {
                   </span>
                   {player}
                 </td>
-                <td class={style.minWidth}>{elo.toFixed(2)}</td>
+                <td class={style.minWidth}>{elo.rating.toFixed(2)}</td>
 
                 <td
                   classList={{
                     [style.minWidth]: true,
-                    [style.positive]:
-                      (eloStats().hybridElosChange[player] ?? 0) > 0,
-                    [style.negative]:
-                      (eloStats().hybridElosChange[player] ?? 0) < 0,
+                    [style.positive]: elo.ratingChange > 0,
+                    [style.negative]: elo.ratingChange < 0,
                   }}
                 >
                   <span class={style.deltaSymbol}>
                     <Switch>
-                      <Match when={eloStats().hybridElosChange[player] === 0}>
-                        =
-                      </Match>
-                      <Match
-                        when={(eloStats().hybridElosChange[player] ?? 0) > 0}
-                      >
-                        ↑
-                      </Match>
-                      <Match
-                        when={(eloStats().hybridElosChange[player] ?? 0) < 0}
-                      >
-                        ↓
-                      </Match>
+                      <Match when={elo.ratingChange === 0}>=</Match>
+                      <Match when={elo.ratingChange > 0}>↑</Match>
+                      <Match when={elo.ratingChange < 0}>↓</Match>
                     </Switch>
                   </span>
 
-                  {Math.abs(eloStats().hybridElosChange[player] ?? 0).toFixed(
-                    2,
-                  )}
+                  {Math.abs(elo.ratingChange).toFixed(2)}
                 </td>
               </tr>
             )}
@@ -155,44 +135,24 @@ export const EloLeaderboardBase = () => {
                   </span>
                   {player}
                 </td>
-                <td class={style.minWidth}>{elo.toFixed(2)}</td>
+                <td class={style.minWidth}>{elo.rating.toFixed(2)}</td>
 
                 <td
                   classList={{
                     [style.minWidth]: true,
-                    [style.positive]:
-                      (eloStats().teamIndividualElosChange[player] ?? 0) > 0,
-                    [style.negative]:
-                      (eloStats().teamIndividualElosChange[player] ?? 0) < 0,
+                    [style.positive]: elo.ratingChange > 0,
+                    [style.negative]: elo.ratingChange < 0,
                   }}
                 >
                   <span class={style.deltaSymbol}>
                     <Switch>
-                      <Match
-                        when={eloStats().teamIndividualElosChange[player] === 0}
-                      >
-                        =
-                      </Match>
-                      <Match
-                        when={
-                          (eloStats().teamIndividualElosChange[player] ?? 0) > 0
-                        }
-                      >
-                        ↑
-                      </Match>
-                      <Match
-                        when={
-                          (eloStats().teamIndividualElosChange[player] ?? 0) < 0
-                        }
-                      >
-                        ↓
-                      </Match>
+                      <Match when={elo.ratingChange === 0}>=</Match>
+                      <Match when={elo.ratingChange > 0}>↑</Match>
+                      <Match when={elo.ratingChange < 0}>↓</Match>
                     </Switch>
                   </span>
 
-                  {Math.abs(
-                    eloStats().teamIndividualElosChange[player] ?? 0,
-                  ).toFixed(2)}
+                  {Math.abs(elo.ratingChange).toFixed(2)}
                 </td>
               </tr>
             )}
@@ -219,32 +179,24 @@ export const EloLeaderboardBase = () => {
                   </span>
                   {team}
                 </td>
-                <td class={style.minWidth}>{elo.toFixed(2)}</td>
+                <td class={style.minWidth}>{elo.rating.toFixed(2)}</td>
 
                 <td
                   classList={{
                     [style.minWidth]: true,
-                    [style.positive]:
-                      (eloStats().teamElosChange[team] ?? 0) > 0,
-                    [style.negative]:
-                      (eloStats().teamElosChange[team] ?? 0) < 0,
+                    [style.positive]: elo.ratingChange > 0,
+                    [style.negative]: elo.ratingChange < 0,
                   }}
                 >
                   <span class={style.deltaSymbol}>
                     <Switch>
-                      <Match when={eloStats().teamElosChange[team] === 0}>
-                        =
-                      </Match>
-                      <Match when={(eloStats().teamElosChange[team] ?? 0) > 0}>
-                        ↑
-                      </Match>
-                      <Match when={(eloStats().teamElosChange[team] ?? 0) < 0}>
-                        ↓
-                      </Match>
+                      <Match when={elo.ratingChange === 0}>=</Match>
+                      <Match when={elo.ratingChange > 0}>↑</Match>
+                      <Match when={elo.ratingChange < 0}>↓</Match>
                     </Switch>
                   </span>
 
-                  {Math.abs(eloStats().teamElosChange[team] ?? 0).toFixed(2)}
+                  {Math.abs(elo.ratingChange).toFixed(2)}
                 </td>
               </tr>
             )}

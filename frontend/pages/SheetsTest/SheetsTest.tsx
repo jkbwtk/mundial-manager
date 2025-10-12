@@ -7,11 +7,7 @@ import { AnimatedText } from '#components/AnimatedText';
 import { HighlightedCode } from '#components/HighlightedCode';
 import { type Column, Table } from '#components/Table';
 import { Widget } from '#components/Widget';
-import {
-  formatDate,
-  formatDuration,
-  getGlicko2Confidence,
-} from '#flib/sheetUtils';
+import { formatDate, formatDuration } from '#flib/sheetUtils';
 import { toJson } from '#flib/utils';
 import { useSheets } from '#providers/SheetsProvider';
 import type { Match } from '#shared/types/Sheets';
@@ -24,10 +20,7 @@ dayjs.extend(duration);
 hljs.registerLanguage('json', json);
 
 export const SheetsTest: Component = () => {
-  const [
-    sheets,
-    { playerStats, generalStats, matchStats, dayStats, eloStats, glicko2Stats },
-  ] = useSheets();
+  const [sheets, { matchStats, latestMatchStats, dayStats }] = useSheets();
 
   const [sortColumn, setSortColumn] = createSignal<keyof Match | null>(null);
   const [sortDirection, setSortDirection] = createSignal<'asc' | 'desc' | null>(
@@ -190,153 +183,14 @@ export const SheetsTest: Component = () => {
       </Widget>
 
       <Widget topLeftLabels="Players" class={style.metadata}>
-        <For each={generalStats().uniquePlayers}>
+        <For each={latestMatchStats().generalStats.uniquePlayers}>
           {(player) => <div>{player}</div>}
         </For>
       </Widget>
 
-      <Widget topLeftLabels="General Stats" class={style.metadata}>
-        <strong>Total playtime:</strong>{' '}
-        <AnimatedText>{generalStats().totalPlaytimeFormatted}</AnimatedText>
-        <br />
-        <strong>Total individual playtime:</strong>{' '}
-        <AnimatedText>
-          {generalStats().totalIndividualPlaytimeFormatted}
-        </AnimatedText>
-        <br />
-        <strong>Average match duration:</strong>{' '}
-        <AnimatedText>
-          {generalStats().averageMatchDurationFormatted}
-        </AnimatedText>
-        <br />
-        <strong>Total playtime (extrapolated):</strong>{' '}
-        <AnimatedText>
-          {generalStats().totalPlaytimeExtrapolatedFormatted}
-        </AnimatedText>
-        <br />
-        <strong>Total individual playtime (extrapolated):</strong>{' '}
-        <AnimatedText>
-          {generalStats().totalIndividualPlaytimeExtrapolatedFormatted}
-        </AnimatedText>
-        <br />
+      <Widget topLeftLabels="Latest Match Stats" class={style.metadata}>
         <strong>Raw:</strong>
-        <HighlightedCode language="json" code={toJson(generalStats())} />
-      </Widget>
-
-      <Widget topLeftLabels="Player Stats" class={style.metadata}>
-        <strong>Playtime per player:</strong>
-        <For each={Object.values(playerStats())}>
-          {(stat) => (
-            <div>
-              <strong>{stat.player}: </strong>
-              <AnimatedText>{stat.totalPlaytimeFormatted}</AnimatedText>
-            </div>
-          )}
-        </For>
-        <br />
-        <strong>Player Elo:</strong>
-        <For each={Object.entries(eloStats().playerElos)}>
-          {([player, elo]) => (
-            <div>
-              <strong>{player}: </strong>
-              <AnimatedText>{elo}</AnimatedText>
-            </div>
-          )}
-        </For>
-        <br />
-        <strong>Team Elo:</strong>
-        <For each={Object.entries(eloStats().teamElos)}>
-          {([team, elo]) => (
-            <div>
-              <strong>{team}: </strong>
-              <AnimatedText>{elo}</AnimatedText>
-            </div>
-          )}
-        </For>
-        <br />
-        <strong>Hybrid Elo:</strong>
-        <For each={Object.entries(eloStats().hybridElos)}>
-          {([player, elo]) => (
-            <div>
-              <strong>{player}: </strong>
-              <AnimatedText>{elo}</AnimatedText>
-            </div>
-          )}
-        </For>
-        <br />
-
-        <strong>Raw:</strong>
-        <HighlightedCode language="json" code={toJson(playerStats())} />
-      </Widget>
-
-      <Widget topLeftLabels="Glicko-2 Stats" class={style.metadata}>
-        <strong>Player Glicko-2:</strong>
-        <For each={Object.entries(glicko2Stats().playerGlicko2)}>
-          {([player, rating]) => (
-            <div>
-              <strong>{player}: </strong>
-              <AnimatedText>{rating.rating.toFixed(1)}</AnimatedText> (RD:{' '}
-              <AnimatedText>{rating.rd.toFixed(1)}</AnimatedText>, Confidence:{' '}
-              <AnimatedText>
-                {getGlicko2Confidence(rating).toFixed(1)}%
-              </AnimatedText>
-              )
-            </div>
-          )}
-        </For>
-        <br />
-        <strong>Team Glicko-2:</strong>
-        <For each={Object.entries(glicko2Stats().teamGlicko2)}>
-          {([team, rating]) => (
-            <div>
-              <strong>{team}: </strong>
-              <AnimatedText>{rating.rating.toFixed(1)}</AnimatedText> (RD:{' '}
-              <AnimatedText>{rating.rd.toFixed(1)}</AnimatedText>, Confidence:{' '}
-              <AnimatedText>
-                {getGlicko2Confidence(rating).toFixed(1)}%
-              </AnimatedText>
-              )
-            </div>
-          )}
-        </For>
-        <br />
-        <strong>Hybrid Glicko-2:</strong>
-        <For each={Object.entries(glicko2Stats().hybridGlicko2)}>
-          {([player, rating]) => (
-            <div>
-              <strong>{player}: </strong>
-              <AnimatedText>{rating.rating.toFixed(1)}</AnimatedText> (RD:{' '}
-              <AnimatedText>{rating.rd.toFixed(1)}</AnimatedText>, Confidence:{' '}
-              <AnimatedText>
-                {getGlicko2Confidence(rating).toFixed(1)}%
-              </AnimatedText>
-              )
-            </div>
-          )}
-        </For>
-        <br />
-        <strong>Glicko-2 Rating Changes:</strong>
-        <For each={Object.entries(glicko2Stats().playerGlicko2Change)}>
-          {([player, change]) => (
-            <div>
-              <strong>{player}: </strong>
-              Rating:{' '}
-              <AnimatedText>
-                {change.rating > 0 ? '+' : ''}
-                {change.rating.toFixed(1)}
-              </AnimatedText>
-              {', '}RD:{' '}
-              <AnimatedText>
-                {change.rd > 0 ? '+' : ''}
-                {change.rd.toFixed(1)}
-              </AnimatedText>
-            </div>
-          )}
-        </For>
-        <br />
-
-        <strong>Raw:</strong>
-        <HighlightedCode language="json" code={toJson(glicko2Stats())} />
+        <HighlightedCode language="json" code={toJson(latestMatchStats())} />
       </Widget>
 
       <Widget topLeftLabels="Match Stats" class={style.metadata}>
