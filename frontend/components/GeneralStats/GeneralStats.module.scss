@@ -1,0 +1,26 @@
+@use 'app' as *;
+
+.widget {
+  width: round(down, 100%, cw(1));
+}
+
+.container {
+  display: grid;
+  grid-template-columns: auto auto;
+
+  align-items: end;
+
+  column-gap: cw(1);
+
+  span {
+    text-align: right;
+  }
+}
+
+.label {
+  color: $textColor;
+}
+
+.active {
+  color: $textBrightColor;
+}
