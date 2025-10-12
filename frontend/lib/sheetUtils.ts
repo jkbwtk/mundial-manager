@@ -430,71 +430,84 @@ export function getGlicko2Confidence(rating: Glicko2Rating): number {
   return normalizedRd * 100;
 }
 
-const TEAM_COLOR_PALETTE = [
-  '#E53E3E',
-  '#FF6B35',
-  '#FF8C00',
-  '#FFD700',
-  '#32CD32',
-  '#00CED1',
-  '#1E90FF',
-  '#4169E1',
-  '#8A2BE2',
-  '#DDA0DD',
-  '#98FB98',
-  '#F4A460',
-  '#DB7093',
-  '#FFB6C1',
-  '#90EE90',
-  '#FFA07A',
-  '#DA70D6',
-  '#FF1493',
-  '#DC143C',
-  '#00FF7F',
-  '#40E0D0',
-  '#87CEEB',
-  '#9370DB',
-  '#FF4500',
-  '#2E8B57',
-  '#4682B4',
-  '#D2691E',
-  '#FF69B4',
-  '#00FA9A',
-  '#7B68EE',
-  '#20B2AA',
-  '#F0E68C',
-];
-
-const teamColorAssignments = new Map<string, string>();
-
-export function getTeamColor(team: string): string {
-  if (teamColorAssignments.has(team)) {
-    return teamColorAssignments.get(team)!;
+function hashString(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash;
   }
-
-  const usedColors = new Set(teamColorAssignments.values());
-
-  const availableColors = TEAM_COLOR_PALETTE.filter(
-    (color) => !usedColors.has(color),
-  );
-
-  const colorPool =
-    availableColors.length > 0 ? availableColors : TEAM_COLOR_PALETTE;
-
-  const hash = team
-    .split('')
-    .reduce((acc, char) => (acc << 5) - acc + char.charCodeAt(0), 0);
-
-  const colorIndex = Math.abs(hash) % colorPool.length;
-  const selectedColor = colorPool[colorIndex]!;
-
-  teamColorAssignments.set(team, selectedColor);
-
-  return selectedColor;
+  return Math.abs(hash);
 }
 
-export function resetTeamColors(): void {
-  teamColorAssignments.clear();
+function hslToHex(h: number, s: number, l: number): string {
+  const sNorm = s / 100;
+  const lNorm = l / 100;
+
+  const c = (1 - Math.abs(2 * lNorm - 1)) * sNorm;
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const m = lNorm - c / 2;
+
+  let r = 0;
+  let g = 0;
+  let b = 0;
+
+  if (h >= 0 && h < 60) {
+    r = c;
+    g = x;
+    b = 0;
+  } else if (h >= 60 && h < 120) {
+    r = x;
+    g = c;
+    b = 0;
+  } else if (h >= 120 && h < 180) {
+    r = 0;
+    g = c;
+    b = x;
+  } else if (h >= 180 && h < 240) {
+    r = 0;
+    g = x;
+    b = c;
+  } else if (h >= 240 && h < 300) {
+    r = x;
+    g = 0;
+    b = c;
+  } else if (h >= 300 && h < 360) {
+    r = c;
+    g = 0;
+    b = x;
+  }
+
+  const rHex = Math.round((r + m) * 255)
+    .toString(16)
+    .padStart(2, '0');
+  const gHex = Math.round((g + m) * 255)
+    .toString(16)
+    .padStart(2, '0');
+  const bHex = Math.round((b + m) * 255)
+    .toString(16)
+    .padStart(2, '0');
+
+  return `#${rHex}${gHex}${bHex}`;
+}
+
+export function getTeamColor(team: string): string {
+  const hash = hashString(team);
+
+  const hueBase = hash % 12;
+  const hueOffsets = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330];
+  const hue = (hueOffsets[hueBase]! + ((hash >> 4) % 25) + 90) % 360;
+
+  const saturationOptions = [70, 85, 100];
+  const lightnessOptions = [50, 60, 70, 80];
+
+  const satIndex = (hash >> 8) % saturationOptions.length;
+  const lightIndex = (hash >> 12) % lightnessOptions.length;
+
+  const saturation = saturationOptions[satIndex]!;
+  const lightness = lightnessOptions[lightIndex]!;
+
+  return hslToHex(hue, saturation, lightness);
 }
 
 export function formatMatchLabel(match: Match): string {
