@@ -600,9 +600,9 @@ function calculateGeneralStats(
     totalIndividualPlaytime,
   );
 
-  const averageMatchDuration = totalPlaytime / (totalMatches || 1);
+  const averageMatchDuration = totalMatches ? totalPlaytime / totalMatches : 0;
   const averageMatchDurationFormatted = formatDuration(averageMatchDuration);
-  const averageGoals = totalGoals / (totalMatches || 1);
+  const averageGoals = totalMatches ? totalGoals / totalMatches : 0;
 
   const totalPlaytimeExtrapolated =
     totalPlaytime +
@@ -677,7 +677,7 @@ function calculatePlayerStats(
       previousStats.playerStats[player] ?? getDefaultPlayerStats(player);
 
     const _matchesWithDuration =
-      previousStats._matchesWithDuration + (match.duration ? 1 : 0);
+      playerStats._matchesWithDuration + (match.duration ? 1 : 0);
     const playerTeamGoals = match.team1.includes(player)
       ? match.score1
       : match.score2;
@@ -699,13 +699,14 @@ function calculatePlayerStats(
 
     playerStats.wins += playerTeamGoals === 10 ? 1 : 0;
     playerStats.losses += playerTeamGoals !== 10 ? 1 : 0;
-    playerStats.winRatio = playerStats.wins / playerStats.totalMatches || 1;
+    playerStats.winRatio = playerStats.losses
+      ? playerStats.wins / playerStats.losses
+      : 0;
 
     playerStats.goalsFor += playerTeamGoals;
     playerStats.goalsAgainst += playerOponentGoals;
 
-    playerStats.goalDifference +=
-      playerStats.goalsFor - playerStats.goalsAgainst;
+    playerStats.goalDifference += playerTeamGoals - playerOponentGoals;
     playerStats.goalRatio =
       playerStats.goalsFor / (playerStats.goalsAgainst || 1);
 
