@@ -19,7 +19,7 @@ const mapRoutes = (route: RouteDefinition): RouteDefinition[] => [
 
 const flatRoutes = routes.flatMap(mapRoutes).filter((route) => route.component);
 
-const trailingSlashRegex = /\/+$/;
+const trailingSlashRegex = /[\\/]+$/;
 
 const routesToPrerender = flatRoutes
   .map((route) => route.path.replace(trailingSlashRegex, ''))
@@ -41,7 +41,7 @@ for (const url of routesToPrerender) {
   const filePath = join('./dist/static', `${url || 'index'}.html`);
 
   if (!fs.existsSync(filePath)) {
-    const urlParts = url.split('/');
+    const urlParts = url.split(/[\\/]/);
     urlParts.pop();
 
     const dirPath = join('./dist/static', ...urlParts);
