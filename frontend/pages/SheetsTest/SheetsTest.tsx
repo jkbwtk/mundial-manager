@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import hljs from 'highlight.js/lib/core';
 import json from 'highlight.js/lib/languages/json';
-import { batch, createSignal, For } from 'solid-js';
+import { batch, createMemo, createSignal, For } from 'solid-js';
 import { AnimatedText } from '#components/AnimatedText';
 import { HighlightedCode } from '#components/HighlightedCode';
 import { type Column, Table } from '#components/Table';
@@ -13,6 +13,7 @@ import { useSheets } from '#providers/SheetsProvider';
 import type { Match } from '#shared/types/Sheets';
 import { quickSwitch } from '#shared/utils';
 import 'highlight.js/styles/gml.min.css';
+import { InlineAction } from '#components/InlineAction';
 import style from './SheetsTest.module.scss';
 
 dayjs.extend(duration);
@@ -21,6 +22,14 @@ hljs.registerLanguage('json', json);
 
 export const SheetsTest: Component = () => {
   const [sheets, { matchStats, latestMatchStats, dayStats }] = useSheets();
+
+  const [matchStatsPage, setMatchStatsPage] = createSignal(0);
+
+  const paginatedMatch = createMemo(
+    () =>
+      matchStats()[sheets.matches.at(-matchStatsPage() - 1)?.id ?? -1] ??
+      latestMatchStats(),
+  );
 
   const [sortColumn, setSortColumn] = createSignal<keyof Match | null>(null);
   const [sortDirection, setSortDirection] = createSignal<'asc' | 'desc' | null>(
@@ -188,14 +197,39 @@ export const SheetsTest: Component = () => {
         </For>
       </Widget>
 
-      <Widget topLeftLabels="Latest Match Stats" class={style.metadata}>
+      <Widget topLeftLabels="General Stats" class={style.metadata}>
         <strong>Raw:</strong>
-        <HighlightedCode language="json" code={toJson(latestMatchStats())} />
+        <HighlightedCode
+          language="json"
+          code={toJson(latestMatchStats().generalStats)}
+        />
       </Widget>
 
-      <Widget topLeftLabels="Match Stats" class={style.metadata}>
+      <Widget
+        topLeftLabels="Match Stats"
+        topRightLabels={[
+          <span>
+            <InlineAction
+              symbol="<"
+              onAction={() =>
+                setMatchStatsPage((prev) =>
+                  Math.min(prev + 1, sheets.matches.length - 1),
+                )
+              }
+            />{' '}
+            Match: {paginatedMatch().label}{' '}
+            <InlineAction
+              symbol=">"
+              onAction={() =>
+                setMatchStatsPage((prev) => Math.max(prev - 1, 0))
+              }
+            />
+          </span>,
+        ]}
+        class={style.metadata}
+      >
         <strong>Raw:</strong>
-        <HighlightedCode language="json" code={toJson(matchStats())} />
+        <HighlightedCode language="json" code={toJson(paginatedMatch())} />
       </Widget>
 
       <Widget topLeftLabels="Day Stats" class={style.metadata}>
