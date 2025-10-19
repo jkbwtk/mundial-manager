@@ -250,7 +250,7 @@ const Homepage: Component = () => {
       <Break />
 
       <div class={style.dashboardContainer}>
-        <div class={style.statsContainer}>
+        <div>
           <GeneralStats />
           <Widget
             class={style.statsWidget}
