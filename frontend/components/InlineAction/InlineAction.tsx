@@ -7,6 +7,7 @@ export interface InlineActionProps {
   symbol: string;
   content?: string | undefined;
   onAction: (type: TriggerType) => void;
+  disabledTriggers?: TriggerType[];
 }
 
 const ignoredTargets = isServer ? [] : [HTMLInputElement];
@@ -30,6 +31,12 @@ export const InlineAction: Component<InlineActionProps> = (props) => {
   };
 
   const triggerAction = (type: TriggerType) => {
+    const disabledTriggers = props.disabledTriggers ?? [];
+
+    if (disabledTriggers.includes(type)) {
+      return;
+    }
+
     clearTimeout(timeoutRef);
     setActivated(true);
     timeoutRef = setTimeout(() => setActivated(false), 200);
