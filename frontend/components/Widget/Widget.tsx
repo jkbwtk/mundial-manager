@@ -1,5 +1,5 @@
 import type { JSX, ValidComponent } from 'solid-js';
-import { children, For, splitProps } from 'solid-js';
+import { children, For, mergeProps, splitProps } from 'solid-js';
 import { Dynamic, type DynamicProps } from 'solid-js/web';
 import style from './Widget.module.scss';
 
@@ -108,11 +108,16 @@ export function BaseWidget<T extends ValidComponent>(userProps: Widget<T>) {
   );
 }
 
-export function customWidgetType<T extends ValidComponent>(type: T) {
-  return (props: WidgetPropsWithoutComponent<T>) => (
+export function customWidgetType<T extends ValidComponent>(
+  type: T,
+  propOverrides: Partial<WidgetPropsWithoutComponent<T>> = {},
+) {
+  return (userProps: WidgetPropsWithoutComponent<T>) => {
+    const props = mergeProps(userProps, propOverrides);
+
     // @ts-expect-error
-    <BaseWidget {...props} component={type} />
-  );
+    return <BaseWidget {...props} component={type} />;
+  };
 }
 
 export const Widget = customWidgetType('div');
