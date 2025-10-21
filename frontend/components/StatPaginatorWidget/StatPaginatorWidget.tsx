@@ -52,8 +52,8 @@ export const StatPaginatorWidget: Component<
     <StatPaginatorContext.Provider value={[state]}>
       <Widget
         {...props}
-        topRightLabels={[
-          ...arrayFrom(props.topRightLabels).filter(Boolean),
+        bottomRightLabels={[
+          ...arrayFrom(props.bottomRightLabels).filter(Boolean),
           <span>
             <InlineAction
               symbol="<"
