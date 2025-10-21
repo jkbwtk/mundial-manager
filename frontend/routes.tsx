@@ -2,6 +2,7 @@ import type { RouteDefinition } from '@solidjs/router';
 import ButtonTest from '#pages/ButtonTest/ButtonTest';
 import ChartTest from '#pages/ChartTest';
 import Homepage from '#pages/Homepage/Homepage';
+import IframeTest from '#pages/IframeTest/IframeTest';
 import { InputTest } from '#pages/InputTest';
 import PageNotFound from '#pages/PageNotFound/PageNotFound';
 import RouteMap from '#pages/RouteMap/RouteMap';
@@ -46,6 +47,11 @@ export const routes: RouteDefinition[] = [
         path: '/widget-test',
         info: { title: 'Mundial Manager - Widget Test' },
         component: WidgetTest,
+      },
+      {
+        path: '/iframe-test',
+        info: { title: 'Mundial Manager - Iframe Test' },
+        component: IframeTest,
       },
     ],
   },
