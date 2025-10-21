@@ -16,6 +16,7 @@ import { getTeamColor } from '#flib/sheetUtils';
 import { useConsoleUnitPrototype } from '#providers/ConsoleUnitPrototypeProvider';
 import { useSheets } from '#providers/SheetsProvider';
 import style from './Homepage.module.scss';
+import { StatPaginatorWidget } from '#components/StatPaginatorWidget';
 
 figlet.parseFont('Small Slant', smallSlant);
 
@@ -252,7 +253,7 @@ const Homepage: Component = () => {
       <div class={style.dashboardContainer}>
         <div>
           <GeneralStats />
-          <Widget
+          <StatPaginatorWidget
             class={style.statsWidget}
             topLeftLabels="Stats"
             topRightLabels={[
@@ -292,7 +293,7 @@ const Homepage: Component = () => {
                 <Glicko2LeaderboardBase />
               </Match>
             </Switch>
-          </Widget>
+          </StatPaginatorWidget>
         </div>
 
         <div class={style.chartsContainer}>

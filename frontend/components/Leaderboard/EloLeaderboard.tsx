@@ -1,31 +1,31 @@
 import { createMemo, For, Match, Switch } from 'solid-js';
 import { MaterialSymbol } from '#components/MaterialSymbol';
-import { Divider, Widget } from '#components/Widget';
+import { Divider } from '#components/Widget';
 import { getTeamColor } from '#flib/sheetUtils';
-import { useSheets } from '#providers/SheetsProvider';
 import style from './Leaderboard.module.scss';
+import { StatPaginatorWidget, usePaginatedStat } from '#components/StatPaginatorWidget';
 
 export const EloLeaderboardBase = () => {
-  const [, { latestMatchStats }] = useSheets();
+  const stats = usePaginatedStat();
 
   const sortedElos = createMemo(() => ({
     playerElos: Object.fromEntries(
-      Object.entries(latestMatchStats().eloRatings.playerElos).sort(
+      Object.entries(stats().eloRatings.playerElos).sort(
         (a, b) => b[1].rating - a[1].rating,
       ),
     ),
     teamElos: Object.fromEntries(
-      Object.entries(latestMatchStats().eloRatings.teamElos).sort(
+      Object.entries(stats().eloRatings.teamElos).sort(
         (a, b) => b[1].rating - a[1].rating,
       ),
     ),
     teamIndividualElos: Object.fromEntries(
-      Object.entries(latestMatchStats().eloRatings.teamIndividualElos).sort(
+      Object.entries(stats().eloRatings.teamIndividualElos).sort(
         (a, b) => b[1].rating - a[1].rating,
       ),
     ),
     hybridElos: Object.fromEntries(
-      Object.entries(latestMatchStats().eloRatings.hybridElos).sort(
+      Object.entries(stats().eloRatings.hybridElos).sort(
         (a, b) => b[1].rating - a[1].rating,
       ),
     ),
@@ -209,8 +209,8 @@ export const EloLeaderboardBase = () => {
 
 export const EloLeaderboard = () => {
   return (
-    <Widget topLeftLabels="Elo Stats" class={style.container}>
+    <StatPaginatorWidget topLeftLabels="Elo Stats" class={style.container}>
       <EloLeaderboardBase />
-    </Widget>
+    </StatPaginatorWidget>
   );
 };

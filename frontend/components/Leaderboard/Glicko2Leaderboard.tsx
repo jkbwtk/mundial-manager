@@ -1,31 +1,31 @@
 import { createMemo, For, Match, Switch } from 'solid-js';
 import { MaterialSymbol } from '#components/MaterialSymbol';
-import { Divider, Widget } from '#components/Widget';
+import { Divider } from '#components/Widget';
 import { getGlicko2Confidence, getTeamColor } from '#flib/sheetUtils';
-import { useSheets } from '#providers/SheetsProvider';
 import style from './Leaderboard.module.scss';
+import { StatPaginatorWidget, usePaginatedStat } from '#components/StatPaginatorWidget';
 
 export const Glicko2LeaderboardBase = () => {
-  const [, { latestMatchStats }] = useSheets();
+  const stats = usePaginatedStat();
 
   const sortedGlicko2 = createMemo(() => ({
     playerGlicko2: Object.fromEntries(
-      Object.entries(latestMatchStats().glicko2Ratings.playerGlicko2).sort(
+      Object.entries(stats().glicko2Ratings.playerGlicko2).sort(
         (a, b) => b[1].rating - a[1].rating,
       ),
     ),
     teamGlicko2: Object.fromEntries(
-      Object.entries(latestMatchStats().glicko2Ratings.teamGlicko2).sort(
+      Object.entries(stats().glicko2Ratings.teamGlicko2).sort(
         (a, b) => b[1].rating - a[1].rating,
       ),
     ),
     teamIndividualGlicko2: Object.fromEntries(
       Object.entries(
-        latestMatchStats().glicko2Ratings.teamIndividualGlicko2,
+        stats().glicko2Ratings.teamIndividualGlicko2,
       ).sort((a, b) => b[1].rating - a[1].rating),
     ),
     hybridGlicko2: Object.fromEntries(
-      Object.entries(latestMatchStats().glicko2Ratings.hybridGlicko2).sort(
+      Object.entries(stats().glicko2Ratings.hybridGlicko2).sort(
         (a, b) => b[1].rating - a[1].rating,
       ),
     ),
@@ -219,7 +219,7 @@ export const Glicko2LeaderboardBase = () => {
 };
 
 export const Glicko2Leaderboard = () => (
-  <Widget topLeftLabels="Glicko-2 Stats" class={style.container}>
+  <StatPaginatorWidget topLeftLabels="Glicko-2 Stats" class={style.container}>
     <Glicko2LeaderboardBase />
-  </Widget>
+  </StatPaginatorWidget>
 );
