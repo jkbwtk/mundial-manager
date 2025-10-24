@@ -1,13 +1,15 @@
 import type { RouteDefinition } from '@solidjs/router';
-import ButtonTest from '#pages/ButtonTest/ButtonTest';
-import ChartTest from '#pages/ChartTest';
+import { lazy } from 'solid-js';
 import Homepage from '#pages/Homepage/Homepage';
-import IframeTest from '#pages/IframeTest/IframeTest';
-import { InputTest } from '#pages/InputTest';
 import PageNotFound from '#pages/PageNotFound/PageNotFound';
-import RouteMap from '#pages/RouteMap/RouteMap';
-import { SheetsTest } from '#pages/SheetsTest';
-import WidgetTest from '#pages/WidgetTest/WidgetTest';
+
+const RouteMap = lazy(() => import('#pages/RouteMap/RouteMap'));
+const ChartTest = lazy(() => import('#pages/ChartTest'));
+const ButtonTest = lazy(() => import('#pages/ButtonTest/ButtonTest'));
+const InputTest = lazy(() => import('#pages/InputTest/InputTest'));
+const SheetsTest = lazy(() => import('#pages/SheetsTest/SheetsTest'));
+const WidgetTest = lazy(() => import('#pages/WidgetTest/WidgetTest'));
+const IframeTest = lazy(() => import('#pages/IframeTest/IframeTest'));
 
 export const routes: RouteDefinition[] = [
   {

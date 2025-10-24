@@ -83,3 +83,5 @@ export const InputTest: Component = () => {
     </Widget>
   );
 };
+
+export default InputTest;
