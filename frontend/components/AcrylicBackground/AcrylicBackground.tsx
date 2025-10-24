@@ -1,4 +1,4 @@
-import background from '#assets/images/background.png?inline';
+import background from '#assets/images/background.jpg?inline';
 import styles from './AcrylicBackground.module.scss';
 
 export const AcrylicBackground: Component = () => {
