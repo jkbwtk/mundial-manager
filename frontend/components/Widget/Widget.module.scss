@@ -14,6 +14,18 @@
   max-width: 100%;
   backdrop-filter: blur(1rem);
   font-weight: bold;
+
+  border-radius: $borderRadius;
+
+  & ~ & {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  &:not(:only-child):first-child {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
 }
 
 .container {
