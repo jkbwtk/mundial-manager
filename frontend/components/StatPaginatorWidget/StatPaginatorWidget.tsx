@@ -56,18 +56,18 @@ export const StatPaginatorWidget: Component<
           ...arrayFrom(props.bottomRightLabels).filter(Boolean),
           <span>
             <InlineAction
-              symbol="<"
-              disabledTriggers={['shortcut']}
+              content="<"
+              symbol="ArrowLeft"
               onAction={() =>
                 setState('currentPage', (prev) =>
                   Math.min(prev + 1, sheets.matches.length - 1),
                 )
               }
             />{' '}
-            Match: {state.matchStats.label}{' '}
+            {sheets.matches.length - state.currentPage}/{sheets.matches.length}{' '}
             <InlineAction
-              symbol=">"
-              disabledTriggers={['shortcut']}
+              content=">"
+              symbol="ArrowRight"
               onAction={() =>
                 setState('currentPage', (prev) => Math.max(prev - 1, 0))
               }
