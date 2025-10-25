@@ -9,7 +9,7 @@ import {
   EloLeaderboardBase,
   Glicko2LeaderboardBase,
 } from '#components/Leaderboard';
-import { RankCharts } from '#components/RankCharts';
+import { RatingCharts } from '#components/RatingCharts';
 import { StatPaginatorWidget } from '#components/StatPaginatorWidget';
 import { useConsoleUnitPrototype } from '#providers/ConsoleUnitPrototypeProvider';
 import style from './Homepage.module.scss';
@@ -51,7 +51,7 @@ const Homepage: Component = () => {
           <GeneralStats />
           <StatPaginatorWidget
             class={style.statsWidget}
-            topLeftLabels="Stats"
+            topLeftLabels="Leaderboards"
             topRightLabels={[
               <span
                 classList={{
@@ -92,7 +92,7 @@ const Homepage: Component = () => {
           </StatPaginatorWidget>
         </div>
 
-        <RankCharts />
+        <RatingCharts />
       </div>
     </div>
   );

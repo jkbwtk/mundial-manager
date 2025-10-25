@@ -1,9 +1,12 @@
 import { createMemo, For, Match, Switch } from 'solid-js';
 import { MaterialSymbol } from '#components/MaterialSymbol';
+import {
+  StatPaginatorWidget,
+  usePaginatedStat,
+} from '#components/StatPaginatorWidget';
 import { Divider } from '#components/Widget';
 import { getTeamColor } from '#flib/sheetUtils';
 import style from './Leaderboard.module.scss';
-import { StatPaginatorWidget, usePaginatedStat } from '#components/StatPaginatorWidget';
 
 export const EloLeaderboardBase = () => {
   const stats = usePaginatedStat();
@@ -34,7 +37,7 @@ export const EloLeaderboardBase = () => {
   return (
     <>
       <div class={style.header}>
-        <strong>Player Stats</strong>
+        <strong>Player</strong>
       </div>
 
       <table class={style.list}>
@@ -77,7 +80,7 @@ export const EloLeaderboardBase = () => {
       <Divider />
 
       <div class={style.header}>
-        <strong>Hybrid Stats</strong>
+        <strong>Hybrid</strong>
       </div>
 
       <table class={style.list}>
@@ -120,7 +123,7 @@ export const EloLeaderboardBase = () => {
       <Divider />
 
       <div class={style.header}>
-        <strong>Team Individual Stats</strong>
+        <strong>Team Individual</strong>
       </div>
 
       <table class={style.list}>
@@ -163,7 +166,7 @@ export const EloLeaderboardBase = () => {
       <Divider />
 
       <div class={style.header}>
-        <strong>Team Stats</strong>
+        <strong>Team</strong>
       </div>
 
       <table class={style.list}>

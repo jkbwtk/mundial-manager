@@ -3,13 +3,13 @@ import { createMemo, lazy } from 'solid-js';
 import { Widget } from '#components/Widget';
 import { getTeamColor } from '#flib/sheetUtils';
 import { useSheets } from '#providers/SheetsProvider';
-import style from './RankChats.module.scss';
+import style from './RatingChats.module.scss';
 
 const ChartWrapper = lazy(() =>
   import('#components/ChartWrapper').then((c) => ({ default: c.ChartWrapper })),
 );
 
-export const RankCharts: Component = () => {
+export const RatingCharts: Component = () => {
   const [, { matchStats, latestMatchStats }] = useSheets();
 
   const matchLabels = createMemo(() =>

@@ -1,9 +1,12 @@
 import { createMemo, For, Match, Switch } from 'solid-js';
 import { MaterialSymbol } from '#components/MaterialSymbol';
+import {
+  StatPaginatorWidget,
+  usePaginatedStat,
+} from '#components/StatPaginatorWidget';
 import { Divider } from '#components/Widget';
 import { getGlicko2Confidence, getTeamColor } from '#flib/sheetUtils';
 import style from './Leaderboard.module.scss';
-import { StatPaginatorWidget, usePaginatedStat } from '#components/StatPaginatorWidget';
 
 export const Glicko2LeaderboardBase = () => {
   const stats = usePaginatedStat();
@@ -20,9 +23,9 @@ export const Glicko2LeaderboardBase = () => {
       ),
     ),
     teamIndividualGlicko2: Object.fromEntries(
-      Object.entries(
-        stats().glicko2Ratings.teamIndividualGlicko2,
-      ).sort((a, b) => b[1].rating - a[1].rating),
+      Object.entries(stats().glicko2Ratings.teamIndividualGlicko2).sort(
+        (a, b) => b[1].rating - a[1].rating,
+      ),
     ),
     hybridGlicko2: Object.fromEntries(
       Object.entries(stats().glicko2Ratings.hybridGlicko2).sort(
@@ -34,7 +37,7 @@ export const Glicko2LeaderboardBase = () => {
   return (
     <>
       <div class={style.header}>
-        <strong>Player Stats</strong>
+        <strong>Player</strong>
       </div>
 
       <table class={style.list}>
@@ -80,7 +83,7 @@ export const Glicko2LeaderboardBase = () => {
       <Divider />
 
       <div class={style.header}>
-        <strong>Hybrid Stats</strong>
+        <strong>Hybrid</strong>
       </div>
 
       <table class={style.list}>
@@ -126,7 +129,7 @@ export const Glicko2LeaderboardBase = () => {
       <Divider />
 
       <div class={style.header}>
-        <strong>Team Individual Stats</strong>
+        <strong>Team Individual</strong>
       </div>
 
       <table class={style.list}>
@@ -172,7 +175,7 @@ export const Glicko2LeaderboardBase = () => {
       <Divider />
 
       <div class={style.header}>
-        <strong>Team Stats</strong>
+        <strong>Team</strong>
       </div>
 
       <table class={style.list}>

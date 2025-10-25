@@ -20,7 +20,7 @@ export * from './Input';
 export * from './Leaderboard';
 export * from './MaterialSymbol';
 export * from './ProgresBar';
-export * from './RankCharts';
+export * from './RatingCharts';
 export * from './StatPaginatorWidget';
 export * from './Table';
 export * from './TextMarquee';
