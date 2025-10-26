@@ -11,11 +11,12 @@ import { createStore } from 'solid-js/store';
 import { isServer } from 'solid-js/web';
 import {
   calculateMatchStats,
+  defaultMatch,
   defaultMatchStats,
   formatDate,
   formatDuration,
 } from '#flib/sheetUtils';
-import type { DayStats, MatchStats } from '#frontend/types';
+import type { DayStats, LatestStats, MatchStats } from '#frontend/types';
 import { useTRPC } from '#providers/TRPCProvider';
 import type { Match, SheetMetadata } from '#shared/types/Sheets';
 
@@ -28,8 +29,8 @@ export interface SheetsContextState {
 export interface SheetsContextActions {
   initialize: () => Promise<void>;
   matchStats: () => Record<number, MatchStats>;
-  latestMatchStats: () => MatchStats;
   dayStats: () => Record<number, DayStats>;
+  latest: () => LatestStats;
 }
 
 export type SheetsContextValue = [
@@ -58,7 +59,7 @@ const SheetsContext = createContext<SheetsContextValue>([
     matchStats: () => {
       throw new Error('SheetsContext: matchStats() called before provider');
     },
-    latestMatchStats: () => {
+    latest: () => {
       throw new Error(
         'SheetsContext: latestMatchStats() called before provider',
       );
@@ -176,10 +177,6 @@ export const SheetsProvider: ParentComponent = (props) => {
     return matchStats;
   });
 
-  const latestMatchStats = createMemo<MatchStats>(
-    () => matchStats()[state.matches.at(-1)?.id ?? -1] ?? defaultMatchStats,
-  );
-
   const dayStats = createMemo<Record<number, DayStats>>(() => {
     const defaultStats: DayStats = {
       date: 0,
@@ -258,10 +255,17 @@ export const SheetsProvider: ParentComponent = (props) => {
     return Object.fromEntries(dayMap);
   });
 
+  const latest = createMemo<LatestStats>(() => {
+    const match = state.matches.at(-1) ?? defaultMatch;
+    const stats = matchStats()[match.id] ?? defaultMatchStats;
+
+    return { match, matchStats: stats };
+  });
+
   const actions: SheetsContextActions = {
     initialize,
     matchStats,
-    latestMatchStats,
+    latest,
     dayStats,
   };
 

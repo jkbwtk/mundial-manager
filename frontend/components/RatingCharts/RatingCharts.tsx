@@ -10,7 +10,7 @@ const ChartWrapper = lazy(() =>
 );
 
 export const RatingCharts: Component = () => {
-  const [, { matchStats, latestMatchStats }] = useSheets();
+  const [, { matchStats, latest }] = useSheets();
 
   const matchLabels = createMemo(() =>
     Object.values(matchStats()).map((s) => s.label),
@@ -18,7 +18,7 @@ export const RatingCharts: Component = () => {
 
   const playerChartConfig = createMemo((): ChartConfiguration => {
     const stats = Object.values(matchStats());
-    const elo = latestMatchStats().eloRatings;
+    const elo = latest().matchStats.eloRatings;
 
     return {
       type: 'line',
@@ -42,7 +42,7 @@ export const RatingCharts: Component = () => {
 
   const hybridChartConfig = createMemo((): ChartConfiguration => {
     const stats = Object.values(matchStats());
-    const elo = latestMatchStats().eloRatings;
+    const elo = latest().matchStats.eloRatings;
 
     return {
       type: 'line',
@@ -66,7 +66,7 @@ export const RatingCharts: Component = () => {
 
   const teamIndividualChartConfig = createMemo((): ChartConfiguration => {
     const stats = Object.values(matchStats());
-    const elo = latestMatchStats().eloRatings;
+    const elo = latest().matchStats.eloRatings;
 
     return {
       type: 'line',
@@ -90,7 +90,7 @@ export const RatingCharts: Component = () => {
 
   const teamChartConfig = createMemo((): ChartConfiguration => {
     const stats = Object.values(matchStats());
-    const elo = latestMatchStats().eloRatings;
+    const elo = latest().matchStats.eloRatings;
 
     return {
       type: 'line',
@@ -114,7 +114,7 @@ export const RatingCharts: Component = () => {
 
   const playerGlicko2ChartConfig = createMemo((): ChartConfiguration => {
     const stats = Object.values(matchStats());
-    const elo = latestMatchStats().eloRatings;
+    const elo = latest().matchStats.eloRatings;
 
     return {
       type: 'line',
@@ -138,7 +138,7 @@ export const RatingCharts: Component = () => {
 
   const hybridGlicko2ChartConfig = createMemo((): ChartConfiguration => {
     const stats = Object.values(matchStats());
-    const elo = latestMatchStats().eloRatings;
+    const elo = latest().matchStats.eloRatings;
 
     return {
       type: 'line',
@@ -163,7 +163,7 @@ export const RatingCharts: Component = () => {
   const teamIndividualGlicko2ChartConfig = createMemo(
     (): ChartConfiguration => {
       const stats = Object.values(matchStats());
-      const elo = latestMatchStats().eloRatings;
+      const elo = latest().matchStats.eloRatings;
 
       return {
         type: 'line',
@@ -189,7 +189,7 @@ export const RatingCharts: Component = () => {
 
   const teamGlicko2ChartConfig = createMemo((): ChartConfiguration => {
     const stats = Object.values(matchStats());
-    const elo = latestMatchStats().eloRatings;
+    const elo = latest().matchStats.eloRatings;
 
     return {
       type: 'line',

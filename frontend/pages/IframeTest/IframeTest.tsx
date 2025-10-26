@@ -13,7 +13,7 @@ const AVAILABLE_URLS = [
 ];
 
 const IframeTest: Component = () => {
-  const [sheets, { latestMatchStats }] = useSheets();
+  const [sheets, { latest }] = useSheets();
 
   // biome-ignore lint/style/useConst: yeah
   let ref: HTMLIFrameElement = null!;
@@ -30,7 +30,7 @@ const IframeTest: Component = () => {
   };
 
   const sendPlayers = () => {
-    const players = latestMatchStats().generalStats.uniquePlayers;
+    const players = latest().matchStats.generalStats.uniquePlayers;
     ref.contentWindow?.postMessage({ players }, '*');
   };
 

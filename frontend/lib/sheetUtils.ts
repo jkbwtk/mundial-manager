@@ -562,6 +562,19 @@ export const defaultMatchStats: MatchStats = {
   _matchesWithDuration: 0,
 };
 
+export const defaultMatch: Match = {
+  id: -1,
+  team1: '',
+  team2: '',
+  score1: 0,
+  score2: 0,
+  duration: null,
+  winningColor: '',
+  date: null,
+  floor: null,
+  replayMetadata: null,
+};
+
 function getTotalMatches(_match: Match, previousStats: MatchStats) {
   return previousStats._matchCounter + 1;
 }

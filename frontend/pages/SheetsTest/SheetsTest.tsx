@@ -24,7 +24,7 @@ dayjs.extend(duration);
 hljs.registerLanguage('json', json);
 
 export const SheetsTest: Component = () => {
-  const [sheets, { latestMatchStats, dayStats }] = useSheets();
+  const [sheets, { latest, dayStats }] = useSheets();
 
   const [sortColumn, setSortColumn] = createSignal<keyof Match | null>(null);
   const [sortDirection, setSortDirection] = createSignal<'asc' | 'desc' | null>(
@@ -187,7 +187,7 @@ export const SheetsTest: Component = () => {
       </Widget>
 
       <Widget topLeftLabels="Players" class={style.metadata}>
-        <For each={latestMatchStats().generalStats.uniquePlayers}>
+        <For each={latest().matchStats.generalStats.uniquePlayers}>
           {(player) => <div>{player}</div>}
         </For>
       </Widget>
@@ -196,7 +196,7 @@ export const SheetsTest: Component = () => {
         <strong>Raw:</strong>
         <HighlightedCode
           language="json"
-          code={toJson(latestMatchStats().generalStats)}
+          code={toJson(latest().matchStats.generalStats)}
         />
       </Widget>
 

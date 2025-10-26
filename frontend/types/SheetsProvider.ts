@@ -1,3 +1,5 @@
+import type { Match } from '#shared/types/Sheets';
+
 export interface GeneralStats {
   totalMatches: number;
   totalGoals: number;
@@ -108,4 +110,10 @@ export interface DayStats {
 
   _matchesWithDuration: number;
   _goalsWithDuration: number;
+}
+
+export interface LatestStats {
+  match: Match;
+  matchStats: MatchStats;
+  // dayStats: DayStats;
 }

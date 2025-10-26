@@ -6,10 +6,10 @@ import { useSheets } from '#providers/SheetsProvider';
 import style from './GeneralStats.module.scss';
 
 export const GeneralStats: Component = () => {
-  const [, { latestMatchStats }] = useSheets();
+  const [, { latest }] = useSheets();
   const [extrapolated, setExtrapolated] = createSignal(false);
 
-  const stats = createMemo(() => latestMatchStats().generalStats);
+  const stats = createMemo(() => latest().matchStats.generalStats);
 
   return (
     <Widget
