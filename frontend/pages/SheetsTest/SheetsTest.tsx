@@ -14,9 +14,9 @@ import type { Match } from '#shared/types/Sheets';
 import { quickSwitch } from '#shared/utils';
 import 'highlight.js/styles/gml.min.css';
 import {
-  StatPaginatorWidget,
+  MatchPaginatorWidget,
   usePaginatedStat,
-} from '#components/StatPaginatorWidget';
+} from '#components/MatchPaginatorWidget';
 import style from './SheetsTest.module.scss';
 
 dayjs.extend(duration);
@@ -200,10 +200,10 @@ export const SheetsTest: Component = () => {
         />
       </Widget>
 
-      <StatPaginatorWidget topLeftLabels="Match Stats" class={style.metadata}>
+      <MatchPaginatorWidget topLeftLabels="Match Stats" class={style.metadata}>
         <strong>Raw:</strong>
         <HighlightedCode language="json" code={toJson(usePaginatedStat()())} />
-      </StatPaginatorWidget>
+      </MatchPaginatorWidget>
 
       <Widget topLeftLabels="Day Stats" class={style.metadata}>
         <strong>Raw:</strong>

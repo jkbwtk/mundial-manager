@@ -1,10 +1,10 @@
 import { Show } from 'solid-js';
 import { AnimatedText } from '#components/AnimatedText';
 import {
-  StatPaginatorWidget,
+  MatchPaginatorWidget,
   usePaginatedMatch,
   usePaginatedStat,
-} from '#components/StatPaginatorWidget';
+} from '#components/MatchPaginatorWidget';
 import { Divider } from '#components/Widget';
 import { formatDate, formatDuration } from '#flib/sheetUtils';
 import { quickSwitch } from '#shared/utils';
@@ -109,8 +109,8 @@ export const MatchStatsBase: Component = () => {
 
 export const MatchStats: Component = () => {
   return (
-    <StatPaginatorWidget class={style.widget} topLeftLabels={'Match Stats'}>
+    <MatchPaginatorWidget class={style.widget} topLeftLabels={'Match Stats'}>
       <MatchStatsBase />
-    </StatPaginatorWidget>
+    </MatchPaginatorWidget>
   );
 };

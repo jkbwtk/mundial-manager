@@ -1,9 +1,9 @@
 import { createMemo, For, Match, Switch } from 'solid-js';
-import { MaterialSymbol } from '#components/MaterialSymbol';
 import {
-  StatPaginatorWidget,
+  MatchPaginatorWidget,
   usePaginatedStat,
-} from '#components/StatPaginatorWidget';
+} from '#components/MatchPaginatorWidget';
+import { MaterialSymbol } from '#components/MaterialSymbol';
 import { Divider } from '#components/Widget';
 import { getTeamColor } from '#flib/sheetUtils';
 import style from './Leaderboard.module.scss';
@@ -212,8 +212,8 @@ export const EloLeaderboardBase = () => {
 
 export const EloLeaderboard = () => {
   return (
-    <StatPaginatorWidget topLeftLabels="Elo Stats" class={style.container}>
+    <MatchPaginatorWidget topLeftLabels="Elo Stats" class={style.container}>
       <EloLeaderboardBase />
-    </StatPaginatorWidget>
+    </MatchPaginatorWidget>
   );
 };

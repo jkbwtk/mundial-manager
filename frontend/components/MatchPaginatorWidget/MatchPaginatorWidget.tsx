@@ -8,15 +8,15 @@ import { useSheets } from '#providers/SheetsProvider';
 import type { Match } from '#shared/types/Sheets';
 import { arrayFrom } from '#shared/utils';
 
-export interface StatPaginatorState {
+export interface MatchPaginatorState {
   currentPage: number;
   match: Match;
   matchStats: MatchStats;
 }
 
-export type StatPaginatorContextValue = [state: StatPaginatorState];
+export type MatchPaginatorContextValue = [state: MatchPaginatorState];
 
-function createDefaultState(): StatPaginatorState {
+function createDefaultState(): MatchPaginatorState {
   return {
     currentPage: 0,
     match: structuredClone(defaultMatch),
@@ -24,16 +24,16 @@ function createDefaultState(): StatPaginatorState {
   };
 }
 
-const StatPaginatorContext = createContext<StatPaginatorContextValue>([
+const MatchPaginatorContext = createContext<MatchPaginatorContextValue>([
   createDefaultState(),
 ]);
 
-export const StatPaginatorWidget: Component<
+export const MatchPaginatorWidget: Component<
   WidgetPropsWithoutComponent<'div'>
 > = (props) => {
   const [sheets, { matchStats, latest }] = useSheets();
 
-  const [state, setState] = createStore<StatPaginatorState>(
+  const [state, setState] = createStore<MatchPaginatorState>(
     createDefaultState(),
   );
 
@@ -57,7 +57,7 @@ export const StatPaginatorWidget: Component<
   });
 
   return (
-    <StatPaginatorContext.Provider value={[state]}>
+    <MatchPaginatorContext.Provider value={[state]}>
       <Widget
         {...props}
         bottomRightLabels={[
@@ -83,18 +83,18 @@ export const StatPaginatorWidget: Component<
           </span>,
         ]}
       />
-    </StatPaginatorContext.Provider>
+    </MatchPaginatorContext.Provider>
   );
 };
 
-export const useStatPaginator = () => useContext(StatPaginatorContext);
+export const useMatchPaginator = () => useContext(MatchPaginatorContext);
 
 export const usePaginatedStat = () => {
-  const [state] = useStatPaginator();
+  const [state] = useMatchPaginator();
   return () => state.matchStats;
 };
 
 export const usePaginatedMatch = () => {
-  const [state] = useStatPaginator();
+  const [state] = useMatchPaginator();
   return () => state.match;
 };

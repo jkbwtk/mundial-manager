@@ -9,9 +9,9 @@ import {
   EloLeaderboardBase,
   Glicko2LeaderboardBase,
 } from '#components/Leaderboard';
+import { MatchPaginatorWidget } from '#components/MatchPaginatorWidget';
 import { MatchStats } from '#components/MatchStats';
 import { RatingCharts } from '#components/RatingCharts';
-import { StatPaginatorWidget } from '#components/StatPaginatorWidget';
 import { useConsoleUnitPrototype } from '#providers/ConsoleUnitPrototypeProvider';
 import style from './Homepage.module.scss';
 
@@ -51,7 +51,7 @@ const Homepage: Component = () => {
         <div>
           <GeneralStats />
           <MatchStats />
-          <StatPaginatorWidget
+          <MatchPaginatorWidget
             class={style.statsWidget}
             topLeftLabels="Leaderboards"
             topRightLabels={[
@@ -91,7 +91,7 @@ const Homepage: Component = () => {
                 <Glicko2LeaderboardBase />
               </Match>
             </Switch>
-          </StatPaginatorWidget>
+          </MatchPaginatorWidget>
         </div>
 
         <RatingCharts />

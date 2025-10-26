@@ -1,9 +1,9 @@
 import { createMemo, For, Match, Switch } from 'solid-js';
-import { MaterialSymbol } from '#components/MaterialSymbol';
 import {
-  StatPaginatorWidget,
+  MatchPaginatorWidget,
   usePaginatedStat,
-} from '#components/StatPaginatorWidget';
+} from '#components/MatchPaginatorWidget';
+import { MaterialSymbol } from '#components/MaterialSymbol';
 import { Divider } from '#components/Widget';
 import { getGlicko2Confidence, getTeamColor } from '#flib/sheetUtils';
 import style from './Leaderboard.module.scss';
@@ -222,7 +222,7 @@ export const Glicko2LeaderboardBase = () => {
 };
 
 export const Glicko2Leaderboard = () => (
-  <StatPaginatorWidget topLeftLabels="Glicko-2 Stats" class={style.container}>
+  <MatchPaginatorWidget topLeftLabels="Glicko-2 Stats" class={style.container}>
     <Glicko2LeaderboardBase />
-  </StatPaginatorWidget>
+  </MatchPaginatorWidget>
 );

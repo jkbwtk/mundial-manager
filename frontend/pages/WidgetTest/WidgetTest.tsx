@@ -1,11 +1,11 @@
 import { Break } from '#components/Break';
 import { Button } from '#components/Button';
 import { InlineAction } from '#components/InlineAction';
-import { MaterialSymbol } from '#components/MaterialSymbol';
 import {
-  StatPaginatorWidget,
+  MatchPaginatorWidget,
   usePaginatedStat,
-} from '#components/StatPaginatorWidget';
+} from '#components/MatchPaginatorWidget';
+import { MaterialSymbol } from '#components/MaterialSymbol';
 import { customWidgetType, Divider, Widget } from '#components/Widget';
 import { WidgetAlt } from '#components/WidgetAlt';
 import style from './WidgetTest.module.scss';
@@ -132,9 +132,9 @@ const WidgetTest: Component = () => {
 
       <Break />
 
-      <StatPaginatorWidget topRightLabels={'test'}>
+      <MatchPaginatorWidget topRightLabels={'test'}>
         {usePaginatedStat()().label}
-      </StatPaginatorWidget>
+      </MatchPaginatorWidget>
     </div>
   );
 };
