@@ -9,6 +9,7 @@ import {
   EloLeaderboardBase,
   Glicko2LeaderboardBase,
 } from '#components/Leaderboard';
+import { MatchStats } from '#components/MatchStats';
 import { RatingCharts } from '#components/RatingCharts';
 import { StatPaginatorWidget } from '#components/StatPaginatorWidget';
 import { useConsoleUnitPrototype } from '#providers/ConsoleUnitPrototypeProvider';
@@ -49,6 +50,7 @@ const Homepage: Component = () => {
       <div class={style.dashboardContainer}>
         <div>
           <GeneralStats />
+          <MatchStats />
           <StatPaginatorWidget
             class={style.statsWidget}
             topLeftLabels="Leaderboards"

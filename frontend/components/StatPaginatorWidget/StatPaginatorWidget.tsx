@@ -93,3 +93,8 @@ export const usePaginatedStat = () => {
   const [state] = useStatPaginator();
   return () => state.matchStats;
 };
+
+export const usePaginatedMatch = () => {
+  const [state] = useStatPaginator();
+  return () => state.match;
+};

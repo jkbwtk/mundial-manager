@@ -1,0 +1,47 @@
+@use 'app' as *;
+
+.widget {
+  width: round(down, 100%, cw(1));
+}
+
+.container {
+  display: grid;
+  grid-template-columns: auto auto;
+
+  align-items: end;
+
+  column-gap: cw(1);
+
+  span {
+    text-align: right;
+  }
+}
+
+.highlight {
+  color: $textBrightColor;
+}
+
+.team-color {
+  display: inline-block;
+
+  width: cw(10);
+  height: ch(1);
+
+  mask: url('/frontend/assets/images/braille.svg') 0 0 / cw(1) ch(1);
+}
+
+.team-color-red2 {
+  background-color: $red;
+}
+
+.team-color-red3 {
+  background-color: $redBright;
+}
+
+.team-color-green {
+  background-color: $green;
+}
+
+.team-color-blue {
+  background-color: $blue;
+}

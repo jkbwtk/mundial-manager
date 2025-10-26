@@ -18,6 +18,7 @@ export * from './HighlightedCode';
 export * from './InlineAction';
 export * from './Input';
 export * from './Leaderboard';
+export * from './MatchStats';
 export * from './MaterialSymbol';
 export * from './ProgresBar';
 export * from './RatingCharts';
