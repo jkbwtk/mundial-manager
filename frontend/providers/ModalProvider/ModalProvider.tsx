@@ -105,6 +105,7 @@ export const ModalProvider: ParentComponent = (props) => {
       <Portal>
         <Show when={state.modals.length > 0}>
           <div class={style.modalContainer} onPointerUp={handleBackgroundClick}>
+            <div class={style.backdrop} />
             <For each={state.modals}>
               {(entry) => (
                 <Dynamic {...entry.props} closeModal={entry.closeModal} />
