@@ -2,11 +2,11 @@ import { createContext, useContext } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import type { ModalEntry } from '#frontend/types';
 
-export interface ModalContextActions {
+export interface ModalInstanceContextActions {
   closeModal: (returnValue?: unknown) => void;
 }
 
-const ModalInstanceContext = createContext<ModalContextActions>({
+const ModalInstanceContext = createContext<ModalInstanceContextActions>({
   closeModal: () => {
     throw new Error(
       'ModalInstanceContext: closeModal() called before provider',
@@ -15,7 +15,7 @@ const ModalInstanceContext = createContext<ModalContextActions>({
 });
 
 export const ModalInstanceProvider: ParentComponent<ModalEntry> = (props) => {
-  const actions: ModalContextActions = {
+  const actions: ModalInstanceContextActions = {
     closeModal: props.closeModal,
   };
 
@@ -26,5 +26,5 @@ export const ModalInstanceProvider: ParentComponent<ModalEntry> = (props) => {
   );
 };
 
-export const useModalActions = (): ModalContextActions =>
+export const useModalActions = (): ModalInstanceContextActions =>
   useContext(ModalInstanceContext);
