@@ -6,13 +6,10 @@ import {
   type ValidComponent,
 } from 'solid-js';
 import { createStore } from 'solid-js/store';
-import { Dynamic, type DynamicProps, Portal } from 'solid-js/web';
+import { type DynamicProps, Portal } from 'solid-js/web';
+import type { ModalEntry } from '#frontend/types';
+import { ModalInstanceProvider } from '#providers/ModalProvider/ModalInstanceProvider';
 import style from './ModalProvider.module.scss';
-
-export interface ModalEntry<T extends ValidComponent = ValidComponent> {
-  props: DynamicProps<T>;
-  closeModal: (returnValue?: unknown) => void;
-}
 
 export interface ModalContextState {
   modals: ModalEntry[];
@@ -107,9 +104,7 @@ export const ModalProvider: ParentComponent = (props) => {
           <div class={style.modalContainer} onPointerUp={handleBackgroundClick}>
             <div class={style.backdrop} />
             <For each={state.modals}>
-              {(entry) => (
-                <Dynamic {...entry.props} closeModal={entry.closeModal} />
-              )}
+              {(modal) => <ModalInstanceProvider {...modal} />}
             </For>
           </div>
         </Show>

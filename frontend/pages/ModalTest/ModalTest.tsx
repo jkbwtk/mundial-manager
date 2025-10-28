@@ -2,20 +2,20 @@ import { createSignal } from 'solid-js';
 import { Button } from '#components/Button';
 import { Modal } from '#components/Modal';
 import { Widget } from '#components/Widget';
-import { useModal } from '#providers/ModalProvider';
+import { useModal, useModalActions } from '#providers/ModalProvider';
 import style from './ModalTest.module.scss';
 
 const M: Component<{
   counter: number;
-  closeModal: (returnValue: string) => void;
 }> = (props) => {
   const [a, setA] = createSignal(0);
+  const { closeModal } = useModalActions();
 
   return (
     <Modal topLeftLabels="Test Modal">
       Modal Content {a()}, counter {props.counter}
       <Button onClick={() => setA((v) => v + 1)}>Increment</Button>
-      <Button onClick={() => props.closeModal('test')}>Close Modal</Button>
+      <Button onClick={() => closeModal('test')}>Close Modal</Button>
     </Modal>
   );
 };

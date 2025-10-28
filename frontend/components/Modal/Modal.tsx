@@ -9,9 +9,7 @@ import { Widget, type WidgetPropsWithoutComponent } from '#components/Widget';
 import { clamp } from '#shared/utils';
 import style from './Modal.module.scss';
 
-export type ModalProps = WidgetPropsWithoutComponent<'div'> & {
-  closeModal: (returnValue?: unknown) => void;
-};
+export type ModalProps = WidgetPropsWithoutComponent<'div'>;
 
 export const Modal: Component<ModalProps> = (userProps) => {
   const [pickedProps, props] = splitProps(userProps, ['children']);
@@ -123,7 +121,7 @@ export const Modal: Component<ModalProps> = (userProps) => {
         ...(props.classList ?? {}),
       }}
     >
-      <div>{pickedProps.children}</div>
+      {pickedProps.children}
     </Widget>
   );
 };
