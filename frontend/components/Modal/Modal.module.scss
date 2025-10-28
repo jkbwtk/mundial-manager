@@ -1,0 +1,11 @@
+@use 'app' as *;
+
+.modal {
+  position: fixed;
+
+  left: calc(50% + var(--modal-offset-x));
+  top: calc(50% + var(--modal-offset-y));
+  transform: translate(-50%, -50%);
+
+  z-index: 9001;
+}

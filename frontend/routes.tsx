@@ -10,6 +10,7 @@ const InputTest = lazy(() => import('#pages/InputTest/InputTest'));
 const SheetsTest = lazy(() => import('#pages/SheetsTest/SheetsTest'));
 const WidgetTest = lazy(() => import('#pages/WidgetTest/WidgetTest'));
 const IframeTest = lazy(() => import('#pages/IframeTest/IframeTest'));
+const ModalTest = lazy(() => import('#pages/ModalTest/ModalTest'));
 
 export const routes: RouteDefinition[] = [
   {
@@ -54,6 +55,11 @@ export const routes: RouteDefinition[] = [
         path: '/iframe-test',
         info: { title: 'Mundial Manager - Iframe Test' },
         component: IframeTest,
+      },
+      {
+        path: '/modal-test',
+        info: { title: 'Mundial Manager - Modal Test' },
+        component: ModalTest,
       },
     ],
   },

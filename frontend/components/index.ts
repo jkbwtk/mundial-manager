@@ -21,6 +21,7 @@ export * from './Leaderboard';
 export * from './MatchPaginatorWidget';
 export * from './MatchStats';
 export * from './MaterialSymbol';
+export * from './Modal';
 export * from './ProgresBar';
 export * from './RatingCharts';
 export * from './Table';
