@@ -156,13 +156,25 @@ export const Modal: Component<ModalProps> = (userProps) => {
       <div class={style.bottomLabels}>
         <div class={style.leftLabels}>
           <For each={bottomLeftLabels.toArray()}>
-            {(label) => <div class={style.bottomLeftLabel}>{label}</div>}
+            {(label) => (
+              <div class={style.bottomLeftLabel}>
+                <div class={style.preDecoratorBottom} />
+                {label}
+                <div class={style.postDecoratorBottom} />
+              </div>
+            )}
           </For>
         </div>
 
         <div class={style.rightLabels}>
           <For each={bottomRightLabels.toArray()}>
-            {(label) => <div class={style.bottomRightLabel}>{label}</div>}
+            {(label) => (
+              <div class={style.bottomRightLabel}>
+                <div class={style.preDecoratorBottom} />
+                {label}
+                <div class={style.postDecoratorBottom} />
+              </div>
+            )}
           </For>
         </div>
       </div>

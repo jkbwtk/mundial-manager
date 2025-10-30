@@ -15,7 +15,6 @@
   display: flex;
   max-width: 100%;
   padding: 0 cw(0);
-  font-weight: bold;
   color: $backgroundColor;
 
   border-radius: $borderRadius;
@@ -52,9 +51,45 @@
     --widget-border-radius: #{$borderRadius};
   }
 
+  .pre-decorator-bottom,
+  .post-decorator-bottom {
+    position: relative;
+    width: cw(1);
+    height: ch(1);
+    flex-shrink: 0;
+
+    &::after {
+      content: '';
+      position: absolute;
+
+      $decoratorSize: 30%;
+
+      width: calc(50% - var(--widget-border-width) / 2);
+      height: calc($decoratorSize - var(--widget-border-width) / 2);
+
+      bottom: calc(50% - $decoratorSize);
+
+      border-top: var(--widget-border-width) var(--widget-border-style) var(--widget-border-color);
+      border-right: var(--widget-border-width) var(--widget-border-style) var(--widget-border-color);
+    }
+  }
+
+  .pre-decorator-bottom {
+    transform: scaleY(-1);
+  }
+
+  .post-decorator-bottom {
+    transform: scaleX(-1) scaleY(-1);
+  }
+
   .top-labels {
     @extend %label-container-base;
     top: 0;
+
+    .left-labels,
+    .right-labels {
+      gap: cw(1);
+    }
   }
 
   .bottom-labels {
@@ -77,6 +112,14 @@
   .bottom-left-label,
   .bottom-right-label {
     @extend %label-base;
+  }
+
+  .bottom-left-label,
+  .bottom-right-label {
+    backdrop-filter: blur(1rem);
+
+    color: $textBrightColor;
+    font-weight: bold;
   }
 
   &::before {
@@ -117,4 +160,11 @@
 
 .close-button {
   pointer-events: initial;
+
+  border-radius: 0;
+
+  &:hover {
+    background-color: $red;
+    color: $backgroundColor;
+  }
 }

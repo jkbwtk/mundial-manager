@@ -17,7 +17,12 @@ const M: Component<{
   const { closeModal } = useModalActions();
 
   return (
-    <Modal topLeftLabels="Test Modal">
+    <Modal
+      topLeftLabels="Test Modal"
+      topRightLabels="Closes modal ->"
+      bottomLeftLabels="Footer Left"
+      bottomRightLabels={['Footer Right', <MaterialSymbol symbol="atr" />]}
+    >
       <div>Counter from parent: {props.counter}</div>
       <div>Local state: {a()}</div>
       <Divider />

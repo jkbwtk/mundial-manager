@@ -4,6 +4,8 @@ export declare const bottomRightLabel: string;
 export declare const closeButton: string;
 export declare const leftLabels: string;
 export declare const modal: string;
+export declare const postDecoratorBottom: string;
+export declare const preDecoratorBottom: string;
 export declare const rightLabels: string;
 export declare const topBar: string;
 export declare const topLabels: string;
