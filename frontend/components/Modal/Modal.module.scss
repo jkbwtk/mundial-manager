@@ -1,5 +1,36 @@
 @use 'app' as *;
 
+%label-container-base {
+  display: grid;
+  grid-template-columns: auto auto;
+
+  position: absolute;
+  max-width: calc(100% - cw(2));
+  width: 100%;
+
+  pointer-events: none;
+}
+
+%label-base {
+  display: flex;
+  max-width: 100%;
+  padding: 0 cw(0);
+  font-weight: bold;
+  color: $backgroundColor;
+
+  border-radius: $borderRadius;
+
+  & ~ & {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  &:not(:only-child):first-child {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+}
+
 .modal {
   position: fixed;
 
@@ -9,4 +40,81 @@
 
   background-color: $modalColor;
   width: max-content;
+
+  padding: ch(2) cw(1) ch(1) cw(1);
+
+  :where(&) {
+    overflow: hidden;
+
+    --widget-border-color: #{$borderColor};
+    --widget-border-style: solid;
+    --widget-border-width: #{$borderSize};
+    --widget-border-radius: #{$borderRadius};
+  }
+
+  .top-labels {
+    @extend %label-container-base;
+    top: 0;
+  }
+
+  .bottom-labels {
+    @extend %label-container-base;
+    bottom: 0;
+  }
+
+  .left-labels {
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  .right-labels {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .top-left-label,
+  .top-right-label,
+  .bottom-left-label,
+  .bottom-right-label {
+    @extend %label-base;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+
+    pointer-events: none;
+    user-select: none;
+
+    height: calc(100% - ch(1) - var(--widget-border-width));
+    width: calc(100% - cw(1) - var(--widget-border-width));
+
+    top: calc(ch(1) / 2 - var(--widget-border-width) / 2);
+    left: calc(cw(1) / 2 - var(--widget-border-width) / 2);
+
+    border-color: var(--widget-border-color);
+    border-style: var(--widget-border-style);
+    border-width: var(--widget-border-width);
+    border-radius: var(--widget-border-radius);
+  }
+}
+
+.top-bar {
+  cursor: move;
+
+  position: absolute;
+
+  top: 0;
+  left: calc(cw(1) / 2 - var(--widget-border-width) / 2);
+
+  height: ch(1);
+  width: calc(100% - cw(1) + var(--widget-border-width));
+
+  background-color: $textColor;
+
+  border-radius: $borderRadius $borderRadius 0 0;
+}
+
+.close-button {
+  pointer-events: initial;
 }

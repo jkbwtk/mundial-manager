@@ -1,26 +1,42 @@
 import {
-  createSignal,
+  children,
+  For,
   type JSX,
   onCleanup,
   onMount,
   splitProps,
 } from 'solid-js';
-import { Widget, type WidgetPropsWithoutComponent } from '#components/Widget';
+import { Button } from '#components/Button';
+import type { WidgetPropsWithoutComponent } from '#components/Widget';
 import { useConsoleUnitPrototype } from '#providers/ConsoleUnitPrototypeProvider';
+import { useModalActions } from '#providers/ModalProvider';
 import { clamp } from '#shared/utils';
 import style from './Modal.module.scss';
 
 export type ModalProps = WidgetPropsWithoutComponent<'div'>;
 
 export const Modal: Component<ModalProps> = (userProps) => {
-  const [pickedProps, props] = splitProps(userProps, ['children']);
+  const [props, modalProps] = splitProps(userProps, [
+    'topLeftLabels',
+    'topRightLabels',
+    'bottomLeftLabels',
+    'bottomRightLabels',
+    'children',
+    'class',
+    'classList',
+  ]);
 
   const [unit] = useConsoleUnitPrototype();
+  const { closeModal } = useModalActions();
 
-  const [isDragging, setIsDragging] = createSignal(false);
+  const topLeftLabels = children(() => props.topLeftLabels);
+  const topRightLabels = children(() => props.topRightLabels);
+
+  const bottomLeftLabels = children(() => props.bottomLeftLabels);
+  const bottomRightLabels = children(() => props.bottomRightLabels);
 
   // biome-ignore lint/style/useConst: yeah
-  let modalRef = document.createElement('div');
+  let modalRef: HTMLDivElement = null!;
 
   let offsetX = 0;
   let offsetY = 0;
@@ -30,16 +46,16 @@ export const Modal: Component<ModalProps> = (userProps) => {
 
   const clampOffset = (): { x: number; y: number } => {
     const box = modalRef.getBoundingClientRect();
-    const parentbox = modalRef.parentElement!.getBoundingClientRect();
+    const parentBox = modalRef.parentElement!.getBoundingClientRect();
 
     const clampedX = clamp(
-      -((parentbox.width - box.width) / 2) + unit.unit.width * 3,
-      (parentbox.width - box.width) / 2 - unit.unit.width * 3,
+      -((parentBox.width - box.width) / 2) + unit.unit.width * 3,
+      (parentBox.width - box.width) / 2 - unit.unit.width * 3,
       offsetX,
     );
     const clampedY = clamp(
-      -((parentbox.height - box.height) / 2) + unit.unit.height * 1,
-      (parentbox.height - box.height) / 2 - unit.unit.height * 1,
+      -((parentBox.height - box.height) / 2) + unit.unit.height * 1,
+      (parentBox.height - box.height) / 2 - unit.unit.height * 1,
       offsetY,
     );
 
@@ -73,15 +89,11 @@ export const Modal: Component<ModalProps> = (userProps) => {
   const onDragEnd = (ev: MouseEvent) => {
     ev.preventDefault();
 
-    document.removeEventListener('mouseup', onDragEnd);
-    document.removeEventListener('mousemove', onDrag);
-
-    setTimeout(() => {
-      setIsDragging(false);
-    });
+    document.removeEventListener('pointerup', onDragEnd);
+    document.removeEventListener('pointermove', onDrag);
   };
 
-  const onDragStart: JSX.DOMAttributes<HTMLDivElement>['onMouseDown'] = (
+  const onDragStart: JSX.DOMAttributes<HTMLDivElement>['onPointerDown'] = (
     ev,
   ) => {
     ev.preventDefault();
@@ -91,10 +103,8 @@ export const Modal: Component<ModalProps> = (userProps) => {
     startX = ev.clientX - clampedX;
     startY = ev.clientY - clampedY;
 
-    setIsDragging(true);
-
-    document.addEventListener('mouseup', onDragEnd);
-    document.addEventListener('mousemove', onDrag);
+    document.addEventListener('pointerup', onDragEnd);
+    document.addEventListener('pointermove', onDrag);
   };
 
   const handleResize = () => {
@@ -111,18 +121,51 @@ export const Modal: Component<ModalProps> = (userProps) => {
   });
 
   return (
-    <Widget
-      {...props}
+    <div
+      {...modalProps}
       ref={modalRef}
-      onMouseDown={onDragStart}
       classList={{
         [props.class ?? '']: true,
         [style.modal]: true,
-
-        ...(props.classList ?? {}),
       }}
     >
-      {pickedProps.children}
-    </Widget>
+      {props.children}
+
+      <div class={style.topBar} onPointerDown={onDragStart} />
+
+      <div class={style.topLabels}>
+        <div class={style.leftLabels}>
+          <For each={topLeftLabels.toArray()}>
+            {(label) => <div class={style.topLeftLabel}>{label}</div>}
+          </For>
+        </div>
+
+        <div class={style.rightLabels}>
+          <For each={topRightLabels.toArray()}>
+            {(label) => <div class={style.topRightLabel}>{label}</div>}
+          </For>
+
+          <div class={style.topRightLabel}>
+            <Button class={style.closeButton} onPointerUp={() => closeModal()}>
+              X
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div class={style.bottomLabels}>
+        <div class={style.leftLabels}>
+          <For each={bottomLeftLabels.toArray()}>
+            {(label) => <div class={style.bottomLeftLabel}>{label}</div>}
+          </For>
+        </div>
+
+        <div class={style.rightLabels}>
+          <For each={bottomRightLabels.toArray()}>
+            {(label) => <div class={style.bottomRightLabel}>{label}</div>}
+          </For>
+        </div>
+      </div>
+    </div>
   );
 };

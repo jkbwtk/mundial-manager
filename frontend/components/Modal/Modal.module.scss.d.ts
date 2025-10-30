@@ -1,1 +1,11 @@
+export declare const bottomLabels: string;
+export declare const bottomLeftLabel: string;
+export declare const bottomRightLabel: string;
+export declare const closeButton: string;
+export declare const leftLabels: string;
 export declare const modal: string;
+export declare const rightLabels: string;
+export declare const topBar: string;
+export declare const topLabels: string;
+export declare const topLeftLabel: string;
+export declare const topRightLabel: string;
