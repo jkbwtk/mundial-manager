@@ -1,5 +1,6 @@
 import {
   createContext,
+  createEffect,
   For,
   Show,
   useContext,
@@ -94,6 +95,14 @@ export const ModalProvider: ParentComponent = (props) => {
       closeTop();
     }
   };
+
+  createEffect(() => {
+    if (state.modals.length > 0) {
+      document.body.classList.add(style.modalActive);
+    } else {
+      document.body.classList.remove(style.modalActive);
+    }
+  });
 
   return (
     <ModalContext.Provider value={[state, { open, closeAll }]}>
