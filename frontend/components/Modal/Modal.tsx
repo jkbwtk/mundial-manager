@@ -6,6 +6,7 @@ import {
   splitProps,
 } from 'solid-js';
 import { Widget, type WidgetPropsWithoutComponent } from '#components/Widget';
+import { useConsoleUnitPrototype } from '#providers/ConsoleUnitPrototypeProvider';
 import { clamp } from '#shared/utils';
 import style from './Modal.module.scss';
 
@@ -13,6 +14,8 @@ export type ModalProps = WidgetPropsWithoutComponent<'div'>;
 
 export const Modal: Component<ModalProps> = (userProps) => {
   const [pickedProps, props] = splitProps(userProps, ['children']);
+
+  const [unit] = useConsoleUnitPrototype();
 
   const [isDragging, setIsDragging] = createSignal(false);
 
@@ -29,16 +32,14 @@ export const Modal: Component<ModalProps> = (userProps) => {
     const box = modalRef.getBoundingClientRect();
     const parentbox = modalRef.parentElement!.getBoundingClientRect();
 
-    console.log(parentbox);
-
     const clampedX = clamp(
-      -((parentbox.width - box.width) / 2) + 30,
-      (parentbox.width - box.width) / 2 - 30,
+      -((parentbox.width - box.width) / 2) + unit.unit.width * 3,
+      (parentbox.width - box.width) / 2 - unit.unit.width * 3,
       offsetX,
     );
     const clampedY = clamp(
-      -((parentbox.height - box.height) / 2) + 30,
-      (parentbox.height - box.height) / 2 - 30,
+      -((parentbox.height - box.height) / 2) + unit.unit.height * 1,
+      (parentbox.height - box.height) / 2 - unit.unit.height * 1,
       offsetY,
     );
 
