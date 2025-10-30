@@ -97,7 +97,12 @@ export const ModalProvider: ParentComponent = (props) => {
 
   return (
     <ModalContext.Provider value={[state, { open, closeAll }]}>
-      {props.children}
+      <div
+        aria-hidden={state.modals.length > 0}
+        aria-disabled={state.modals.length > 0}
+      >
+        {props.children}
+      </div>
 
       <Portal>
         <Show when={state.modals.length > 0}>
