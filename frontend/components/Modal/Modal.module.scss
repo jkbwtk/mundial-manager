@@ -49,6 +49,14 @@
     --widget-border-style: solid;
     --widget-border-width: #{$borderSize};
     --widget-border-radius: #{$borderRadius};
+    --modal-padding-x-units: 2;
+    --modal-padding-y-units: 1;
+  }
+
+  .content-container {
+    max-height: calc(100dvh - ch(3) - var(--modal-padding-y-units) * var(--console-unit-height) * 2);
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 
   .pre-decorator-bottom,
@@ -140,6 +148,11 @@
     border-width: var(--widget-border-width);
     border-radius: var(--widget-border-radius);
   }
+
+  &.narrow {
+    width: calc(100% - cw(2));
+    max-width: calc(100% - cw(2));
+  }
 }
 
 .top-bar {
@@ -156,6 +169,10 @@
   background-color: $textColor;
 
   border-radius: $borderRadius $borderRadius 0 0;
+
+  &.narrow {
+    cursor: default;
+  }
 }
 
 .close-button {

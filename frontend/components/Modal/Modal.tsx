@@ -44,18 +44,33 @@ export const Modal: Component<ModalProps> = (userProps) => {
   let startX = 0;
   let startY = 0;
 
+  let wasNarrow = false;
+
+  const isNarrowScreen = () => unit.windowSize.width <= 60;
+
   const clampOffset = (): { x: number; y: number } => {
     const box = modalRef.getBoundingClientRect();
     const parentBox = modalRef.parentElement!.getBoundingClientRect();
 
+    const style = getComputedStyle(modalRef);
+    const paddingXUnits = Number.parseFloat(
+      style.getPropertyValue('--modal-padding-x-units'),
+    );
+    const paddingYUnits = Number.parseFloat(
+      style.getPropertyValue('--modal-padding-y-units'),
+    );
+
+    const paddingX = paddingXUnits * unit.unit.width;
+    const paddingY = paddingYUnits * unit.unit.height;
+
     const clampedX = clamp(
-      -((parentBox.width - box.width) / 2) + unit.unit.width * 3,
-      (parentBox.width - box.width) / 2 - unit.unit.width * 3,
+      -((parentBox.width - box.width) / 2) + paddingX,
+      (parentBox.width - box.width) / 2 - paddingX,
       offsetX,
     );
     const clampedY = clamp(
-      -((parentBox.height - box.height) / 2) + unit.unit.height * 1,
-      (parentBox.height - box.height) / 2 - unit.unit.height * 1,
+      -((parentBox.height - box.height) / 2) + paddingY,
+      (parentBox.height - box.height) / 2 - paddingY,
       offsetY,
     );
 
@@ -96,6 +111,10 @@ export const Modal: Component<ModalProps> = (userProps) => {
   const onDragStart: JSX.DOMAttributes<HTMLDivElement>['onPointerDown'] = (
     ev,
   ) => {
+    if (isNarrowScreen()) {
+      return;
+    }
+
     ev.preventDefault();
 
     const { x: clampedX, y: clampedY } = clampOffset();
@@ -108,10 +127,23 @@ export const Modal: Component<ModalProps> = (userProps) => {
   };
 
   const handleResize = () => {
-    updateModalPosition();
+    const isNarrowNow = isNarrowScreen();
+
+    if (isNarrowNow && !wasNarrow) {
+      offsetX = 0;
+      offsetY = 0;
+      initializePosition();
+    } else if (!isNarrowNow && wasNarrow) {
+      initializePosition();
+    } else if (!isNarrowNow) {
+      updateModalPosition();
+    }
+
+    wasNarrow = isNarrowNow;
   };
 
   onMount(() => {
+    wasNarrow = isNarrowScreen();
     initializePosition();
     window.addEventListener('resize', handleResize);
   });
@@ -127,11 +159,18 @@ export const Modal: Component<ModalProps> = (userProps) => {
       classList={{
         [props.class ?? '']: true,
         [style.modal]: true,
+        [style.narrow]: isNarrowScreen(),
       }}
     >
-      {props.children}
+      <div class={style.contentContainer}>{props.children}</div>
 
-      <div class={style.topBar} onPointerDown={onDragStart} />
+      <div
+        classList={{
+          [style.topBar]: true,
+          [style.narrow]: isNarrowScreen(),
+        }}
+        onPointerDown={onDragStart}
+      />
 
       <div class={style.topLabels}>
         <div class={style.leftLabels}>
