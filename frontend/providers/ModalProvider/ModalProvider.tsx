@@ -1,15 +1,12 @@
 import {
   createContext,
   createEffect,
-  For,
-  Show,
   useContext,
   type ValidComponent,
 } from 'solid-js';
 import { createStore } from 'solid-js/store';
-import { type DynamicProps, Portal } from 'solid-js/web';
+import type { DynamicProps } from 'solid-js/web';
 import type { ModalEntry } from '#frontend/types';
-import { ModalInstanceProvider } from '#providers/ModalProvider/ModalInstanceProvider';
 import style from './ModalProvider.module.scss';
 
 export interface ModalContextState {
@@ -23,6 +20,7 @@ export interface ModalContextActions {
   ) => {
     close: (returnValue?: unknown) => void;
   };
+  closeTop: () => void;
   closeAll: () => void;
 }
 export type ModalContextValue = [
@@ -39,6 +37,9 @@ const ModalContext = createContext<ModalContextValue>([
   {
     open: () => {
       throw new Error('ModalContext: open() called before provider');
+    },
+    closeTop: () => {
+      throw new Error('ModalContext: closeTop() called before provider');
     },
     closeAll: () => {
       throw new Error('ModalContext: closeAll() called before provider');
@@ -90,12 +91,6 @@ export const ModalProvider: ParentComponent = (props) => {
     }
   };
 
-  const handleBackgroundClick = (e: PointerEvent) => {
-    if (e.target === e.currentTarget) {
-      closeTop();
-    }
-  };
-
   createEffect(() => {
     if (state.modals.length > 0) {
       document.body.classList.add(style.modalActive);
@@ -105,24 +100,13 @@ export const ModalProvider: ParentComponent = (props) => {
   });
 
   return (
-    <ModalContext.Provider value={[state, { open, closeAll }]}>
+    <ModalContext.Provider value={[state, { open, closeTop, closeAll }]}>
       <div
         aria-hidden={state.modals.length > 0}
         aria-disabled={state.modals.length > 0}
       >
         {props.children}
       </div>
-
-      <Portal>
-        <Show when={state.modals.length > 0}>
-          <div class={style.modalContainer} onPointerUp={handleBackgroundClick}>
-            <div class={style.backdrop} />
-            <For each={state.modals}>
-              {(modal) => <ModalInstanceProvider {...modal} />}
-            </For>
-          </div>
-        </Show>
-      </Portal>
     </ModalContext.Provider>
   );
 };
