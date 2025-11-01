@@ -1,4 +1,4 @@
-import { execSync, spawn, spawnSync } from 'node:child_process';
+import { execSync, spawn } from 'node:child_process';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { logger } from '#shared/logger';

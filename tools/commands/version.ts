@@ -5,10 +5,11 @@ import { z } from 'zod';
 import { logger } from '#shared/logger';
 import { runCommandSync } from '#tools/cli-utils';
 
-const BumpTypes = ['major', 'minor', 'patch'] as const;
+const ReleaseTypes = ['major', 'minor', 'patch'] as const;
 
-const BumpTypeSchema = z.enum(BumpTypes);
-type BumpType = z.infer<typeof BumpTypeSchema>;
+const ReleaseType = z.enum(ReleaseTypes);
+
+type ReleaseType = z.infer<typeof ReleaseType>;
 
 const VersionOptionsSchema = z.object({
   dryRun: z.boolean(),
@@ -19,10 +20,10 @@ const VersionOptionsSchema = z.object({
 
 type VersionOptions = z.infer<typeof VersionOptionsSchema>;
 
-function bumpVersion(currentVersion: SemVer, type: BumpType): SemVer {
+function bumpVersion(currentVersion: SemVer, releaseType: ReleaseType): SemVer {
   const copy = semver.parse(currentVersion.version)!;
 
-  return copy.inc(type);
+  return copy.inc(releaseType);
 }
 
 function checkPackageStatus(): void {
@@ -161,14 +162,14 @@ function pushToRemote(currentBranch: string, tagName: string): void {
 }
 
 export function registerVersionCommand(program: Command): void {
-  const typeArgument = new Argument('[type]', 'Version bump type')
-    .choices(BumpTypes)
+  const releaseTypeArgument = new Argument('[release type]', 'Release type')
+    .choices(ReleaseTypes)
     .default('patch');
 
   const versionCmd = program
     .command('version')
     .description('Version update pipeline')
-    .addArgument(typeArgument)
+    .addArgument(releaseTypeArgument)
     .option(
       '-d, --dry-run',
       'Show what would be done without making changes',
@@ -184,18 +185,19 @@ export function registerVersionCommand(program: Command): void {
 
   versionCmd.action((type: string, options: VersionOptions) => {
     try {
-      const bumpType = BumpTypeSchema.parse(type);
+      const releaseType = ReleaseType.parse(type);
       const validatedOptions = VersionOptionsSchema.parse(options);
 
       const currentVersion = getCurrentVersion();
       const currentBranch = getCurrentBranch();
-      const newVersion = bumpVersion(currentVersion, bumpType);
+      const newVersion = bumpVersion(currentVersion, releaseType);
       const tagName = `v${newVersion}`;
       const tagMessage = validatedOptions.message ?? `Release ${newVersion}`;
       const commitMessage = `Bump version to ${newVersion}`;
 
       logger.info(`Current version: ${currentVersion}`);
       logger.info(`Current branch: ${currentBranch}`);
+      logger.info(`Release type: ${releaseType}`);
       logger.info(`New version: ${newVersion}`);
       logger.info(`Tag name: ${tagName}`);
       logger.info(`Tag message: ${tagMessage}`);
