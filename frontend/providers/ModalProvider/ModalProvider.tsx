@@ -104,6 +104,9 @@ export const ModalProvider: ParentComponent = (props) => {
       <div
         aria-hidden={state.modals.length > 0}
         aria-disabled={state.modals.length > 0}
+        classList={{
+          [style.unfocusBackground]: state.modals.length > 0,
+        }}
       >
         {props.children}
       </div>

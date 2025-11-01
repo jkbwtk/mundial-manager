@@ -124,7 +124,7 @@
 
   .bottom-left-label,
   .bottom-right-label {
-    backdrop-filter: blur(1rem);
+    background-color: color-mix(in srgb, var(--widget-border-color) 10%, #101010 90%);
 
     color: $textBrightColor;
     font-weight: bold;
