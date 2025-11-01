@@ -1,6 +1,7 @@
-import { spawn } from 'node:child_process';
+import { execSync, spawn, spawnSync } from 'node:child_process';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { logger } from '#shared/logger';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -13,7 +14,7 @@ export interface RunCommandOptions {
   env?: Record<string, string>;
 }
 
-export function runCommand(
+export function spawnProcess(
   command: string,
   args: string[] = [],
   options: RunCommandOptions = {},
@@ -55,4 +56,22 @@ export function runCommand(
       reject(error);
     });
   });
+}
+
+export function runCommandSync(command: string, cwd?: string): string {
+  try {
+    return execSync(command, {
+      cwd,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    })
+      .toString()
+      .trim();
+  } catch (err) {
+    logger.error('Command execution failed: [%s]', command, {
+      error: err,
+      label: ['cli', 'version', 'command'],
+    });
+    throw new Error(`Command failed: ${command}`);
+  }
 }
