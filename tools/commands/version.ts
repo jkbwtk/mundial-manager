@@ -3,13 +3,8 @@ import { Argument } from 'commander';
 import semver, { type SemVer } from 'semver';
 import { z } from 'zod';
 import { logger } from '#shared/logger';
+import { ReleaseType, ReleaseTypes } from '#shared/types/Changelog';
 import { runCommandSync } from '#tools/cli-utils';
-
-const ReleaseTypes = ['major', 'minor', 'patch'] as const;
-
-const ReleaseType = z.enum(ReleaseTypes);
-
-type ReleaseType = z.infer<typeof ReleaseType>;
 
 const VersionOptionsSchema = z.object({
   dryRun: z.boolean(),
@@ -20,7 +15,10 @@ const VersionOptionsSchema = z.object({
 
 type VersionOptions = z.infer<typeof VersionOptionsSchema>;
 
-function bumpVersion(currentVersion: SemVer, releaseType: ReleaseType): SemVer {
+function getNextVersion(
+  currentVersion: SemVer,
+  releaseType: ReleaseType,
+): SemVer {
   const copy = semver.parse(currentVersion.version)!;
 
   return copy.inc(releaseType);
@@ -190,7 +188,7 @@ export function registerVersionCommand(program: Command): void {
 
       const currentVersion = getCurrentVersion();
       const currentBranch = getCurrentBranch();
-      const newVersion = bumpVersion(currentVersion, releaseType);
+      const newVersion = getNextVersion(currentVersion, releaseType);
       const tagName = `v${newVersion}`;
       const tagMessage = validatedOptions.message ?? `Release ${newVersion}`;
       const commitMessage = `Bump version to ${newVersion}`;

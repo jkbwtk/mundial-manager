@@ -11,6 +11,7 @@ const SheetsTest = lazy(() => import('#pages/SheetsTest/SheetsTest'));
 const WidgetTest = lazy(() => import('#pages/WidgetTest/WidgetTest'));
 const IframeTest = lazy(() => import('#pages/IframeTest/IframeTest'));
 const ModalTest = lazy(() => import('#pages/ModalTest/ModalTest'));
+const ChangelogTest = lazy(() => import('#pages/ChangelogTest/ChangelogTest'));
 
 export const routes: RouteDefinition[] = [
   {
@@ -60,6 +61,11 @@ export const routes: RouteDefinition[] = [
         path: '/modal-test',
         info: { title: 'Mundial Manager - Modal Test' },
         component: ModalTest,
+      },
+      {
+        path: '/changelog-test',
+        info: { title: 'Mundial Manager - Changelog Test' },
+        component: ChangelogTest,
       },
     ],
   },

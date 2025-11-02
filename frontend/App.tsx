@@ -6,6 +6,7 @@ import { isServer, Show, Suspense } from 'solid-js/web';
 import { AcrylicBackground } from '#components/AcrylicBackground';
 import { DevGrid } from '#components/DevGrid';
 import { isDev } from '#flib/utils';
+import { ChangelogProvider } from '#providers/ChangelogProvider';
 import { ConsoleUnitPrototypeProvider } from '#providers/ConsoleUnitPrototypeProvider';
 import { ModalDispatcher, ModalProvider } from '#providers/ModalProvider';
 import { SheetsProvider } from '#providers/SheetsProvider';
@@ -19,17 +20,19 @@ const App: Component<{ url?: string }> = (props) => {
         <TRPCProvider>
           <SheetsProvider>
             <ModalProvider>
-              <ModalDispatcher>
-                {/* Pre rendering fails without <Suspense>, dev server works fine without it */}
-                <Suspense>
-                  <AcrylicBackground />
-                  <Show when={isDev()}>
-                    <DevGrid />
-                  </Show>
+              <ChangelogProvider>
+                <ModalDispatcher>
+                  {/* Pre rendering fails without <Suspense>, dev server works fine without it */}
+                  <Suspense>
+                    <AcrylicBackground />
+                    <Show when={isDev()}>
+                      <DevGrid />
+                    </Show>
 
-                  <Router url={isServer ? props.url : ''}>{routes}</Router>
-                </Suspense>
-              </ModalDispatcher>
+                    <Router url={isServer ? props.url : ''}>{routes}</Router>
+                  </Suspense>
+                </ModalDispatcher>
+              </ChangelogProvider>
             </ModalProvider>
           </SheetsProvider>
         </TRPCProvider>

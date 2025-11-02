@@ -2,5 +2,3 @@
 // This file reexports all declarations from this directory
 
 export * from './ChangelogProvider';
-export * from './ModalProvider';
-export * from './SheetsProvider';

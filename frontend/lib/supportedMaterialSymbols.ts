@@ -15,6 +15,11 @@ export const SupportedMaterialSymbol = [
   'arrow_upward',
   'arrow_downward',
   'atr',
+  'stars_2',
+  'trending_up',
+  'deblur',
+  'delete',
+  'handyman',
 ] as const;
 
 export type SupportedMaterialSymbol = (typeof SupportedMaterialSymbol)[number];

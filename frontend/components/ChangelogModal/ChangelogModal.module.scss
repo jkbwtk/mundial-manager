@@ -1,0 +1,130 @@
+@use 'app' as *;
+
+$transitionTime: 0.1s;
+
+.changelog-modal {
+  --modal-height: #{ch(40)};
+  --modal-width: #{cw(80)};
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: ch(1);
+}
+
+.no-changelog {
+  text-align: center;
+}
+
+.version {
+  display: flex;
+  flex-direction: column;
+}
+
+.version-header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+
+  column-gap: cw(1);
+}
+
+.release-type-label {
+  text-transform: uppercase;
+  color: $textBrightColor;
+
+  border-radius: $borderRadius;
+  padding: 0 cw(1);
+
+  &.patch {
+    background-color: $red;
+  }
+
+  &.minor {
+    background-color: $yellow;
+    color: $backgroundColor;
+  }
+
+  &.major {
+    background-color: $green;
+  }
+}
+
+.version-name {
+  color: $textBrightColor;
+}
+
+.version-date {
+  color: $gray;
+  margin-left: auto;
+}
+
+.changes {
+  padding: 0;
+  margin: 0;
+  padding-top: ch(1);
+}
+
+.change {
+  display: grid;
+  grid-template-columns: auto 1fr;
+
+  column-gap: cw(1);
+
+  padding: 0 cw(1);
+}
+
+.change-type {
+  &.feature {
+    color: $green;
+  }
+
+  &.improvement {
+    color: $blue;
+  }
+
+  &.bugfix {
+    color: $yellow;
+  }
+
+  &.removal {
+    color: $red;
+  }
+}
+
+.change-text {
+  color: $grayBright;
+}
+
+.commits {
+  margin-top: ch(1);
+}
+
+.commits-summary {
+  cursor: pointer;
+  transition: color $transitionTime;
+
+  &:hover {
+    color: $textBrightColor;
+  }
+}
+
+.commits-list {
+  display: flex;
+  flex-direction: column;
+  margin-top: ch(1);
+}
+
+.commit {
+  display: flex;
+  gap: cw(1);
+}
+
+.commit-hash {
+  color: $primaryColor;
+  flex-shrink: 0;
+}
+
+.commit-message {
+  color: $textColor;
+}

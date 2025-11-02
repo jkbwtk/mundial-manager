@@ -1,0 +1,6 @@
+@use 'app' as *;
+
+.container {
+  width: calc(100dvw - cw(2));
+  height: calc(100dvh - ch(2));
+}
