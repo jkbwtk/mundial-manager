@@ -1,4 +1,4 @@
-import { mergeProps } from 'solid-js';
+import { type JSX, mergeProps } from 'solid-js';
 import type { SupportedMaterialSymbol } from '#flib/supportedMaterialSymbols';
 import { quickSwitch, type RequiredDefaults } from '#shared/utils';
 
@@ -21,6 +21,7 @@ export type MaterialSymbolProps = {
   highlightColor?: SymbolHighlightColorType;
   filled?: boolean;
   class?: string;
+  classList?: JSX.CustomAttributes<HTMLElement>['classList'];
   active?: boolean;
 };
 
@@ -30,6 +31,7 @@ export const defaultProps: RequiredDefaults<MaterialSymbolProps> = {
   highlightColor: 'none',
   filled: false,
   class: '',
+  classList: {},
   active: false,
 };
 
@@ -76,6 +78,8 @@ export const MaterialSymbol: Component<MaterialSymbolProps> = (userProps) => {
         [style.filled]: props.filled,
         [style.active]: props.active,
         [props.class]: true,
+
+        ...props.classList,
       }}
     >
       {props.symbol}
