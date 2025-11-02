@@ -57,8 +57,8 @@
   }
 
   .content-container {
-    max-height: calc(100dvh - ch(3) - var(--modal-padding-y-units) * var(--console-unit-height) * 2);
-    max-width: calc(100dvw - cw(2) - var(--modal-padding-x-units) * var(--console-unit-width) * 2);
+    max-height: round(down, calc(100dvh - ch(3) - var(--modal-padding-y-units) * var(--console-unit-height) * 2), ch(1));
+    max-width: round(down, calc(100dvw - cw(2) - var(--modal-padding-x-units) * var(--console-unit-width) * 2), cw(1));
     overflow-y: auto;
     overflow-x: hidden;
 
@@ -158,8 +158,8 @@
   }
 
   &.narrow {
-    width: calc(100% - cw(2));
-    max-width: calc(100% - cw(2));
+    --modal-width: 100dvw;
+    --modal-padding-x-units: 1;
   }
 }
 
