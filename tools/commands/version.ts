@@ -1,10 +1,14 @@
 import type { Command } from 'commander';
 import { Argument } from 'commander';
-import semver, { type SemVer } from 'semver';
+import type { SemVer } from 'semver';
 import { z } from 'zod';
 import { logger } from '#shared/logger';
 import { ReleaseType, ReleaseTypes } from '#shared/types/Changelog';
-import { runCommandSync } from '#tools/cli-utils';
+import {
+  getCurrentVersion,
+  getNextVersion,
+  runCommandSync,
+} from '#tools/cli-utils';
 
 const VersionOptionsSchema = z.object({
   dryRun: z.boolean(),
@@ -14,15 +18,6 @@ const VersionOptionsSchema = z.object({
 });
 
 type VersionOptions = z.infer<typeof VersionOptionsSchema>;
-
-function getNextVersion(
-  currentVersion: SemVer,
-  releaseType: ReleaseType,
-): SemVer {
-  const copy = semver.parse(currentVersion.version)!;
-
-  return copy.inc(releaseType);
-}
 
 function checkPackageStatus(): void {
   try {
@@ -71,27 +66,6 @@ function checkIfTagExists(tag: string): void {
 
 function getCurrentBranch(): string {
   return runCommandSync('git branch --show-current').trim();
-}
-
-function getCurrentVersion(): SemVer {
-  const versionStr = runCommandSync('npm pkg get version')
-    .replace(/['"]/g, '')
-    .trim();
-
-  const version = semver.parse(versionStr);
-
-  if (!version) {
-    logger.error(
-      'Failed to parse current version from package.json: [%s]',
-      versionStr,
-      {
-        label: ['cli', 'version', 'semver'],
-      },
-    );
-    process.exit(1);
-  }
-
-  return version;
 }
 
 function revertChanges(

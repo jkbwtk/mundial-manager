@@ -1,7 +1,9 @@
 import { execSync, spawn } from 'node:child_process';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import semver, { type SemVer } from 'semver';
 import { logger } from '#shared/logger';
+import type { ReleaseType } from '#shared/types/Changelog';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -74,4 +76,34 @@ export function runCommandSync(command: string, cwd?: string): string {
     });
     throw new Error(`Command failed: ${command}`);
   }
+}
+
+export function getCurrentVersion(): SemVer {
+  const versionStr = runCommandSync('npm pkg get version')
+    .replace(/['"]/g, '')
+    .trim();
+
+  const version = semver.parse(versionStr);
+
+  if (!version) {
+    logger.error(
+      'Failed to parse current version from package.json: [%s]',
+      versionStr,
+      {
+        label: ['cli-utils', 'getCurrentVersion'],
+      },
+    );
+    process.exit(1);
+  }
+
+  return version;
+}
+
+export function getNextVersion(
+  currentVersion: SemVer,
+  releaseType: ReleaseType,
+): SemVer {
+  const copy = semver.parse(currentVersion.version)!;
+
+  return copy.inc(releaseType);
 }
