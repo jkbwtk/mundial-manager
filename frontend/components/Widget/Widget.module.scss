@@ -129,10 +129,11 @@
 }
 
 .divider {
+  position: relative;
+
   :where(&) {
     --divider-border-color: #{$borderColor};
-
-    background-color: var(--divider-border-color);
+    --divider-border-style: solid;
   }
 
   &.color-start {
@@ -148,19 +149,18 @@
   }
 
   &.horizontal {
-    height: var(--widget-border-width, $borderSize);
+    border-top: var(--divider-border-style) var(--divider-border-color) var(--widget-border-width, $borderSize);
 
     margin-top: calc((ch(1) - var(--widget-border-width, $borderSize)) / 2);
     margin-bottom: calc((ch(1) - var(--widget-border-width, $borderSize)) / 2);
 
     &.connectStart {
-      position: relative;
-
       &::before {
         content: '';
 
         position: absolute;
 
+        top: calc(0px - var(--widget-border-width, $borderSize));
         left: calc(cw(-1) / 2 + var(--widget-border-width, $borderSize) / 2);
 
         background-color: var(--divider-border-color);
@@ -171,13 +171,12 @@
     }
 
     &.connectEnd {
-      position: relative;
-
       &::after {
         content: '';
 
         position: absolute;
 
+        top: calc(0px - var(--widget-border-width, $borderSize));
         right: calc(cw(-1) / 2 + var(--widget-border-width, $borderSize) / 2);
 
         background-color: var(--divider-border-color);
@@ -189,20 +188,19 @@
   }
 
   &.vertical {
-    width: var(--widget-border-width, $borderSize);
+    border-left: var(--divider-border-style) var(--divider-border-color) var(--widget-border-width, $borderSize);
 
     margin-left: calc((cw(1) - var(--widget-border-width, $borderSize)) / 2);
     margin-right: calc((cw(1) - var(--widget-border-width, $borderSize)) / 2);
 
     &.connectStart {
-      position: relative;
-
       &::before {
         content: '';
 
         position: absolute;
 
         top: calc(ch(-1) / 2 + var(--widget-border-width, $borderSize) / 2);
+        left: calc(0px - var(--widget-border-width, $borderSize));
 
         background-color: var(--divider-border-color);
 
@@ -212,13 +210,12 @@
     }
 
     &.connectEnd {
-      position: relative;
-
       &::after {
         content: '';
 
         position: absolute;
 
+        left: calc(0px - var(--widget-border-width, $borderSize));
         bottom: calc(ch(-1) / 2 + var(--widget-border-width, $borderSize) / 2);
 
         background-color: var(--divider-border-color);
