@@ -1,0 +1,9 @@
+@use 'app' as *;
+
+.link {
+  text-decoration: dashed underline;
+
+  &:hover {
+    color: $textBrightColor;
+  }
+}

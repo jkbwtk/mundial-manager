@@ -23,6 +23,8 @@ export * from './MatchPaginatorWidget';
 export * from './MatchStats';
 export * from './MaterialSymbol';
 export * from './Modal';
+export * from './PlayerLink';
+export * from './PlayerProfileModal';
 export * from './ProgresBar';
 export * from './RatingCharts';
 export * from './Table';

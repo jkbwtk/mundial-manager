@@ -1,0 +1,26 @@
+@use 'app' as *;
+
+.modal {
+  --modal-width: #{cw(40)};
+}
+
+.container {
+  display: grid;
+  grid-template-columns: auto auto;
+
+  align-items: end;
+
+  column-gap: cw(1);
+
+  span {
+    text-align: right;
+  }
+}
+
+.not-found {
+  text-align: center;
+}
+
+.divider {
+  --divider-border-style: dashed;
+}

@@ -12,6 +12,7 @@ export * from './IframeTest';
 export * from './InputTest';
 export * from './ModalTest';
 export * from './PageNotFound';
+export * from './PlayerProfileTest';
 export * from './RouteMap';
 export * from './SheetsTest';
 export * from './WidgetTest';
