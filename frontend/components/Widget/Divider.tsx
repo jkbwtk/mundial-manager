@@ -3,6 +3,7 @@ import type { RequiredDefaults } from '#shared/utils';
 import style from './Widget.module.scss';
 
 export type DividerProps = {
+  style?: JSX.CSSProperties;
   class?: string;
   classList?: JSX.CustomAttributes<HTMLElement>['classList'];
   direction?: 'horizontal' | 'vertical';
@@ -18,6 +19,7 @@ export type DividerProps = {
 };
 
 const defaultProps: RequiredDefaults<DividerProps> = {
+  style: {},
   direction: 'horizontal',
   class: '',
   classList: {},
@@ -30,6 +32,7 @@ export const Divider: Component<DividerProps> = (unmergedProps) => {
 
   return (
     <div
+      style={props.style}
       classList={{
         [style.divider]: true,
         [props.class]: true,
