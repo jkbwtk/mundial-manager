@@ -1,6 +1,40 @@
 {
   "versions": [
     {
+      "version": "0.1.1",
+      "releaseType": "patch",
+      "date": "2025-11-03",
+      "name": "Changelog modal tweaks",
+      "changes": [
+        {
+          "type": "improvement",
+          "change": "Removed unnecessary close button from changelog modal"
+        },
+        {
+          "type": "improvement",
+          "change": "Tweaked border style of version dividers"
+        }
+      ],
+      "commits": [
+        {
+          "hash": "e863a7a4ac",
+          "message": "Change divider border style in ChangelogModal"
+        },
+        {
+          "hash": "1a1f953e1c",
+          "message": "Add ability to specify border styles in Divider"
+        },
+        {
+          "hash": "2d3e9c2f44",
+          "message": "Add support for style prop to Divider"
+        },
+        {
+          "hash": "3c7b40efa8",
+          "message": "Remove close button from ChangelogModal"
+        }
+      ]
+    },
+    {
       "version": "0.1.0",
       "releaseType": "minor",
       "date": "2025-11-03",
