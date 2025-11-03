@@ -128,3 +128,7 @@ $transitionTime: 0.1s;
 .commit-message {
   color: $textColor;
 }
+
+.changelog-divider {
+  --divider-border-style: dashed;
+}

@@ -1,5 +1,6 @@
 export declare const bugfix: string;
 export declare const change: string;
+export declare const changelogDivider: string;
 export declare const changelogModal: string;
 export declare const changes: string;
 export declare const changeText: string;

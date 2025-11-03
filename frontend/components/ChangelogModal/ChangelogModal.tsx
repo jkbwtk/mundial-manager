@@ -49,7 +49,7 @@ export const ChangelogModal: Component = () => {
                 {' '}
                 <VersionChangelog version={version} />
                 <Show when={version !== state.changelog.versions.at(-1)}>
-                  <Divider />
+                  <Divider class={style.changelogDivider} />
                   <Break />
                 </Show>
               </>
