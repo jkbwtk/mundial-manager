@@ -1,8 +1,7 @@
-import { readFileSync, writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { writeFileSync } from 'node:fs';
 import type { Command } from 'commander';
 import { Argument } from 'commander';
-import semver, { type SemVer } from 'semver';
+import type { SemVer } from 'semver';
 import { z } from 'zod';
 import { logger } from '#shared/logger';
 import {
@@ -14,16 +13,13 @@ import {
   Version,
 } from '#shared/types/Changelog';
 import {
+  CHANGELOG_PATH,
   getCurrentVersion,
+  getLatestChangelogEntry,
   getNextVersion,
-  projectRoot,
+  loadChangelog,
   runCommandSync,
 } from '#tools/cli-utils';
-
-const CHANGELOG_PATH = resolve(
-  projectRoot,
-  'frontend/assets/metadata/changelog.json',
-);
 
 const ChangelogOptionsSchema = z.object({
   name: z.string().optional(),
@@ -32,19 +28,6 @@ const ChangelogOptionsSchema = z.object({
 });
 
 type ChangelogOptions = z.infer<typeof ChangelogOptionsSchema>;
-
-function loadChangelog(): Changelog {
-  try {
-    const content = readFileSync(CHANGELOG_PATH, 'utf-8');
-    return Changelog.decode(JSON.parse(content));
-  } catch (err) {
-    logger.error('Failed to load changelog from [%s]', CHANGELOG_PATH, {
-      error: err,
-      label: ['cli', 'changelog', 'loadChangelog'],
-    });
-    process.exit(1);
-  }
-}
 
 function saveChangelog(changelog: Changelog, outputPath: string): void {
   try {
@@ -57,44 +40,6 @@ function saveChangelog(changelog: Changelog, outputPath: string): void {
       label: ['cli', 'changelog', 'saveChangelog'],
     });
     process.exit(1);
-  }
-}
-
-function getLatestChangelogEntry(
-  version: SemVer,
-  changelog: Changelog,
-): Version | undefined {
-  const latestEntry = changelog.versions[0];
-
-  if (latestEntry === undefined) return;
-
-  const latestVersion = semver.parse(latestEntry.version);
-
-  if (latestVersion === null) {
-    logger.error(
-      'Failed to parse latest changelog version: [%s]',
-      latestEntry.version,
-      {
-        label: ['cli', 'changelog', 'getLatestEntry'],
-      },
-    );
-    process.exit(1);
-  }
-
-  if (semver.gt(latestVersion, version)) {
-    logger.error(
-      'Latest changelog version [%s] is greater than target version [%s]',
-      latestVersion,
-      version,
-      {
-        label: ['cli', 'changelog', 'getLatestEntry'],
-      },
-    );
-    process.exit(1);
-  }
-
-  if (semver.eq(latestVersion, version)) {
-    return latestEntry;
   }
 }
 

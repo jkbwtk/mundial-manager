@@ -5,8 +5,11 @@ import { z } from 'zod';
 import { logger } from '#shared/logger';
 import { ReleaseType, ReleaseTypes } from '#shared/types/Changelog';
 import {
+  CHANGELOG_PATH,
   getCurrentVersion,
+  getLatestChangelogEntry,
   getNextVersion,
+  loadChangelog,
   runCommandSync,
 } from '#tools/cli-utils';
 
@@ -15,6 +18,7 @@ const VersionOptionsSchema = z.object({
   push: z.boolean(),
   message: z.string().optional(),
   sign: z.boolean(),
+  generateChangelog: z.boolean(),
 });
 
 type VersionOptions = z.infer<typeof VersionOptionsSchema>;
@@ -64,6 +68,56 @@ function checkIfTagExists(tag: string): void {
   }
 }
 
+function checkChangelogStatus(
+  options: VersionOptions,
+  newVersion: SemVer,
+  releaseType: ReleaseType,
+  tagMessage: string,
+): string {
+  const existingChangelogEntry = getLatestChangelogEntry(
+    newVersion,
+    loadChangelog(),
+  );
+
+  if (options.generateChangelog) {
+    if (existingChangelogEntry) {
+      logger.warn('Changelog entry for version %s already exists.', newVersion);
+    } else {
+      logger.info('Generating changelog entry for version %s...', newVersion);
+
+      const params = [
+        releaseType,
+        options.dryRun ? '--dry-run' : '',
+        `--name "${tagMessage}"`,
+      ];
+
+      runCommandSync(`pnpm cli changelog ${params.join(' ')}`.trim());
+
+      logger.info('Changelog entry generated successfully.');
+    }
+  } else {
+    if (existingChangelogEntry) {
+      logger.info(
+        'Found existing changelog entry for version %s. Version name will be used as tag message.',
+        newVersion,
+      );
+
+      return existingChangelogEntry.name;
+    }
+
+    logger.error(
+      'No changelog entry found for version %s. Please generate one before proceeding or use --generate-changelog flag.',
+      newVersion,
+      {
+        label: ['cli', 'version', 'checkChangelogStatus'],
+      },
+    );
+    process.exit(1);
+  }
+
+  return tagMessage;
+}
+
 function getCurrentBranch(): string {
   return runCommandSync('git branch --show-current').trim();
 }
@@ -90,8 +144,8 @@ function revertChanges(
     );
   }
 
-  logger.debug('Unstaging package.json changes...');
-  runCommandSync('git reset HEAD package.json');
+  logger.debug('Unstaging package.json and changelog.json changes...');
+  runCommandSync(`git reset HEAD package.json ${CHANGELOG_PATH}`);
 
   logger.debug('Reverting package.json version change...');
   runCommandSync(`npm pkg set version=${currentVersion}`);
@@ -109,8 +163,8 @@ function performVersionBump(
   logger.debug('Updating package.json version...');
   runCommandSync(`npm pkg set version=${newVersion}`);
 
-  logger.debug('Staging package.json...');
-  runCommandSync('git add package.json');
+  logger.debug('Staging package.json, changelog.json...');
+  runCommandSync(`git add package.json ${CHANGELOG_PATH}`);
 
   logger.debug(`Committing changes: "${commitMessage}"...`);
   runCommandSync(
@@ -153,7 +207,12 @@ export function registerVersionCommand(program: Command): void {
       'Custom tag annotation message (default: "Release X.X.X")',
       undefined,
     )
-    .option('--no-sign', 'Sign the commit and tag');
+    .option('--no-sign', 'Sign the commit and tag')
+    .option(
+      '-c, --generate-changelog',
+      'Generate changelog entry for the new version',
+      false,
+    );
 
   versionCmd.action((type: string, options: VersionOptions) => {
     try {
@@ -164,7 +223,7 @@ export function registerVersionCommand(program: Command): void {
       const currentBranch = getCurrentBranch();
       const newVersion = getNextVersion(currentVersion, releaseType);
       const tagName = `v${newVersion}`;
-      const tagMessage = validatedOptions.message ?? `Release ${newVersion}`;
+      let tagMessage = validatedOptions.message ?? `Release ${newVersion}`;
       const commitMessage = `Bump version to ${newVersion}`;
 
       logger.info(`Current version: ${currentVersion}`);
@@ -180,6 +239,14 @@ export function registerVersionCommand(program: Command): void {
 
       logger.debug('Checking if tag already exists...');
       checkIfTagExists(tagName);
+
+      logger.debug('Checking changelog status...');
+      tagMessage = checkChangelogStatus(
+        validatedOptions,
+        newVersion,
+        releaseType,
+        tagMessage,
+      );
 
       logger.info('Performing version bump...');
       try {
