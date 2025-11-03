@@ -1,3 +1,77 @@
 {
-  "versions": []
+  "versions": [
+    {
+      "version": "0.1.0",
+      "releaseType": "minor",
+      "date": "2025-11-03",
+      "name": "Changes, Changes, Changes",
+      "changes": [
+        {
+          "type": "feature",
+          "change": "Implemented changelog tracking and presentation system",
+          "description": "Added changelog functionality with modal UI for displaying version history. Includes automatic changelog generation integrated with version bumping."
+        },
+        {
+          "type": "improvement",
+          "change": "Enhanced modal component with configurable sizing options",
+          "description": "Modals now support custom size specification with proper width handling and automatic rounding to the nearest unit. Improved responsiveness for narrow viewports."
+        },
+        {
+          "type": "improvement",
+          "change": "Improved scrolling performance by removing backdrop filters",
+          "description": "Replaced backdrop filters with equivalent effects to improve rendering performance."
+        },
+        {
+          "type": "improvement",
+          "change": "Made bottom modal labels interactive by default"
+        }
+      ],
+      "commits": [
+        {
+          "hash": "5eefa1d51d",
+          "message": "Fix test page sizing"
+        },
+        {
+          "hash": "1280a616aa",
+          "message": "Integrate changelog generation with version command"
+        },
+        {
+          "hash": "5dccf67dfe",
+          "message": "Create changelog generation command"
+        },
+        {
+          "hash": "8f4f633e60",
+          "message": "Implement changelog tracking and presentation"
+        },
+        {
+          "hash": "5ef109c462",
+          "message": "Add rounding to modal size, handle narrow width properly"
+        },
+        {
+          "hash": "e5fd91785c",
+          "message": "Add classList support to MaterialSymbol"
+        },
+        {
+          "hash": "0edb94215a",
+          "message": "Add option to specify modal size, handle width properly"
+        },
+        {
+          "hash": "2acb328101",
+          "message": "Improve scrolling performance by getting rid of backdrop filters"
+        },
+        {
+          "hash": "13c4368656",
+          "message": "Make bottom modal labels interactive by default"
+        },
+        {
+          "hash": "12ebf250ca",
+          "message": "Split ModalProvider into provider and dispatcher"
+        },
+        {
+          "hash": "e5ee097cac",
+          "message": "Rename BumpType to ReleaseType"
+        }
+      ]
+    }
+  ]
 }
