@@ -4,6 +4,7 @@ import {
   usePaginatedStat,
 } from '#components/MatchPaginatorWidget';
 import { MaterialSymbol } from '#components/MaterialSymbol';
+import { PlayerLink } from '#components/PlayerLink';
 import { Divider } from '#components/Widget';
 import { getTeamColor } from '#flib/sheetUtils';
 import style from './Leaderboard.module.scss';
@@ -50,7 +51,7 @@ export const EloLeaderboardBase = () => {
                   <span style={{ color: getTeamColor(player) }}>
                     <MaterialSymbol symbol="atr" />
                   </span>
-                  {player}
+                  <PlayerLink name={player} />
                 </td>
                 <td class={style.minWidth}>{elo.rating.toFixed(2)}</td>
 
@@ -93,7 +94,7 @@ export const EloLeaderboardBase = () => {
                   <span style={{ color: getTeamColor(player) }}>
                     <MaterialSymbol symbol="atr" />
                   </span>
-                  {player}
+                  <PlayerLink name={player} />
                 </td>
                 <td class={style.minWidth}>{elo.rating.toFixed(2)}</td>
 
@@ -136,7 +137,7 @@ export const EloLeaderboardBase = () => {
                   <span style={{ color: getTeamColor(player) }}>
                     <MaterialSymbol symbol="atr" />
                   </span>
-                  {player}
+                  <PlayerLink name={player} />
                 </td>
                 <td class={style.minWidth}>{elo.rating.toFixed(2)}</td>
 

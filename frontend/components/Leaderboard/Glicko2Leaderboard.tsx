@@ -4,6 +4,7 @@ import {
   usePaginatedStat,
 } from '#components/MatchPaginatorWidget';
 import { MaterialSymbol } from '#components/MaterialSymbol';
+import { PlayerLink } from '#components/PlayerLink';
 import { Divider } from '#components/Widget';
 import { getGlicko2Confidence, getTeamColor } from '#flib/sheetUtils';
 import style from './Leaderboard.module.scss';
@@ -50,7 +51,7 @@ export const Glicko2LeaderboardBase = () => {
                   <span style={{ color: getTeamColor(player) }}>
                     <MaterialSymbol symbol="atr" />
                   </span>
-                  {player}
+                  <PlayerLink name={player} />
                 </td>
                 <td class={style.minWidth}>{rating.rating.toFixed(2)}</td>
                 <td class={style.minWidth}>
@@ -96,7 +97,7 @@ export const Glicko2LeaderboardBase = () => {
                   <span style={{ color: getTeamColor(player) }}>
                     <MaterialSymbol symbol="atr" />
                   </span>
-                  {player}
+                  <PlayerLink name={player} />
                 </td>
                 <td class={style.minWidth}>{rating.rating.toFixed(2)}</td>
                 <td class={style.minWidth}>
@@ -142,7 +143,7 @@ export const Glicko2LeaderboardBase = () => {
                   <span style={{ color: getTeamColor(player) }}>
                     <MaterialSymbol symbol="atr" />
                   </span>
-                  {player}
+                  <PlayerLink name={player} />
                 </td>
                 <td class={style.minWidth}>{rating.rating.toFixed(2)}</td>
                 <td class={style.minWidth}>
