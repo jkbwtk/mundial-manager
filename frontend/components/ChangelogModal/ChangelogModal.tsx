@@ -36,15 +36,6 @@ export const ChangelogModal: Component = () => {
           Disable
         </Button>,
       ]}
-      bottomRightLabels={
-        <Button
-          onPointerUp={() => {
-            closeModal();
-          }}
-        >
-          Close
-        </Button>
-      }
       class={style.changelogModal}
     >
       <div class={style.content}>
