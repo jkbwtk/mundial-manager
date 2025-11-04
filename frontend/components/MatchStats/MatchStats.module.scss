@@ -27,6 +27,8 @@
   width: cw(10);
   height: ch(1);
 
+  transition: background-color 0.2s ease-in-out;
+
   mask: url('/frontend/assets/images/braille.svg') 0 0 / cw(1) ch(1);
 }
 
