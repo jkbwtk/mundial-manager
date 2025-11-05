@@ -79,6 +79,28 @@ export const InputTest: Component = () => {
         <Input placeholder="This spans the full width of the container..." />
         <Divider />
         File input: <Input type="file" accept=".txt,.json,.csv" />
+        <Divider />
+        Radio input:{' '}
+        <div>
+          <Input type="radio" name="exampleRadio" value="option1">
+            Option 1
+          </Input>
+        </div>
+        <div>
+          <Input type="radio" name="exampleRadio" value="option2">
+            Option 2
+          </Input>
+        </div>
+        <div>
+          <Input type="radio" name="exampleRadio" value="option3" disabled>
+            Option 3 (Disabled)
+          </Input>
+        </div>
+        <div>
+          <Input type="radio" name="exampleRadio" value="option3" checked>
+            Option 4
+          </Input>
+        </div>
       </div>
     </Widget>
   );

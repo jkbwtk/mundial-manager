@@ -1,1 +1,49 @@
 @use 'app' as *;
+
+.input {
+  cursor: pointer;
+
+  &:has(input[type='radio']) {
+    &:hover {
+      color: $textBrightColor;
+    }
+  }
+
+  &:has(input[type='radio']:disabled) {
+    cursor: not-allowed;
+    color: $textDimColor;
+  }
+
+  input[type='radio'] {
+    margin: 0;
+
+    appearance: none;
+    width: cw(3);
+
+    &:not(:disabled) {
+      cursor: pointer;
+    }
+
+    &::before {
+      content: '( )';
+      color: $textColor;
+
+      font-family: $monoFontFamily;
+    }
+
+    &:checked::before {
+      content: '(*)';
+      color: $textBrightColor;
+    }
+
+    &:disabled::before {
+      content: '| |';
+      color: $textDimColor;
+    }
+
+    &:disabled:checked::before {
+      content: '|*|';
+      color: $textDimColor;
+    }
+  }
+}

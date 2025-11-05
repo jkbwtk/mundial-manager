@@ -1,4 +1,4 @@
-import { type JSX, mergeProps } from 'solid-js';
+import { createUniqueId, type JSX, mergeProps, splitProps } from 'solid-js';
 import type { RequiredDefaults } from '#shared/utils';
 import style from './Input.module.scss';
 
@@ -11,16 +11,28 @@ export type InputProps = JSX.InputHTMLAttributes<HTMLInputElement> &
 export const inputDefaultProps: RequiredDefaults<CustomInputProps> = {};
 
 export const Input: Component<InputProps> = (userProps) => {
-  const props = mergeProps(inputDefaultProps, userProps);
+  const [labelProps, restProps] = splitProps(userProps, [
+    'id',
+    'class',
+    'classList',
+    'children',
+  ]);
+
+  const props = mergeProps(inputDefaultProps, restProps);
+  const id = createUniqueId();
 
   return (
-    <div
+    <label
+      for={labelProps.id ?? id}
       classList={{
-        [props.class ?? '']: !!props.class,
-        ...(props.classList ?? {}),
+        [style.input]: true,
+        [labelProps.class ?? '']: true,
+        ...(labelProps.classList ?? {}),
       }}
     >
-      <input {...props} class={style.input} classList={undefined} />
-    </div>
+      <input {...props} id={labelProps.id ?? id} />
+
+      {labelProps.children}
+    </label>
   );
 };
