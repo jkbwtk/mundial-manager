@@ -5,6 +5,4 @@ export declare const divider: string;
 export declare const modal: string;
 export declare const negative: string;
 export declare const notFound: string;
-export declare const pickerForm: string;
-export declare const pickerModal: string;
 export declare const positive: string;

@@ -1,0 +1,12 @@
+@use 'app' as *;
+
+.modal {
+  --modal-width: #{cw(20)};
+
+  .picker-form {
+    padding: 0 cw(1);
+
+    display: flex;
+    flex-direction: column;
+  }
+}

@@ -1,77 +1,21 @@
 import {
   createMemo,
   createSignal,
-  createUniqueId,
-  For,
   Match,
   Show,
   Switch,
 } from 'solid-js';
-import { Break } from '#components/Break';
 import { Button } from '#components/Button';
-import { Input } from '#components/Input';
 import { Modal } from '#components/Modal';
 import { Divider } from '#components/Widget';
-import { useModal, useModalActions } from '#providers/ModalProvider';
+import { useModal } from '#providers/ModalProvider';
 import { useSheets } from '#providers/SheetsProvider';
 import style from './PlayerProfileModal.module.scss';
+import { PlayerPickerModal } from '#components/PlayerPickerModal';
 
 export interface PlayerProfileModalProps {
   name: string;
 }
-
-export interface PlayerPickerProps {
-  disabledPlayer?: string;
-}
-
-const PlayerPicker: Component<PlayerPickerProps> = (props) => {
-  const [, { latest }] = useSheets();
-  const { closeModal } = useModalActions();
-
-  const formId = createUniqueId();
-
-  const handleSubmit = (ev: SubmitEvent) => {
-    ev.preventDefault();
-
-    if (ev.target instanceof HTMLFormElement) {
-      const formData = new FormData(ev.target as HTMLFormElement);
-
-      closeModal(formData.get('player'));
-    }
-  };
-
-  return (
-    <Modal
-      class={style.pickerModal}
-      topLeftLabels="Player Picker"
-      bottomRightLabels={[
-        <Button severity="secondary" type="submit" form={formId}>
-          Select
-        </Button>,
-      ]}
-    >
-      <form id={formId} class={style.pickerForm} onSubmit={handleSubmit}>
-        <For each={latest().matchStats.generalStats.uniquePlayers}>
-          {(player) => (
-            <div>
-              <Input
-                id={player}
-                type="radio"
-                name="player"
-                value={player}
-                disabled={player === props.disabledPlayer}
-                required
-              >
-                {player}
-              </Input>
-            </div>
-          )}
-        </For>
-        <Break />
-      </form>
-    </Modal>
-  );
-};
 
 export const PlayerProfileModal: Component<PlayerProfileModalProps> = (
   props,
@@ -160,8 +104,8 @@ export const PlayerProfileModal: Component<PlayerProfileModalProps> = (
   const openPlayerPicker = () => {
     open(
       {
-        component: PlayerPicker,
-        disabledPlayer: props.name,
+        component: PlayerPickerModal,
+        disabledPlayers: [props.name],
       },
       handlePickerClose,
     );
