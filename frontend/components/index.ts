@@ -29,5 +29,5 @@ export * from './ProgresBar';
 export * from './RatingCharts';
 export * from './Table';
 export * from './TextMarquee';
-export * from './WidgetAlt';
 export * from './Widget';
+export * from './WidgetAlt';

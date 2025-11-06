@@ -2,25 +2,53 @@
 
 .modal {
   --modal-width: #{cw(40)};
-}
 
-.container {
-  display: grid;
-  grid-template-columns: auto auto;
+  .container {
+    display: grid;
+    grid-template-columns: auto auto;
 
-  align-items: end;
+    align-items: end;
 
-  column-gap: cw(1);
+    column-gap: cw(1);
 
-  span {
-    text-align: right;
+    span {
+      text-align: right;
+    }
+  }
+
+  .not-found {
+    text-align: center;
+  }
+
+  .divider {
+    --divider-border-style: dashed;
+  }
+
+  .delta {
+    margin-left: cw(1);
+    white-space: nowrap;
+
+    &.positive {
+      color: $greenBright;
+    }
+
+    &.negative {
+      color: $redBright;
+    }
+  }
+
+  .delta-symbol {
+    user-select: none;
   }
 }
 
-.not-found {
-  text-align: center;
-}
+.picker-modal {
+  --modal-width: #{cw(20)};
 
-.divider {
-  --divider-border-style: dashed;
+  .picker-form {
+    padding: 0 cw(1);
+
+    display: flex;
+    flex-direction: column;
+  }
 }
