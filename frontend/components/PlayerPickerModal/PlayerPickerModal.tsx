@@ -1,10 +1,10 @@
-import { Break } from "#components/Break";
-import { Button } from "#components/Button";
-import { Input } from "#components/Input";
-import { Modal } from "#components/Modal";
-import { useModalActions } from "#providers/ModalProvider";
-import { useSheets } from "#providers/SheetsProvider";
-import { createUniqueId, For } from "solid-js";
+import { createUniqueId, For } from 'solid-js';
+import { Break } from '#components/Break';
+import { Button } from '#components/Button';
+import { Input } from '#components/Input';
+import { Modal } from '#components/Modal';
+import { useModalActions } from '#providers/ModalProvider';
+import { useSheets } from '#providers/SheetsProvider';
 import style from './PlayerPickerModal.module.scss';
 
 export interface PlayerPickerProps {

@@ -1,7 +1,7 @@
 @use 'app' as *;
 
 .modal {
-  --modal-width: #{cw(40)};
+  --modal-width: #{cw(50)};
 
   .container {
     display: grid;

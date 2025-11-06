@@ -1,0 +1,21 @@
+@use 'app' as *;
+
+.base-display {
+  margin-right: cw(1);
+}
+
+.compared-display {
+  margin-left: cw(1);
+}
+
+.positive {
+  color: $greenBright;
+}
+
+.negative {
+  color: $redBright;
+}
+
+.delta-symbol {
+  user-select: none;
+}

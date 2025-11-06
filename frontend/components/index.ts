@@ -9,6 +9,7 @@ export * from './Break';
 export * from './Button';
 export * from './ChangelogModal';
 export * from './ChartWrapper';
+export * from './DeltaDisplay';
 export * from './DevGrid';
 export * from './FilePicker';
 export * from './FileSizeWithUnit';

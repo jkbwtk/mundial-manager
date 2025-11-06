@@ -1,17 +1,13 @@
-import {
-  createMemo,
-  createSignal,
-  Match,
-  Show,
-  Switch,
-} from 'solid-js';
+import { createMemo, createSignal, Show } from 'solid-js';
 import { Button } from '#components/Button';
+import { DeltaDisplay } from '#components/DeltaDisplay';
 import { Modal } from '#components/Modal';
+import { PlayerPickerModal } from '#components/PlayerPickerModal';
 import { Divider } from '#components/Widget';
+import { formatDuration } from '#flib/sheetUtils';
 import { useModal } from '#providers/ModalProvider';
 import { useSheets } from '#providers/SheetsProvider';
 import style from './PlayerProfileModal.module.scss';
-import { PlayerPickerModal } from '#components/PlayerPickerModal';
 
 export interface PlayerProfileModalProps {
   name: string;
@@ -36,60 +32,6 @@ export const PlayerProfileModal: Component<PlayerProfileModalProps> = (
     if (!player) return undefined;
     return latest().matchStats.playerStats[player];
   });
-
-  const getDifference = (
-    mainValue: number,
-    comparedValue: number | undefined,
-  ) => {
-    if (comparedValue === undefined) return undefined;
-    return mainValue - comparedValue;
-  };
-
-  const renderStatWithDifference = (
-    value: number | string,
-    comparedValue: number | undefined,
-    precision = 0,
-  ) => {
-    if (comparedPlayerStats() === undefined) {
-      return typeof value === 'number' && precision > 0
-        ? value.toFixed(precision)
-        : value;
-    }
-
-    const numValue =
-      typeof value === 'number' ? value : Number.parseFloat(value as string);
-    const diff = getDifference(numValue, comparedValue);
-
-    if (diff === undefined) {
-      return typeof value === 'number' && precision > 0
-        ? value.toFixed(precision)
-        : value;
-    }
-
-    return (
-      <>
-        {typeof value === 'number' && precision > 0
-          ? value.toFixed(precision)
-          : value}
-        <span
-          classList={{
-            [style.delta]: true,
-            [style.positive]: diff > 0,
-            [style.negative]: diff < 0,
-          }}
-        >
-          <span class={style.deltaSymbol}>
-            <Switch>
-              <Match when={diff === 0}>=</Match>
-              <Match when={diff > 0}>↑</Match>
-              <Match when={diff < 0}>↓</Match>
-            </Switch>
-          </span>
-          {Math.abs(diff).toFixed(precision)}
-        </span>
-      </>
-    );
-  };
 
   const handlePickerClose = (selectedPlayer?: unknown) => {
     if (selectedPlayer) {
@@ -133,51 +75,84 @@ export const PlayerProfileModal: Component<PlayerProfileModalProps> = (
         }
       >
         <div class={style.container}>
-          <span>Name:</span>
-          <strong>{playerStats()?.player}</strong>
+          <span>Player{comparedPlayer() ? 's' : ''}:</span>
+          <strong>
+            {playerStats()?.player}
+
+            <Show when={comparedPlayer()}>
+              <span> vs </span>
+              <strong>{comparedPlayer()}</strong>
+            </Show>
+          </strong>
         </div>
 
-        <Show when={comparedPlayer()}>
-          <div class={style.container}>
-            <span>vs:</span>
-            <strong>{comparedPlayer()}</strong>
-          </div>
-        </Show>
+        <Divider class={style.divider} />
+
+        <div class={style.container}>
+          <span>Total playtime:</span>
+          <strong>
+            <DeltaDisplay
+              base={playerStats()?.totalPlaytime}
+              compared={comparedPlayerStats()?.totalPlaytime}
+              displayBase={true}
+              displayCompared={true}
+              formatter={(v) => formatDuration(v ?? 0)}
+            />
+          </strong>
+
+          <span>Avg. match duration:</span>
+          <strong>
+            <DeltaDisplay
+              base={playerStats()?.averageMatchDuration}
+              compared={comparedPlayerStats()?.averageMatchDuration}
+              displayBase={true}
+              displayCompared={true}
+              formatter={(v) => formatDuration(v ?? 0)}
+            />
+          </strong>
+        </div>
 
         <Divider class={style.divider} />
 
         <div class={style.container}>
           <span>Total Matches:</span>
           <strong>
-            {renderStatWithDifference(
-              playerStats()!.totalMatches,
-              comparedPlayerStats()?.totalMatches,
-            )}
+            <DeltaDisplay
+              base={playerStats()?.totalMatches}
+              compared={comparedPlayerStats()?.totalMatches}
+              displayBase={true}
+              displayCompared={true}
+            />
           </strong>
 
           <span>Wins:</span>
           <strong>
-            {renderStatWithDifference(
-              playerStats()!.wins,
-              comparedPlayerStats()?.wins,
-            )}
+            <DeltaDisplay
+              base={playerStats()?.wins}
+              compared={comparedPlayerStats()?.wins}
+              displayBase={true}
+              displayCompared={true}
+            />
           </strong>
 
           <span>Losses:</span>
           <strong>
-            {renderStatWithDifference(
-              playerStats()!.losses,
-              comparedPlayerStats()?.losses,
-            )}
+            <DeltaDisplay
+              base={playerStats()?.losses}
+              compared={comparedPlayerStats()?.losses}
+              displayBase={true}
+              displayCompared={true}
+            />
           </strong>
 
           <span>Win Ratio:</span>
           <strong>
-            {renderStatWithDifference(
-              playerStats()!.winRatio,
-              comparedPlayerStats()?.winRatio,
-              2,
-            )}
+            <DeltaDisplay
+              base={playerStats()?.winRatio}
+              compared={comparedPlayerStats()?.winRatio}
+              displayBase={true}
+              displayCompared={true}
+            />
           </strong>
         </div>
 
@@ -186,35 +161,42 @@ export const PlayerProfileModal: Component<PlayerProfileModalProps> = (
         <div class={style.container}>
           <span>Goals For:</span>
           <strong>
-            {renderStatWithDifference(
-              playerStats()!.goalsFor,
-              comparedPlayerStats()?.goalsFor,
-            )}
+            <DeltaDisplay
+              base={playerStats()?.goalsFor}
+              compared={comparedPlayerStats()?.goalsFor}
+              displayBase={true}
+              displayCompared={true}
+            />
           </strong>
 
           <span>Goals Against:</span>
           <strong>
-            {renderStatWithDifference(
-              playerStats()!.goalsAgainst,
-              comparedPlayerStats()?.goalsAgainst,
-            )}
+            <DeltaDisplay
+              base={playerStats()?.goalsAgainst}
+              compared={comparedPlayerStats()?.goalsAgainst}
+              displayBase={true}
+              displayCompared={true}
+            />
           </strong>
 
           <span>Goal Difference:</span>
           <strong>
-            {renderStatWithDifference(
-              playerStats()!.goalDifference,
-              comparedPlayerStats()?.goalDifference,
-            )}
+            <DeltaDisplay
+              base={playerStats()?.goalDifference}
+              compared={comparedPlayerStats()?.goalDifference}
+              displayBase={true}
+              displayCompared={true}
+            />
           </strong>
 
           <span>Goal Ratio:</span>
           <strong>
-            {renderStatWithDifference(
-              playerStats()!.goalRatio,
-              comparedPlayerStats()?.goalRatio,
-              2,
-            )}
+            <DeltaDisplay
+              base={playerStats()?.goalRatio}
+              compared={comparedPlayerStats()?.goalRatio}
+              displayBase={true}
+              displayCompared={true}
+            />
           </strong>
         </div>
       </Show>
