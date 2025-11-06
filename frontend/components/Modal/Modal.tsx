@@ -1,5 +1,6 @@
 import {
   children,
+  createEffect,
   For,
   type JSX,
   onCleanup,
@@ -174,13 +175,13 @@ export const Modal: Component<ModalProps> = (userProps) => {
 
       <div class={style.topLabels}>
         <div class={style.leftLabels}>
-          <For each={topLeftLabels.toArray()}>
+          <For each={topLeftLabels.toArray().filter((v) => v !== undefined)}>
             {(label) => <div class={style.topLeftLabel}>{label}</div>}
           </For>
         </div>
 
         <div class={style.rightLabels}>
-          <For each={topRightLabels.toArray()}>
+          <For each={topRightLabels.toArray().filter((v) => v !== undefined)}>
             {(label) => <div class={style.topRightLabel}>{label}</div>}
           </For>
 
@@ -194,7 +195,7 @@ export const Modal: Component<ModalProps> = (userProps) => {
 
       <div class={style.bottomLabels}>
         <div class={style.leftLabels}>
-          <For each={bottomLeftLabels.toArray()}>
+          <For each={bottomLeftLabels.toArray().filter((v) => v !== undefined)}>
             {(label) => (
               <div class={style.bottomLeftLabel}>
                 <div class={style.preDecoratorBottom} />
@@ -206,7 +207,9 @@ export const Modal: Component<ModalProps> = (userProps) => {
         </div>
 
         <div class={style.rightLabels}>
-          <For each={bottomRightLabels.toArray()}>
+          <For
+            each={bottomRightLabels.toArray().filter((v) => v !== undefined)}
+          >
             {(label) => (
               <div class={style.bottomRightLabel}>
                 <div class={style.preDecoratorBottom} />

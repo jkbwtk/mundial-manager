@@ -55,7 +55,7 @@ export function BaseWidget<T extends ValidComponent>(userProps: Widget<T>) {
 
       <div class={style.topLabels}>
         <div class={style.leftLabels}>
-          <For each={topLeftLabels.toArray()}>
+          <For each={topLeftLabels.toArray().filter((v) => v !== undefined)}>
             {(label) => (
               <div class={style.topLeftLabel}>
                 <div class={style.preDecoratorTop} />
@@ -67,7 +67,7 @@ export function BaseWidget<T extends ValidComponent>(userProps: Widget<T>) {
         </div>
 
         <div class={style.rightLabels}>
-          <For each={topRightLabels.toArray()}>
+          <For each={topRightLabels.toArray().filter((v) => v !== undefined)}>
             {(label) => (
               <div class={style.topRightLabel}>
                 <div class={style.preDecoratorTop} />
@@ -81,7 +81,7 @@ export function BaseWidget<T extends ValidComponent>(userProps: Widget<T>) {
 
       <div class={style.bottomLabels}>
         <div class={style.leftLabels}>
-          <For each={bottomLeftLabels.toArray()}>
+          <For each={bottomLeftLabels.toArray().filter((v) => v !== undefined)}>
             {(label) => (
               <div class={style.bottomLeftLabel}>
                 <div class={style.preDecoratorBottom} />
@@ -93,7 +93,9 @@ export function BaseWidget<T extends ValidComponent>(userProps: Widget<T>) {
         </div>
 
         <div class={style.rightLabels}>
-          <For each={bottomRightLabels.toArray()}>
+          <For
+            each={bottomRightLabels.toArray().filter((v) => v !== undefined)}
+          >
             {(label) => (
               <div class={style.bottomRightLabel}>
                 <div class={style.preDecoratorBottom} />
