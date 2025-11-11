@@ -132,7 +132,7 @@
   position: relative;
 
   :where(&) {
-    --divider-border-color: #{$borderColor};
+    --divider-border-color: #{$dividerColor};
     --divider-border-style: solid;
   }
 
