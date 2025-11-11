@@ -1,3 +1,4 @@
+export declare const compared: string;
 export declare const container: string;
 export declare const delta: string;
 export declare const deltaSymbol: string;
@@ -5,4 +6,7 @@ export declare const divider: string;
 export declare const modal: string;
 export declare const negative: string;
 export declare const notFound: string;
+export declare const player: string;
+export declare const playerListContainer: string;
 export declare const positive: string;
+export declare const selected: string;

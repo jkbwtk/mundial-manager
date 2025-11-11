@@ -1,4 +1,4 @@
-import { createMemo, createSignal, Show } from 'solid-js';
+import { createMemo, createSignal, For, Show } from 'solid-js';
 import { Button } from '#components/Button';
 import { DeltaDisplay } from '#components/DeltaDisplay';
 import { Modal } from '#components/Modal';
@@ -19,12 +19,20 @@ export const PlayerProfileModal: Component<PlayerProfileModalProps> = (
   const [, { open }] = useModal();
   const [, { latest }] = useSheets();
 
+  const [selectedPlayerOverride, setSelectedPlayerOverride] = createSignal<
+    string | undefined
+  >(undefined);
+
   const [comparedPlayer, setComparedPlayer] = createSignal<string | undefined>(
     undefined,
   );
 
+  const selectedPlayer = createMemo(
+    () => selectedPlayerOverride() ?? props.name,
+  );
+
   const playerStats = createMemo(
-    () => latest().matchStats.playerStats[props.name],
+    () => latest().matchStats.playerStats[selectedPlayer()],
   );
 
   const comparedPlayerStats = createMemo(() => {
@@ -33,9 +41,19 @@ export const PlayerProfileModal: Component<PlayerProfileModalProps> = (
     return latest().matchStats.playerStats[player];
   });
 
-  const handlePickerClose = (selectedPlayer?: unknown) => {
-    if (selectedPlayer) {
-      setComparedPlayer(selectedPlayer as string);
+  const handlePickerClose = (pickedPlayer?: unknown) => {
+    if (pickedPlayer) {
+      setComparedPlayer(pickedPlayer as string);
+    }
+  };
+
+  const handleListClick = (ev: PointerEvent, player: string) => {
+    ev.preventDefault();
+
+    if (ev.shiftKey || ev.ctrlKey || ev.metaKey) {
+      setComparedPlayer(player);
+    } else {
+      setSelectedPlayerOverride(player);
     }
   };
 
@@ -47,7 +65,7 @@ export const PlayerProfileModal: Component<PlayerProfileModalProps> = (
     open(
       {
         component: PlayerPickerModal,
-        disabledPlayers: [props.name],
+        disabledPlayers: [selectedPlayer()],
       },
       handlePickerClose,
     );
@@ -68,10 +86,32 @@ export const PlayerProfileModal: Component<PlayerProfileModalProps> = (
         </Button>,
       ]}
     >
+      <div class={style.playerListContainer}>
+        <For each={latest().matchStats.generalStats.uniquePlayers}>
+          {(player) => (
+            <button
+              type="button"
+              onPointerUp={(ev) => handleListClick(ev, player)}
+              classList={{
+                [style.player]: true,
+                [style.selected]: player === selectedPlayer(),
+                [style.compared]: player === comparedPlayer(),
+              }}
+            >
+              {player}
+            </button>
+          )}
+        </For>
+      </div>
+
+      <Divider />
+
       <Show
         when={playerStats()}
         fallback={
-          <div class={style.notFound}>Player "{props.name}" not found.</div>
+          <div class={style.notFound}>
+            Player "{selectedPlayer()}" not found.
+          </div>
         }
       >
         <div class={style.container}>

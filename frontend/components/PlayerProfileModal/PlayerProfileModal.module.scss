@@ -40,4 +40,44 @@
   .delta-symbol {
     user-select: none;
   }
+
+  .player-list-container {
+    display: flex;
+    flex-wrap: wrap;
+
+    justify-content: center;
+
+    margin: 0 cw(1);
+    margin-bottom: ch(1);
+
+    .player {
+      &:not(.selected) {
+        text-decoration: dashed underline;
+
+        padding: 0 cw(1);
+      }
+    }
+
+    .selected {
+      font-weight: bold;
+      color: $textBrightColor;
+
+      pointer-events: none;
+
+      &::before {
+        content: '>';
+        color: $primaryColor;
+      }
+
+      &::after {
+        content: '<';
+        color: $primaryColor;
+      }
+    }
+
+    .compared {
+      font-weight: bold;
+      color: $textBrightColor;
+    }
+  }
 }
