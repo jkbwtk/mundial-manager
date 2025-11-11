@@ -1,6 +1,65 @@
 {
   "versions": [
     {
+      "version": "0.2.0",
+      "releaseType": "minor",
+      "date": "2025-11-11",
+      "name": "Player stats modal",
+      "changes": [
+        {
+          "type": "feature",
+          "change": "Added player profile modal with stat comparison functionality",
+          "description": "Player stats can now be viewed in a dedicated modal. Stats can be compared between two players by either clicking [compare] button or selecting a second player from the player list while holding Ctrl or Shift key key."
+        },
+        {
+          "type": "improvement",
+          "change": "Added option to open player stats directly from leaderboards"
+        },
+        {
+          "type": "improvement",
+          "change": "Added winning color animation when changing active match"
+        }
+      ],
+      "commits": [
+        {
+          "hash": "c5309bca87",
+          "message": "Add player list to PlayerProfile modal"
+        },
+        {
+          "hash": "ece728ad6e",
+          "message": "Move delta display logic to dedicated component"
+        },
+        {
+          "hash": "3668128a0d",
+          "message": "Filter undefined labels"
+        },
+        {
+          "hash": "5597d27b0f",
+          "message": "Move PlayerPicker to separate component"
+        },
+        {
+          "hash": "c137310785",
+          "message": "Create PlayerProfile modal with stat comparison functionality"
+        },
+        {
+          "hash": "54d5925bc6",
+          "message": "Add radio input styles"
+        },
+        {
+          "hash": "7565706aa6",
+          "message": "Animate winning color"
+        },
+        {
+          "hash": "8f15df6299",
+          "message": "Integrate PlayerLink with leaderboards"
+        },
+        {
+          "hash": "38d3fa8082",
+          "message": "Create basic PlayerProfileModal and link helper"
+        }
+      ]
+    },
+    {
       "version": "0.1.1",
       "releaseType": "patch",
       "date": "2025-11-03",
