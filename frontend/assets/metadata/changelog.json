@@ -9,7 +9,7 @@
         {
           "type": "feature",
           "change": "Added player profile modal with stat comparison functionality",
-          "description": "Player stats can now be viewed in a dedicated modal. Stats can be compared between two players by either clicking [compare] button or selecting a second player from the player list while holding Ctrl or Shift key key."
+          "description": "Player stats can now be viewed in a dedicated modal. Stats can be compared between two players by either clicking [compare] button or selecting a second player from the player list while holding Ctrl or Shift key."
         },
         {
           "type": "improvement",
