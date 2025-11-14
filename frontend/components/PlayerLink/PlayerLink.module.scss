@@ -1,7 +1,11 @@
 @use 'app' as *;
 
 .link {
-  text-decoration: dashed underline;
+  text-decoration: underline;
+
+  @supports (text-decoration: dashed) {
+    text-decoration: dashed underline;
+  }
 
   &:hover {
     color: $textBrightColor;
