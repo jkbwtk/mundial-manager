@@ -1,6 +1,5 @@
 import {
   children,
-  createEffect,
   For,
   type JSX,
   onCleanup,

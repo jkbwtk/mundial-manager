@@ -29,7 +29,8 @@
       "correctness": {
         "useImportExtensions": "off",
         "noNodejsModules": "off",
-        "noUndeclaredDependencies": "off"
+        "noUndeclaredDependencies": "off",
+        "noUnusedImports": "warn"
       },
       "suspicious": {
         "noConsole": "off"
