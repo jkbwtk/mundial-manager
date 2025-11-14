@@ -32,7 +32,7 @@ type ChangelogOptions = z.infer<typeof ChangelogOptionsSchema>;
 function saveChangelog(changelog: Changelog, outputPath: string): void {
   try {
     const content = JSON.stringify(Changelog.encode(changelog), null, 2);
-    writeFileSync(outputPath, content, 'utf-8');
+    writeFileSync(outputPath, `${content}\n`, 'utf-8');
     logger.info('Changelog saved to [%s]', outputPath);
   } catch (err) {
     logger.error('Failed to save changelog to [%s]', outputPath, {
