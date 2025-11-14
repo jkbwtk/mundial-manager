@@ -613,7 +613,9 @@ function calculateGeneralStats(
     totalIndividualPlaytime,
   );
 
-  const averageMatchDuration = totalMatches ? totalPlaytime / totalMatches : 0;
+  const averageMatchDuration = _matchesWithDuration
+    ? totalPlaytime / _matchesWithDuration
+    : 0;
   const averageMatchDurationFormatted = formatDuration(averageMatchDuration);
   const averageGoals = totalMatches ? totalGoals / totalMatches : 0;
 
