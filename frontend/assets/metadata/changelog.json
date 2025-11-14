@@ -1,6 +1,56 @@
 {
   "versions": [
     {
+      "version": "0.2.1",
+      "releaseType": "patch",
+      "date": "2025-11-14",
+      "name": "General fixes",
+      "changes": [
+        {
+          "type": "improvement",
+          "change": "Changed default Divider color"
+        },
+        {
+          "type": "bugfix",
+          "change": "Fixed average match duration calculation"
+        },
+        {
+          "type": "bugfix",
+          "change": "Fixed PlayerLink text decoration on Safari browsers"
+        },
+        {
+          "type": "bugfix",
+          "change": "Fixed typo in v0.2.0 changelog entry"
+        }
+      ],
+      "commits": [
+        {
+          "hash": "f51fe043a8",
+          "message": "Tweak linting configuration"
+        },
+        {
+          "hash": "40c1d8f993",
+          "message": "Include a new line at the end of changelog"
+        },
+        {
+          "hash": "52fb37a2da",
+          "message": "Fix PlayerLink decoration on Safari"
+        },
+        {
+          "hash": "af5af4f339",
+          "message": "Fix average match duration calculation"
+        },
+        {
+          "hash": "3ff4c2f195",
+          "message": "Change default divider color"
+        },
+        {
+          "hash": "522fe8ea31",
+          "message": "Fix changelog typo"
+        }
+      ]
+    },
+    {
       "version": "0.2.0",
       "releaseType": "minor",
       "date": "2025-11-11",
