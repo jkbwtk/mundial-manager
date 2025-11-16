@@ -21,6 +21,7 @@ export * from './InlineAction';
 export * from './Input';
 export * from './Leaderboard';
 export * from './MatchPaginatorWidget';
+export * from './MatchSaveConfirmModal';
 export * from './MatchStats';
 export * from './MaterialSymbol';
 export * from './Modal';

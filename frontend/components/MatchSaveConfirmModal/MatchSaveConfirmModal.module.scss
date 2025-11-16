@@ -1,0 +1,58 @@
+@use 'app' as *;
+
+.modal {
+  --modal-width: #{cw(40)};
+}
+
+.container {
+  margin-bottom: ch(1);
+}
+
+.title {
+  text-align: center;
+}
+
+.divider {
+  --divider-border-style: dashed;
+}
+
+.score-container {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+}
+
+.team-name {
+  font-weight: bold;
+
+  color: $backgroundColor;
+
+  :where(&) {
+    --team-color: #{$textBrightColor};
+  }
+
+  background-color: var(--team-color);
+  border-radius: $borderRadius;
+
+  padding: 0 cw(1);
+}
+
+.highlighted-score {
+  font-weight: bold;
+  color: $textBrightColor;
+}
+
+.stats-container {
+  display: grid;
+  grid-template-columns: auto auto;
+
+  align-items: end;
+
+  column-gap: cw(1);
+
+  span {
+    text-align: right;
+  }
+}

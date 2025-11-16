@@ -845,3 +845,40 @@ export function convertCalculatorFinishEventToMatch(
     },
   };
 }
+
+export const COLOR_PAIRS: [string, string][] = [
+  ['Niebieski', 'Czerwony2'],
+  ['Zielony', 'Czerwony3'],
+];
+
+export function getTeamColors(match: MatchCreate | Match): [string, string] {
+  for (const colors of COLOR_PAIRS) {
+    if (colors.includes(match.winningColor)) {
+      const team1Won = match.score1 > match.score2;
+      const winningColorIsFirst = match.winningColor === colors[0];
+
+      return team1Won === winningColorIsFirst
+        ? [colors[0], colors[1]]
+        : [colors[1], colors[0]];
+    }
+  }
+
+  return ['unknown', 'unknown'];
+}
+
+export const FLOOR_MAP: Record<string, number> = {
+  Czerwony2: 2,
+  Czerwony3: 3,
+};
+
+export function getMatchFloor(match: MatchCreate): number | null {
+  const colors = getTeamColors(match);
+
+  for (const [color, floor] of Object.entries(FLOOR_MAP)) {
+    if (colors.includes(color)) {
+      return floor;
+    }
+  }
+
+  return null;
+}
