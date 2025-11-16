@@ -17,6 +17,7 @@ const MundialCalculator: Component = () => {
         component: MatchSaveConfirmModal,
         match: convertCalculatorFinishEventToMatch(data),
       },
+      closeOnBackgroundClick: false,
     });
   };
 
