@@ -2,8 +2,12 @@ import { createSignal, onCleanup, onMount } from 'solid-js';
 import { isServer } from 'solid-js/web';
 import { Break } from '#components/Break';
 import { Button } from '#components/Button';
+import { MatchSaveConfirmModal } from '#components/MatchSaveConfirmModal';
 import { Divider, Widget } from '#components/Widget';
+import { convertCalculatorFinishEventToMatch } from '#flib/sheetUtils';
+import { useModal } from '#providers/ModalProvider';
 import { useSheets } from '#providers/SheetsProvider';
+import { CalculatorFinishEvent } from '#shared/types/MundialCalculator';
 import style from './IframeTest.module.scss';
 
 const AVAILABLE_URLS = [
@@ -14,6 +18,7 @@ const AVAILABLE_URLS = [
 
 const IframeTest: Component = () => {
   const [sheets, { latest }] = useSheets();
+  const [, { open }] = useModal();
 
   // biome-ignore lint/style/useConst: yeah
   let ref: HTMLIFrameElement = null!;
@@ -21,8 +26,25 @@ const IframeTest: Component = () => {
 
   const url = () => AVAILABLE_URLS[index()];
 
+  const openMatchModal = (data: CalculatorFinishEvent) => {
+    open({
+      component: MatchSaveConfirmModal,
+      match: convertCalculatorFinishEventToMatch(data),
+    });
+  };
+
   const handleMessage = (ev: MessageEvent) => {
     console.log(ev);
+
+    const parsed = CalculatorFinishEvent.safeParse(ev.data);
+
+    if (parsed.success) {
+      console.log('Received CalculatorFinishEvent from iframe:', parsed.data);
+
+      openMatchModal(parsed.data);
+    } else {
+      console.log(parsed.error);
+    }
   };
 
   const sendMessage = () => {
