@@ -8,7 +8,7 @@ import style from './MundialCalculator.module.scss';
 
 const URL = import.meta.env.VITE_CALCULATOR_URL;
 
-const MundialCalculator = () => {
+const MundialCalculator: Component = () => {
   const [, { open }] = useModal();
 
   const openMatchModal = (data: CalculatorFinishEvent) => {
