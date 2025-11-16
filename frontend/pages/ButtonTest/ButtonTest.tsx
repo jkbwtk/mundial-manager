@@ -28,6 +28,8 @@ const ButtonTest: Component = () => {
       <Button disabled={true}>
         <MaterialSymbol symbol="cloud_upload" /> Test
       </Button>
+      <Divider />
+      Loading button: <Button loading={true}>Test</Button>
     </Widget>
   );
 };

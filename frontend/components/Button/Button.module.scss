@@ -1,6 +1,8 @@
 @use 'app' as *;
 
 .button {
+  position: relative;
+
   width: fit-content;
 
   border-radius: $borderRadius;
@@ -85,4 +87,20 @@
       }
     }
   }
+}
+
+.loading {
+  visibility: hidden;
+}
+
+.spinner {
+  position: absolute;
+
+  height: ch(1);
+  width: cw(1);
+
+  top: 50%;
+  left: 50%;
+
+  transform: translate(-50%, -50%);
 }
