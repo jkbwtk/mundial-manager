@@ -4,6 +4,10 @@ import Homepage from '#pages/Homepage/Homepage';
 import PageNotFound from '#pages/PageNotFound/PageNotFound';
 
 const RouteMap = lazy(() => import('#pages/RouteMap/RouteMap'));
+const MundialCalculator = lazy(
+  () => import('#pages/MundialCalculator/MundialCalculator'),
+);
+
 const ChartTest = lazy(() => import('#pages/ChartTest'));
 const ButtonTest = lazy(() => import('#pages/ButtonTest/ButtonTest'));
 const InputTest = lazy(() => import('#pages/InputTest/InputTest'));
@@ -29,6 +33,11 @@ export const routes: RouteDefinition[] = [
         path: '/',
         info: { title: 'Mundial Manager - Route Map' },
         component: RouteMap,
+      },
+      {
+        path: '/mundial-calculator',
+        info: { title: 'Mundial Manager - Mundial Calculator' },
+        component: MundialCalculator,
       },
       {
         path: '/chart-test',

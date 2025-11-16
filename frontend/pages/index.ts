@@ -11,6 +11,7 @@ export * from './Homepage';
 export * from './IframeTest';
 export * from './InputTest';
 export * from './ModalTest';
+export * from './MundialCalculator';
 export * from './PageNotFound';
 export * from './PlayerProfileTest';
 export * from './RouteMap';
