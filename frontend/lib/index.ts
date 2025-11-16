@@ -5,4 +5,5 @@ export * from './extensionSymbols';
 export * from './fileUtils';
 export * from './sheetUtils';
 export * from './supportedMaterialSymbols';
+export * from './teamColors';
 export * from './utils';

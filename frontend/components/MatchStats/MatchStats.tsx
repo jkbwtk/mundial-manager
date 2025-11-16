@@ -7,7 +7,7 @@ import {
 } from '#components/MatchPaginatorWidget';
 import { Divider } from '#components/Widget';
 import { formatDate, formatDuration } from '#flib/sheetUtils';
-import { quickSwitch } from '#shared/utils';
+import { getTeamColorClass } from '#flib/teamColors';
 import style from './MatchStats.module.scss';
 
 export const MatchStatsBase: Component = () => {
@@ -85,13 +85,7 @@ export const MatchStatsBase: Component = () => {
         <span>Winning Color:</span>
         <span
           classList={{
-            [quickSwitch<string>(match().winningColor.toLowerCase(), {
-              czerwony2: style.teamColorRed2,
-              czerwony3: style.teamColorRed3,
-              zielony: style.teamColorGreen,
-              niebieski: style.teamColorBlue,
-              default: '',
-            })]: true,
+            [getTeamColorClass(match().winningColor)]: true,
             [style.teamColor]: true,
           }}
         />

@@ -1,0 +1,17 @@
+@use 'app' as *;
+
+.team-color-red2 {
+  --team-color: #{$red};
+}
+
+.team-color-red3 {
+  --team-color: #{$redBright};
+}
+
+.team-color-green {
+  --team-color: #{$green};
+}
+
+.team-color-blue {
+  --team-color: #{$blue};
+}

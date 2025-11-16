@@ -11,12 +11,12 @@ import { formatDate, formatDuration } from '#flib/sheetUtils';
 import { toJson } from '#flib/utils';
 import { useSheets } from '#providers/SheetsProvider';
 import type { Match } from '#shared/types/Sheets';
-import { quickSwitch } from '#shared/utils';
 import 'highlight.js/styles/gml.min.css';
 import {
   MatchPaginatorWidget,
   usePaginatedStat,
 } from '#components/MatchPaginatorWidget';
+import { getTeamColorClass } from '#flib/teamColors';
 import style from './SheetsTest.module.scss';
 
 dayjs.extend(duration);
@@ -82,13 +82,7 @@ export const SheetsTest: Component = () => {
       sortable: true,
       align: 'center',
       transform: (value: string) => {
-        const colorClass = quickSwitch<string>(value.toLowerCase(), {
-          czerwony2: style.teamColorRed2,
-          czerwony3: style.teamColorRed3,
-          zielony: style.teamColorGreen,
-          niebieski: style.teamColorBlue,
-          default: '',
-        });
+        const colorClass = getTeamColorClass(value);
 
         return (
           <span

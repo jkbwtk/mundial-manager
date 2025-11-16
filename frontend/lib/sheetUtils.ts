@@ -9,7 +9,13 @@ import type {
   MatchStats,
   PlayerStats,
 } from '#frontend/types';
-import type { Match } from '#shared/types/Sheets';
+import type { CalculatorFinishEvent } from '#shared/types/MundialCalculator';
+import type {
+  Match,
+  MatchCreate,
+  MatchEvent,
+  MatchEventGoal,
+} from '#shared/types/Sheets';
 import { quickSwitch } from '#shared/utils';
 
 dayjs.extend(duration);
@@ -805,5 +811,37 @@ export function calculateMatchStats(
 
     _matchCounter: getTotalMatches(match, previousStats),
     _matchesWithDuration: getTotalMatchesWithDuration(match, previousStats),
+  };
+}
+
+export function getLastGoalEvent(events: MatchEvent[]): MatchEventGoal | null {
+  return events.findLast((ev) => ev.type === 'GOAL') ?? null;
+}
+
+export function convertCalculatorFinishEventToMatch(
+  event: CalculatorFinishEvent,
+): MatchCreate {
+  const lastGoal = getLastGoalEvent(event.events);
+
+  const winningColor = lastGoal?.for ?? 'unknown';
+
+  const duration = lastGoal ? lastGoal.time - event.startedAt : null;
+
+  return {
+    team1: event.teams[0].join(' '),
+    team2: event.teams[1].join(' '),
+
+    date: event.startedAt,
+
+    score1: event.scores[0],
+    score2: event.scores[1],
+
+    winningColor,
+    duration,
+
+    replayMetadata: {
+      startedAt: event.startedAt,
+      events: event.events,
+    },
   };
 }

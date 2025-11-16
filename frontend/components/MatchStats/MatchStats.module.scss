@@ -29,21 +29,7 @@
 
   transition: background-color 0.2s ease-in-out;
 
+  background-color: var(--team-color);
+
   mask: url('/frontend/assets/images/braille.svg') 0 0 / cw(1) ch(1);
-}
-
-.team-color-red2 {
-  background-color: $red;
-}
-
-.team-color-red3 {
-  background-color: $redBright;
-}
-
-.team-color-green {
-  background-color: $green;
-}
-
-.team-color-blue {
-  background-color: $blue;
 }
