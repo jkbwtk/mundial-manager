@@ -7,6 +7,12 @@ export const ModalDispatcher: ParentComponent = (props) => {
   const [state, { closeTop }] = useModal();
 
   const handleBackgroundClick = (e: PointerEvent) => {
+    const topModal = state.modals.at(-1);
+
+    if (topModal !== undefined && topModal.closeOnBackgroundClick === false) {
+      return;
+    }
+
     if (e.target === e.currentTarget) {
       closeTop();
     }

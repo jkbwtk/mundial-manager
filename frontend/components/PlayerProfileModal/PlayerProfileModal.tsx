@@ -62,13 +62,13 @@ export const PlayerProfileModal: Component<PlayerProfileModalProps> = (
   };
 
   const openPlayerPicker = () => {
-    open(
-      {
+    open({
+      props: {
         component: PlayerPickerModal,
         disabledPlayers: [selectedPlayer()],
       },
-      handlePickerClose,
-    );
+      afterClose: handlePickerClose,
+    });
   };
 
   return (

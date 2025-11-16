@@ -13,8 +13,10 @@ const PlayerProfileTest: Component = () => {
 
   const openPlayerProfileModal = (playerName: string) => {
     open({
-      component: PlayerProfileModal,
-      name: playerName,
+      props: {
+        component: PlayerProfileModal,
+        name: playerName,
+      },
     });
   };
 

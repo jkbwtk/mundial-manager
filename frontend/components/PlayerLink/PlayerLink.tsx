@@ -11,8 +11,10 @@ export const PlayerLink: Component<PlayerLinkProps> = (props) => {
 
   const openPlayerProfileModal = () => {
     open({
-      component: PlayerProfileModal,
-      name: props.name,
+      props: {
+        component: PlayerProfileModal,
+        name: props.name,
+      },
     });
   };
 

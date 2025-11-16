@@ -60,8 +60,14 @@ const ModalTest: Component = () => {
   const [counter, setCounter] = createSignal(0);
 
   const openModal = () => {
-    open({ component: M, counter: counter() }, (v) => {
-      console.log(v);
+    open({
+      props: {
+        component: M,
+        counter: counter(),
+      },
+      afterClose: (v) => {
+        console.log(v);
+      },
     });
 
     setCounter((c) => c + 1);

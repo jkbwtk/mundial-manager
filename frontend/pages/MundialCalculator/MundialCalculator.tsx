@@ -13,8 +13,10 @@ const MundialCalculator: Component = () => {
 
   const openMatchModal = (data: CalculatorFinishEvent) => {
     open({
-      component: MatchSaveConfirmModal,
-      match: convertCalculatorFinishEventToMatch(data),
+      props: {
+        component: MatchSaveConfirmModal,
+        match: convertCalculatorFinishEventToMatch(data),
+      },
     });
   };
 

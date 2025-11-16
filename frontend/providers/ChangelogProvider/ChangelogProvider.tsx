@@ -116,7 +116,9 @@ export const ChangelogProvider: ParentComponent = (props) => {
 
   const openChangelog = () => {
     openModal({
-      component: ChangelogModal,
+      props: {
+        component: ChangelogModal,
+      },
     });
   };
 

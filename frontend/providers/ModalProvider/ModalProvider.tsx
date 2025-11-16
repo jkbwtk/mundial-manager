@@ -6,7 +6,7 @@ import {
 } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import type { DynamicProps } from 'solid-js/web';
-import type { ModalEntry } from '#frontend/types';
+import type { ModalEntry, ModalOpenOptions } from '#frontend/types';
 import style from './ModalProvider.module.scss';
 
 export interface ModalContextState {
@@ -15,8 +15,7 @@ export interface ModalContextState {
 
 export interface ModalContextActions {
   open: <T extends ValidComponent>(
-    modalProps: Omit<DynamicProps<T>, 'closeModal'>,
-    afterClose?: (returnValue: unknown) => void,
+    options: ModalOpenOptions<T>,
   ) => {
     close: (returnValue?: unknown) => void;
   };
@@ -64,10 +63,11 @@ export const ModalProvider: ParentComponent = (props) => {
       callback?.(returnValue);
     };
 
-  const open: ModalContextActions['open'] = (modalProps, callback) => {
+  const open: ModalContextActions['open'] = (options) => {
     const entry: ModalEntry = {
-      props: modalProps,
-      closeModal: closeFactory(modalProps, callback),
+      props: options.props,
+      closeModal: closeFactory(options.props, options.afterClose),
+      closeOnBackgroundClick: options.closeOnBackgroundClick ?? true,
     };
 
     setState('modals', (entries) => [...entries, entry]);
