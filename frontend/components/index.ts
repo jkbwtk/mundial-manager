@@ -25,6 +25,7 @@ export * from './MatchSaveConfirmModal';
 export * from './MatchStats';
 export * from './MaterialSymbol';
 export * from './Modal';
+export * from './MundialCalculatorLink';
 export * from './PlayerLink';
 export * from './PlayerPickerModal';
 export * from './PlayerProfileModal';

@@ -1,0 +1,25 @@
+@use 'app' as *;
+
+.container {
+  position: fixed;
+
+  bottom: ch(1);
+  right: cw(1);
+
+  padding: ch(1) cw(2);
+
+  border-radius: $borderRadius;
+
+  background-color: $green;
+  color: $textBrightColor;
+
+  transition: background-color 0.1s ease-in-out;
+
+  &:hover {
+    background-color: $greenBright;
+  }
+}
+
+.hidden {
+  visibility: hidden;
+}

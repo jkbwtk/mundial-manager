@@ -11,6 +11,7 @@ import {
 } from '#components/Leaderboard';
 import { MatchPaginatorWidget } from '#components/MatchPaginatorWidget';
 import { MatchStats } from '#components/MatchStats';
+import { MundialCalculatorLink } from '#components/MundialCalculatorLink';
 import { RatingCharts } from '#components/RatingCharts';
 import { useConsoleUnitPrototype } from '#providers/ConsoleUnitPrototypeProvider';
 import style from './Homepage.module.scss';
@@ -95,6 +96,8 @@ const Homepage: Component = () => {
         </div>
 
         <RatingCharts />
+
+        <MundialCalculatorLink />
       </div>
     </div>
   );
