@@ -19,8 +19,6 @@ const MundialCalculator: Component = () => {
   };
 
   const handleMessage = (ev: MessageEvent) => {
-    console.log(ev);
-
     const parsed = CalculatorFinishEvent.safeParse(ev.data);
 
     if (parsed.success) {

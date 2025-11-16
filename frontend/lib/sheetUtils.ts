@@ -814,18 +814,23 @@ export function calculateMatchStats(
   };
 }
 
-export function getLastGoalEvent(events: MatchEvent[]): MatchEventGoal | null {
-  return events.findLast((ev) => ev.type === 'GOAL') ?? null;
+export function getLastGoalEvent(
+  events: MatchEvent[] | null,
+): MatchEventGoal | null {
+  return events?.findLast((ev) => ev.type === 'GOAL') ?? null;
 }
 
 export function convertCalculatorFinishEventToMatch(
   event: CalculatorFinishEvent,
 ): MatchCreate {
   const lastGoal = getLastGoalEvent(event.events);
+  const lastHistoryGoal = event.history?.at(-1);
 
-  const winningColor = lastGoal?.for ?? 'unknown';
+  const winningColor = lastGoal?.for ?? lastHistoryGoal ?? 'unknown';
 
-  const duration = lastGoal ? lastGoal.time - event.startedAt : null;
+  const duration = lastGoal
+    ? lastGoal.time - event.startedAt
+    : Math.floor(Date.now() / 1000) - event.startedAt;
 
   return {
     team1: event.teams[0].join(' '),
@@ -839,10 +844,12 @@ export function convertCalculatorFinishEventToMatch(
     winningColor,
     duration,
 
-    replayMetadata: {
-      startedAt: event.startedAt,
-      events: event.events,
-    },
+    replayMetadata: event.events
+      ? {
+          startedAt: event.startedAt,
+          events: event.events,
+        }
+      : null,
   };
 }
 
