@@ -3,11 +3,11 @@ import { lazy } from 'solid-js';
 import Homepage from '#pages/Homepage/Homepage';
 import PageNotFound from '#pages/PageNotFound/PageNotFound';
 
-const RouteMap = lazy(() => import('#pages/RouteMap/RouteMap'));
 const MundialCalculator = lazy(
   () => import('#pages/MundialCalculator/MundialCalculator'),
 );
 
+const RouteMap = lazy(() => import('#pages/RouteMap/RouteMap'));
 const ChartTest = lazy(() => import('#pages/ChartTest'));
 const ButtonTest = lazy(() => import('#pages/ButtonTest/ButtonTest'));
 const InputTest = lazy(() => import('#pages/InputTest/InputTest'));
@@ -27,6 +27,11 @@ export const routes: RouteDefinition[] = [
     component: Homepage,
   },
   {
+    path: '/mundial-calculator',
+    info: { title: 'Mundial Manager - Mundial Calculator' },
+    component: MundialCalculator,
+  },
+  {
     path: '/tests',
     children: [
       {
@@ -34,11 +39,7 @@ export const routes: RouteDefinition[] = [
         info: { title: 'Mundial Manager - Route Map' },
         component: RouteMap,
       },
-      {
-        path: '/mundial-calculator',
-        info: { title: 'Mundial Manager - Mundial Calculator' },
-        component: MundialCalculator,
-      },
+
       {
         path: '/chart-test',
         info: { title: 'Mundial Manager - Chart Test' },
