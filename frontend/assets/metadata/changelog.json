@@ -1,6 +1,65 @@
 {
   "versions": [
     {
+      "version": "0.3.0",
+      "releaseType": "minor",
+      "date": "2025-11-16",
+      "name": "Mundial Calculator integration",
+      "changes": [
+        {
+          "type": "feature",
+          "change": "Integrated Mundial Calculator into the app",
+          "description": "Added a dedicated page width embedded Mundial Calculator. Finished matches can be saved via popup confirmation. Matches added this way are instantly synced with all app instances."
+        },
+        {
+          "type": "improvement",
+          "change": "Added Mundial Calculator link to the Homepage"
+        },
+        {
+          "type": "improvement",
+          "change": "Added loading animation to Button component"
+        }
+      ],
+      "commits": [
+        {
+          "hash": "a1c52e77fc",
+          "message": "Add fallbacks when events and history aren't available  in CalculatorFinishEvent"
+        },
+        {
+          "hash": "e4011dc039",
+          "message": "Add MundialCalculatorLink"
+        },
+        {
+          "hash": "68f7427b02",
+          "message": "Fix MundialCalculator path"
+        },
+        {
+          "hash": "b3a43becd6",
+          "message": "Add missing component type"
+        },
+        {
+          "hash": "49cd3c016a",
+          "message": "Create dedicated MundialCalculator page"
+        },
+        {
+          "hash": "b432da97ca",
+          "message": "Integrate MatchSaveConfirmModal with IframeTest"
+        },
+        {
+          "hash": "d462679daf",
+          "message": "Add MatchSaveConfirmModal"
+        },
+        {
+          "hash": "904faf0c1f",
+          "message": "Consolidate side color declarations"
+        },
+        {
+          "hash": "d631a386e7",
+          "message": "Add loading animation to Button"
+        }
+      ]
+    },
+    {
       "version": "0.2.1",
       "releaseType": "patch",
       "date": "2025-11-14",
