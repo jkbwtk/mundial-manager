@@ -1,11 +1,11 @@
 import {
   createContext,
   createEffect,
+  createUniqueId,
   useContext,
   type ValidComponent,
 } from 'solid-js';
 import { createStore } from 'solid-js/store';
-import type { DynamicProps } from 'solid-js/web';
 import type { ModalEntry, ModalOpenOptions } from '#frontend/types';
 import style from './ModalProvider.module.scss';
 
@@ -52,21 +52,19 @@ export const ModalProvider: ParentComponent = (props) => {
   );
 
   const closeFactory =
-    (
-      modalProps: DynamicProps<ValidComponent>,
-      callback?: (returnValue?: unknown) => void,
-    ) =>
+    (id: string, callback?: (returnValue?: unknown) => void) =>
     (returnValue?: unknown) => {
-      setState('modals', (modals) =>
-        modals.filter((m) => m.props !== modalProps),
-      );
+      setState('modals', (modals) => modals.filter((m) => m.id !== id));
       callback?.(returnValue);
     };
 
   const open: ModalContextActions['open'] = (options) => {
+    const id = createUniqueId();
+
     const entry: ModalEntry = {
+      id,
       props: options.props,
-      closeModal: closeFactory(options.props, options.afterClose),
+      closeModal: closeFactory(id, options.afterClose),
       closeOnBackgroundClick: options.closeOnBackgroundClick ?? true,
     };
 

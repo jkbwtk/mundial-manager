@@ -10,6 +10,7 @@ export type ModalOpenOptions<T extends ValidComponent> = {
 };
 
 export interface ModalEntry<T extends ValidComponent = ValidComponent> {
+  id: string;
   props: DynamicProps<T>;
   closeModal: (returnValue?: unknown) => void;
   closeOnBackgroundClick: boolean;
