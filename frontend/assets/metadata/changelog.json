@@ -1,6 +1,32 @@
 {
   "versions": [
     {
+      "version": "0.3.1",
+      "releaseType": "patch",
+      "date": "2025-11-16",
+      "name": "Modal dismissal fix",
+      "changes": [
+        {
+          "type": "improvement",
+          "change": "Match save confirmation modal can no longer be dismissed by clicking outside it"
+        }
+      ],
+      "commits": [
+        {
+          "hash": "839509ded8",
+          "message": "Use IDs to track modals"
+        },
+        {
+          "hash": "4bc0640e98",
+          "message": "Disable ability to close confirmation modal by clicking outside the modal"
+        },
+        {
+          "hash": "6e51ccac7b",
+          "message": "Refactor modal opening logic to allow for more customizability"
+        }
+      ]
+    },
+    {
       "version": "0.3.0",
       "releaseType": "minor",
       "date": "2025-11-16",
