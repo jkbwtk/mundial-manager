@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import type {
+  DayStats,
   EloRating,
   EloRatings,
   GeneralStats,
@@ -888,4 +889,190 @@ export function getMatchFloor(match: MatchCreate): number | null {
   }
 
   return null;
+}
+
+function calculateEloDifferences(
+  currentElos: Record<string, EloRating>,
+  previousElos: Record<string, EloRating>,
+): Record<string, EloRating> {
+  const eloDifferences: Record<string, EloRating> = {};
+
+  for (const [key, currentElo] of Object.entries(currentElos)) {
+    const previousElo = previousElos[key];
+
+    eloDifferences[key] = {
+      rating: currentElo.rating,
+      ratingChange: currentElo.rating - (previousElo?.rating ?? DEFAULT_ELO),
+    };
+  }
+
+  return eloDifferences;
+}
+
+export function calculateEloRatingDifferences(
+  previousElos: EloRatings,
+  currentElos: EloRatings,
+): EloRatings {
+  return {
+    playerElos: calculateEloDifferences(
+      currentElos.playerElos,
+      previousElos.playerElos,
+    ),
+    teamElos: calculateEloDifferences(
+      currentElos.teamElos,
+      previousElos.teamElos,
+    ),
+    teamIndividualElos: calculateEloDifferences(
+      currentElos.teamIndividualElos,
+      previousElos.teamIndividualElos,
+    ),
+    hybridElos: calculateEloDifferences(
+      currentElos.hybridElos,
+      previousElos.hybridElos,
+    ),
+  };
+}
+
+function calculateGlicko2Differences(
+  currentRatings: Record<string, Glicko2Rating>,
+  previousRatings: Record<string, Glicko2Rating>,
+): Record<string, Glicko2Rating> {
+  const ratingDifferences: Record<string, Glicko2Rating> = {};
+
+  for (const [key, currentRating] of Object.entries(currentRatings)) {
+    const previousRating = previousRatings[key];
+
+    ratingDifferences[key] = {
+      rating: currentRating.rating,
+      ratingChange:
+        currentRating.rating -
+        (previousRating?.rating ?? DEFAULT_GLICKO2_RATING),
+
+      rd: currentRating.rd,
+      rdChange: currentRating.rd - (previousRating?.rd ?? DEFAULT_GLICKO2_RD),
+
+      volatility: currentRating.volatility,
+      volatilityChange:
+        currentRating.volatility -
+        (previousRating?.volatility ?? DEFAULT_GLICKO2_VOLATILITY),
+    };
+  }
+
+  return ratingDifferences;
+}
+
+export function calculateGlicko2RatingDifferences(
+  previousRatings: Glicko2Ratings,
+  currentRatings: Glicko2Ratings,
+): Glicko2Ratings {
+  return {
+    playerGlicko2: calculateGlicko2Differences(
+      currentRatings.playerGlicko2,
+      previousRatings.playerGlicko2,
+    ),
+    teamGlicko2: calculateGlicko2Differences(
+      currentRatings.teamGlicko2,
+      previousRatings.teamGlicko2,
+    ),
+    teamIndividualGlicko2: calculateGlicko2Differences(
+      currentRatings.teamIndividualGlicko2,
+      previousRatings.teamIndividualGlicko2,
+    ),
+    hybridGlicko2: calculateGlicko2Differences(
+      currentRatings.hybridGlicko2,
+      previousRatings.hybridGlicko2,
+    ),
+  };
+}
+
+export const defaultDayStats: DayStats = {
+  date: 0,
+  humanDate: '',
+
+  players: [],
+
+  matches: 0,
+  goals: 0,
+  playtime: 0,
+  playtimeFormatted: '',
+
+  averageMatchDuration: 0,
+  averageMatchDurationFormatted: '',
+  averageGoals: 0,
+
+  goalsPerMinute: 0,
+
+  eloRatings: {
+    playerElos: {},
+    teamElos: {},
+    teamIndividualElos: {},
+    hybridElos: {},
+  },
+
+  glicko2Ratings: {
+    playerGlicko2: {},
+    teamGlicko2: {},
+    teamIndividualGlicko2: {},
+    hybridGlicko2: {},
+  },
+
+  _matchesWithDuration: 0,
+  _goalsWithDuration: 0,
+};
+
+export function calculateDayStats(
+  matches: Match[],
+  lastMatchStats: MatchStats,
+  previousStats: DayStats = defaultDayStats,
+): DayStats {
+  const updatedStats: DayStats = structuredClone(defaultDayStats);
+
+  const players: Set<string> = new Set();
+
+  for (const match of matches) {
+    for (const player of getPlayersFromMatch(match)) {
+      players.add(player);
+    }
+
+    updatedStats.goals += match.score1 + match.score2;
+    updatedStats.playtime += match.duration ?? 0;
+
+    updatedStats._matchesWithDuration += match.duration ? 1 : 0;
+    updatedStats._goalsWithDuration += match.duration
+      ? match.score1 + match.score2
+      : 0;
+  }
+
+  updatedStats.date = matches.at(0)?.date ?? 0;
+  updatedStats.humanDate = formatDate(updatedStats.date);
+
+  updatedStats.players = Array.from(players).sort();
+
+  updatedStats.matches = matches.length;
+
+  updatedStats.playtimeFormatted = formatDuration(updatedStats.playtime);
+
+  updatedStats.averageMatchDuration =
+    updatedStats.playtime / (updatedStats._matchesWithDuration || 1);
+  updatedStats.averageMatchDurationFormatted = formatDuration(
+    updatedStats.averageMatchDuration,
+  );
+
+  updatedStats.averageGoals = updatedStats.goals / (updatedStats.matches || 1);
+
+  updatedStats.goalsPerMinute = updatedStats.playtime
+    ? updatedStats._goalsWithDuration / (updatedStats.playtime / 60)
+    : 0;
+
+  updatedStats.eloRatings = calculateEloRatingDifferences(
+    previousStats.eloRatings,
+    lastMatchStats.eloRatings,
+  );
+
+  updatedStats.glicko2Ratings = calculateGlicko2RatingDifferences(
+    previousStats.glicko2Ratings,
+    lastMatchStats.glicko2Ratings,
+  );
+
+  return updatedStats;
 }

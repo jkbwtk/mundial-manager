@@ -10,11 +10,11 @@ import {
 import { createStore } from 'solid-js/store';
 import { isServer } from 'solid-js/web';
 import {
+  calculateDayStats,
   calculateMatchStats,
+  defaultDayStats,
   defaultMatch,
   defaultMatchStats,
-  formatDate,
-  formatDuration,
 } from '#flib/sheetUtils';
 import type { DayStats, LatestStats, MatchStats } from '#frontend/types';
 import { useTRPC } from '#providers/TRPCProvider';
@@ -178,88 +178,49 @@ export const SheetsProvider: ParentComponent = (props) => {
   });
 
   const dayStats = createMemo<Record<number, DayStats>>(() => {
-    const defaultStats: DayStats = {
-      date: 0,
-      humanDate: '',
-
-      players: [],
-
-      matches: 0,
-      goals: 0,
-      playtime: 0,
-      playtimeFormatted: '',
-
-      averageMatchDuration: 0,
-      averageMatchDurationFormatted: '',
-      averageGoals: 0,
-
-      goalsPerMinute: 0,
-
-      _matchesWithDuration: 0,
-      _goalsWithDuration: 0,
-    };
-
-    const dayMap: Map<number, DayStats> = new Map();
+    const aggregated: Map<number, Match[]> = new Map();
 
     for (const match of state.matches) {
-      if (match.date === null) {
-        continue;
+      if (match.date === null) continue;
+
+      let list = aggregated.get(match.date);
+
+      if (list === undefined) {
+        list = [];
+        aggregated.set(match.date, list);
       }
 
-      if (dayMap.has(match.date) === false) {
-        dayMap.set(match.date, {
-          ...structuredClone(defaultStats),
-          humanDate: formatDate(match.date),
-          date: match.date,
-        });
-      }
-
-      const stats = dayMap.get(match.date)!;
-
-      stats.matches += 1;
-      stats._matchesWithDuration += match.duration ? 1 : 0;
-      stats._goalsWithDuration += match.duration
-        ? match.score1 + match.score2
-        : 0;
-
-      stats.goals += match.score1 + match.score2;
-      stats.playtime += match.duration ?? 0;
-
-      const team1Players = match.team1.split(/\s+/g);
-      const team2Players = match.team2.split(/\s+/g);
-      const players = [...team1Players, ...team2Players];
-
-      for (const player of players) {
-        if (player && stats.players.includes(player) === false) {
-          stats.players.push(player);
-        }
-      }
+      list.push(match);
     }
 
-    for (const [, stats] of dayMap) {
-      stats.averageMatchDuration =
-        stats.playtime / (stats._matchesWithDuration || 1);
+    const days = Array.from(aggregated.keys()).sort((a, b) => a - b);
 
-      stats.averageGoals = stats.goals / (stats.matches || 1);
+    let previousStats: DayStats | undefined;
 
-      stats.goalsPerMinute = stats.playtime
-        ? (60 * stats._goalsWithDuration) / stats.playtime
-        : 0;
+    const dayStats = Object.fromEntries(
+      days.map((date) => {
+        const matches = aggregated.get(date)!.sort((a, b) => a.id - b.id);
 
-      stats.playtimeFormatted = formatDuration(stats.playtime);
-      stats.averageMatchDurationFormatted = formatDuration(
-        stats.averageMatchDuration,
-      );
-    }
+        const lastMatch = matches.at(-1)!;
+        const lastMatchStats = matchStats()[lastMatch.id] ?? defaultMatchStats;
 
-    return Object.fromEntries(dayMap);
+        const stats = calculateDayStats(matches, lastMatchStats, previousStats);
+
+        previousStats = stats;
+
+        return [date, stats] as const;
+      }),
+    );
+
+    return dayStats;
   });
 
   const latest = createMemo<LatestStats>(() => {
     const match = state.matches.at(-1) ?? defaultMatch;
     const stats = matchStats()[match.id] ?? defaultMatchStats;
+    const day = dayStats()[match.date ?? -1] ?? defaultDayStats;
 
-    return { match, matchStats: stats };
+    return { match, matchStats: stats, dayStats: day };
   });
 
   const actions: SheetsContextActions = {

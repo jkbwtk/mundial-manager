@@ -108,6 +108,9 @@ export interface DayStats {
 
   goalsPerMinute: number;
 
+  eloRatings: EloRatings;
+  glicko2Ratings: Glicko2Ratings;
+
   _matchesWithDuration: number;
   _goalsWithDuration: number;
 }
@@ -115,5 +118,5 @@ export interface DayStats {
 export interface LatestStats {
   match: Match;
   matchStats: MatchStats;
-  // dayStats: DayStats;
+  dayStats: DayStats;
 }
