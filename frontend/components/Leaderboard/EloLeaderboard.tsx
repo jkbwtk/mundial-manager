@@ -1,4 +1,10 @@
-import { createMemo, For, Match, Switch } from 'solid-js';
+import { createMemo, createSignal, For, Match, Switch } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
+import {
+  DayPaginatorWidget,
+  usePaginatedDayStat,
+} from '#components/DayPaginatorWidget';
+import { InlineAction } from '#components/InlineAction';
 import {
   MatchPaginatorWidget,
   usePaginatedStat,
@@ -9,8 +15,14 @@ import { Divider } from '#components/Widget';
 import { getTeamColor } from '#flib/sheetUtils';
 import style from './Leaderboard.module.scss';
 
-export const EloLeaderboardBase = () => {
-  const stats = usePaginatedStat();
+interface EloLeaderboardBaseProps {
+  useContext: typeof usePaginatedStat | typeof usePaginatedDayStat;
+}
+
+export const EloLeaderboardBase: Component<EloLeaderboardBaseProps> = (
+  props,
+) => {
+  const stats = props.useContext();
 
   const sortedElos = createMemo(() => ({
     playerElos: Object.fromEntries(
@@ -212,9 +224,36 @@ export const EloLeaderboardBase = () => {
 };
 
 export const EloLeaderboard = () => {
+  const [aggregateStats, setAggregateStats] = createSignal(false);
+
+  const paginator = () => {
+    return aggregateStats()
+      ? { component: DayPaginatorWidget, useContext: usePaginatedDayStat }
+      : { component: MatchPaginatorWidget, useContext: usePaginatedStat };
+  };
+
   return (
-    <MatchPaginatorWidget topLeftLabels="Elo Stats" class={style.container}>
-      <EloLeaderboardBase />
-    </MatchPaginatorWidget>
+    <Dynamic
+      component={paginator().component}
+      topLeftLabels="Elo Stats"
+      class={style.container}
+      topRightLabels={[
+        <span
+          classList={{
+            [style.label]: true,
+            [style.activeStats]: aggregateStats(),
+          }}
+        >
+          <InlineAction
+            symbol="a"
+            content="A"
+            onAction={() => setAggregateStats((v) => !v)}
+          />
+          ggregate
+        </span>,
+      ]}
+    >
+      <EloLeaderboardBase useContext={paginator().useContext} />
+    </Dynamic>
   );
 };

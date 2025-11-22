@@ -44,3 +44,11 @@
 .delta-symbol {
   user-select: none;
 }
+
+.label {
+  color: $textColor;
+}
+
+.active-stats {
+  color: $textBrightColor;
+}

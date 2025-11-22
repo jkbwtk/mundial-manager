@@ -1,4 +1,10 @@
-import { createMemo, For, Match, Switch } from 'solid-js';
+import { createMemo, createSignal, For, Match, Switch } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
+import {
+  DayPaginatorWidget,
+  usePaginatedDayStat,
+} from '#components/DayPaginatorWidget';
+import { InlineAction } from '#components/InlineAction';
 import {
   MatchPaginatorWidget,
   usePaginatedStat,
@@ -9,8 +15,14 @@ import { Divider } from '#components/Widget';
 import { getGlicko2Confidence, getTeamColor } from '#flib/sheetUtils';
 import style from './Leaderboard.module.scss';
 
-export const Glicko2LeaderboardBase = () => {
-  const stats = usePaginatedStat();
+interface Glicko2LeaderboardBaseProps {
+  useContext: typeof usePaginatedStat | typeof usePaginatedDayStat;
+}
+
+export const Glicko2LeaderboardBase: Component<Glicko2LeaderboardBaseProps> = (
+  props,
+) => {
+  const stats = props.useContext();
 
   const sortedGlicko2 = createMemo(() => ({
     playerGlicko2: Object.fromEntries(
@@ -222,8 +234,37 @@ export const Glicko2LeaderboardBase = () => {
   );
 };
 
-export const Glicko2Leaderboard = () => (
-  <MatchPaginatorWidget topLeftLabels="Glicko-2 Stats" class={style.container}>
-    <Glicko2LeaderboardBase />
-  </MatchPaginatorWidget>
-);
+export const Glicko2Leaderboard = () => {
+  const [aggregateStats, setAggregateStats] = createSignal(false);
+
+  const paginator = () => {
+    return aggregateStats()
+      ? { component: DayPaginatorWidget, useContext: usePaginatedDayStat }
+      : { component: MatchPaginatorWidget, useContext: usePaginatedStat };
+  };
+
+  return (
+    <Dynamic
+      component={paginator().component}
+      topLeftLabels="Glicko-2 Stats"
+      class={style.container}
+      topRightLabels={[
+        <span
+          classList={{
+            [style.label]: true,
+            [style.activeStats]: aggregateStats(),
+          }}
+        >
+          <InlineAction
+            symbol="a"
+            content="A"
+            onAction={() => setAggregateStats((v) => !v)}
+          />
+          ggregate
+        </span>,
+      ]}
+    >
+      <Glicko2LeaderboardBase useContext={paginator().useContext} />
+    </Dynamic>
+  );
+};

@@ -2,14 +2,22 @@ import { A } from '@solidjs/router';
 import figlet from 'figlet';
 import smallSlant from 'figlet/fonts/Small Slant';
 import { createSignal, Match, Switch } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
 import { Break } from '#components/Break';
+import {
+  DayPaginatorWidget,
+  usePaginatedDayStat,
+} from '#components/DayPaginatorWidget';
 import { GeneralStats } from '#components/GeneralStats';
 import { InlineAction } from '#components/InlineAction';
 import {
   EloLeaderboardBase,
   Glicko2LeaderboardBase,
 } from '#components/Leaderboard';
-import { MatchPaginatorWidget } from '#components/MatchPaginatorWidget';
+import {
+  MatchPaginatorWidget,
+  usePaginatedStat,
+} from '#components/MatchPaginatorWidget';
 import { MatchStats } from '#components/MatchStats';
 import { MundialCalculatorLink } from '#components/MundialCalculatorLink';
 import { RatingCharts } from '#components/RatingCharts';
@@ -21,7 +29,14 @@ figlet.parseFont('Small Slant', smallSlant);
 const Homepage: Component = () => {
   const [{ windowSize }] = useConsoleUnitPrototype();
 
+  const [aggregateStats, setAggregateStats] = createSignal(false);
   const [statsPage, setStatsPage] = createSignal<'elo' | 'glicko2'>('elo');
+
+  const paginator = () => {
+    return aggregateStats()
+      ? { component: DayPaginatorWidget, useContext: usePaginatedDayStat }
+      : { component: MatchPaginatorWidget, useContext: usePaginatedStat };
+  };
 
   const logo = () =>
     figlet.textSync('Mundial Manager', {
@@ -52,10 +67,24 @@ const Homepage: Component = () => {
         <div>
           <GeneralStats />
           <MatchStats />
-          <MatchPaginatorWidget
+          <Dynamic
+            component={paginator().component}
             class={style.statsWidget}
             topLeftLabels="Leaderboards"
             topRightLabels={[
+              <span
+                classList={{
+                  [style.label]: true,
+                  [style.activeStats]: aggregateStats(),
+                }}
+              >
+                <InlineAction
+                  symbol="a"
+                  content="A"
+                  onAction={() => setAggregateStats((v) => !v)}
+                />
+                ggregate
+              </span>,
               <span
                 classList={{
                   [style.label]: true,
@@ -86,13 +115,13 @@ const Homepage: Component = () => {
           >
             <Switch>
               <Match when={statsPage() === 'elo'}>
-                <EloLeaderboardBase />
+                <EloLeaderboardBase useContext={paginator().useContext} />
               </Match>
               <Match when={statsPage() === 'glicko2'}>
-                <Glicko2LeaderboardBase />
+                <Glicko2LeaderboardBase useContext={paginator().useContext} />
               </Match>
             </Switch>
-          </MatchPaginatorWidget>
+          </Dynamic>
         </div>
 
         <RatingCharts />
