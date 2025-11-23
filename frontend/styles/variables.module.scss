@@ -1,0 +1,45 @@
+@use 'app' as *;
+
+:export {
+  gray: $gray;
+  grayBright: $grayBright;
+  grayDim: $grayDim;
+
+  red: $red;
+  redBright: $redBright;
+
+  green: $green;
+  greenBright: $greenBright;
+
+  blue: $blue;
+  blueBright: $blueBright;
+
+  yellow: $yellow;
+  yellowBright: $yellowBright;
+
+  textColor: $textColor;
+  textBrightColor: $textBrightColor;
+  textDimColor: $textDimColor;
+
+  codeColor: $codeColor;
+
+  primaryColor: $primaryColor;
+  primaryBrightColor: $primaryBrightColor;
+
+  backgroundColor: $backgroundColor;
+  borderColor: $borderColor;
+  dividerColor: $dividerColor;
+  widgetColor: $widgetColor;
+  modalColor: $modalColor;
+
+  fontFamily: $fontFamily;
+  monoFontFamily: $monoFontFamily;
+
+  baseFontSize: $baseFontSize;
+
+  defaultFontSize: $defaultFontSize;
+  defaultIconSize: $defaultIconSize;
+
+  borderRadius: $borderRadius;
+  borderSize: $borderSize;
+}

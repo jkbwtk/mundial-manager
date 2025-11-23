@@ -1,0 +1,19 @@
+@use 'app' as *;
+
+.charts-container {
+  display: grid;
+  grid-template-columns: 1fr;
+
+  width: 100%;
+  max-width: 100%;
+
+  .chart {
+    height: ch(25);
+    width: 100%;
+    max-width: 100%;
+  }
+
+  // @media (max-width: 1200px) {
+  //   grid-template-columns: 1fr;
+  // }
+}

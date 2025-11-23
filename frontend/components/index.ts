@@ -17,6 +17,7 @@ export * from './FilePicker';
 export * from './FileSizeWithUnit';
 export * from './FileTree';
 export * from './FreeSpaceGauge';
+export * from './GeneralStatCharts';
 export * from './GeneralStats';
 export * from './HighlightedCode';
 export * from './InlineAction';

@@ -9,6 +9,7 @@ import {
   usePaginatedDayStat,
 } from '#components/DayPaginatorWidget';
 import { DayStats } from '#components/DayStats';
+import { GeneralStatCharts } from '#components/GeneralStatCharts';
 import { GeneralStats } from '#components/GeneralStats';
 import { InlineAction } from '#components/InlineAction';
 import {
@@ -126,7 +127,10 @@ const Homepage: Component = () => {
           </Dynamic>
         </div>
 
-        <RatingCharts />
+        <div>
+          <GeneralStatCharts />
+          <RatingCharts />
+        </div>
 
         <MundialCalculatorLink />
       </div>
