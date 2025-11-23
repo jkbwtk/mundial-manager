@@ -1,6 +1,69 @@
 {
   "versions": [
     {
+      "version": "0.4.0",
+      "releaseType": "minor",
+      "date": "2025-11-23",
+      "name": "More stats",
+      "changes": [
+        {
+          "type": "feature",
+          "change": "Added more charts",
+          "description": "Added floor and color distribution pie charts, as well as match duration and mach count per day bar charts."
+        },
+        {
+          "type": "feature",
+          "change": "Introduced DayStats widget for viewing statistics organized by day"
+        },
+        {
+          "type": "improvement",
+          "change": "Added option to aggregate rating changes over multiple days"
+        },
+        {
+          "type": "improvement",
+          "change": "Added player ratings to profile modal"
+        }
+      ],
+      "commits": [
+        {
+          "hash": "fb3104b56b",
+          "message": "Add pie charts to GeneralStatCharts"
+        },
+        {
+          "hash": "c8a57ed98b",
+          "message": "Calculate match count per floor and wins per color"
+        },
+        {
+          "hash": "694accf97a",
+          "message": "Create GeneralStatCharts widget"
+        },
+        {
+          "hash": "0748ff2962",
+          "message": "Fix inconsistent capitalization"
+        },
+        {
+          "hash": "32e879b795",
+          "message": "Add ratings to PlayerProfileModal"
+        },
+        {
+          "hash": "384419993a",
+          "message": "Create DayStats widget"
+        },
+        {
+          "hash": "c3ba2f87a6",
+          "message": "Integrate day stat paginator with leaderboards"
+        },
+        {
+          "hash": "b5cafed5d9",
+          "message": "Create DayPaginatorWidget"
+        },
+        {
+          "hash": "5214172e24",
+          "message": "Rewrite DayStats calculation"
+        }
+      ]
+    },
+    {
       "version": "0.3.1",
       "releaseType": "patch",
       "date": "2025-11-16",
