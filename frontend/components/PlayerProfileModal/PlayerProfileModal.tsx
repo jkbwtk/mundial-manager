@@ -35,10 +35,51 @@ export const PlayerProfileModal: Component<PlayerProfileModalProps> = (
     () => latest().matchStats.playerStats[selectedPlayer()],
   );
 
+  const playerRatings = createMemo(() => ({
+    elo: {
+      player: latest().matchStats.eloRatings.playerElos[selectedPlayer()],
+      hybrid: latest().matchStats.eloRatings.hybridElos[selectedPlayer()],
+      teamIndividual:
+        latest().matchStats.eloRatings.teamIndividualElos[selectedPlayer()],
+      team: latest().matchStats.eloRatings.teamElos[selectedPlayer()],
+    },
+    glicko2: {
+      player:
+        latest().matchStats.glicko2Ratings.playerGlicko2[selectedPlayer()],
+      hybrid:
+        latest().matchStats.glicko2Ratings.hybridGlicko2[selectedPlayer()],
+      teamIndividual:
+        latest().matchStats.glicko2Ratings.teamIndividualGlicko2[
+          selectedPlayer()
+        ],
+      team: latest().matchStats.glicko2Ratings.teamGlicko2[selectedPlayer()],
+    },
+  }));
+
   const comparedPlayerStats = createMemo(() => {
     const player = comparedPlayer();
     if (!player) return undefined;
     return latest().matchStats.playerStats[player];
+  });
+
+  const comparedPlayerRatings = createMemo(() => {
+    const player = comparedPlayer();
+    if (!player) return undefined;
+
+    return {
+      elo: {
+        player: latest().matchStats.eloRatings.playerElos[player],
+        hybrid: latest().matchStats.eloRatings.hybridElos[player],
+        teamIndividual:
+          latest().matchStats.eloRatings.teamIndividualElos[player],
+      },
+      glicko2: {
+        player: latest().matchStats.glicko2Ratings.playerGlicko2[player],
+        hybrid: latest().matchStats.glicko2Ratings.hybridGlicko2[player],
+        teamIndividual:
+          latest().matchStats.glicko2Ratings.teamIndividualGlicko2[player],
+      },
+    };
   });
 
   const handlePickerClose = (pickedPlayer?: unknown) => {
@@ -239,6 +280,80 @@ export const PlayerProfileModal: Component<PlayerProfileModalProps> = (
             />
           </strong>
         </div>
+
+        <Show
+          when={playerRatings().elo.player || playerRatings().glicko2.player}
+        >
+          <Divider class={style.divider} />
+
+          <div class={style.container}>
+            <span>Individual Elo:</span>
+            <strong>
+              <DeltaDisplay
+                base={playerRatings().elo.player?.rating}
+                compared={comparedPlayerRatings()?.elo.player?.rating}
+                displayBase={true}
+                displayCompared={true}
+              />
+            </strong>
+
+            <span>Hybrid Elo:</span>
+            <strong>
+              <DeltaDisplay
+                base={playerRatings().elo.hybrid?.rating}
+                compared={comparedPlayerRatings()?.elo.hybrid?.rating}
+                displayBase={true}
+                displayCompared={true}
+              />
+            </strong>
+
+            <span>Team Indiv. Elo:</span>
+            <strong>
+              <DeltaDisplay
+                base={playerRatings().elo.teamIndividual?.rating}
+                compared={comparedPlayerRatings()?.elo.teamIndividual?.rating}
+                displayBase={true}
+                displayCompared={true}
+              />
+            </strong>
+          </div>
+
+          <Divider class={style.divider} />
+
+          <div class={style.container}>
+            <span>Individual Glicko2:</span>
+            <strong>
+              <DeltaDisplay
+                base={playerRatings().glicko2.player?.rating}
+                compared={comparedPlayerRatings()?.glicko2.player?.rating}
+                displayBase={true}
+                displayCompared={true}
+              />
+            </strong>
+
+            <span>Hybrid Glicko2:</span>
+            <strong>
+              <DeltaDisplay
+                base={playerRatings().glicko2.hybrid?.rating}
+                compared={comparedPlayerRatings()?.glicko2.hybrid?.rating}
+                displayBase={true}
+                displayCompared={true}
+              />
+            </strong>
+
+            <span>Team Indiv. Glicko2:</span>
+            <strong>
+              <DeltaDisplay
+                base={playerRatings().glicko2.teamIndividual?.rating}
+                compared={
+                  comparedPlayerRatings()?.glicko2.teamIndividual?.rating
+                }
+                displayBase={true}
+                displayCompared={true}
+              />
+            </strong>
+          </div>
+        </Show>
       </Show>
     </Modal>
   );
