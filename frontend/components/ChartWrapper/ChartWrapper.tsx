@@ -33,48 +33,21 @@ export const ChartWrapper: Component<ChartWrapperProps> = (props) => {
         Chart.defaults.backgroundColor = 'transparent';
         Chart.defaults.font.size = 14;
 
-        chart = new Chart(canvasRef, {
+        const config: ChartConfiguration = {
           ...props.config,
           options: {
             responsive: true,
             maintainAspectRatio: false,
-            resizeDelay: 50,
+            resizeDelay: 200,
             interaction: {
               intersect: false,
               mode: 'index',
             },
-            elements: {
-              point: {
-                radius: 3,
-                hoverRadius: 5,
-              },
-            },
-            plugins: {
-              legend: {
-                labels: {
-                  usePointStyle: true,
-                  boxWidth: 6,
-                  boxHeight: 6,
-                },
-              },
-            },
-            scales: {
-              x: {
-                ticks: {
-                  maxTicksLimit: 10,
-                  maxRotation: 45,
-                  minRotation: 0,
-                },
-              },
-              y: {
-                ticks: {
-                  maxTicksLimit: 8,
-                },
-              },
-            },
             ...props.config.options,
           },
-        });
+        };
+
+        chart = new Chart(canvasRef, config);
 
         if (props.onChartReady) {
           props.onChartReady(chart);

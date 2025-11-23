@@ -8,12 +8,32 @@
   max-width: 100%;
 
   .chart {
-    height: ch(25);
+    height: ch(30);
     width: 100%;
     max-width: 100%;
   }
 
-  // @media (max-width: 1200px) {
-  //   grid-template-columns: 1fr;
-  // }
+  .multi-chart-row {
+    display: flex;
+    gap: cw(1);
+  }
+
+  .pie-chart-container {
+    height: ch(30);
+    width: cw(50);
+
+    .pie-chart {
+      height: ch(15);
+    }
+  }
+
+  @media (max-width: 1200px) {
+    .multi-chart-row {
+      flex-direction: column;
+    }
+
+    .pie-chart-container {
+      width: 100%;
+    }
+  }
 }
