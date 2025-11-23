@@ -12,7 +12,7 @@ import {
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import { PlayerLink } from '#components/PlayerLink';
 import { Divider } from '#components/Widget';
-import { getGlicko2Confidence, getTeamColor } from '#flib/sheetUtils';
+import { generateTeamColor, getGlicko2Confidence } from '#flib/sheetUtils';
 import style from './Leaderboard.module.scss';
 
 interface Glicko2LeaderboardBaseProps {
@@ -60,7 +60,7 @@ export const Glicko2LeaderboardBase: Component<Glicko2LeaderboardBaseProps> = (
               <tr>
                 <td class={style.minWidth}>{index() + 1}.</td>
                 <td>
-                  <span style={{ color: getTeamColor(player) }}>
+                  <span style={{ color: generateTeamColor(player) }}>
                     <MaterialSymbol symbol="atr" />
                   </span>
                   <PlayerLink name={player} />
@@ -106,7 +106,7 @@ export const Glicko2LeaderboardBase: Component<Glicko2LeaderboardBaseProps> = (
               <tr>
                 <td class={style.minWidth}>{index() + 1}.</td>
                 <td>
-                  <span style={{ color: getTeamColor(player) }}>
+                  <span style={{ color: generateTeamColor(player) }}>
                     <MaterialSymbol symbol="atr" />
                   </span>
                   <PlayerLink name={player} />
@@ -152,7 +152,7 @@ export const Glicko2LeaderboardBase: Component<Glicko2LeaderboardBaseProps> = (
               <tr>
                 <td class={style.minWidth}>{index() + 1}.</td>
                 <td>
-                  <span style={{ color: getTeamColor(player) }}>
+                  <span style={{ color: generateTeamColor(player) }}>
                     <MaterialSymbol symbol="atr" />
                   </span>
                   <PlayerLink name={player} />
@@ -198,7 +198,7 @@ export const Glicko2LeaderboardBase: Component<Glicko2LeaderboardBaseProps> = (
               <tr>
                 <td class={style.minWidth}>{index() + 1}.</td>
                 <td>
-                  <span style={{ color: getTeamColor(team) }}>
+                  <span style={{ color: generateTeamColor(team) }}>
                     <MaterialSymbol symbol="atr" />
                   </span>
                   {team}

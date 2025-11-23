@@ -1,7 +1,7 @@
 import type { ChartConfiguration } from 'chart.js';
 import { createMemo, lazy } from 'solid-js';
 import { Widget } from '#components/Widget';
-import { getTeamColor } from '#flib/sheetUtils';
+import { generateTeamColor } from '#flib/sheetUtils';
 import { useSheets } from '#providers/SheetsProvider';
 import style from './RatingChats.module.scss';
 
@@ -29,8 +29,8 @@ export const RatingCharts: Component = () => {
           data: Object.values(stats).map(
             (s) => s.eloRatings.playerElos[player]?.rating ?? null,
           ),
-          borderColor: getTeamColor(player),
-          backgroundColor: `${getTeamColor(player)}20`,
+          borderColor: generateTeamColor(player),
+          backgroundColor: `${generateTeamColor(player)}20`,
         })),
       },
       options: {
@@ -53,8 +53,8 @@ export const RatingCharts: Component = () => {
           data: Object.values(stats).map(
             (s) => s.eloRatings.hybridElos[player]?.rating ?? null,
           ),
-          borderColor: getTeamColor(player),
-          backgroundColor: `${getTeamColor(player)}20`,
+          borderColor: generateTeamColor(player),
+          backgroundColor: `${generateTeamColor(player)}20`,
         })),
       },
       options: {
@@ -77,8 +77,8 @@ export const RatingCharts: Component = () => {
           data: Object.values(stats).map(
             (s) => s.eloRatings.teamIndividualElos[player]?.rating ?? null,
           ),
-          borderColor: getTeamColor(player),
-          backgroundColor: `${getTeamColor(player)}20`,
+          borderColor: generateTeamColor(player),
+          backgroundColor: `${generateTeamColor(player)}20`,
         })),
       },
       options: {
@@ -101,8 +101,8 @@ export const RatingCharts: Component = () => {
           data: Object.values(stats).map(
             (s) => s.eloRatings.teamElos[team]?.rating ?? null,
           ),
-          borderColor: getTeamColor(team),
-          backgroundColor: `${getTeamColor(team)}20`,
+          borderColor: generateTeamColor(team),
+          backgroundColor: `${generateTeamColor(team)}20`,
         })),
       },
       options: {
@@ -125,8 +125,8 @@ export const RatingCharts: Component = () => {
           data: Object.values(stats).map(
             (s) => s.glicko2Ratings.playerGlicko2[player]?.rating ?? null,
           ),
-          borderColor: getTeamColor(player),
-          backgroundColor: `${getTeamColor(player)}20`,
+          borderColor: generateTeamColor(player),
+          backgroundColor: `${generateTeamColor(player)}20`,
         })),
       },
       options: {
@@ -149,8 +149,8 @@ export const RatingCharts: Component = () => {
           data: Object.values(stats).map(
             (s) => s.glicko2Ratings.hybridGlicko2[player]?.rating ?? null,
           ),
-          borderColor: getTeamColor(player),
-          backgroundColor: `${getTeamColor(player)}20`,
+          borderColor: generateTeamColor(player),
+          backgroundColor: `${generateTeamColor(player)}20`,
         })),
       },
       options: {
@@ -175,8 +175,8 @@ export const RatingCharts: Component = () => {
               (s) =>
                 s.glicko2Ratings.teamIndividualGlicko2[player]?.rating ?? null,
             ),
-            borderColor: getTeamColor(player),
-            backgroundColor: `${getTeamColor(player)}20`,
+            borderColor: generateTeamColor(player),
+            backgroundColor: `${generateTeamColor(player)}20`,
           })),
         },
         options: {
@@ -200,8 +200,8 @@ export const RatingCharts: Component = () => {
           data: Object.values(stats).map(
             (s) => s.glicko2Ratings.teamGlicko2[team]?.rating ?? null,
           ),
-          borderColor: getTeamColor(team),
-          backgroundColor: `${getTeamColor(team)}20`,
+          borderColor: generateTeamColor(team),
+          backgroundColor: `${generateTeamColor(team)}20`,
         })),
       },
       options: {

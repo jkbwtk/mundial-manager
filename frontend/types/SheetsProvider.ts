@@ -19,6 +19,9 @@ export interface GeneralStats {
   totalPlaytimeExtrapolatedFormatted: string;
   totalIndividualPlaytimeExtrapolated: number;
   totalIndividualPlaytimeExtrapolatedFormatted: string;
+
+  floorMatchCount: Record<number, number>;
+  colorWinCount: Record<string, number>;
 }
 
 export interface Glicko2Rating {

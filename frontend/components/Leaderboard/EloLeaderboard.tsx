@@ -12,7 +12,7 @@ import {
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import { PlayerLink } from '#components/PlayerLink';
 import { Divider } from '#components/Widget';
-import { getTeamColor } from '#flib/sheetUtils';
+import { generateTeamColor } from '#flib/sheetUtils';
 import style from './Leaderboard.module.scss';
 
 interface EloLeaderboardBaseProps {
@@ -60,7 +60,7 @@ export const EloLeaderboardBase: Component<EloLeaderboardBaseProps> = (
               <tr>
                 <td class={style.minWidth}>{index() + 1}.</td>
                 <td>
-                  <span style={{ color: getTeamColor(player) }}>
+                  <span style={{ color: generateTeamColor(player) }}>
                     <MaterialSymbol symbol="atr" />
                   </span>
                   <PlayerLink name={player} />
@@ -103,7 +103,7 @@ export const EloLeaderboardBase: Component<EloLeaderboardBaseProps> = (
               <tr>
                 <td class={style.minWidth}>{index() + 1}.</td>
                 <td>
-                  <span style={{ color: getTeamColor(player) }}>
+                  <span style={{ color: generateTeamColor(player) }}>
                     <MaterialSymbol symbol="atr" />
                   </span>
                   <PlayerLink name={player} />
@@ -146,7 +146,7 @@ export const EloLeaderboardBase: Component<EloLeaderboardBaseProps> = (
               <tr>
                 <td class={style.minWidth}>{index() + 1}.</td>
                 <td>
-                  <span style={{ color: getTeamColor(player) }}>
+                  <span style={{ color: generateTeamColor(player) }}>
                     <MaterialSymbol symbol="atr" />
                   </span>
                   <PlayerLink name={player} />
@@ -190,7 +190,7 @@ export const EloLeaderboardBase: Component<EloLeaderboardBaseProps> = (
                 <td class={style.minWidth}>{index() + 1}.</td>
 
                 <td>
-                  <span style={{ color: getTeamColor(team) }}>
+                  <span style={{ color: generateTeamColor(team) }}>
                     <MaterialSymbol symbol="atr" />
                   </span>
                   {team}

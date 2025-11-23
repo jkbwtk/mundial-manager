@@ -498,7 +498,7 @@ function hslToHex(h: number, s: number, l: number): string {
   return `#${rHex}${gHex}${bHex}`;
 }
 
-export function getTeamColor(team: string): string {
+export function generateTeamColor(team: string): string {
   const hash = hashString(team);
 
   const hueBase = hash % 12;
@@ -540,6 +540,9 @@ const defaultGeneralStats: GeneralStats = {
   totalPlaytimeExtrapolatedFormatted: formatDuration(0),
   totalIndividualPlaytimeExtrapolated: 0,
   totalIndividualPlaytimeExtrapolatedFormatted: formatDuration(0),
+
+  floorMatchCount: {},
+  colorWinCount: {},
 };
 
 export const defaultMatchStats: MatchStats = {
@@ -641,6 +644,23 @@ function calculateGeneralStats(
     totalIndividualPlaytimeExtrapolated,
   );
 
+  const floorMatchCount = structuredClone(
+    previousStats.generalStats.floorMatchCount,
+  );
+
+  if (match.floor !== null) {
+    floorMatchCount[match.floor] = (floorMatchCount[match.floor] ?? 0) + 1;
+  }
+
+  const colorWinCount = structuredClone(
+    previousStats.generalStats.colorWinCount,
+  );
+
+  if (match.winningColor && match.winningColor !== 'unknown') {
+    colorWinCount[match.winningColor] =
+      (colorWinCount[match.winningColor] ?? 0) + 1;
+  }
+
   return {
     totalMatches,
     totalGoals,
@@ -660,6 +680,9 @@ function calculateGeneralStats(
     totalPlaytimeExtrapolatedFormatted,
     totalIndividualPlaytimeExtrapolated,
     totalIndividualPlaytimeExtrapolatedFormatted,
+
+    floorMatchCount,
+    colorWinCount,
   };
 }
 
