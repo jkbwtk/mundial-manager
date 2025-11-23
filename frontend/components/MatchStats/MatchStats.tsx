@@ -92,7 +92,7 @@ export const MatchStatsBase: Component = () => {
       </div>
       <Divider />
       <div class={style.container}>
-        <span>Goals per minute:</span>
+        <span>Goals Per Minute:</span>
         <strong>
           <AnimatedText>{stats().goalsPerMinute.toFixed(2)}</AnimatedText>
         </strong>

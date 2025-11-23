@@ -170,7 +170,7 @@ export const PlayerProfileModal: Component<PlayerProfileModalProps> = (
         <Divider class={style.divider} />
 
         <div class={style.container}>
-          <span>Total playtime:</span>
+          <span>Total Playtime:</span>
           <strong>
             <DeltaDisplay
               base={playerStats()?.totalPlaytime}
@@ -181,7 +181,7 @@ export const PlayerProfileModal: Component<PlayerProfileModalProps> = (
             />
           </strong>
 
-          <span>Avg. match duration:</span>
+          <span>Avg. Match Duration:</span>
           <strong>
             <DeltaDisplay
               base={playerStats()?.averageMatchDuration}
