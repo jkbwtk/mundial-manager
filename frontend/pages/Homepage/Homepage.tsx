@@ -8,6 +8,7 @@ import {
   DayPaginatorWidget,
   usePaginatedDayStat,
 } from '#components/DayPaginatorWidget';
+import { DayStats } from '#components/DayStats';
 import { GeneralStats } from '#components/GeneralStats';
 import { InlineAction } from '#components/InlineAction';
 import {
@@ -66,6 +67,7 @@ const Homepage: Component = () => {
       <div class={style.dashboardContainer}>
         <div>
           <GeneralStats />
+          <DayStats />
           <MatchStats />
           <Dynamic
             component={paginator().component}

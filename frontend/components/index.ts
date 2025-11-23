@@ -10,6 +10,7 @@ export * from './Button';
 export * from './ChangelogModal';
 export * from './ChartWrapper';
 export * from './DayPaginatorWidget';
+export * from './DayStats';
 export * from './DeltaDisplay';
 export * from './DevGrid';
 export * from './FilePicker';
