@@ -54,7 +54,7 @@ export const DeltaDisplay: Component<DeltaDisplayProps> = (userProps) => {
 
   return (
     <>
-      <Show when={props.displayBase && props.base}>
+      <Show when={props.displayBase && props.base !== undefined}>
         <span class={style.baseDisplay}>{formattedBase()}</span>
       </Show>
 
@@ -77,7 +77,7 @@ export const DeltaDisplay: Component<DeltaDisplayProps> = (userProps) => {
         </span>
       </Show>
 
-      <Show when={props.displayCompared && props.compared}>
+      <Show when={props.displayCompared && props.compared !== undefined}>
         <span class={style.comparedDisplay}>{formattedCompared()}</span>
       </Show>
     </>
