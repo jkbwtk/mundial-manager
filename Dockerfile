@@ -2,6 +2,9 @@ FROM node:22-alpine AS build
 
 WORKDIR /build
 
+ARG VITE_CALCULATOR_URL
+ENV VITE_CALCULATOR_URL=${VITE_CALCULATOR_URL}
+
 COPY package.json pnpm-lock.yaml ./
 
 RUN corepack enable && pnpm install --frozen-lockfile

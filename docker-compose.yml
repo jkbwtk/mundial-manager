@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - VITE_CALCULATOR_URL=${VITE_CALCULATOR_URL:-http://localhost}
     ports:
       - ${NGINX_PORT:-8090}:80
     environment:
