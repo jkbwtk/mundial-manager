@@ -39,6 +39,7 @@ export const ChartWrapper: Component<ChartWrapperProps> = (props) => {
             responsive: true,
             maintainAspectRatio: false,
             resizeDelay: 200,
+            animation: false,
             interaction: {
               intersect: false,
               mode: 'index',
