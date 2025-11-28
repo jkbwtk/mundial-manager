@@ -10,7 +10,6 @@ import { createContext, useContext } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import type { AppRouter } from '#backend/routes/app';
 import { isDev } from '#flib/utils';
-import { quickSwitch } from '#shared/utils';
 
 export interface TRPCContextState {
   client: ReturnType<typeof createTRPCClient<AppRouter>>;
@@ -31,36 +30,60 @@ function createDefaultState(): TRPCContextState {
         loggerLink({
           enabled: isDev,
         }),
-        retryLink({
-          retry: (opts) => {
-            if (
-              opts.error.data &&
-              opts.error.data.code === 'INTERNAL_SERVER_ERROR'
-            ) {
-              return false;
-            }
-
-            if (opts.op.type === 'mutation') {
-              return false;
-            }
-
-            const attempts = quickSwitch<number>(opts.op.type, {
-              subscription: 120,
-              default: 3,
-            });
-
-            return opts.attempts <= attempts;
-          },
-          retryDelayMs: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
-        }),
         splitLink({
           condition: (op) => op.type === 'subscription',
-          true: httpSubscriptionLink({
-            url: '/trpc',
-          }),
-          false: httpBatchStreamLink({
-            url: '/trpc',
-          }),
+          true: [
+            retryLink({
+              retry: (opts) => {
+                const code = opts.error.data?.code;
+
+                if (code === 'INTERNAL_SERVER_ERROR') {
+                  return false;
+                }
+
+                if (opts.attempts > 120) {
+                  console.warn(
+                    `tRPC subscription max retries reached for ${opts.op.path}`,
+                  );
+                  return false;
+                }
+
+                if (isDev()) {
+                  console.log(
+                    `tRPC subscription reconnecting (attempt ${opts.attempts})`,
+                  );
+                }
+
+                return true;
+              },
+              retryDelayMs: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
+            }),
+            httpSubscriptionLink({
+              url: '/trpc',
+            }),
+          ],
+          false: [
+            retryLink({
+              retry: (opts) => {
+                if (
+                  opts.error.data &&
+                  opts.error.data.code === 'INTERNAL_SERVER_ERROR'
+                ) {
+                  return false;
+                }
+
+                if (opts.op.type === 'mutation') {
+                  return false;
+                }
+
+                return opts.attempts <= 3;
+              },
+              retryDelayMs: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
+            }),
+            httpBatchStreamLink({
+              url: '/trpc',
+            }),
+          ],
         }),
       ],
     }),
