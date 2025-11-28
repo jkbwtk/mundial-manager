@@ -1,6 +1,46 @@
 {
   "versions": [
     {
+      "version": "0.4.1",
+      "releaseType": "patch",
+      "date": "2025-11-29",
+      "name": "tRPC subscription and DeltaDisplay fixes",
+      "changes": [
+        {
+          "type": "bugfix",
+          "change": "Fixed tRPC subscription reconnect handling",
+          "description": "New matches should now be synced properly after a connection drop. Reconnection attempts should be more reliable."
+        },
+        {
+          "type": "bugfix",
+          "change": "Fixed DeltaDisplay undefined value checks",
+          "description": "Value comparisons should now display zeroes correctly instead of empty fields."
+        }
+      ],
+      "commits": [
+        {
+          "hash": "6dacfa821f",
+          "message": "Handle subscription reconnects properly"
+        },
+        {
+          "hash": "dbbfba2f94",
+          "message": "Split tRPC retry logic"
+        },
+        {
+          "hash": "549b460c95",
+          "message": "Disable chart animations"
+        },
+        {
+          "hash": "230cb079c1",
+          "message": "Pass VITE_CALCULATOR_URL during build"
+        },
+        {
+          "hash": "5cd7de184a",
+          "message": "Fix DeltaDisplay undefined checks"
+        }
+      ]
+    },
+    {
       "version": "0.4.0",
       "releaseType": "minor",
       "date": "2025-11-23",
