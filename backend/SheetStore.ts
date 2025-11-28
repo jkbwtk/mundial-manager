@@ -107,7 +107,7 @@ export class SheetStore extends Store {
 
     const t1 = performance.now();
 
-    await this.doc.loadInfo();
+    await this.doc.loadInfo(true);
     const sheet = this.doc.sheetsByIndex[this.options.sheetIndex];
 
     if (sheet === undefined) {
@@ -183,10 +183,7 @@ export class SheetStore extends Store {
     }
   }
 
-  // @AsyncCached({ ttl: 10 * 1000 }) // 10 seconds
-  public async getMatches(): Promise<Match[]> {
-    await this.loadMatchesCells();
-
+  public getLocalMatches(): Match[] {
     const matches: Match[] = [];
 
     for (const row of range(
@@ -199,6 +196,15 @@ export class SheetStore extends Store {
         matches.push(match);
       }
     }
+
+    return matches;
+  }
+
+  // @AsyncCached({ ttl: 10 * 1000 }) // 10 seconds
+  public async getMatches(): Promise<Match[]> {
+    await this.loadMatchesCells();
+
+    const matches = this.getLocalMatches();
 
     this.matchesEmitter.emit('synced', matches);
 

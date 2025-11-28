@@ -1,4 +1,5 @@
 import { tracked } from '@trpc/server';
+import z from 'zod';
 import { zodEncode } from '#backend/lib/utils';
 import { SheetStore } from '#backend/SheetStore';
 import { procedure, router } from '#backend/trpc';
@@ -37,15 +38,30 @@ export const sheetsRouter = router({
 
       return store.createMatch(match);
     }),
-  onMatchAdded: sheetProcedure.subscription(async function* (opts) {
-    const store = opts.ctx.sheetStore;
+  onMatchAdded: sheetProcedure
+    .input(
+      z.object({ lastEventId: z.coerce.number().int().nullish() }).optional(),
+    )
+    .subscription(async function* (opts) {
+      const store = await opts.ctx.sheetStore.getInitialized();
+      const lastEventId = opts.input?.lastEventId;
 
-    const iterator = store.matchesEmitter.toIterable('matchCreated', {
-      signal: opts.signal,
-    });
+      const iterator = store.matchesEmitter.toIterable('matchCreated', {
+        signal: opts.signal,
+      });
 
-    for await (const [match] of iterator) {
-      yield tracked(String(match.id), match);
-    }
-  }),
+      if (lastEventId) {
+        const localMatches = store
+          .getLocalMatches()
+          .filter((match) => match.id > lastEventId);
+
+        for (const match of localMatches) {
+          yield tracked(String(match.id), match);
+        }
+      }
+
+      for await (const [match] of iterator) {
+        yield tracked(String(match.id), match);
+      }
+    }),
 });

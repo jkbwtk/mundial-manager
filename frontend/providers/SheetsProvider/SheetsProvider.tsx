@@ -137,19 +137,24 @@ export const SheetsProvider: ParentComponent = (props) => {
     }
 
     if (onMatchAddedSubscription === null) {
-      onMatchAddedSubscription = client.sheets.onMatchAdded.subscribe(void 0, {
-        onData: ({ data: match }) => {
-          setState('matches', state.matches.length, match);
-          cacheMatches(state.matches);
+      onMatchAddedSubscription = client.sheets.onMatchAdded.subscribe(
+        {
+          lastEventId: latest().match.id,
         },
+        {
+          onData: ({ data: match }) => {
+            setState('matches', state.matches.length, match);
+            cacheMatches(state.matches);
+          },
 
-        onError: (err) => {
-          console.error(
-            'SheetsProvider: onMatchAdded subscription error:',
-            err,
-          );
+          onError: (err) => {
+            console.error(
+              'SheetsProvider: onMatchAdded subscription error:',
+              err,
+            );
+          },
         },
-      });
+      );
     }
   }
 
