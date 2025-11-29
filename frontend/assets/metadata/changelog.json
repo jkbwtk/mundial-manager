@@ -1,6 +1,24 @@
 {
   "versions": [
     {
+      "version": "0.4.2",
+      "releaseType": "patch",
+      "date": "2025-11-29",
+      "name": "tRPC fixes part II",
+      "changes": [
+        {
+          "type": "bugfix",
+          "change": "Removed duration limit for SSE connections"
+        }
+      ],
+      "commits": [
+        {
+          "hash": "863bad273e",
+          "message": "Remove duration limit of SSE connections"
+        }
+      ]
+    },
+    {
       "version": "0.4.1",
       "releaseType": "patch",
       "date": "2025-11-29",
