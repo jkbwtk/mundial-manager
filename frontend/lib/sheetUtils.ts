@@ -707,6 +707,12 @@ function getDefaultPlayerStats(player: string): PlayerStats {
     goalDifference: 0,
     goalRatio: 0,
 
+    currentWinStreak: 0,
+    longestWinStreak: 0,
+
+    currentLossStreak: 0,
+    longestLossStreak: 0,
+
     _matchesWithDuration: 0,
   };
 }
@@ -730,6 +736,8 @@ function calculatePlayerStats(
       ? match.score2
       : match.score1;
 
+    const hasWon = playerTeamGoals === 10;
+
     playerStats.totalPlaytime += match.duration ?? 0;
     playerStats.totalPlaytimeFormatted = formatDuration(
       playerStats.totalPlaytime,
@@ -742,8 +750,8 @@ function calculatePlayerStats(
       playerStats.averageMatchDuration,
     );
 
-    playerStats.wins += playerTeamGoals === 10 ? 1 : 0;
-    playerStats.losses += playerTeamGoals !== 10 ? 1 : 0;
+    playerStats.wins += hasWon ? 1 : 0;
+    playerStats.losses += hasWon ? 1 : 0;
     playerStats.winRatio = playerStats.losses
       ? playerStats.wins / playerStats.losses
       : 0;
@@ -754,6 +762,23 @@ function calculatePlayerStats(
     playerStats.goalDifference += playerTeamGoals - playerOponentGoals;
     playerStats.goalRatio =
       playerStats.goalsFor / (playerStats.goalsAgainst || 1);
+
+    if (hasWon) {
+      playerStats.currentWinStreak += 1;
+      playerStats.currentLossStreak = 0;
+    } else {
+      playerStats.currentWinStreak = 0;
+      playerStats.currentLossStreak += 1;
+    }
+
+    playerStats.longestWinStreak = Math.max(
+      playerStats.currentWinStreak,
+      playerStats.longestWinStreak,
+    );
+    playerStats.longestLossStreak = Math.max(
+      playerStats.currentLossStreak,
+      playerStats.longestLossStreak,
+    );
 
     playerStats._matchesWithDuration = _matchesWithDuration;
 

@@ -240,6 +240,50 @@ export const PlayerProfileModal: Component<PlayerProfileModalProps> = (
         <Divider class={style.divider} />
 
         <div class={style.container}>
+          <span>Current Win Streak:</span>
+          <strong>
+            <DeltaDisplay
+              base={playerStats()?.currentWinStreak}
+              compared={comparedPlayerStats()?.currentWinStreak}
+              displayBase={true}
+              displayCompared={true}
+            />
+          </strong>
+
+          <span>Current Loss Streak:</span>
+          <strong>
+            <DeltaDisplay
+              base={playerStats()?.currentLossStreak}
+              compared={comparedPlayerStats()?.currentLossStreak}
+              displayBase={true}
+              displayCompared={true}
+            />
+          </strong>
+
+          <span>Longest Win Streak:</span>
+          <strong>
+            <DeltaDisplay
+              base={playerStats()?.longestWinStreak}
+              compared={comparedPlayerStats()?.longestWinStreak}
+              displayBase={true}
+              displayCompared={true}
+            />
+          </strong>
+
+          <span>Longest Loss Streak:</span>
+          <strong>
+            <DeltaDisplay
+              base={playerStats()?.longestLossStreak}
+              compared={comparedPlayerStats()?.longestLossStreak}
+              displayBase={true}
+              displayCompared={true}
+            />
+          </strong>
+        </div>
+
+        <Divider class={style.divider} />
+
+        <div class={style.container}>
           <span>Goals For:</span>
           <strong>
             <DeltaDisplay
