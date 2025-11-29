@@ -6,7 +6,6 @@ const t = initTRPC.create({
     pingMs: 1000,
   },
   sse: {
-    maxDurationMs: 60000,
     client: {
       reconnectAfterInactivityMs: 10000,
     },
