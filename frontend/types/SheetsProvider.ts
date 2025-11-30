@@ -55,6 +55,8 @@ export interface PlayerStats {
   goalDifference: number;
   goalRatio: number;
 
+  ownGoals: number;
+
   currentWinStreak: number;
   longestWinStreak: number;
 

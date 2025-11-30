@@ -323,6 +323,16 @@ export const PlayerProfileModal: Component<PlayerProfileModalProps> = (
               displayCompared={true}
             />
           </strong>
+
+          <span>Own Goals:</span>
+          <strong>
+            <DeltaDisplay
+              base={playerStats()?.ownGoals}
+              compared={comparedPlayerStats()?.ownGoals}
+              displayBase={true}
+              displayCompared={true}
+            />
+          </strong>
         </div>
 
         <Show

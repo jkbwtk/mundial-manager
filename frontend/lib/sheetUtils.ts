@@ -707,6 +707,8 @@ function getDefaultPlayerStats(player: string): PlayerStats {
     goalDifference: 0,
     goalRatio: 0,
 
+    ownGoals: 0,
+
     currentWinStreak: 0,
     longestWinStreak: 0,
 
@@ -762,6 +764,17 @@ function calculatePlayerStats(
     playerStats.goalDifference += playerTeamGoals - playerOponentGoals;
     playerStats.goalRatio =
       playerStats.goalsFor / (playerStats.goalsAgainst || 1);
+
+    if (match.replayMetadata?.events) {
+      const ownGoalsInMatch = match.replayMetadata.events.filter(
+        (event) =>
+          event.type === 'GOAL' &&
+          event.player === player &&
+          event.for !== event.by,
+      );
+
+      playerStats.ownGoals += ownGoalsInMatch.length;
+    }
 
     if (hasWon) {
       playerStats.currentWinStreak += 1;
