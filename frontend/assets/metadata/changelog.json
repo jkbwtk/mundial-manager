@@ -1,6 +1,41 @@
 {
   "versions": [
     {
+      "version": "0.5.0",
+      "releaseType": "minor",
+      "date": "2025-11-30",
+      "name": "Match timelines and other related stats",
+      "changes": [
+        {
+          "type": "feature",
+          "change": "Added MatchTimeline modal for viewing detailed match event timelines",
+          "description": "Match events can now be viewed in a dedicated modal displaying a timeline of all events that occurred during the match."
+        },
+        {
+          "type": "feature",
+          "change": "Added tracking for own goals"
+        },
+        {
+          "type": "feature",
+          "change": "Added win and loss streak statistics to player stats"
+        }
+      ],
+      "commits": [
+        {
+          "hash": "fa11e704e9",
+          "message": "Track own goals"
+        },
+        {
+          "hash": "4909f4a42c",
+          "message": "Implement MatchTimelineModal"
+        },
+        {
+          "hash": "7146121cf4",
+          "message": "Track win and loss streaks"
+        }
+      ]
+    },
+    {
       "version": "0.4.2",
       "releaseType": "patch",
       "date": "2025-11-29",
