@@ -1124,3 +1124,27 @@ export function calculateDayStats(
 
   return updatedStats;
 }
+
+export function getScoreAfterEvent(
+  match: Match,
+  event: MatchEvent,
+): [number, number] {
+  const colors = getTeamColors(match);
+  const scores: [number, number] = [0, 0];
+
+  for (const ev of match.replayMetadata?.events ?? []) {
+    if (ev.time > event.time) {
+      break;
+    }
+
+    if (ev.type === 'GOAL') {
+      if (ev.for === colors[0]) {
+        scores[0] += 1;
+      } else {
+        scores[1] += 1;
+      }
+    }
+  }
+
+  return scores;
+}

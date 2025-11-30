@@ -1,0 +1,13 @@
+@use 'app' as *;
+
+.container {
+  display: flex;
+  flex-direction: column;
+
+  .matches {
+    display: grid;
+    grid-template-columns: max-content max-content 1fr;
+
+    gap: cw(1);
+  }
+}

@@ -10,6 +10,7 @@ export * from './ChangelogTest';
 export * from './Homepage';
 export * from './IframeTest';
 export * from './InputTest';
+export * from './MatchTimelineTest';
 export * from './ModalTest';
 export * from './MundialCalculator';
 export * from './PageNotFound';

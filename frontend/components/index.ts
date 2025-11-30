@@ -26,6 +26,7 @@ export * from './Leaderboard';
 export * from './MatchPaginatorWidget';
 export * from './MatchSaveConfirmModal';
 export * from './MatchStats';
+export * from './MatchTimelineModal';
 export * from './MaterialSymbol';
 export * from './Modal';
 export * from './MundialCalculatorLink';

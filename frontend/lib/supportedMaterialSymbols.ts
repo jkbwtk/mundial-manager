@@ -20,6 +20,10 @@ export const SupportedMaterialSymbol = [
   'deblur',
   'delete',
   'handyman',
+  'sports_soccer',
+  'swap_horiz',
+  'display_external_input',
+  'nearby_error',
 ] as const;
 
 export type SupportedMaterialSymbol = (typeof SupportedMaterialSymbol)[number];

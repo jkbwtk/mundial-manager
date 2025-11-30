@@ -19,6 +19,9 @@ const ChangelogTest = lazy(() => import('#pages/ChangelogTest/ChangelogTest'));
 const UserProfileTest = lazy(
   () => import('#pages/PlayerProfileTest/PlayerProfileTest'),
 );
+const MatchTimelineTest = lazy(
+  () => import('#pages/MatchTimelineTest/MatchTimelineTest'),
+);
 
 export const routes: RouteDefinition[] = [
   {
@@ -84,6 +87,11 @@ export const routes: RouteDefinition[] = [
         path: '/user-profile-test',
         info: { title: 'Mundial Manager - Player Profile Test' },
         component: UserProfileTest,
+      },
+      {
+        path: '/match-timeline-test',
+        info: { title: 'Mundial Manager - Match Timeline Test' },
+        component: MatchTimelineTest,
       },
     ],
   },

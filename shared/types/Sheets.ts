@@ -50,6 +50,10 @@ export const MatchEventEquipmentFailure = MatchEventBase.extend({
   details: z.string().nullable().catch(null),
 });
 
+export type MatchEventEquipmentFailure = z.infer<
+  typeof MatchEventEquipmentFailure
+>;
+
 export const MatchEvent = z.discriminatedUnion('type', [
   MatchEventGoal,
   MatchEventPositionChange,

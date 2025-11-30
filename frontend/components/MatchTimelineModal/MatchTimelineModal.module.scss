@@ -1,0 +1,182 @@
+@use 'app' as *;
+
+.modal {
+  --modal-width: #{cw(50)};
+}
+
+.score-container {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+}
+
+.team-name {
+  font-weight: bold;
+
+  color: $backgroundColor;
+
+  :where(&) {
+    --team-color: #{$textBrightColor};
+  }
+
+  background-color: var(--team-color);
+  border-radius: $borderRadius;
+
+  padding: 0 cw(1);
+}
+
+.highlighted-score {
+  font-weight: bold;
+  color: $textBrightColor;
+}
+
+.stats-container {
+  display: grid;
+  grid-template-columns: auto auto;
+
+  align-items: end;
+
+  column-gap: cw(1);
+
+  span {
+    text-align: right;
+  }
+}
+
+.dashed-divider {
+  --divider-border-style: dashed;
+}
+
+.no-data {
+  text-align: center;
+  width: 100%;
+}
+
+.no-wrap {
+  white-space: nowrap;
+}
+
+.timeline-table {
+  border-collapse: collapse;
+  width: calc(100% - cw(2));
+
+  margin: 0 cw(1);
+
+  .min-width {
+    width: 1%;
+    white-space: nowrap;
+  }
+
+  :where(&) {
+    th,
+    td {
+      padding: 0;
+      border: none;
+    }
+  }
+}
+
+.timeline-header {
+  font-weight: bold;
+  color: $textBrightColor;
+}
+
+.min-width {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.timeline-entry {
+  display: grid;
+  grid-template-columns: max-content cw(2) cw(2) cw(2) auto auto;
+
+  &:hover {
+    color: $backgroundColor;
+    background-color: $textBrightColor;
+
+    border-radius: $borderRadius;
+  }
+}
+
+.time {
+  padding-right: cw(1);
+}
+
+.team-color {
+  // display: inline-block;
+
+  width: cw(2);
+  height: ch(1);
+
+  transition: background-color 0.2s ease-in-out;
+
+  background-color: var(--team-color);
+
+  mask: url('/frontend/assets/images/braille.svg') 0 0 / cw(1) ch(1);
+}
+
+.center-line-header {
+  width: cw(2);
+}
+
+.center-line {
+  position: relative;
+
+  &::after {
+    content: '';
+
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+
+    width: $borderSize;
+    height: 100%;
+
+    background-color: $borderColor;
+  }
+}
+
+@mixin event-style($bg-color, $text-color: $backgroundColor) {
+  color: $text-color;
+
+  background-color: $bg-color;
+  border-radius: $borderRadius;
+
+  box-shadow: 0 0 0.2rem lighten($bg-color, 20%);
+}
+
+.goal {
+  @include event-style($green);
+}
+
+.own-goal {
+  @include event-style($red);
+}
+
+.ball-out {
+  @include event-style($yellow);
+}
+
+.position-change {
+  @include event-style($blue);
+}
+
+.equipment-failure {
+  @include event-style($codeColor);
+}
+
+.description {
+  padding-left: cw(1);
+}
+
+.score {
+  display: grid;
+  grid-template-columns: cw(2) min-content cw(2);
+
+  span:nth-child(1) {
+    text-align: right;
+  }
+}

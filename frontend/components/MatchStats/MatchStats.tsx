@@ -1,18 +1,34 @@
-import { Show } from 'solid-js';
+import { createEffect, createSignal, type Setter, Show } from 'solid-js';
 import { AnimatedText } from '#components/AnimatedText';
+import { Button } from '#components/Button';
 import {
   MatchPaginatorWidget,
   usePaginatedMatch,
   usePaginatedStat,
 } from '#components/MatchPaginatorWidget';
+import { MatchTimelineModal } from '#components/MatchTimelineModal';
 import { Divider } from '#components/Widget';
-import { formatDate, formatDuration } from '#flib/sheetUtils';
+import { defaultMatch, formatDate, formatDuration } from '#flib/sheetUtils';
 import { getTeamColorClass } from '#flib/teamColors';
+import { useModal } from '#providers/ModalProvider';
+import type { Match } from '#shared/types/Sheets';
 import style from './MatchStats.module.scss';
 
-export const MatchStatsBase: Component = () => {
+export interface MatchStatsBaseProps {
+  setMatch?: Setter<Match>;
+}
+
+export const MatchStatsBase: Component<MatchStatsBaseProps> = (props) => {
   const match = usePaginatedMatch();
   const stats = usePaginatedStat();
+
+  createEffect(() => {
+    const m = match();
+
+    if (props.setMatch) {
+      props.setMatch(m);
+    }
+  });
 
   return (
     <>
@@ -102,9 +118,31 @@ export const MatchStatsBase: Component = () => {
 };
 
 export const MatchStats: Component = () => {
+  const [match, setMatch] = createSignal<Match>(defaultMatch);
+  const [, { open }] = useModal();
+
+  const openTimeline = () => {
+    open({
+      props: {
+        component: MatchTimelineModal,
+        match: match(),
+      },
+    });
+  };
+
   return (
-    <MatchPaginatorWidget class={style.widget} topLeftLabels={'Match Stats'}>
-      <MatchStatsBase />
+    <MatchPaginatorWidget
+      class={style.widget}
+      topLeftLabels={'Match Stats'}
+      bottomLeftLabels={[
+        <Show when={match().replayMetadata}>
+          <Button severity="secondary" onPointerUp={openTimeline}>
+            Timeline
+          </Button>
+        </Show>,
+      ]}
+    >
+      <MatchStatsBase setMatch={setMatch} />
     </MatchPaginatorWidget>
   );
 };
