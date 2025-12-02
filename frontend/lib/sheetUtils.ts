@@ -1056,6 +1056,8 @@ export const defaultDayStats: DayStats = {
   goals: 0,
   playtime: 0,
   playtimeFormatted: '',
+  individualPlaytime: 0,
+  individualPlaytimeFormatted: '',
 
   averageMatchDuration: 0,
   averageMatchDurationFormatted: '',
@@ -1091,12 +1093,16 @@ export function calculateDayStats(
   const players: Set<string> = new Set();
 
   for (const match of matches) {
-    for (const player of getPlayersFromMatch(match)) {
+    const matchPlayers = getPlayersFromMatch(match);
+
+    for (const player of matchPlayers) {
       players.add(player);
     }
 
     updatedStats.goals += match.score1 + match.score2;
     updatedStats.playtime += match.duration ?? 0;
+    updatedStats.individualPlaytime +=
+      (match.duration ?? 0) * matchPlayers.length;
 
     updatedStats._matchesWithDuration += match.duration ? 1 : 0;
     updatedStats._goalsWithDuration += match.duration
@@ -1112,6 +1118,9 @@ export function calculateDayStats(
   updatedStats.matches = matches.length;
 
   updatedStats.playtimeFormatted = formatDuration(updatedStats.playtime);
+  updatedStats.individualPlaytimeFormatted = formatDuration(
+    updatedStats.individualPlaytime,
+  );
 
   updatedStats.averageMatchDuration =
     updatedStats.playtime / (updatedStats._matchesWithDuration || 1);

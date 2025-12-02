@@ -112,6 +112,8 @@ export interface DayStats {
   goals: number;
   playtime: number;
   playtimeFormatted: string;
+  individualPlaytime: number;
+  individualPlaytimeFormatted: string;
 
   averageMatchDuration: number;
   averageMatchDurationFormatted: string;

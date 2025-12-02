@@ -29,6 +29,11 @@ export const DayStatsBase: Component = () => {
           <AnimatedText>{stats().playtimeFormatted}</AnimatedText>
         </strong>
 
+        <span>Individual Playtime:</span>
+        <strong>
+          <AnimatedText>{stats().individualPlaytimeFormatted}</AnimatedText>
+        </strong>
+
         <span>Avg. Match Duration:</span>
         <strong>
           <AnimatedText>{stats().averageMatchDurationFormatted}</AnimatedText>
