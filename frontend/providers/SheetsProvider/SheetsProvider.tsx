@@ -92,13 +92,14 @@ export const SheetsProvider: ParentComponent = (props) => {
     ]);
 
     cacheMatches(matches);
-    subscribeToEvents();
 
     batch(() => {
       setState('metadata', metadata);
       setState('matches', matches);
       setState('ready', true);
     });
+
+    subscribeToEvents();
   };
 
   function cacheMatches(matches: Match[]) {
