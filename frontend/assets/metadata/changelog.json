@@ -1,6 +1,48 @@
 {
   "versions": [
     {
+      "version": "0.5.1",
+      "releaseType": "patch",
+      "date": "2025-12-02",
+      "name": "Minor fixes and missing stats",
+      "changes": [
+        {
+          "type": "improvement",
+          "change": "Added individual playtime to DayStats"
+        },
+        {
+          "type": "bugfix",
+          "change": "Fixed team color column width in MatchTimelineModal when no events are present"
+        },
+        {
+          "type": "bugfix",
+          "change": "Fixed possible match spam and desync when visiting page after matches have been added"
+        },
+        {
+          "type": "bugfix",
+          "change": "Fixed a typo in BallOutEvent component"
+        }
+      ],
+      "commits": [
+        {
+          "hash": "e2d1bcf6ce",
+          "message": "Calculate individual playtime in day stats"
+        },
+        {
+          "hash": "57700b5fb3",
+          "message": "Subscribe to match events after saving data in the store"
+        },
+        {
+          "hash": "7d1dd568d8",
+          "message": "Fix team color column width when no events events are present"
+        },
+        {
+          "hash": "9f01c24ed9",
+          "message": "Fix a typo"
+        }
+      ]
+    },
+    {
       "version": "0.5.0",
       "releaseType": "minor",
       "date": "2025-11-30",
