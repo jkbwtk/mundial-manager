@@ -108,6 +108,7 @@
   // display: inline-block;
 
   width: cw(2);
+  min-width: cw(2);
   height: ch(1);
 
   transition: background-color 0.2s ease-in-out;
