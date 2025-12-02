@@ -33,7 +33,7 @@ export const BallOutEvent: Component<BallOutEventProps> = (props) => {
 
       <td />
 
-      <td class={style.description}>Ball of bounds</td>
+      <td class={style.description}>Ball out of bounds</td>
     </>
   );
 };
