@@ -14,7 +14,12 @@ import type {
 import { AsyncCached, bypassCache } from '#blib/cache';
 import { TypedEventEmitter } from '#blib/utils';
 import { logger } from '#shared/logger';
-import { Match, MatchCreate, type MatchWithoutId } from '#shared/types/Sheets';
+import { getMatchHash } from '#shared/matchUtils';
+import {
+  type Match,
+  MatchCreate,
+  MatchWithoutMetadata,
+} from '#shared/types/Sheets';
 import {
   mergeOptions,
   objectToEntries,
@@ -79,7 +84,7 @@ export class SheetStore extends Store {
         index: 9,
         wrapStrategy: 'CLIP',
       },
-    } satisfies Record<keyof MatchWithoutId, MatchColumnConfig>,
+    } satisfies Record<keyof MatchWithoutMetadata, MatchColumnConfig>,
   };
 
   constructor(userOptions: SheetStoreOptions = {}) {
@@ -145,9 +150,7 @@ export class SheetStore extends Store {
   }
 
   private readMatchRow(row: number): Match | null {
-    const rowData: Partial<Record<keyof Match, unknown>> = {
-      id: row,
-    };
+    const rowData: Partial<Record<keyof Match, unknown>> = {};
 
     for (const [key, column] of objectToEntries(
       SheetStore.CONSTANTS.MATCHES_COLUMN_CONFIG,
@@ -156,9 +159,17 @@ export class SheetStore extends Store {
       rowData[key] = c.value;
     }
 
-    const match = Match.safeParse(rowData);
+    const match = MatchWithoutMetadata.safeParse(rowData);
 
-    return match.success ? match.data : null;
+    if (match.success) {
+      return {
+        id: row,
+        hash: getMatchHash(match.data),
+        ...match.data,
+      };
+    }
+
+    return null;
   }
 
   private writeMatchRow(row: number, match: MatchCreate) {

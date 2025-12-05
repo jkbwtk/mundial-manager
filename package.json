@@ -36,6 +36,7 @@
     "chart.js": "^4.5.0",
     "commander": "^14.0.0",
     "cors": "^2.8.5",
+    "crypto-js": "^4.2.0",
     "dayjs": "^1.11.18",
     "echarts": "^6.0.0",
     "figlet": "^1.9.1",
@@ -46,6 +47,7 @@
     "safe-stable-stringify": "^2.5.0",
     "semver": "^7.7.2",
     "solid-js": "^1.9.9",
+    "stable-hash": "^0.0.6",
     "zod": "^4.1.5"
   },
   "devDependencies": {
@@ -59,6 +61,7 @@
     "@solidjs/testing-library": "^0.8.10",
     "@testing-library/jest-dom": "^6.8.0",
     "@types/compression": "^1.8.1",
+    "@types/crypto-js": "^4.2.2",
     "@types/express": "^4.17.23",
     "@types/nunjucks": "^3.2.6",
     "@types/semver": "^7.7.1",

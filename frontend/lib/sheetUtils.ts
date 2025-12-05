@@ -583,6 +583,8 @@ export const defaultMatch: Match = {
   date: null,
   floor: null,
   replayMetadata: null,
+
+  hash: '',
 };
 
 function getTotalMatches(_match: Match, previousStats: MatchStats) {
