@@ -1,4 +1,5 @@
 @use 'app' as *;
+@use 'sass:color';
 
 .modal {
   --modal-width: #{cw(50)};
@@ -146,7 +147,7 @@
   background-color: $bg-color;
   border-radius: $borderRadius;
 
-  box-shadow: 0 0 0.2rem lighten($bg-color, 20%);
+  box-shadow: 0 0 0.2rem color.adjust($bg-color, $lightness: 20%);
 }
 
 .goal {
