@@ -1,8 +1,14 @@
 import crypto from 'crypto-js';
 import stableHash from 'stable-hash';
-import { type Match, MatchCreate, MatchWithoutMetadata } from '#shared/types/Sheets';
+import {
+  type Match,
+  MatchCreate,
+  type MatchWithoutMetadata,
+} from '#shared/types/Sheets';
 
-export function getMatchHash(match: Match | MatchWithoutMetadata | MatchCreate): string {
+export function getMatchHash(
+  match: Match | MatchWithoutMetadata | MatchCreate,
+): string {
   const strippedMatch = structuredClone(match);
 
   const allowedKeys = Object.keys(MatchCreate.shape);

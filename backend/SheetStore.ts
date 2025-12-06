@@ -222,8 +222,20 @@ export class SheetStore extends Store {
     return matches;
   }
 
+  public checkIfMatchExists(
+    match: Match | MatchWithoutMetadata | MatchCreate,
+  ): boolean {
+    const hash = getMatchHash(match);
+
+    return this.getLocalMatches().some((m) => m.hash === hash);
+  }
+
   public async createMatch(match: MatchCreate): Promise<Match> {
     await bypassCache(this.loadMatchesCells).call(this);
+
+    if (this.checkIfMatchExists(match)) {
+      throw new Error('Match already exists.');
+    }
 
     const emptyRow = range(
       SheetStore.CONSTANTS.MATCHES_FIRST_ROW,
