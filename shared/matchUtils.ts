@@ -1,5 +1,6 @@
 import crypto from 'crypto-js';
 import stableHash from 'stable-hash';
+import { prettifyError } from 'zod';
 import {
   type Match,
   MatchCreate,
@@ -9,19 +10,17 @@ import {
 export function getMatchHash(
   match: Match | MatchWithoutMetadata | MatchCreate,
 ): string {
-  const strippedMatch = structuredClone(match);
+  const normalizedMatch = MatchCreate.safeEncode(match);
 
-  const allowedKeys = Object.keys(MatchCreate.shape);
-  const matchKeys = Object.keys(match);
-
-  for (const key of matchKeys) {
-    if (allowedKeys.includes(key) === false) {
-      // @ts-expect-error
-      delete strippedMatch[key];
-    }
+  if (!normalizedMatch.success) {
+    throw new Error(
+      `Invalid match data provided for hashing: ${prettifyError(
+        normalizedMatch.error,
+      )}`,
+    );
   }
 
-  const preHash = stableHash(strippedMatch);
+  const preHash = stableHash(normalizedMatch.data);
   const hash = crypto.SHA256(preHash).toString();
 
   return hash;
