@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
+import { isServer } from 'solid-js/web';
 import type {
   DayStats,
   EloRating,
@@ -1171,4 +1172,62 @@ export function getScoreAfterEvent(
   }
 
   return scores;
+}
+
+export function cacheMatches(matches: Match[]) {
+  if (isServer) {
+    return;
+  }
+
+  localStorage.setItem('matchesCache', JSON.stringify(matches));
+}
+
+export function loadCachedMatches(): Match[] | null {
+  if (isServer) {
+    return null;
+  }
+
+  const cached = localStorage.getItem('matchesCache');
+
+  if (cached) {
+    try {
+      const parsed = JSON.parse(cached) as Match[];
+
+      if (Array.isArray(parsed)) {
+        return parsed;
+      }
+    } catch {
+      return null;
+    }
+  }
+
+  return null;
+}
+
+export function saveCreatedMatches(matches: Record<string, MatchCreate>) {
+  if (isServer) {
+    return;
+  }
+
+  localStorage.setItem('createdMatches', JSON.stringify(matches));
+}
+
+export function loadCreatedMatches(): Record<string, MatchCreate> | null {
+  if (isServer) {
+    return null;
+  }
+
+  const saved = localStorage.getItem('createdMatches');
+
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved) as Record<string, MatchCreate>;
+
+      return parsed;
+    } catch {
+      return null;
+    }
+  }
+
+  return null;
 }

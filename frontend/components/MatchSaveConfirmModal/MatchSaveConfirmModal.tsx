@@ -10,7 +10,7 @@ import {
 } from '#flib/sheetUtils';
 import { getTeamColorClass } from '#flib/teamColors';
 import { useModalActions } from '#providers/ModalProvider';
-import { useTRPC } from '#providers/TRPCProvider';
+import { useSheets } from '#providers/SheetsProvider';
 import type { MatchCreate } from '#shared/types/Sheets';
 import style from './MatchSaveConfirmModal.module.scss';
 
@@ -21,8 +21,8 @@ export interface MatchSafeCOnfirmModalProps {
 export const MatchSaveConfirmModal: Component<MatchSafeCOnfirmModalProps> = (
   props,
 ) => {
+  const [, { createMatch }] = useSheets();
   const { closeModal } = useModalActions();
-  const [{ client }] = useTRPC();
 
   const [isSaving, setIsSaving] = createSignal(false);
 
@@ -39,8 +39,10 @@ export const MatchSaveConfirmModal: Component<MatchSafeCOnfirmModalProps> = (
 
     try {
       setIsSaving(true);
-      await client.sheets.match.mutate(props.match);
-    } catch {}
+      await createMatch(props.match);
+    } catch (err) {
+      console.error(err);
+    }
 
     setIsSaving(false);
 

@@ -10,20 +10,26 @@ import {
 import { createStore } from 'solid-js/store';
 import { isServer } from 'solid-js/web';
 import {
+  cacheMatches,
   calculateDayStats,
   calculateMatchStats,
   defaultDayStats,
   defaultMatch,
   defaultMatchStats,
+  loadCachedMatches,
+  loadCreatedMatches,
+  saveCreatedMatches,
 } from '#flib/sheetUtils';
 import type { DayStats, LatestStats, MatchStats } from '#frontend/types';
 import { useTRPC } from '#providers/TRPCProvider';
-import type { Match, SheetMetadata } from '#shared/types/Sheets';
+import { getMatchHash } from '#shared/matchUtils';
+import type { Match, MatchCreate, SheetMetadata } from '#shared/types/Sheets';
 
 export interface SheetsContextState {
   ready: boolean;
   metadata: SheetMetadata;
   matches: Match[];
+  createdMatches: Record<string, MatchCreate>;
 }
 
 export interface SheetsContextActions {
@@ -31,6 +37,12 @@ export interface SheetsContextActions {
   matchStats: () => Record<number, MatchStats>;
   dayStats: () => Record<number, DayStats>;
   latest: () => LatestStats;
+  matchHashMap: () => Record<string, Match>;
+
+  createMatch: (match: MatchCreate) => Promise<Match>;
+  syncCreatedMatch: (hash: string) => Promise<Match>;
+  removeCreatedMatch: (hash: string) => void;
+  clearCreatedMatches: () => void;
 }
 
 export type SheetsContextValue = [
@@ -38,7 +50,7 @@ export type SheetsContextValue = [
   actions: SheetsContextActions,
 ];
 
-const defaultState: SheetsContextState = {
+const getDefaultState = (): SheetsContextState => ({
   ready: false,
   metadata: {
     title: 'Loading...',
@@ -47,11 +59,12 @@ const defaultState: SheetsContextState = {
     rows: 0,
     columns: 0,
   },
-  matches: [],
-};
+  matches: loadCachedMatches() ?? [],
+  createdMatches: loadCreatedMatches() ?? {},
+});
 
 const SheetsContext = createContext<SheetsContextValue>([
-  structuredClone(defaultState),
+  structuredClone(getDefaultState()),
   {
     initialize: () => {
       throw new Error('SheetsContext: initialize() called before provider');
@@ -67,25 +80,39 @@ const SheetsContext = createContext<SheetsContextValue>([
     dayStats: () => {
       throw new Error('SheetsContext: dayStats() called before provider');
     },
+    matchHashMap: () => {
+      throw new Error('SheetsContext: matchHashMap() called before provider');
+    },
+
+    createMatch: () => {
+      throw new Error('SheetsContext: addMatch() called before provider');
+    },
+    syncCreatedMatch: () => {
+      throw new Error(
+        'SheetsContext: syncCreatedMatch() called before provider',
+      );
+    },
+    removeCreatedMatch: () => {
+      throw new Error(
+        'SheetsContext: removeCreatedMatch() called before provider',
+      );
+    },
+    clearCreatedMatches: () => {
+      throw new Error(
+        'SheetsContext: clearCreatedMatches() called before provider',
+      );
+    },
   },
 ]);
 
 export const SheetsProvider: ParentComponent = (props) => {
   const [{ client }] = useTRPC();
 
-  const [state, setState] = createStore<SheetsContextState>(
-    SheetsContext.defaultValue[0],
-  );
+  const [state, setState] = createStore<SheetsContextState>(getDefaultState());
 
   let onMatchAddedSubscription: Unsubscribable | null = null;
 
   const initialize = async () => {
-    const cachedMatches = loadCachedMatches();
-
-    if (cachedMatches) {
-      setState('matches', cachedMatches);
-    }
-
     const [metadata, matches] = await Promise.all([
       client.sheets.metadata.query(),
       client.sheets.matches.query(),
@@ -101,36 +128,6 @@ export const SheetsProvider: ParentComponent = (props) => {
 
     subscribeToEvents();
   };
-
-  function cacheMatches(matches: Match[]) {
-    if (isServer) {
-      return;
-    }
-
-    localStorage.setItem('matchesCache', JSON.stringify(matches));
-  }
-
-  function loadCachedMatches(): Match[] | null {
-    if (isServer) {
-      return null;
-    }
-
-    const cached = localStorage.getItem('matchesCache');
-
-    if (cached) {
-      try {
-        const parsed = JSON.parse(cached) as Match[];
-
-        if (Array.isArray(parsed)) {
-          return parsed;
-        }
-      } catch {
-        return null;
-      }
-    }
-
-    return null;
-  }
 
   function subscribeToEvents() {
     if (isServer) {
@@ -229,11 +226,58 @@ export const SheetsProvider: ParentComponent = (props) => {
     return { match, matchStats: stats, dayStats: day };
   });
 
+  const matchHashMap = createMemo(() => {
+    const map: Record<string, Match> = {};
+
+    for (const match of state.matches) {
+      map[match.hash] = match;
+    }
+
+    return map;
+  });
+
+  async function createMatch(match: MatchCreate): Promise<Match> {
+    const createdMatch = await client.sheets.match.mutate(match);
+
+    setState('createdMatches', getMatchHash(match), match);
+    saveCreatedMatches(state.createdMatches);
+
+    return createdMatch;
+  }
+
+  async function syncCreatedMatch(hash: string): Promise<Match> {
+    const createdMatches = state.createdMatches;
+
+    const match = createdMatches[hash];
+
+    if (!match) {
+      throw new Error(`No created match found with hash: ${hash}`);
+    }
+
+    return await client.sheets.match.mutate(match);
+  }
+
+  function removeCreatedMatch(hash: string) {
+    setState('createdMatches', hash, undefined!);
+    saveCreatedMatches(state.createdMatches);
+  }
+
+  function clearCreatedMatches() {
+    setState('createdMatches', {});
+    saveCreatedMatches(state.createdMatches);
+  }
+
   const actions: SheetsContextActions = {
     initialize,
     matchStats,
     latest,
     dayStats,
+    matchHashMap,
+
+    createMatch,
+    syncCreatedMatch,
+    removeCreatedMatch,
+    clearCreatedMatches,
   };
 
   onMount(() => {
