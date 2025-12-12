@@ -756,7 +756,7 @@ function calculatePlayerStats(
     );
 
     playerStats.wins += hasWon ? 1 : 0;
-    playerStats.losses += hasWon ? 1 : 0;
+    playerStats.losses += hasWon ? 0 : 1;
     playerStats.winRatio = playerStats.losses
       ? playerStats.wins / playerStats.losses
       : 0;
