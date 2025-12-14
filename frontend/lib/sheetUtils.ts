@@ -11,7 +11,7 @@ import type {
   MatchStats,
   PlayerStats,
 } from '#frontend/types';
-import { getMatchHash } from '#shared/matchUtils';
+import { getMatchHash, normalizeTeamName } from '#shared/matchUtils';
 import type { CalculatorFinishEvent } from '#shared/types/MundialCalculator';
 import type {
   Match,
@@ -151,11 +151,14 @@ export function calculateElos(
       );
     }
 
-    return previousElos[team]?.rating ?? DEFAULT_ELO;
+    const normalizedTeamName = normalizeTeamName(team);
+    return previousElos[normalizedTeamName]?.rating ?? DEFAULT_ELO;
   };
 
   for (const player of playersToCalculate) {
-    const playerTeam = match.team1.includes(player)
+    const normalizedPlayer = normalizeTeamName(player);
+
+    const playerTeam = match.team1.includes(normalizedPlayer)
       ? {
           elo: getTeamElo(match.team1),
           score: match.score1,
@@ -165,7 +168,7 @@ export function calculateElos(
           score: match.score2,
         };
 
-    const opponentTeam = match.team1.includes(player)
+    const opponentTeam = match.team1.includes(normalizedPlayer)
       ? {
           elo: getTeamElo(match.team2),
           score: match.score2,
@@ -175,7 +178,7 @@ export function calculateElos(
           score: match.score1,
         };
 
-    const playerElo: EloRating = previousElos[player] ?? {
+    const playerElo: EloRating = previousElos[normalizedPlayer] ?? {
       rating: DEFAULT_ELO,
       ratingChange: 0,
     };
@@ -187,7 +190,7 @@ export function calculateElos(
       opponentTeam.score,
     );
 
-    elos[player] = {
+    elos[normalizedPlayer] = {
       rating: playerElo.rating + ratingChange,
       ratingChange,
     };
@@ -383,11 +386,14 @@ export function calculateGlicko2Ratings(
       };
     }
 
-    return previousRatings[team] ?? defaultRating;
+    const normalizedTeamName = normalizeTeamName(team);
+    return previousRatings[normalizedTeamName] ?? defaultRating;
   };
 
   for (const player of playersToCalculate) {
-    const playerTeam = match.team1.includes(player)
+    const normalizedPlayer = normalizeTeamName(player);
+
+    const playerTeam = match.team1.includes(normalizedPlayer)
       ? {
           rating: getTeamRating(match.team1),
           score: match.score1,
@@ -397,7 +403,7 @@ export function calculateGlicko2Ratings(
           score: match.score2,
         };
 
-    const opponentTeam = match.team1.includes(player)
+    const opponentTeam = match.team1.includes(normalizedPlayer)
       ? {
           rating: getTeamRating(match.team2),
           score: match.score2,
@@ -407,7 +413,7 @@ export function calculateGlicko2Ratings(
           score: match.score1,
         };
 
-    const playerRating = previousRatings[player] ?? defaultRating;
+    const playerRating = previousRatings[normalizedPlayer] ?? defaultRating;
 
     const updatedGlicko2Rating = calculateGlicko2Diff(
       playerRating,
@@ -416,7 +422,7 @@ export function calculateGlicko2Ratings(
       opponentTeam.score,
     );
 
-    ratings[player] = {
+    ratings[normalizedPlayer] = {
       ...updatedGlicko2Rating,
       ratingChange: updatedGlicko2Rating.rating - playerRating.rating,
       rdChange: updatedGlicko2Rating.rd - playerRating.rd,
@@ -501,7 +507,8 @@ function hslToHex(h: number, s: number, l: number): string {
 }
 
 export function generateTeamColor(team: string): string {
-  const hash = hashString(team);
+  const normalizedTeamName = normalizeTeamName(team);
+  const hash = hashString(normalizedTeamName);
 
   const hueBase = hash % 12;
   const hueOffsets = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330];

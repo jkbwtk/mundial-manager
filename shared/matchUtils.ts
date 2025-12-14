@@ -5,6 +5,7 @@ import {
   type Match,
   MatchCreate,
   type MatchWithoutMetadata,
+  NormalizedTeamName,
 } from '#shared/types/Sheets';
 
 export function getMatchHash(
@@ -24,4 +25,8 @@ export function getMatchHash(
   const hash = crypto.SHA256(preHash).toString();
 
   return hash;
+}
+
+export function normalizeTeamName(team: string): NormalizedTeamName {
+  return NormalizedTeamName.parse(team);
 }
