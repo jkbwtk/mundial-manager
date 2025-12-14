@@ -11,6 +11,7 @@ import type {
   MatchStats,
   PlayerStats,
 } from '#frontend/types';
+import { getMatchHash } from '#shared/matchUtils';
 import type { CalculatorFinishEvent } from '#shared/types/MundialCalculator';
 import type {
   Match,
@@ -1209,7 +1210,10 @@ export function saveCreatedMatches(matches: Record<string, MatchCreate>) {
     return;
   }
 
-  localStorage.setItem('createdMatches', JSON.stringify(matches));
+  localStorage.setItem(
+    'createdMatches',
+    JSON.stringify(Object.values(matches)),
+  );
 }
 
 export function loadCreatedMatches(): Record<string, MatchCreate> | null {
@@ -1223,7 +1227,9 @@ export function loadCreatedMatches(): Record<string, MatchCreate> | null {
     try {
       const parsed = JSON.parse(saved) as Record<string, MatchCreate>;
 
-      return parsed;
+      if (Array.isArray(parsed)) {
+        return Object.fromEntries(parsed.map((m) => [getMatchHash(m), m]));
+      }
     } catch {
       return null;
     }
