@@ -41,6 +41,7 @@ export interface SheetsContextActions {
 
   createMatch: (match: MatchCreate) => Promise<Match>;
   syncCreatedMatch: (hash: string) => Promise<Match>;
+  syncCreatedMatches: (hashes: string[]) => Promise<Match[]>;
   removeCreatedMatch: (hash: string) => void;
   clearCreatedMatches: () => void;
 }
@@ -91,6 +92,9 @@ const SheetsContext = createContext<SheetsContextValue>([
       throw new Error(
         'SheetsContext: syncCreatedMatch() called before provider',
       );
+    },
+    syncCreatedMatches: () => {
+      throw new Error('SheetsContext: createMatches() called before provider');
     },
     removeCreatedMatch: () => {
       throw new Error(
@@ -237,10 +241,10 @@ export const SheetsProvider: ParentComponent = (props) => {
   });
 
   async function createMatch(match: MatchCreate): Promise<Match> {
-    const createdMatch = await client.sheets.match.mutate(match);
-
     setState('createdMatches', getMatchHash(match), match);
     saveCreatedMatches(state.createdMatches);
+
+    const createdMatch = await client.sheets.createMatch.mutate(match);
 
     return createdMatch;
   }
@@ -254,7 +258,23 @@ export const SheetsProvider: ParentComponent = (props) => {
       throw new Error(`No created match found with hash: ${hash}`);
     }
 
-    return await client.sheets.match.mutate(match);
+    return await client.sheets.createMatch.mutate(match);
+  }
+
+  async function syncCreatedMatches(hashes: string[]): Promise<Match[]> {
+    const createdMatches = state.createdMatches;
+
+    const matchesToCreate = hashes.map((hash) => {
+      const match = createdMatches[hash];
+
+      if (!match) {
+        throw new Error(`No created match found with hash: ${hash}`);
+      }
+
+      return match;
+    });
+
+    return client.sheets.createMatches.mutate(matchesToCreate);
   }
 
   function removeCreatedMatch(hash: string) {
@@ -276,6 +296,7 @@ export const SheetsProvider: ParentComponent = (props) => {
 
     createMatch,
     syncCreatedMatch,
+    syncCreatedMatches,
     removeCreatedMatch,
     clearCreatedMatches,
   };

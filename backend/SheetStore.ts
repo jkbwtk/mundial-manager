@@ -224,10 +224,38 @@ export class SheetStore extends Store {
 
   public checkIfMatchExists(
     match: Match | MatchWithoutMetadata | MatchCreate,
+    matches: Match[] = this.getLocalMatches(),
   ): boolean {
     const hash = getMatchHash(match);
 
-    return this.getLocalMatches().some((m) => m.hash === hash);
+    return matches.some((m) => m.hash === hash);
+  }
+
+  private findEmptyRows(count: number): number[] {
+    const emptyRows: number[] = [];
+
+    for (const row of range(
+      SheetStore.CONSTANTS.MATCHES_FIRST_ROW,
+      SheetStore.CONSTANTS.MATCHES_LAST_ROW,
+    )) {
+      const readMatch = this.readMatchRow(row);
+
+      if (readMatch === null) {
+        emptyRows.push(row);
+
+        if (emptyRows.length >= count) {
+          break;
+        }
+      }
+    }
+
+    return emptyRows;
+  }
+
+  private findEmptyRow(): number | undefined {
+    const emptyRows = this.findEmptyRows(1);
+
+    return emptyRows[0];
   }
 
   public async createMatch(match: MatchCreate): Promise<Match> {
@@ -237,14 +265,7 @@ export class SheetStore extends Store {
       throw new Error('Match already exists.');
     }
 
-    const emptyRow = range(
-      SheetStore.CONSTANTS.MATCHES_FIRST_ROW,
-      SheetStore.CONSTANTS.MATCHES_LAST_ROW,
-    ).find((row) => {
-      const readMatch = this.readMatchRow(row);
-
-      return readMatch === null;
-    });
+    const emptyRow = this.findEmptyRow();
 
     if (emptyRow === undefined) {
       throw new Error('No empty row found for new match');
@@ -263,5 +284,57 @@ export class SheetStore extends Store {
     this.matchesEmitter.emit('matchCreated', createdMatch);
 
     return createdMatch;
+  }
+
+  public async createMatches(matches: MatchCreate[]): Promise<Match[]> {
+    await bypassCache(this.loadMatchesCells).call(this);
+
+    const matchCache = this.getLocalMatches();
+    const writtenRows: number[] = [];
+    const hashes = new Set<string>();
+
+    const uniqueMatches = matches.filter((match) => {
+      const hash = getMatchHash(match);
+
+      if (this.checkIfMatchExists(match, matchCache) || hashes.has(hash)) {
+        logger.warn('Match already exists, skipping creation.', {
+          label: ['SheetStore', shortUUID(this.uuid), 'createMatches'],
+          match,
+        });
+
+        return false;
+      }
+
+      hashes.add(hash);
+      return true;
+    });
+
+    const emptyRows = this.findEmptyRows(uniqueMatches.length);
+    let emptyRowIndex = 0;
+
+    for (const match of uniqueMatches) {
+      const emptyRow = emptyRows[emptyRowIndex++];
+
+      if (emptyRow === undefined) {
+        throw new Error('No empty row found for new match');
+      }
+
+      this.writeMatchRow(emptyRow, match);
+      writtenRows.push(emptyRow);
+    }
+
+    await this.sheet.saveUpdatedCells();
+
+    return writtenRows.map((row) => {
+      const createdMatch = this.readMatchRow(row);
+
+      if (createdMatch === null) {
+        throw new Error('Failed to create new match.');
+      }
+
+      this.matchesEmitter.emit('matchCreated', createdMatch);
+
+      return createdMatch;
+    });
   }
 }

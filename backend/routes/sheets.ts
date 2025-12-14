@@ -31,12 +31,19 @@ export const sheetsRouter = router({
 
     return store.getMatches();
   }),
-  match: sheetProcedure
+  createMatch: sheetProcedure
     .input(zodEncode(MatchCreate))
     .mutation(async ({ ctx, input: match }) => {
       const store = await ctx.sheetStore.getInitialized();
 
       return store.createMatch(match);
+    }),
+  createMatches: sheetProcedure
+    .input(zodEncode(z.array(MatchCreate)))
+    .mutation(async ({ ctx, input: matches }) => {
+      const store = await ctx.sheetStore.getInitialized();
+
+      return store.createMatches(matches);
     }),
   onMatchAdded: sheetProcedure
     .input(
