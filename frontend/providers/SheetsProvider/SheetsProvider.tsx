@@ -60,8 +60,8 @@ const getDefaultState = (): SheetsContextState => ({
     rows: 0,
     columns: 0,
   },
-  matches: loadCachedMatches() ?? [],
-  createdMatches: loadCreatedMatches() ?? {},
+  matches: [],
+  createdMatches: {},
 });
 
 const SheetsContext = createContext<SheetsContextValue>([
@@ -117,6 +117,11 @@ export const SheetsProvider: ParentComponent = (props) => {
   let onMatchAddedSubscription: Unsubscribable | null = null;
 
   const initialize = async () => {
+    batch(() => {
+      setState('createdMatches', loadCreatedMatches() ?? {});
+      setState('matches', loadCachedMatches() ?? []);
+    });
+
     const [metadata, matches] = await Promise.all([
       client.sheets.metadata.query(),
       client.sheets.matches.query(),
