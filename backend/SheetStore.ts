@@ -52,7 +52,7 @@ export class SheetStore extends Store {
 
   public static readonly CONSTANTS = {
     MATCHES_FIRST_ROW: 1,
-    MATCHES_LAST_ROW: 256,
+    MATCHES_LAST_ROW: 999,
     MATCHES_COLUMN_CONFIG: {
       team1: {
         index: 0,
