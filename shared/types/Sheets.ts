@@ -95,7 +95,7 @@ export const Match = z.object({
     z.number().optional().nullable().default(null),
     {
       decode: (val) => (val ? val * 24 * 60 : null),
-      encode: (val) => (val ? val / (24 * 60) : null),
+      encode: (val) => (val ? Math.fround(val / (24 * 60)) : null),
     },
   ),
   date: z.codec(
