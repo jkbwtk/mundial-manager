@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import checker from 'vite-plugin-checker';
 import dts from 'vite-plugin-dts';
+import { VitePWA } from 'vite-plugin-pwa';
 import solid from 'vite-plugin-solid';
 import { environment, isDev } from './tools/constants';
 import { autoIndexPlugin } from './tools/plugins/auto-index';
@@ -28,6 +29,27 @@ export default defineConfig({
       exclude: ['frontend/**/*.test.*', 'frontend/**/*.spec.*'],
       rollupTypes: true,
       insertTypesEntry: true,
+    }),
+    VitePWA({
+      registerType: 'autoUpdate',
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,gif,woff2}'],
+        cleanupOutdatedCaches: true,
+      },
+      manifest: {
+        name: 'Mundial Manager',
+        short_name: 'Mundial Manager',
+        description: 'Mundial Manager',
+        theme_color: '#a62130',
+        background_color: '#0d0d0d',
+        icons: [
+          {
+            src: '/resources/favicon.png',
+            sizes: '256x256',
+            type: 'image/png',
+          },
+        ],
+      },
     }),
     isDev
       ? checker({
