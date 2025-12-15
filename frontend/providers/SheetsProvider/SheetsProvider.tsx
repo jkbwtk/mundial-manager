@@ -298,7 +298,7 @@ export const SheetsProvider: ParentComponent = (props) => {
   }
 
   function clearCreatedMatches() {
-    setState('createdMatches', {});
+    setState('createdMatches', Object.keys(state.createdMatches), undefined!);
     saveCreatedMatches(state.createdMatches);
   }
 
