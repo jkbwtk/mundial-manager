@@ -39,6 +39,7 @@ export interface SheetsContextActions {
   latest: () => LatestStats;
   matchHashMap: () => Record<string, Match>;
 
+  createLocalMatch: (match: MatchCreate) => void;
   createMatch: (match: MatchCreate) => Promise<Match>;
   syncCreatedMatch: (hash: string) => Promise<Match>;
   syncCreatedMatches: (hashes: string[]) => Promise<Match[]>;
@@ -85,6 +86,11 @@ const SheetsContext = createContext<SheetsContextValue>([
       throw new Error('SheetsContext: matchHashMap() called before provider');
     },
 
+    createLocalMatch: () => {
+      throw new Error(
+        'SheetsContext: createLocalMatch() called before provider',
+      );
+    },
     createMatch: () => {
       throw new Error('SheetsContext: addMatch() called before provider');
     },
@@ -245,9 +251,13 @@ export const SheetsProvider: ParentComponent = (props) => {
     return map;
   });
 
-  async function createMatch(match: MatchCreate): Promise<Match> {
+  function createLocalMatch(match: MatchCreate): void {
     setState('createdMatches', getMatchHash(match), match);
     saveCreatedMatches(state.createdMatches);
+  }
+
+  async function createMatch(match: MatchCreate): Promise<Match> {
+    createLocalMatch(match);
 
     const createdMatch = await client.sheets.createMatch.mutate(match);
 
@@ -299,6 +309,7 @@ export const SheetsProvider: ParentComponent = (props) => {
     dayStats,
     matchHashMap,
 
+    createLocalMatch,
     createMatch,
     syncCreatedMatch,
     syncCreatedMatches,
