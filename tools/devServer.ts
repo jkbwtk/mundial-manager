@@ -4,6 +4,7 @@ import express from 'express';
 import { generateHydrationScript } from 'solid-js/web';
 import { createServer } from 'vite';
 import { appRouter } from '#backend/routes/app';
+import { logger } from '#shared/logger';
 import { environment } from '#tools/constants';
 
 const app = express();
@@ -50,7 +51,13 @@ app.use('*', async (req, res) => {
 });
 
 app.listen(environment.WEB_PORT, () => {
-  console.log(`Server started at http://localhost:${environment.WEB_PORT}`);
+  logger.info(
+    'Dev server started at %s',
+    `http://localhost:${environment.WEB_PORT}`,
+    {
+      label: ['dev-server'],
+    },
+  );
 });
 
 process.on('SIGINT', () => {

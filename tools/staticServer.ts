@@ -4,6 +4,7 @@ import compression from 'compression';
 import express from 'express';
 import sirv from 'sirv';
 import { appRouter } from '#backend/routes/app';
+import { logger } from '#shared/logger';
 import { environment } from '#tools/constants';
 
 const app = express();
@@ -29,5 +30,11 @@ app.get('*', (_req, res) => {
 });
 
 app.listen(environment.WEB_PORT, () => {
-  console.log(`Server started at http://localhost:${environment.WEB_PORT}`);
+  logger.info(
+    'Static server started at %s',
+    `http://localhost:${environment.WEB_PORT}`,
+    {
+      label: ['static-server'],
+    },
+  );
 });
