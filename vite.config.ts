@@ -80,7 +80,6 @@ export default defineConfig({
     },
     preprocessorOptions: {
       scss: {
-        api: 'modern',
         loadPaths: [resolve(__dirname, 'frontend/styles')],
       },
     },
