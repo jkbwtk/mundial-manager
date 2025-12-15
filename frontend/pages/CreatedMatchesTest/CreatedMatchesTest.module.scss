@@ -1,0 +1,31 @@
+@use 'app' as *;
+
+.container {
+  width: round(down, 100vw, cw(1));
+  min-height: round(down, 100dvh, ch(1));
+
+  .table {
+    width: 100%;
+  }
+
+  .highlightedScore {
+    color: $textBrightColor;
+  }
+
+  @media (hover: hover) {
+    :hover > * > .highlightedScore {
+      color: $backgroundColor;
+    }
+  }
+
+  .team-color {
+    display: inline-block;
+
+    width: round(down, 100%, cw(1));
+    height: ch(1);
+
+    background-color: var(--team-color);
+
+    mask: url('/frontend/assets/images/braille.svg') 0 0 / cw(1) ch(1);
+  }
+}

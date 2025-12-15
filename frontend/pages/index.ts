@@ -7,6 +7,7 @@ export * from './FontTest';
 export * from './TableTest';
 export * from './ButtonTest';
 export * from './ChangelogTest';
+export * from './CreatedMatchesTest';
 export * from './Homepage';
 export * from './IframeTest';
 export * from './InputTest';

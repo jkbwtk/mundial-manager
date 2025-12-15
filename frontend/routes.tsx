@@ -22,6 +22,9 @@ const UserProfileTest = lazy(
 const MatchTimelineTest = lazy(
   () => import('#pages/MatchTimelineTest/MatchTimelineTest'),
 );
+const CreatedMatchesTest = lazy(
+  () => import('#pages/CreatedMatchesTest/CreatedMatchesTest'),
+);
 
 export const routes: RouteDefinition[] = [
   {
@@ -92,6 +95,11 @@ export const routes: RouteDefinition[] = [
         path: '/match-timeline-test',
         info: { title: 'Mundial Manager - Match Timeline Test' },
         component: MatchTimelineTest,
+      },
+      {
+        path: '/created-matches-test',
+        info: { title: 'Mundial Manager - Created Matches Test' },
+        component: CreatedMatchesTest,
       },
     ],
   },
