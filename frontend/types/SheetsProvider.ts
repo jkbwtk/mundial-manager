@@ -1,4 +1,4 @@
-import type { Match, NormalizedTeamName } from '#shared/types/Sheets';
+import type { Match } from '#shared/types/Sheets';
 
 export interface GeneralStats {
   totalMatches: number;
@@ -73,14 +73,14 @@ export interface EloRating {
 
 export interface EloRatings {
   playerElos: Record<string, EloRating>;
-  teamElos: Record<NormalizedTeamName, EloRating>;
+  teamElos: Record<string, EloRating>;
   teamIndividualElos: Record<string, EloRating>;
   hybridElos: Record<string, EloRating>;
 }
 
 export interface Glicko2Ratings {
   playerGlicko2: Record<string, Glicko2Rating>;
-  teamGlicko2: Record<NormalizedTeamName, Glicko2Rating>;
+  teamGlicko2: Record<string, Glicko2Rating>;
   teamIndividualGlicko2: Record<string, Glicko2Rating>;
   hybridGlicko2: Record<string, Glicko2Rating>;
 }
