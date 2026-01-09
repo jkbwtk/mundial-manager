@@ -3,6 +3,7 @@
 
 export * from './extensionSymbols';
 export * from './fileUtils';
+export * from './seasons';
 export * from './sheetUtils';
 export * from './supportedMaterialSymbols';
 export * from './teamColors';

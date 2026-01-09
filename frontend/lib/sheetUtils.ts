@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import { isServer } from 'solid-js/web';
+import { getSeason } from '#flib/seasons';
 import type {
   DayStats,
   EloRating,
@@ -117,9 +118,16 @@ export function calculateElos(
   mode: 'player' | 'team' | 'team-individual' | 'hybrid',
 ): Record<string, EloRating> {
   const elos = structuredClone(previousElos);
+  const season = getSeason(match.date);
 
   for (const elo of Object.values(elos)) {
     elo.ratingChange = 0;
+
+    const eloSeason = getSeason(elo.date);
+
+    if (season.number !== eloSeason.number) {
+      elo.rating = DEFAULT_ELO;
+    }
   }
 
   if (mode === 'player') {
@@ -134,10 +142,25 @@ export function calculateElos(
     }
   }
 
+  const defaultRating: EloRating = {
+    date: null,
+    rating: DEFAULT_ELO,
+    ratingChange: 0,
+  };
+
   const playersToCalculate =
     mode === 'hybrid' || mode === 'team-individual'
       ? getPlayersFromMatch(match)
       : [match.team1, match.team2];
+
+  const getPreviousRating = (team: string): EloRating => {
+    const previousElo = previousElos[team] ?? defaultRating;
+    const previousSeason = getSeason(previousElo.date);
+
+    return season.number !== previousSeason.number
+      ? defaultRating
+      : previousElo;
+  };
 
   const getTeamElo = (team: string): number => {
     if (mode === 'hybrid') {
@@ -145,14 +168,14 @@ export function calculateElos(
 
       return (
         players.reduce(
-          (sum, player) => sum + (previousElos[player]?.rating ?? DEFAULT_ELO),
+          (sum, player) => sum + getPreviousRating(player).rating,
           0,
         ) / players.length
       );
     }
 
     const normalizedTeamName = normalizeTeamName(team);
-    return previousElos[normalizedTeamName]?.rating ?? DEFAULT_ELO;
+    return getPreviousRating(normalizedTeamName).rating;
   };
 
   for (const player of playersToCalculate) {
@@ -178,10 +201,7 @@ export function calculateElos(
           score: match.score1,
         };
 
-    const playerElo: EloRating = previousElos[normalizedPlayer] ?? {
-      rating: DEFAULT_ELO,
-      ratingChange: 0,
-    };
+    const playerElo: EloRating = getPreviousRating(normalizedPlayer);
 
     const ratingChange = calculateEloDiff(
       playerTeam.elo,
@@ -191,6 +211,7 @@ export function calculateElos(
     );
 
     elos[normalizedPlayer] = {
+      date: match.date,
       rating: playerElo.rating + ratingChange,
       ratingChange,
     };
@@ -329,14 +350,24 @@ export function calculateGlicko2Ratings(
   mode: 'player' | 'team' | 'team-individual' | 'hybrid',
 ): Record<string, Glicko2Rating> {
   const ratings = structuredClone(previousRatings);
+  const season = getSeason(match.date);
 
   for (const rating of Object.values(ratings)) {
     rating.ratingChange = 0;
     rating.rdChange = 0;
     rating.volatilityChange = 0;
+
+    const glickoSeason = getSeason(rating.date);
+
+    if (season.number !== glickoSeason.number) {
+      rating.rating = DEFAULT_GLICKO2_RATING;
+      rating.rd = 0;
+      rating.volatility = 0;
+    }
   }
 
   const defaultRating: Glicko2Rating = {
+    date: null,
     rating: DEFAULT_GLICKO2_RATING,
     ratingChange: 0,
 
@@ -345,6 +376,15 @@ export function calculateGlicko2Ratings(
 
     volatility: DEFAULT_GLICKO2_VOLATILITY,
     volatilityChange: 0,
+  };
+
+  const getPreviousRating = (team: string): Glicko2Rating => {
+    const previousGlicko2 = previousRatings[team] ?? defaultRating;
+    const previousSeason = getSeason(previousGlicko2.date);
+
+    return season.number !== previousSeason.number
+      ? defaultRating
+      : previousGlicko2;
   };
 
   if (mode === 'player') {
@@ -367,9 +407,7 @@ export function calculateGlicko2Ratings(
   const getTeamRating = (team: string): Glicko2RatingInternal => {
     if (mode === 'hybrid') {
       const players = getPlayersFromTeam(team);
-      const teamRatings = players.map(
-        (player) => previousRatings[player] ?? defaultRating,
-      );
+      const teamRatings = players.map((player) => getPreviousRating(player));
 
       const avgRating =
         teamRatings.reduce((sum, r) => sum + r.rating, 0) / teamRatings.length;
@@ -387,7 +425,7 @@ export function calculateGlicko2Ratings(
     }
 
     const normalizedTeamName = normalizeTeamName(team);
-    return previousRatings[normalizedTeamName] ?? defaultRating;
+    return getPreviousRating(normalizedTeamName);
   };
 
   for (const player of playersToCalculate) {
@@ -413,7 +451,7 @@ export function calculateGlicko2Ratings(
           score: match.score1,
         };
 
-    const playerRating = previousRatings[normalizedPlayer] ?? defaultRating;
+    const playerRating = getPreviousRating(normalizedPlayer);
 
     const updatedGlicko2Rating = calculateGlicko2Diff(
       playerRating,
@@ -424,6 +462,7 @@ export function calculateGlicko2Ratings(
 
     ratings[normalizedPlayer] = {
       ...updatedGlicko2Rating,
+      date: match.date,
       ratingChange: updatedGlicko2Rating.rating - playerRating.rating,
       rdChange: updatedGlicko2Rating.rd - playerRating.rd,
       volatilityChange:
@@ -973,6 +1012,7 @@ function calculateEloDifferences(
     const previousElo = previousElos[key];
 
     eloDifferences[key] = {
+      date: currentElo.date,
       rating: currentElo.rating,
       ratingChange: currentElo.rating - (previousElo?.rating ?? DEFAULT_ELO),
     };
@@ -1015,6 +1055,7 @@ function calculateGlicko2Differences(
     const previousRating = previousRatings[key];
 
     ratingDifferences[key] = {
+      date: currentRating.date,
       rating: currentRating.rating,
       ratingChange:
         currentRating.rating -

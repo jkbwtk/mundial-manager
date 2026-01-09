@@ -1,3 +1,4 @@
+import type { Dayjs } from 'dayjs';
 import type { Match } from '#shared/types/Sheets';
 
 export interface GeneralStats {
@@ -25,6 +26,8 @@ export interface GeneralStats {
 }
 
 export interface Glicko2Rating {
+  date: number | null;
+
   rating: number;
   ratingChange: number;
 
@@ -67,6 +70,7 @@ export interface PlayerStats {
 }
 
 export interface EloRating {
+  date: number | null;
   rating: number;
   ratingChange: number;
 }
@@ -132,4 +136,12 @@ export interface LatestStats {
   match: Match;
   matchStats: MatchStats;
   dayStats: DayStats;
+}
+
+export interface Season {
+  number: number;
+  label: string;
+
+  startDate: Dayjs;
+  endDate: Dayjs;
 }
