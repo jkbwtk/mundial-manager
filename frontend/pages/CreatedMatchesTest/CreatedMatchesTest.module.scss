@@ -4,6 +4,13 @@
   width: round(down, 100vw, cw(1));
   min-height: round(down, 100dvh, ch(1));
 
+  .controls {
+    display: flex;
+
+    gap: cw(1);
+    margin-top: ch(1);
+  }
+
   .table {
     width: 100%;
   }

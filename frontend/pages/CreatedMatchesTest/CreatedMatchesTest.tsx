@@ -207,7 +207,7 @@ const CreatedMatchesTest: Component = () => {
 
       <Show
         when={matchesCount() > 0}
-        fallback={<div class={style.emptyState}>No created matches yet</div>}
+        fallback={<div>No created matches yet</div>}
       >
         <Table columns={columns} data={tableData()} class={style.table} />
       </Show>
