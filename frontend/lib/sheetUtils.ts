@@ -181,7 +181,7 @@ export function calculateElos(
   for (const player of playersToCalculate) {
     const normalizedPlayer = normalizeTeamName(player);
 
-    const playerTeam = match.team1.includes(normalizedPlayer)
+    const playerTeam = match.team1.includes(player)
       ? {
           elo: getTeamElo(match.team1),
           score: match.score1,
@@ -191,7 +191,7 @@ export function calculateElos(
           score: match.score2,
         };
 
-    const opponentTeam = match.team1.includes(normalizedPlayer)
+    const opponentTeam = match.team1.includes(player)
       ? {
           elo: getTeamElo(match.team2),
           score: match.score2,
@@ -431,7 +431,7 @@ export function calculateGlicko2Ratings(
   for (const player of playersToCalculate) {
     const normalizedPlayer = normalizeTeamName(player);
 
-    const playerTeam = match.team1.includes(normalizedPlayer)
+    const playerTeam = match.team1.includes(player)
       ? {
           rating: getTeamRating(match.team1),
           score: match.score1,
@@ -441,7 +441,7 @@ export function calculateGlicko2Ratings(
           score: match.score2,
         };
 
-    const opponentTeam = match.team1.includes(normalizedPlayer)
+    const opponentTeam = match.team1.includes(player)
       ? {
           rating: getTeamRating(match.team2),
           score: match.score2,
