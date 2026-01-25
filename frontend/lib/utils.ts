@@ -16,3 +16,7 @@ export function bytesToBase64(bytes: Uint8Array) {
 export function toJson(data: unknown): string {
   return JSON.stringify(data, null, 2);
 }
+
+export function isMobile(): boolean {
+  return navigator.maxTouchPoints > 1;
+}

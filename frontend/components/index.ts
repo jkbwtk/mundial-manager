@@ -30,6 +30,7 @@ export * from './MatchTimelineModal';
 export * from './MaterialSymbol';
 export * from './Modal';
 export * from './MundialCalculatorLink';
+export * from './PWAInitializer';
 export * from './PlayerLink';
 export * from './PlayerPickerModal';
 export * from './PlayerProfileModal';

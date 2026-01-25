@@ -5,7 +5,7 @@ import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import checker from 'vite-plugin-checker';
 import dts from 'vite-plugin-dts';
-// import { VitePWA } from 'vite-plugin-pwa';
+import { VitePWA } from 'vite-plugin-pwa';
 import solid from 'vite-plugin-solid';
 import { environment, isDev } from './tools/constants';
 import { autoIndexPlugin } from './tools/plugins/auto-index';
@@ -30,27 +30,39 @@ export default defineConfig({
       rollupTypes: true,
       insertTypesEntry: true,
     }),
-    /*VitePWA({
-      registerType: 'autoUpdate',
+    VitePWA({
+      registerType: 'prompt',
+      includeAssets: ['resources/favicon.ico', 'resources/favicon.png'],
+      injectRegister: null,
+      strategies: 'generateSW',
       workbox: {
-        globPatterns: ['**\/*.{js,css,html,ico,png,svg,gif,woff2}'],
+        globPatterns: ['**/*.{js,css,ico,png,svg,gif,woff2}'],
         cleanupOutdatedCaches: true,
       },
       manifest: {
         name: 'Mundial Manager',
-        short_name: 'Mundial Manager',
-        description: 'Mundial Manager',
+        short_name: 'Mundial',
+        description: 'Mundial Manager - Foosball stats and match tracking',
         theme_color: '#a62130',
         background_color: '#0d0d0d',
+        display: 'standalone',
+        start_url: '/',
         icons: [
           {
             src: '/resources/favicon.png',
             sizes: '256x256',
             type: 'image/png',
+            purpose: 'any',
+          },
+          {
+            src: '/resources/favicon.png',
+            sizes: '256x256',
+            type: 'image/png',
+            purpose: 'maskable',
           },
         ],
       },
-    }),*/
+    }),
     isDev
       ? checker({
           enableBuild: false,

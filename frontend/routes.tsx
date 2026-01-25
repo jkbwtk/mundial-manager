@@ -25,6 +25,7 @@ const MatchTimelineTest = lazy(
 const CreatedMatchesTest = lazy(
   () => import('#pages/CreatedMatchesTest/CreatedMatchesTest'),
 );
+const ToastTest = lazy(() => import('#pages/ToastTest/ToastTest'));
 
 export const routes: RouteDefinition[] = [
   {
@@ -100,6 +101,11 @@ export const routes: RouteDefinition[] = [
         path: '/created-matches-test',
         info: { title: 'Mundial Manager - Created Matches Test' },
         component: CreatedMatchesTest,
+      },
+      {
+        path: '/toast-test',
+        info: { title: 'Mundial Manager - Toast Test' },
+        component: ToastTest,
       },
     ],
   },

@@ -5,6 +5,7 @@ import { Router } from '@solidjs/router';
 import { isServer, Show, Suspense } from 'solid-js/web';
 import { AcrylicBackground } from '#components/AcrylicBackground';
 import { DevGrid } from '#components/DevGrid';
+import { PWAInitializer } from '#components/PWAInitializer';
 import { isDev } from '#flib/utils';
 import { ChangelogProvider } from '#providers/ChangelogProvider';
 import { ConsoleUnitPrototypeProvider } from '#providers/ConsoleUnitPrototypeProvider';
@@ -30,6 +31,8 @@ const App: Component<{ url?: string }> = (props) => {
                       <Show when={isDev()}>
                         <DevGrid />
                       </Show>
+
+                      <PWAInitializer />
 
                       <Router url={isServer ? props.url : ''}>{routes}</Router>
                     </Suspense>

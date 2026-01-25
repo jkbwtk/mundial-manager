@@ -26,7 +26,7 @@ COPY --from=build /usr/local/bin/node /usr/local/bin/node
 RUN apk add --no-cache supervisor
 
 COPY --from=build /build/static /app
-COPY --from=build /build/dist/client/assets /app/private/assets
+COPY --from=build /build/dist/client /app/private
 COPY --from=build /build/dist/static /app/private
 COPY --from=build /build/dist/backend /app/backend
 
