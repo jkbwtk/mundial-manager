@@ -1,0 +1,267 @@
+@use 'app' as *;
+
+$toast-width: cw(50);
+$animation-duration: 0.2s;
+$animation-easing: ease-in-out;
+
+.container {
+  position: fixed;
+  bottom: ch(1);
+  right: cw(1);
+  z-index: 9999;
+
+  width: $toast-width;
+
+  overflow-x: hidden;
+  overflow-y: hidden;
+
+  pointer-events: none;
+
+  display: flex;
+  flex-direction: column-reverse;
+
+  &.narrow {
+    left: cw(1);
+    right: cw(1);
+    width: auto;
+
+    .toast {
+      animation-name: enter-vertical;
+
+      &.leaving {
+        animation-name: leave-vertical;
+      }
+    }
+  }
+}
+
+.toast {
+  width: 100%;
+
+  background-color: $modalColor;
+  border-radius: $borderRadius;
+
+  pointer-events: auto;
+  transform-origin: bottom right;
+
+  --animation-duration: var(--toast-animation-duration, #{$animation-duration});
+
+  animation: enter-horizontal var(--animation-duration) $animation-easing forwards;
+
+  transition:
+    border-color var(--animation-duration) $animation-easing,
+    margin var(--animation-duration) $animation-easing,
+    padding var(--animation-duration) $animation-easing,
+    max-height var(--animation-duration) $animation-easing,
+    opacity var(--animation-duration) $animation-easing;
+
+  &.leaving {
+    animation: leave-horizontal var(--animation-duration) $animation-easing forwards;
+  }
+}
+
+.countdown {
+  position: relative;
+
+  &::after {
+    content: ' ';
+
+    position: absolute;
+
+    left: calc(cw(0.5) - $borderSize / 2);
+    bottom: calc(ch(0.5) - $borderSize / 2);
+
+    width: calc(100% - cw(1) + $borderSize);
+    height: $borderSize;
+
+    background-color: $textBrightColor;
+    border-radius: 500rem;
+
+    animation: shrink var(--toast-time-duration, 5000ms) linear forwards;
+  }
+}
+
+.toast-container {
+  display: grid;
+
+  grid-template-columns: cw(2) 1fr cw(4);
+  grid-template-rows: 1fr;
+
+  align-items: center;
+}
+
+.toast-content {
+  &::after {
+    content: ' ';
+  }
+}
+
+.toast-actions {
+  display: inline-flex;
+  gap: 0 cw(1);
+
+  color: $textColor;
+
+  flex-wrap: wrap;
+}
+
+.message {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dismiss {
+  margin-left: cw(1);
+}
+
+.info {
+  color: $blue;
+
+  .symbol {
+    color: $blueBright;
+  }
+
+  --widget-border-color: $blue;
+}
+
+.success {
+  color: $green;
+
+  .symbol {
+    color: $greenBright;
+  }
+
+  --widget-border-color: $green;
+}
+
+.warning {
+  color: $yellow;
+
+  .symbol {
+    color: $yellowBright;
+  }
+
+  --widget-border-color: $yellow;
+}
+
+.error {
+  color: $red;
+
+  .symbol {
+    color: $redBright;
+  }
+
+  --widget-border-color: $red;
+}
+
+.queue-indicator {
+  pointer-events: auto;
+
+  background-color: $widgetColor;
+
+  width: fit-content;
+  align-self: flex-end;
+
+  animation: enter-fade $animation-duration $animation-easing forwards;
+}
+
+@keyframes enter-horizontal {
+  from {
+    opacity: 0;
+    max-height: 0;
+    margin-top: 0;
+    transform: translateX(100%);
+  }
+
+  to {
+    opacity: 1;
+    max-height: ch(10);
+    margin-top: ch(1);
+    transform: translateX(0);
+  }
+}
+
+@keyframes leave-horizontal {
+  from {
+    opacity: 1;
+    max-height: ch(10);
+    margin-top: ch(1);
+  }
+
+  to {
+    opacity: 0;
+    max-height: 0;
+    margin-top: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}
+
+@keyframes enter-vertical {
+  from {
+    opacity: 0;
+    max-height: 0;
+    margin-top: 0;
+    transform: translateY(100%);
+  }
+
+  to {
+    opacity: 1;
+    max-height: ch(10);
+    margin-top: ch(1);
+    transform: translateY(0);
+  }
+}
+
+@keyframes leave-vertical {
+  from {
+    opacity: 1;
+    max-height: ch(10);
+    margin-top: ch(1);
+  }
+
+  to {
+    opacity: 0;
+    max-height: 0;
+    margin-top: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}
+
+@keyframes enter-fade {
+  from {
+    opacity: 0;
+    max-height: 0;
+    margin-top: 0;
+  }
+
+  to {
+    opacity: 1;
+    max-height: ch(10);
+    margin-top: ch(1);
+  }
+}
+
+@keyframes leave-fade {
+  from {
+    opacity: 1;
+    max-height: ch(2);
+    margin-top: ch(1);
+  }
+
+  to {
+    opacity: 0;
+    max-height: 0;
+    margin-top: 0;
+  }
+}
+
+@keyframes shrink {
+  from {
+    max-width: 100%;
+  }
+  to {
+    max-width: 0%;
+  }
+}

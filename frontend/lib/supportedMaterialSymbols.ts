@@ -24,6 +24,10 @@ export const SupportedMaterialSymbol = [
   'swap_horiz',
   'display_external_input',
   'nearby_error',
+  'info',
+  'check_circle',
+  'warning',
+  'error',
 ] as const;
 
 export type SupportedMaterialSymbol = (typeof SupportedMaterialSymbol)[number];

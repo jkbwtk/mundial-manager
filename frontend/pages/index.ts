@@ -18,4 +18,5 @@ export * from './PageNotFound';
 export * from './PlayerProfileTest';
 export * from './RouteMap';
 export * from './SheetsTest';
+export * from './ToastTest';
 export * from './WidgetTest';

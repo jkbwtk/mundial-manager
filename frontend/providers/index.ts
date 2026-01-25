@@ -7,3 +7,4 @@ export * from './FilesystemProvider';
 export * from './ModalProvider';
 export * from './SheetsProvider';
 export * from './TRPCProvider';
+export * from './ToastProvider';
