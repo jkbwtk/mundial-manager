@@ -13,6 +13,7 @@ export type CustomButtonProps = {
   disabled?: boolean;
   severity?: 'primary' | 'secondary' | 'danger';
   loading?: boolean;
+  padding?: number;
 };
 
 export type ButtonProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> &
@@ -22,6 +23,7 @@ export const buttonDefaultProps: RequiredDefaults<CustomButtonProps> = {
   disabled: false,
   severity: 'primary',
   loading: false,
+  padding: 1,
 };
 
 const SPINNER_FRAMES = ['|', '/', '-', '\\'];
@@ -63,6 +65,9 @@ export const Button: ParentComponent<ButtonProps> = (userProps) => {
         [style.danger]: props.severity === 'danger',
         [style.disabled]: props.disabled || props.loading,
         ...(props.classList ?? {}),
+      }}
+      style={{
+        '--padding': props.padding,
       }}
     >
       <span
