@@ -14,6 +14,7 @@ export * from './InputTest';
 export * from './MatchTimelineTest';
 export * from './ModalTest';
 export * from './MundialCalculator';
+export * from './PWATest';
 export * from './PageNotFound';
 export * from './PlayerProfileTest';
 export * from './RouteMap';

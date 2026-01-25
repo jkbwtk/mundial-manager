@@ -26,6 +26,7 @@ const CreatedMatchesTest = lazy(
   () => import('#pages/CreatedMatchesTest/CreatedMatchesTest'),
 );
 const ToastTest = lazy(() => import('#pages/ToastTest/ToastTest'));
+const PWATest = lazy(() => import('#pages/PWATest/PWATest'));
 
 export const routes: RouteDefinition[] = [
   {
@@ -106,6 +107,11 @@ export const routes: RouteDefinition[] = [
         path: '/toast-test',
         info: { title: 'Mundial Manager - Toast Test' },
         component: ToastTest,
+      },
+      {
+        path: '/pwa-test',
+        info: { title: 'Mundial Manager - PWA Test' },
+        component: PWATest,
       },
     ],
   },
