@@ -9,18 +9,19 @@ import {
 } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import { isServer } from 'solid-js/web';
+import { calculateMatchData } from '#flib/matchDataUtils';
 import {
   cacheMatches,
-  calculateDayStats,
-  calculateMatchStats,
-  defaultDayStats,
-  defaultMatch,
-  defaultMatchStats,
   loadCachedMatches,
   loadCreatedMatches,
   saveCreatedMatches,
 } from '#flib/sheetUtils';
-import type { DayStats, LatestStats, MatchStats } from '#frontend/types';
+import type {
+  DayStats,
+  MatchData,
+  MatchDataFrame,
+  MatchStats,
+} from '#frontend/types';
 import { useTRPC } from '#providers/TRPCProvider';
 import { getMatchHash } from '#shared/matchUtils';
 import type { Match, MatchCreate, SheetMetadata } from '#shared/types/Sheets';
@@ -36,7 +37,8 @@ export interface SheetsContextActions {
   initialize: () => Promise<void>;
   matchStats: () => Record<number, MatchStats>;
   dayStats: () => Record<number, DayStats>;
-  latest: () => LatestStats;
+  matchData: () => MatchData;
+  latest: () => MatchDataFrame;
   matchHashMap: () => Record<string, Match>;
 
   createLocalMatch: (match: MatchCreate) => void;
@@ -81,6 +83,9 @@ const SheetsContext = createContext<SheetsContextValue>([
     },
     dayStats: () => {
       throw new Error('SheetsContext: dayStats() called before provider');
+    },
+    matchData: () => {
+      throw new Error('SheetsContext: matchData() called before provider');
     },
     matchHashMap: () => {
       throw new Error('SheetsContext: matchHashMap() called before provider');
@@ -177,68 +182,30 @@ export const SheetsProvider: ParentComponent = (props) => {
     }
   }
 
+  const matchData = createMemo(() => calculateMatchData(state.matches));
+
   const matchStats = createMemo<Record<number, MatchStats>>(() => {
-    const matches = state.matches;
-
-    let previousStats: MatchStats | undefined;
-
-    const matchStats = Object.fromEntries(
-      matches.map((match) => {
-        const stats = calculateMatchStats(match, previousStats);
-
-        previousStats = stats;
-
-        return [match.id, stats] as const;
-      }),
+    return matchData().frames.reduce(
+      (acc, frame) => {
+        acc[frame.match.id] = frame.matchStats;
+        return acc;
+      },
+      {} as Record<number, MatchStats>,
     );
-
-    return matchStats;
   });
 
   const dayStats = createMemo<Record<number, DayStats>>(() => {
-    const aggregated: Map<number, Match[]> = new Map();
-
-    for (const match of state.matches) {
-      if (match.date === null) continue;
-
-      let list = aggregated.get(match.date);
-
-      if (list === undefined) {
-        list = [];
-        aggregated.set(match.date, list);
-      }
-
-      list.push(match);
-    }
-
-    const days = Array.from(aggregated.keys()).sort((a, b) => a - b);
-
-    let previousStats: DayStats | undefined;
-
-    const dayStats = Object.fromEntries(
-      days.map((date) => {
-        const matches = aggregated.get(date)!.sort((a, b) => a.id - b.id);
-
-        const lastMatch = matches.at(-1)!;
-        const lastMatchStats = matchStats()[lastMatch.id] ?? defaultMatchStats;
-
-        const stats = calculateDayStats(matches, lastMatchStats, previousStats);
-
-        previousStats = stats;
-
-        return [date, stats] as const;
-      }),
+    return Object.fromEntries(
+      Array.from(Object.entries(matchData().dayStats)).map(
+        ([day, aggregate]) => {
+          return [day, aggregate.frame.dayStats];
+        },
+      ),
     );
-
-    return dayStats;
   });
 
-  const latest = createMemo<LatestStats>(() => {
-    const match = state.matches.at(-1) ?? defaultMatch;
-    const stats = matchStats()[match.id] ?? defaultMatchStats;
-    const day = dayStats()[match.date ?? -1] ?? defaultDayStats;
-
-    return { match, matchStats: stats, dayStats: day };
+  const latest = createMemo<MatchDataFrame>(() => {
+    return matchData().latest;
   });
 
   const matchHashMap = createMemo(() => {
@@ -307,6 +274,7 @@ export const SheetsProvider: ParentComponent = (props) => {
     matchStats,
     latest,
     dayStats,
+    matchData,
     matchHashMap,
 
     createLocalMatch,

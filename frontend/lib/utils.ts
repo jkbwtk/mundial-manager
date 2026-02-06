@@ -20,3 +20,13 @@ export function toJson(data: unknown): string {
 export function isMobile(): boolean {
   return navigator.maxTouchPoints > 1;
 }
+
+export function addNullable<T extends number | null>(
+  a: number | null,
+  b: number | null,
+  fallback: T = null as T,
+): number | T {
+  if (a === null && b === null) return fallback;
+
+  return (a ?? 0) + (b ?? 0);
+}

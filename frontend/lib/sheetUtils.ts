@@ -3,14 +3,10 @@ import duration from 'dayjs/plugin/duration';
 import { isServer } from 'solid-js/web';
 import { getSeason } from '#flib/seasons';
 import type {
-  DayStats,
+  BaseStats,
   EloRating,
-  EloRatings,
-  GeneralStats,
   Glicko2Rating,
-  Glicko2Ratings,
-  MatchStats,
-  PlayerStats,
+  MatchDataFrame,
 } from '#frontend/types';
 import { getMatchHash, normalizeTeamName } from '#shared/matchUtils';
 import type { CalculatorFinishEvent } from '#shared/types/MundialCalculator';
@@ -18,7 +14,10 @@ import type {
   Match,
   MatchCreate,
   MatchEvent,
+  MatchEventBallOut,
   MatchEventGoal,
+  MatchEventPositionChange,
+  MatchEventType,
 } from '#shared/types/Sheets';
 import { quickSwitch } from '#shared/utils';
 
@@ -32,7 +31,11 @@ export const DEFAULT_GLICKO2_VOLATILITY = 0.06;
 const GLICKO2_TAU = 0.5;
 const GLICKO2_EPSILON = 0.000001;
 
-export function formatDuration(seconds: number): string {
+export function formatDuration(seconds: number | null): string {
+  if (seconds === null || seconds < 0) {
+    return '--:--';
+  }
+
   if (seconds < 3600) {
     return dayjs.duration(seconds, 'seconds').format('mm:ss');
   }
@@ -47,7 +50,11 @@ export function formatDuration(seconds: number): string {
   return `${Math.floor(hours)}:${durationObj.format('mm:ss')}`;
 }
 
-export function formatDate(timestamp: number): string {
+export function formatDate(timestamp: number | null): string {
+  if (timestamp === null) {
+    return '----/--/--';
+  }
+
   return dayjs.unix(timestamp).format('YYYY-MM-DD');
 }
 
@@ -114,38 +121,40 @@ export function calculateEloDiff(
 
 export function calculateElos(
   match: Match,
-  previousElos: Record<string, EloRating>,
+  previousData: MatchDataFrame,
   mode: 'player' | 'team' | 'team-individual' | 'hybrid',
 ): Record<string, EloRating> {
-  const elos = structuredClone(previousElos);
   const season = getSeason(match.date);
+  const previousSeason = getSeason(previousData.match.date);
 
-  for (const elo of Object.values(elos)) {
-    elo.ratingChange = 0;
+  const previousElos =
+    season.number === previousSeason.number
+      ? quickSwitch<Record<string, EloRating>, typeof mode>(mode, {
+          player: previousData.eloRatings.playerElos,
+          team: previousData.eloRatings.teamElos,
+          'team-individual': previousData.eloRatings.teamIndividualElos,
+          hybrid: previousData.eloRatings.hybridElos,
+          default: {},
+        })
+      : {};
 
-    const eloSeason = getSeason(elo.date);
-
-    if (season.number !== eloSeason.number) {
-      elo.rating = DEFAULT_ELO;
-    }
-  }
+  const elos = { ...previousElos };
 
   if (mode === 'player') {
     if (getPlayersFromMatch(match).length !== 2) {
-      return elos;
+      return previousElos;
     }
   }
 
   if (mode === 'team' || mode === 'team-individual') {
     if (getPlayersFromMatch(match).length === 2) {
-      return elos;
+      return previousElos;
     }
   }
 
   const defaultRating: EloRating = {
-    date: null,
+    id: match.id,
     rating: DEFAULT_ELO,
-    ratingChange: 0,
   };
 
   const playersToCalculate =
@@ -153,14 +162,8 @@ export function calculateElos(
       ? getPlayersFromMatch(match)
       : [match.team1, match.team2];
 
-  const getPreviousRating = (team: string): EloRating => {
-    const previousElo = previousElos[team] ?? defaultRating;
-    const previousSeason = getSeason(previousElo.date);
-
-    return season.number !== previousSeason.number
-      ? defaultRating
-      : previousElo;
-  };
+  const getPreviousRating = (team: string): EloRating =>
+    previousElos[team] ?? defaultRating;
 
   const getTeamElo = (team: string): number => {
     if (mode === 'hybrid') {
@@ -211,9 +214,8 @@ export function calculateElos(
     );
 
     elos[normalizedPlayer] = {
-      date: match.date,
+      id: match.id,
       rating: playerElo.rating + ratingChange,
-      ratingChange,
     };
   }
 
@@ -346,46 +348,36 @@ export function calculateGlicko2Diff(
 
 export function calculateGlicko2Ratings(
   match: Match,
-  previousRatings: Record<string, Glicko2Rating>,
+  previousData: MatchDataFrame,
   mode: 'player' | 'team' | 'team-individual' | 'hybrid',
 ): Record<string, Glicko2Rating> {
-  const ratings = structuredClone(previousRatings);
   const season = getSeason(match.date);
+  const previousSeason = getSeason(previousData.match.date);
 
-  for (const rating of Object.values(ratings)) {
-    rating.ratingChange = 0;
-    rating.rdChange = 0;
-    rating.volatilityChange = 0;
+  const previousRatings =
+    season.number === previousSeason.number
+      ? quickSwitch<Record<string, Glicko2Rating>, typeof mode>(mode, {
+          player: previousData.glicko2Ratings.playerGlicko2,
+          team: previousData.glicko2Ratings.teamGlicko2,
+          'team-individual': previousData.glicko2Ratings.teamIndividualGlicko2,
+          hybrid: previousData.glicko2Ratings.hybridGlicko2,
+          default: {},
+        })
+      : {};
 
-    const glickoSeason = getSeason(rating.date);
-
-    if (season.number !== glickoSeason.number) {
-      rating.rating = DEFAULT_GLICKO2_RATING;
-      rating.rd = 0;
-      rating.volatility = 0;
-    }
-  }
+  const ratings = { ...previousRatings };
 
   const defaultRating: Glicko2Rating = {
-    date: null,
+    id: match.id,
     rating: DEFAULT_GLICKO2_RATING,
-    ratingChange: 0,
 
     rd: DEFAULT_GLICKO2_RD,
-    rdChange: 0,
 
     volatility: DEFAULT_GLICKO2_VOLATILITY,
-    volatilityChange: 0,
   };
 
-  const getPreviousRating = (team: string): Glicko2Rating => {
-    const previousGlicko2 = previousRatings[team] ?? defaultRating;
-    const previousSeason = getSeason(previousGlicko2.date);
-
-    return season.number !== previousSeason.number
-      ? defaultRating
-      : previousGlicko2;
-  };
+  const getPreviousRating = (team: string): Glicko2Rating =>
+    previousRatings[team] ?? defaultRating;
 
   if (mode === 'player') {
     if (getPlayersFromMatch(match).length !== 2) {
@@ -461,12 +453,8 @@ export function calculateGlicko2Ratings(
     );
 
     ratings[normalizedPlayer] = {
+      id: match.id,
       ...updatedGlicko2Rating,
-      date: match.date,
-      ratingChange: updatedGlicko2Rating.rating - playerRating.rating,
-      rdChange: updatedGlicko2Rating.rd - playerRating.rd,
-      volatilityChange:
-        updatedGlicko2Rating.volatility - playerRating.volatility,
     };
   }
 
@@ -569,361 +557,34 @@ export function formatMatchLabel(match: Match): string {
   return `#${match.id}`;
 }
 
-const defaultGeneralStats: GeneralStats = {
-  totalMatches: 0,
-  totalGoals: 0,
-
-  uniquePlayers: [],
-
-  totalPlaytime: 0,
-  totalPlaytimeFormatted: formatDuration(0),
-  totalIndividualPlaytime: 0,
-  totalIndividualPlaytimeFormatted: formatDuration(0),
-
-  averageMatchDuration: 0,
-  averageMatchDurationFormatted: formatDuration(0),
-  averageGoals: 0,
-
-  totalPlaytimeExtrapolated: 0,
-  totalPlaytimeExtrapolatedFormatted: formatDuration(0),
-  totalIndividualPlaytimeExtrapolated: 0,
-  totalIndividualPlaytimeExtrapolatedFormatted: formatDuration(0),
-
-  floorMatchCount: {},
-  colorWinCount: {},
-};
-
-export const defaultMatchStats: MatchStats = {
-  id: -1,
-  label: '',
-
-  goalsPerMinute: 0,
-
-  generalStats: structuredClone(defaultGeneralStats),
-  playerStats: {},
-
-  eloRatings: {
-    playerElos: {},
-    teamElos: {},
-    teamIndividualElos: {},
-    hybridElos: {},
-  },
-
-  glicko2Ratings: {
-    playerGlicko2: {},
-    teamGlicko2: {},
-    teamIndividualGlicko2: {},
-    hybridGlicko2: {},
-  },
-
-  _matchCounter: 0,
-  _matchesWithDuration: 0,
-};
-
-export const defaultMatch: Match = {
-  id: -1,
-  team1: '',
-  team2: '',
-  score1: 0,
-  score2: 0,
-  duration: null,
-  winningColor: '',
-  date: null,
-  floor: null,
-  replayMetadata: null,
-
-  hash: '',
-};
-
-function getTotalMatches(_match: Match, previousStats: MatchStats) {
+export function getTotalMatches(_match: Match, previousStats: BaseStats) {
   return previousStats._matchCounter + 1;
 }
 
-function getTotalMatchesWithDuration(match: Match, previousStats: MatchStats) {
+export function getTotalGoalsWithDuration(
+  match: Match,
+  previousStats: BaseStats,
+) {
+  return (
+    previousStats._goalsWithDuration +
+    (match.duration ? match.score1 + match.score2 : 0)
+  );
+}
+
+export function getTotalMatchesWithDuration(
+  match: Match,
+  previousStats: BaseStats,
+) {
   return previousStats._matchesWithDuration + (match.duration ? 1 : 0);
 }
 
-function calculateGeneralStats(
+export function getTotalMatchesWithTimeline(
   match: Match,
-  previousStats: MatchStats,
-): GeneralStats {
-  const _matchesWithDuration = getTotalMatchesWithDuration(
-    match,
-    previousStats,
+  previousStats: BaseStats,
+) {
+  return (
+    previousStats._matchesWithTimeline + (match.replayMetadata?.events ? 1 : 0)
   );
-
-  const totalMatches = getTotalMatches(match, previousStats);
-  const totalGoals =
-    previousStats.generalStats.totalGoals + match.score1 + match.score2;
-
-  const uniquePlayers = Array.from(
-    new Set([
-      ...previousStats.generalStats.uniquePlayers,
-      ...getPlayersFromMatch(match),
-    ]),
-  ).sort();
-
-  const totalPlaytime =
-    previousStats.generalStats.totalPlaytime + (match.duration ?? 0);
-  const totalPlaytimeFormatted = formatDuration(totalPlaytime);
-  const totalIndividualPlaytime =
-    previousStats.generalStats.totalIndividualPlaytime +
-    (match.duration ?? 0) * getPlayersFromMatch(match).length;
-  const totalIndividualPlaytimeFormatted = formatDuration(
-    totalIndividualPlaytime,
-  );
-
-  const averageMatchDuration = _matchesWithDuration
-    ? totalPlaytime / _matchesWithDuration
-    : 0;
-  const averageMatchDurationFormatted = formatDuration(averageMatchDuration);
-  const averageGoals = totalMatches ? totalGoals / totalMatches : 0;
-
-  const totalPlaytimeExtrapolated =
-    totalPlaytime +
-    averageMatchDuration * (totalMatches - _matchesWithDuration);
-  const totalPlaytimeExtrapolatedFormatted = formatDuration(
-    totalPlaytimeExtrapolated,
-  );
-  const totalIndividualPlaytimeExtrapolated =
-    totalIndividualPlaytime +
-    averageMatchDuration *
-      (totalMatches - _matchesWithDuration) *
-      getPlayersFromMatch(match).length;
-  const totalIndividualPlaytimeExtrapolatedFormatted = formatDuration(
-    totalIndividualPlaytimeExtrapolated,
-  );
-
-  const floorMatchCount = structuredClone(
-    previousStats.generalStats.floorMatchCount,
-  );
-
-  if (match.floor !== null) {
-    floorMatchCount[match.floor] = (floorMatchCount[match.floor] ?? 0) + 1;
-  }
-
-  const colorWinCount = structuredClone(
-    previousStats.generalStats.colorWinCount,
-  );
-
-  if (match.winningColor && match.winningColor !== 'unknown') {
-    colorWinCount[match.winningColor] =
-      (colorWinCount[match.winningColor] ?? 0) + 1;
-  }
-
-  return {
-    totalMatches,
-    totalGoals,
-
-    uniquePlayers,
-
-    totalPlaytime,
-    totalPlaytimeFormatted,
-    totalIndividualPlaytime,
-    totalIndividualPlaytimeFormatted,
-
-    averageMatchDuration,
-    averageMatchDurationFormatted,
-    averageGoals,
-
-    totalPlaytimeExtrapolated,
-    totalPlaytimeExtrapolatedFormatted,
-    totalIndividualPlaytimeExtrapolated,
-    totalIndividualPlaytimeExtrapolatedFormatted,
-
-    floorMatchCount,
-    colorWinCount,
-  };
-}
-
-function getDefaultPlayerStats(player: string): PlayerStats {
-  return {
-    player,
-
-    totalPlaytime: 0,
-    totalPlaytimeFormatted: formatDuration(0),
-    totalMatches: 0,
-
-    averageMatchDuration: 0,
-    averageMatchDurationFormatted: formatDuration(0),
-
-    wins: 0,
-    losses: 0,
-    winRatio: 0,
-
-    goalsFor: 0,
-    goalsAgainst: 0,
-
-    goalDifference: 0,
-    goalRatio: 0,
-
-    ownGoals: 0,
-
-    currentWinStreak: 0,
-    longestWinStreak: 0,
-
-    currentLossStreak: 0,
-    longestLossStreak: 0,
-
-    _matchesWithDuration: 0,
-  };
-}
-
-function calculatePlayerStats(
-  match: Match,
-  previousStats: MatchStats,
-): Record<string, PlayerStats> {
-  const updatedPlayerStats = structuredClone(previousStats.playerStats);
-
-  for (const player of getPlayersFromMatch(match)) {
-    const playerStats =
-      previousStats.playerStats[player] ?? getDefaultPlayerStats(player);
-
-    const _matchesWithDuration =
-      playerStats._matchesWithDuration + (match.duration ? 1 : 0);
-    const playerTeamGoals = match.team1.includes(player)
-      ? match.score1
-      : match.score2;
-    const playerOponentGoals = match.team1.includes(player)
-      ? match.score2
-      : match.score1;
-
-    const hasWon = playerTeamGoals === 10;
-
-    playerStats.totalPlaytime += match.duration ?? 0;
-    playerStats.totalPlaytimeFormatted = formatDuration(
-      playerStats.totalPlaytime,
-    );
-    playerStats.totalMatches += 1;
-
-    playerStats.averageMatchDuration =
-      playerStats.totalPlaytime / (_matchesWithDuration || 1);
-    playerStats.averageMatchDurationFormatted = formatDuration(
-      playerStats.averageMatchDuration,
-    );
-
-    playerStats.wins += hasWon ? 1 : 0;
-    playerStats.losses += hasWon ? 0 : 1;
-    playerStats.winRatio = playerStats.losses
-      ? playerStats.wins / playerStats.losses
-      : 0;
-
-    playerStats.goalsFor += playerTeamGoals;
-    playerStats.goalsAgainst += playerOponentGoals;
-
-    playerStats.goalDifference += playerTeamGoals - playerOponentGoals;
-    playerStats.goalRatio =
-      playerStats.goalsFor / (playerStats.goalsAgainst || 1);
-
-    if (match.replayMetadata?.events) {
-      const ownGoalsInMatch = match.replayMetadata.events.filter(
-        (event) =>
-          event.type === 'GOAL' &&
-          event.player === player &&
-          event.for !== event.by,
-      );
-
-      playerStats.ownGoals += ownGoalsInMatch.length;
-    }
-
-    if (hasWon) {
-      playerStats.currentWinStreak += 1;
-      playerStats.currentLossStreak = 0;
-    } else {
-      playerStats.currentWinStreak = 0;
-      playerStats.currentLossStreak += 1;
-    }
-
-    playerStats.longestWinStreak = Math.max(
-      playerStats.currentWinStreak,
-      playerStats.longestWinStreak,
-    );
-    playerStats.longestLossStreak = Math.max(
-      playerStats.currentLossStreak,
-      playerStats.longestLossStreak,
-    );
-
-    playerStats._matchesWithDuration = _matchesWithDuration;
-
-    updatedPlayerStats[player] = playerStats;
-  }
-
-  return updatedPlayerStats;
-}
-
-function calculateEloRatings(
-  match: Match,
-  previousStats: MatchStats,
-): EloRatings {
-  return {
-    playerElos: calculateElos(
-      match,
-      previousStats.eloRatings.playerElos,
-      'player',
-    ),
-    teamElos: calculateElos(match, previousStats.eloRatings.teamElos, 'team'),
-    teamIndividualElos: calculateElos(
-      match,
-      previousStats.eloRatings.teamIndividualElos,
-      'team-individual',
-    ),
-    hybridElos: calculateElos(
-      match,
-      previousStats.eloRatings.hybridElos,
-      'hybrid',
-    ),
-  };
-}
-
-function calculateGlicko2Stats(
-  match: Match,
-  previousStats: MatchStats,
-): Glicko2Ratings {
-  return {
-    playerGlicko2: calculateGlicko2Ratings(
-      match,
-      previousStats.glicko2Ratings.playerGlicko2,
-      'player',
-    ),
-    teamGlicko2: calculateGlicko2Ratings(
-      match,
-      previousStats.glicko2Ratings.teamGlicko2,
-      'team',
-    ),
-    teamIndividualGlicko2: calculateGlicko2Ratings(
-      match,
-      previousStats.glicko2Ratings.teamIndividualGlicko2,
-      'team-individual',
-    ),
-    hybridGlicko2: calculateGlicko2Ratings(
-      match,
-      previousStats.glicko2Ratings.hybridGlicko2,
-      'hybrid',
-    ),
-  };
-}
-
-export function calculateMatchStats(
-  match: Match,
-  previousStats: MatchStats = defaultMatchStats,
-): MatchStats {
-  return {
-    id: match.id,
-    label: formatMatchLabel(match),
-
-    goalsPerMinute: match.duration
-      ? (match.score1 + match.score2) / (match.duration / 60)
-      : 0,
-
-    generalStats: calculateGeneralStats(match, previousStats),
-    playerStats: calculatePlayerStats(match, previousStats),
-
-    eloRatings: calculateEloRatings(match, previousStats),
-    glicko2Ratings: calculateGlicko2Stats(match, previousStats),
-
-    _matchCounter: getTotalMatches(match, previousStats),
-    _matchesWithDuration: getTotalMatchesWithDuration(match, previousStats),
-  };
 }
 
 export function getLastGoalEvent(
@@ -1000,203 +661,6 @@ export function getMatchFloor(match: MatchCreate): number | null {
   }
 
   return null;
-}
-
-function calculateEloDifferences(
-  currentElos: Record<string, EloRating>,
-  previousElos: Record<string, EloRating>,
-): Record<string, EloRating> {
-  const eloDifferences: Record<string, EloRating> = {};
-
-  for (const [key, currentElo] of Object.entries(currentElos)) {
-    const previousElo = previousElos[key];
-
-    eloDifferences[key] = {
-      date: currentElo.date,
-      rating: currentElo.rating,
-      ratingChange: currentElo.rating - (previousElo?.rating ?? DEFAULT_ELO),
-    };
-  }
-
-  return eloDifferences;
-}
-
-export function calculateEloRatingDifferences(
-  previousElos: EloRatings,
-  currentElos: EloRatings,
-): EloRatings {
-  return {
-    playerElos: calculateEloDifferences(
-      currentElos.playerElos,
-      previousElos.playerElos,
-    ),
-    teamElos: calculateEloDifferences(
-      currentElos.teamElos,
-      previousElos.teamElos,
-    ),
-    teamIndividualElos: calculateEloDifferences(
-      currentElos.teamIndividualElos,
-      previousElos.teamIndividualElos,
-    ),
-    hybridElos: calculateEloDifferences(
-      currentElos.hybridElos,
-      previousElos.hybridElos,
-    ),
-  };
-}
-
-function calculateGlicko2Differences(
-  currentRatings: Record<string, Glicko2Rating>,
-  previousRatings: Record<string, Glicko2Rating>,
-): Record<string, Glicko2Rating> {
-  const ratingDifferences: Record<string, Glicko2Rating> = {};
-
-  for (const [key, currentRating] of Object.entries(currentRatings)) {
-    const previousRating = previousRatings[key];
-
-    ratingDifferences[key] = {
-      date: currentRating.date,
-      rating: currentRating.rating,
-      ratingChange:
-        currentRating.rating -
-        (previousRating?.rating ?? DEFAULT_GLICKO2_RATING),
-
-      rd: currentRating.rd,
-      rdChange: currentRating.rd - (previousRating?.rd ?? DEFAULT_GLICKO2_RD),
-
-      volatility: currentRating.volatility,
-      volatilityChange:
-        currentRating.volatility -
-        (previousRating?.volatility ?? DEFAULT_GLICKO2_VOLATILITY),
-    };
-  }
-
-  return ratingDifferences;
-}
-
-export function calculateGlicko2RatingDifferences(
-  previousRatings: Glicko2Ratings,
-  currentRatings: Glicko2Ratings,
-): Glicko2Ratings {
-  return {
-    playerGlicko2: calculateGlicko2Differences(
-      currentRatings.playerGlicko2,
-      previousRatings.playerGlicko2,
-    ),
-    teamGlicko2: calculateGlicko2Differences(
-      currentRatings.teamGlicko2,
-      previousRatings.teamGlicko2,
-    ),
-    teamIndividualGlicko2: calculateGlicko2Differences(
-      currentRatings.teamIndividualGlicko2,
-      previousRatings.teamIndividualGlicko2,
-    ),
-    hybridGlicko2: calculateGlicko2Differences(
-      currentRatings.hybridGlicko2,
-      previousRatings.hybridGlicko2,
-    ),
-  };
-}
-
-export const defaultDayStats: DayStats = {
-  date: 0,
-  humanDate: '',
-
-  players: [],
-
-  matches: 0,
-  goals: 0,
-  playtime: 0,
-  playtimeFormatted: '',
-  individualPlaytime: 0,
-  individualPlaytimeFormatted: '',
-
-  averageMatchDuration: 0,
-  averageMatchDurationFormatted: '',
-  averageGoals: 0,
-
-  goalsPerMinute: 0,
-
-  eloRatings: {
-    playerElos: {},
-    teamElos: {},
-    teamIndividualElos: {},
-    hybridElos: {},
-  },
-
-  glicko2Ratings: {
-    playerGlicko2: {},
-    teamGlicko2: {},
-    teamIndividualGlicko2: {},
-    hybridGlicko2: {},
-  },
-
-  _matchesWithDuration: 0,
-  _goalsWithDuration: 0,
-};
-
-export function calculateDayStats(
-  matches: Match[],
-  lastMatchStats: MatchStats,
-  previousStats: DayStats = defaultDayStats,
-): DayStats {
-  const updatedStats: DayStats = structuredClone(defaultDayStats);
-
-  const players: Set<string> = new Set();
-
-  for (const match of matches) {
-    const matchPlayers = getPlayersFromMatch(match);
-
-    for (const player of matchPlayers) {
-      players.add(player);
-    }
-
-    updatedStats.goals += match.score1 + match.score2;
-    updatedStats.playtime += match.duration ?? 0;
-    updatedStats.individualPlaytime +=
-      (match.duration ?? 0) * matchPlayers.length;
-
-    updatedStats._matchesWithDuration += match.duration ? 1 : 0;
-    updatedStats._goalsWithDuration += match.duration
-      ? match.score1 + match.score2
-      : 0;
-  }
-
-  updatedStats.date = matches.at(0)?.date ?? 0;
-  updatedStats.humanDate = formatDate(updatedStats.date);
-
-  updatedStats.players = Array.from(players).sort();
-
-  updatedStats.matches = matches.length;
-
-  updatedStats.playtimeFormatted = formatDuration(updatedStats.playtime);
-  updatedStats.individualPlaytimeFormatted = formatDuration(
-    updatedStats.individualPlaytime,
-  );
-
-  updatedStats.averageMatchDuration =
-    updatedStats.playtime / (updatedStats._matchesWithDuration || 1);
-  updatedStats.averageMatchDurationFormatted = formatDuration(
-    updatedStats.averageMatchDuration,
-  );
-
-  updatedStats.averageGoals = updatedStats.goals / (updatedStats.matches || 1);
-
-  updatedStats.goalsPerMinute = updatedStats.playtime
-    ? updatedStats._goalsWithDuration / (updatedStats.playtime / 60)
-    : 0;
-
-  updatedStats.eloRatings = calculateEloRatingDifferences(
-    previousStats.eloRatings,
-    lastMatchStats.eloRatings,
-  );
-
-  updatedStats.glicko2Ratings = calculateGlicko2RatingDifferences(
-    previousStats.glicko2Ratings,
-    lastMatchStats.glicko2Ratings,
-  );
-
-  return updatedStats;
 }
 
 export function getScoreAfterEvent(
@@ -1284,4 +748,50 @@ export function loadCreatedMatches(): Record<string, MatchCreate> | null {
   }
 
   return null;
+}
+
+function filterEventsByType(
+  match: Match,
+  type: MatchEventType,
+): MatchEvent[] | null {
+  if (!match.replayMetadata?.events) {
+    return null;
+  }
+
+  return match.replayMetadata.events.filter((ev) => ev.type === type);
+}
+
+export function getGoalEvents(match: Match): MatchEventGoal[] | null {
+  return filterEventsByType(match, 'GOAL') as MatchEventGoal[] | null;
+}
+
+export function getBallOutEvents(match: Match): MatchEventBallOut[] | null {
+  return filterEventsByType(match, 'BALL_OUT') as MatchEventBallOut[] | null;
+}
+
+export function getPositionChangeEvents(
+  match: Match,
+): MatchEventPositionChange[] | null {
+  return filterEventsByType(match, 'POSITION_CHANGE') as
+    | MatchEventPositionChange[]
+    | null;
+}
+
+export function getOwnGoalEvents(
+  match: Match,
+  player?: string,
+): MatchEventGoal[] | null {
+  const goals = filterEventsByType(match, 'GOAL') as MatchEventGoal[] | null;
+
+  if (goals === null) {
+    return null;
+  }
+
+  const ownGoals = goals.filter((ev) => ev.for !== ev.by);
+
+  if (player) {
+    return ownGoals.filter((ev) => ev.player === player);
+  }
+
+  return ownGoals;
 }

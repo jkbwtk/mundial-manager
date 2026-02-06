@@ -1,49 +1,90 @@
 import type { Dayjs } from 'dayjs';
 import type { Match } from '#shared/types/Sheets';
 
-export interface GeneralStats {
-  totalMatches: number;
-  totalGoals: number;
+export interface BaseStats {
+  ballOutCount: number | null;
+  positionChangeCount: number | null;
+  ownGoalCount: number | null;
 
-  uniquePlayers: string[];
+  averageTimeBetweenGoals: number | null;
+  averageTimeBetweenGoalsFormatted: string;
 
-  totalPlaytime: number;
-  totalPlaytimeFormatted: string;
-  totalIndividualPlaytime: number;
-  totalIndividualPlaytimeFormatted: string;
+  longestTimeBetweenGoals: number | null;
+  longestTimeBetweenGoalsFormatted: string;
+
+  shortestTimeBetweenGoals: number | null;
+  shortestTimeBetweenGoalsFormatted: string;
+
+  goalsPerMinute: number | null;
+
+  _matchCounter: number;
+  _goalsWithDuration: number;
+  _matchesWithDuration: number;
+  _matchesWithTimeline: number;
+}
+
+export interface MatchStats extends BaseStats {
+  label: string;
+}
+
+export interface AggregateStats extends BaseStats {
+  players: string[];
+
+  matches: number;
+  goals: number;
+
+  playtime: number;
+  playtimeFormatted: string;
+
+  individualPlaytime: number;
+  individualPlaytimeFormatted: string;
 
   averageMatchDuration: number;
   averageMatchDurationFormatted: string;
+
   averageGoals: number;
 
-  totalPlaytimeExtrapolated: number;
-  totalPlaytimeExtrapolatedFormatted: string;
-  totalIndividualPlaytimeExtrapolated: number;
-  totalIndividualPlaytimeExtrapolatedFormatted: string;
+  averageBallOutsPerMatch: number | null;
+  averagePositionChangesPerMatch: number | null;
+  averageOwnGoalsPerMatch: number | null;
 
   floorMatchCount: Record<number, number>;
   colorWinCount: Record<string, number>;
 }
 
-export interface Glicko2Rating {
+export interface DayStats extends AggregateStats {
   date: number | null;
+  humanDate: string;
+}
 
-  rating: number;
-  ratingChange: number;
+export interface Season {
+  number: number;
+  label: string;
 
-  rd: number;
-  rdChange: number;
+  startDate: Dayjs;
+  endDate: Dayjs;
+}
 
-  volatility: number;
-  volatilityChange: number;
+export interface SeasonStats extends AggregateStats {
+  season: Season;
+}
+
+export interface GeneralStats extends AggregateStats {
+  totalPlaytimeExtrapolated: number;
+  totalPlaytimeExtrapolatedFormatted: string;
+
+  totalIndividualPlaytimeExtrapolated: number;
+  totalIndividualPlaytimeExtrapolatedFormatted: string;
+
+  teams: string[];
 }
 
 export interface PlayerStats {
-  player: string;
+  name: string;
 
-  totalPlaytime: number;
-  totalPlaytimeFormatted: string;
-  totalMatches: number;
+  playtime: number;
+  playtimeFormatted: string;
+  matches: number;
 
   averageMatchDuration: number;
   averageMatchDurationFormatted: string;
@@ -66,35 +107,81 @@ export interface PlayerStats {
   currentLossStreak: number;
   longestLossStreak: number;
 
+  lastMatchDate: number | null;
+
+  matchesInDay: number;
+  mostMatchesInDay: number;
+
+  matchesInSeason: number;
+  mostMatchesInSeason: number;
+
+  matchesWonAgainst: Record<string, number>;
+  matchesLostAgainst: Record<string, number>;
+
+  matchesWonAgainstSingles: Record<string, number>;
+  matchesLostAgainstSingles: Record<string, number>;
+
+  matchesWonAgainstDoubles: Record<string, number>;
+  matchesLostAgainstDoubles: Record<string, number>;
+
   _matchesWithDuration: number;
 }
-
 export interface EloRating {
-  date: number | null;
+  id: number;
+
   rating: number;
+}
+
+export interface EloRatingDelta extends EloRating {
   ratingChange: number;
 }
 
-export interface EloRatings {
-  playerElos: Record<string, EloRating>;
-  teamElos: Record<string, EloRating>;
-  teamIndividualElos: Record<string, EloRating>;
-  hybridElos: Record<string, EloRating>;
-}
-
-export interface Glicko2Ratings {
-  playerGlicko2: Record<string, Glicko2Rating>;
-  teamGlicko2: Record<string, Glicko2Rating>;
-  teamIndividualGlicko2: Record<string, Glicko2Rating>;
-  hybridGlicko2: Record<string, Glicko2Rating>;
-}
-
-export interface MatchStats {
+export interface Glicko2Rating {
   id: number;
-  label: string;
 
-  goalsPerMinute: number;
+  rating: number;
 
+  rd: number;
+
+  volatility: number;
+}
+
+export interface Glicko2RatingDelta extends Glicko2Rating {
+  ratingChange: number;
+  rdChange: number;
+  volatilityChange: number;
+}
+
+export interface EloRatingsBase<T extends EloRating> {
+  playerElos: Record<string, T>;
+  teamElos: Record<string, T>;
+  teamIndividualElos: Record<string, T>;
+  hybridElos: Record<string, T>;
+}
+
+export interface EloRatings extends EloRatingsBase<EloRating> {}
+
+export interface EloRatingDeltas extends EloRatingsBase<EloRatingDelta> {}
+
+export interface Glicko2RatingsBase<T extends Glicko2Rating> {
+  playerGlicko2: Record<string, T>;
+  teamGlicko2: Record<string, T>;
+  teamIndividualGlicko2: Record<string, T>;
+  hybridGlicko2: Record<string, T>;
+}
+
+export interface Glicko2Ratings extends Glicko2RatingsBase<Glicko2Rating> {}
+
+export interface Glicko2RatingDeltas
+  extends Glicko2RatingsBase<Glicko2RatingDelta> {}
+
+export interface MatchDataFrame {
+  match: Match;
+  season: Season;
+
+  matchStats: MatchStats;
+  dayStats: DayStats;
+  seasonStats: SeasonStats;
   generalStats: GeneralStats;
 
   playerStats: Record<string, PlayerStats>;
@@ -102,46 +189,26 @@ export interface MatchStats {
   eloRatings: EloRatings;
   glicko2Ratings: Glicko2Ratings;
 
-  _matchCounter: number;
-  _matchesWithDuration: number;
+  previousFrame: MatchDataFrame | null;
 }
 
-export interface DayStats {
-  date: number;
-  humanDate: string;
+export type MatchDataDeltaFrame = Omit<
+  MatchDataFrame,
+  'eloRatings' | 'glickoRatings'
+> & {
+  eloRatings: EloRatingDeltas;
+  glicko2Ratings: Glicko2RatingDeltas;
+};
 
-  players: string[];
-
-  matches: number;
-  goals: number;
-  playtime: number;
-  playtimeFormatted: string;
-  individualPlaytime: number;
-  individualPlaytimeFormatted: string;
-
-  averageMatchDuration: number;
-  averageMatchDurationFormatted: string;
-  averageGoals: number;
-
-  goalsPerMinute: number;
-
-  eloRatings: EloRatings;
-  glicko2Ratings: Glicko2Ratings;
-
-  _matchesWithDuration: number;
-  _goalsWithDuration: number;
+export interface AggregateFrame {
+  frame: MatchDataFrame;
+  previousFrame: MatchDataFrame;
 }
 
-export interface LatestStats {
-  match: Match;
-  matchStats: MatchStats;
-  dayStats: DayStats;
-}
+export interface MatchData {
+  frames: MatchDataFrame[];
+  latest: MatchDataFrame;
 
-export interface Season {
-  number: number;
-  label: string;
-
-  startDate: Dayjs;
-  endDate: Dayjs;
+  dayStats: Record<number, AggregateFrame>;
+  seasonStats: Record<number, AggregateFrame>;
 }
