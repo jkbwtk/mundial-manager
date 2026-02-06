@@ -2,21 +2,22 @@ import { batch, createContext, createEffect, useContext } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import { InlineAction } from '#components/InlineAction';
 import { Widget, type WidgetPropsWithoutComponent } from '#components/Widget';
-import { defaultDayStats } from '#flib/sheetUtils';
-import type { DayStats } from '#frontend/types';
+import { defaultAggregateFrame } from '#flib/defaultStats';
+import { createDeltaFrame } from '#flib/matchDataUtils';
+import type { AggregateFrame } from '#frontend/types';
 import { useSheets } from '#providers/SheetsProvider';
 import { arrayFrom } from '#shared/utils';
 
 export interface DayPaginatorState {
   currentPage: number;
-  dayStats: DayStats;
+  aggregateFrame: AggregateFrame;
 }
 export type DayPaginatorContextValue = [state: DayPaginatorState];
 
 function createDefaultState(): DayPaginatorState {
   return {
     currentPage: 0,
-    dayStats: structuredClone<DayStats>(defaultDayStats),
+    aggregateFrame: structuredClone(defaultAggregateFrame),
   };
 }
 
@@ -27,24 +28,26 @@ const DayPaginatorContext = createContext<DayPaginatorContextValue>([
 export const DayPaginatorWidget: Component<
   WidgetPropsWithoutComponent<'div'>
 > = (props) => {
-  const [, { dayStats, latest }] = useSheets();
+  const [, { matchData, latest }] = useSheets();
 
   const [state, setState] = createStore<DayPaginatorState>(
     createDefaultState(),
   );
 
   createEffect(() => {
-    const stats =
-      Object.values(dayStats())
-        .sort((a, b) => a.date - b.date)
-        .at(-state.currentPage - 1) ?? structuredClone(defaultDayStats);
+    const frame = Object.values(matchData().dayStats).at(
+      -state.currentPage - 1,
+    );
 
-    if (stats) {
-      setState('dayStats', stats);
+    if (frame) {
+      setState('aggregateFrame', frame);
     } else {
+      const fallbackFrame =
+        matchData().dayStats[latest().match.date!] ?? defaultAggregateFrame;
+
       batch(() => {
         setState('currentPage', 0);
-        setState('dayStats', latest().dayStats);
+        setState('aggregateFrame', fallbackFrame);
       });
     }
   });
@@ -61,11 +64,14 @@ export const DayPaginatorWidget: Component<
               symbol="ArrowLeft"
               onAction={() =>
                 setState('currentPage', (prev) =>
-                  Math.min(prev + 1, Object.keys(dayStats()).length - 1),
+                  Math.min(
+                    prev + 1,
+                    Object.keys(matchData().dayStats).length - 1,
+                  ),
                 )
               }
             />{' '}
-            {state.dayStats.humanDate}{' '}
+            {state.aggregateFrame.frame.dayStats.humanDate}{' '}
             <InlineAction
               content=">"
               symbol="ArrowRight"
@@ -82,7 +88,16 @@ export const DayPaginatorWidget: Component<
 
 export const useDayPaginator = () => useContext(DayPaginatorContext);
 
-export const usePaginatedDayStat = () => {
+export const useDayPaginatedFrame = () => {
   const [state] = useDayPaginator();
-  return () => state.dayStats;
+  return () => state.aggregateFrame.frame;
+};
+
+export const useDayPaginatedDeltaFrame = () => {
+  const [state] = useDayPaginator();
+  return () =>
+    createDeltaFrame(
+      state.aggregateFrame.frame,
+      state.aggregateFrame.previousFrame,
+    );
 };

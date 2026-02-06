@@ -2,16 +2,15 @@ import { batch, createContext, createEffect, useContext } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import { InlineAction } from '#components/InlineAction';
 import { Widget, type WidgetPropsWithoutComponent } from '#components/Widget';
-import { defaultMatch, defaultMatchStats } from '#flib/sheetUtils';
-import type { MatchStats } from '#frontend/types';
+import { defaultMatchDataFrame } from '#flib/defaultStats';
+import { createDeltaFrame } from '#flib/matchDataUtils';
+import type { MatchDataFrame } from '#frontend/types';
 import { useSheets } from '#providers/SheetsProvider';
-import type { Match } from '#shared/types/Sheets';
 import { arrayFrom } from '#shared/utils';
 
 export interface MatchPaginatorState {
   currentPage: number;
-  match: Match;
-  matchStats: MatchStats;
+  matchFrame: MatchDataFrame;
 }
 
 export type MatchPaginatorContextValue = [state: MatchPaginatorState];
@@ -19,8 +18,7 @@ export type MatchPaginatorContextValue = [state: MatchPaginatorState];
 function createDefaultState(): MatchPaginatorState {
   return {
     currentPage: 0,
-    match: structuredClone(defaultMatch),
-    matchStats: structuredClone(defaultMatchStats),
+    matchFrame: structuredClone(defaultMatchDataFrame),
   };
 }
 
@@ -31,27 +29,21 @@ const MatchPaginatorContext = createContext<MatchPaginatorContextValue>([
 export const MatchPaginatorWidget: Component<
   WidgetPropsWithoutComponent<'div'>
 > = (props) => {
-  const [sheets, { matchStats, latest }] = useSheets();
+  const [, { matchData, latest }] = useSheets();
 
   const [state, setState] = createStore<MatchPaginatorState>(
     createDefaultState(),
   );
 
   createEffect(() => {
-    const match =
-      sheets.matches.at(-state.currentPage - 1) ??
-      structuredClone(defaultMatch);
+    const frame = Object.values(matchData().frames).at(-state.currentPage - 1);
 
-    const stats = matchStats()[match.id];
-
-    if (stats) {
-      setState('match', match);
-      setState('matchStats', stats);
+    if (frame) {
+      setState('matchFrame', frame);
     } else {
       batch(() => {
         setState('currentPage', 0);
-        setState('match', latest().match);
-        setState('matchStats', latest().matchStats);
+        setState('matchFrame', latest());
       });
     }
   });
@@ -68,11 +60,12 @@ export const MatchPaginatorWidget: Component<
               symbol="ArrowLeft"
               onAction={() =>
                 setState('currentPage', (prev) =>
-                  Math.min(prev + 1, sheets.matches.length - 1),
+                  Math.min(prev + 1, matchData().frames.length - 1),
                 )
               }
             />{' '}
-            {sheets.matches.length - state.currentPage}/{sheets.matches.length}{' '}
+            {matchData().frames.length - state.currentPage}/
+            {matchData().frames.length}{' '}
             <InlineAction
               content=">"
               symbol="ArrowRight"
@@ -89,12 +82,15 @@ export const MatchPaginatorWidget: Component<
 
 export const useMatchPaginator = () => useContext(MatchPaginatorContext);
 
-export const usePaginatedStat = () => {
+export const usePaginatedFrame = () => {
   const [state] = useMatchPaginator();
-  return () => state.matchStats;
+
+  return () => state.matchFrame;
 };
 
-export const usePaginatedMatch = () => {
+export const usePaginatedDeltaFrame = () => {
   const [state] = useMatchPaginator();
-  return () => state.match;
+
+  return () =>
+    createDeltaFrame(state.matchFrame, state.matchFrame.previousFrame);
 };
