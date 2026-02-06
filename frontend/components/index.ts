@@ -36,6 +36,7 @@ export * from './PlayerPickerModal';
 export * from './PlayerProfileModal';
 export * from './ProgresBar';
 export * from './RatingCharts';
+export * from './SeasonPaginatorWidget';
 export * from './Table';
 export * from './TextMarquee';
 export * from './WidgetAlt';
