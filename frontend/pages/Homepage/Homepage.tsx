@@ -23,6 +23,7 @@ import {
 import { MatchStats } from '#components/MatchStats';
 import { MundialCalculatorLink } from '#components/MundialCalculatorLink';
 import { RatingCharts } from '#components/RatingCharts';
+import { SeasonStats } from '#components/SeasonStats';
 import { useConsoleUnitPrototype } from '#providers/ConsoleUnitPrototypeProvider';
 import style from './Homepage.module.scss';
 
@@ -71,6 +72,7 @@ const Homepage: Component = () => {
       <div class={style.dashboardContainer}>
         <div>
           <GeneralStats />
+          <SeasonStats />
           <DayStats />
           <MatchStats />
           <Dynamic
