@@ -3,7 +3,7 @@ import { Button } from '#components/Button';
 import { InlineAction } from '#components/InlineAction';
 import {
   MatchPaginatorWidget,
-  usePaginatedStat,
+  usePaginatedFrame,
 } from '#components/MatchPaginatorWidget';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import { customWidgetType, Divider, Widget } from '#components/Widget';
@@ -133,7 +133,7 @@ const WidgetTest: Component = () => {
       <Break />
 
       <MatchPaginatorWidget topRightLabels={'test'}>
-        {usePaginatedStat()().label}
+        {usePaginatedFrame()().matchStats.label}
       </MatchPaginatorWidget>
     </div>
   );

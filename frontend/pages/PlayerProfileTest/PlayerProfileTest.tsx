@@ -24,7 +24,7 @@ const PlayerProfileTest: Component = () => {
     <Widget topLeftLabels="User Profile Test Page" class={style.container}>
       <br />
       <strong>Players: </strong>
-      <For each={latest().matchStats.generalStats.uniquePlayers}>
+      <For each={latest().generalStats.players}>
         {(player) => (
           <Button
             severity="secondary"
@@ -39,7 +39,7 @@ const PlayerProfileTest: Component = () => {
 
       <strong>PlayerLink test</strong>
 
-      <For each={latest().matchStats.generalStats.uniquePlayers}>
+      <For each={latest().generalStats.players}>
         {(player) => (
           <div>
             - <PlayerLink name={player} />

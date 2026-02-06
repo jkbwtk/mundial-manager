@@ -31,35 +31,28 @@ export const PlayerProfileModal: Component<PlayerProfileModalProps> = (
     () => selectedPlayerOverride() ?? props.name,
   );
 
-  const playerStats = createMemo(
-    () => latest().matchStats.playerStats[selectedPlayer()],
-  );
+  const playerStats = createMemo(() => latest().playerStats[selectedPlayer()]);
 
   const playerRatings = createMemo(() => ({
     elo: {
-      player: latest().matchStats.eloRatings.playerElos[selectedPlayer()],
-      hybrid: latest().matchStats.eloRatings.hybridElos[selectedPlayer()],
-      teamIndividual:
-        latest().matchStats.eloRatings.teamIndividualElos[selectedPlayer()],
-      team: latest().matchStats.eloRatings.teamElos[selectedPlayer()],
+      player: latest().eloRatings.playerElos[selectedPlayer()],
+      hybrid: latest().eloRatings.hybridElos[selectedPlayer()],
+      teamIndividual: latest().eloRatings.teamIndividualElos[selectedPlayer()],
+      team: latest().eloRatings.teamElos[selectedPlayer()],
     },
     glicko2: {
-      player:
-        latest().matchStats.glicko2Ratings.playerGlicko2[selectedPlayer()],
-      hybrid:
-        latest().matchStats.glicko2Ratings.hybridGlicko2[selectedPlayer()],
+      player: latest().glicko2Ratings.playerGlicko2[selectedPlayer()],
+      hybrid: latest().glicko2Ratings.hybridGlicko2[selectedPlayer()],
       teamIndividual:
-        latest().matchStats.glicko2Ratings.teamIndividualGlicko2[
-          selectedPlayer()
-        ],
-      team: latest().matchStats.glicko2Ratings.teamGlicko2[selectedPlayer()],
+        latest().glicko2Ratings.teamIndividualGlicko2[selectedPlayer()],
+      team: latest().glicko2Ratings.teamGlicko2[selectedPlayer()],
     },
   }));
 
   const comparedPlayerStats = createMemo(() => {
     const player = comparedPlayer();
     if (!player) return undefined;
-    return latest().matchStats.playerStats[player];
+    return latest().playerStats[player];
   });
 
   const comparedPlayerRatings = createMemo(() => {
@@ -68,16 +61,14 @@ export const PlayerProfileModal: Component<PlayerProfileModalProps> = (
 
     return {
       elo: {
-        player: latest().matchStats.eloRatings.playerElos[player],
-        hybrid: latest().matchStats.eloRatings.hybridElos[player],
-        teamIndividual:
-          latest().matchStats.eloRatings.teamIndividualElos[player],
+        player: latest().eloRatings.playerElos[player],
+        hybrid: latest().eloRatings.hybridElos[player],
+        teamIndividual: latest().eloRatings.teamIndividualElos[player],
       },
       glicko2: {
-        player: latest().matchStats.glicko2Ratings.playerGlicko2[player],
-        hybrid: latest().matchStats.glicko2Ratings.hybridGlicko2[player],
-        teamIndividual:
-          latest().matchStats.glicko2Ratings.teamIndividualGlicko2[player],
+        player: latest().glicko2Ratings.playerGlicko2[player],
+        hybrid: latest().glicko2Ratings.hybridGlicko2[player],
+        teamIndividual: latest().glicko2Ratings.teamIndividualGlicko2[player],
       },
     };
   });
@@ -128,7 +119,7 @@ export const PlayerProfileModal: Component<PlayerProfileModalProps> = (
       ]}
     >
       <div class={style.playerListContainer}>
-        <For each={latest().matchStats.generalStats.uniquePlayers}>
+        <For each={latest().generalStats.players}>
           {(player) => (
             <button
               type="button"
@@ -158,7 +149,7 @@ export const PlayerProfileModal: Component<PlayerProfileModalProps> = (
         <div class={style.container}>
           <span>Player{comparedPlayer() ? 's' : ''}:</span>
           <strong>
-            {playerStats()?.player}
+            {playerStats()?.name}
 
             <Show when={comparedPlayer()}>
               <span> vs </span>
@@ -173,8 +164,8 @@ export const PlayerProfileModal: Component<PlayerProfileModalProps> = (
           <span>Total Playtime:</span>
           <strong>
             <DeltaDisplay
-              base={playerStats()?.totalPlaytime}
-              compared={comparedPlayerStats()?.totalPlaytime}
+              base={playerStats()?.playtime}
+              compared={comparedPlayerStats()?.playtime}
               displayBase={true}
               displayCompared={true}
               formatter={(v) => formatDuration(v ?? 0)}
@@ -199,8 +190,8 @@ export const PlayerProfileModal: Component<PlayerProfileModalProps> = (
           <span>Total Matches:</span>
           <strong>
             <DeltaDisplay
-              base={playerStats()?.totalMatches}
-              compared={comparedPlayerStats()?.totalMatches}
+              base={playerStats()?.matches}
+              compared={comparedPlayerStats()?.matches}
               displayBase={true}
               displayCompared={true}
             />

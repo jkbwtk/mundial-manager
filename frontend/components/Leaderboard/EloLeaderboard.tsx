@@ -2,48 +2,41 @@ import { createMemo, createSignal, For, Match, Switch } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import {
   DayPaginatorWidget,
-  usePaginatedDayStat,
+  useDayPaginatedDeltaFrame,
 } from '#components/DayPaginatorWidget';
 import { InlineAction } from '#components/InlineAction';
 import {
   MatchPaginatorWidget,
-  usePaginatedStat,
+  usePaginatedDeltaFrame,
 } from '#components/MatchPaginatorWidget';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import { PlayerLink } from '#components/PlayerLink';
 import { Divider } from '#components/Widget';
 import { generateTeamColor } from '#flib/sheetUtils';
+import type { MatchDataDeltaFrame } from '#frontend/types';
 import style from './Leaderboard.module.scss';
 
 interface EloLeaderboardBaseProps {
-  useContext: typeof usePaginatedStat | typeof usePaginatedDayStat;
+  useContext: () => () => MatchDataDeltaFrame;
 }
 
 export const EloLeaderboardBase: Component<EloLeaderboardBaseProps> = (
   props,
 ) => {
-  const stats = props.useContext();
+  const aggregateFrame = props.useContext();
 
   const sortedElos = createMemo(() => ({
-    playerElos: Object.fromEntries(
-      Object.entries(stats().eloRatings.playerElos).sort(
-        (a, b) => b[1].rating - a[1].rating,
-      ),
+    playerElos: Object.entries(aggregateFrame().eloRatings.playerElos).sort(
+      (a, b) => b[1].rating - a[1].rating,
     ),
-    teamElos: Object.fromEntries(
-      Object.entries(stats().eloRatings.teamElos).sort(
-        (a, b) => b[1].rating - a[1].rating,
-      ),
+    teamElos: Object.entries(aggregateFrame().eloRatings.teamElos).sort(
+      (a, b) => b[1].rating - a[1].rating,
     ),
-    teamIndividualElos: Object.fromEntries(
-      Object.entries(stats().eloRatings.teamIndividualElos).sort(
-        (a, b) => b[1].rating - a[1].rating,
-      ),
-    ),
-    hybridElos: Object.fromEntries(
-      Object.entries(stats().eloRatings.hybridElos).sort(
-        (a, b) => b[1].rating - a[1].rating,
-      ),
+    teamIndividualElos: Object.entries(
+      aggregateFrame().eloRatings.teamIndividualElos,
+    ).sort((a, b) => b[1].rating - a[1].rating),
+    hybridElos: Object.entries(aggregateFrame().eloRatings.hybridElos).sort(
+      (a, b) => b[1].rating - a[1].rating,
     ),
   }));
 
@@ -55,7 +48,7 @@ export const EloLeaderboardBase: Component<EloLeaderboardBaseProps> = (
 
       <table class={style.list}>
         <tbody>
-          <For each={Object.entries(sortedElos().playerElos)}>
+          <For each={sortedElos().playerElos}>
             {([player, elo], index) => (
               <tr>
                 <td class={style.minWidth}>{index() + 1}.</td>
@@ -98,7 +91,7 @@ export const EloLeaderboardBase: Component<EloLeaderboardBaseProps> = (
 
       <table class={style.list}>
         <tbody>
-          <For each={Object.entries(sortedElos().hybridElos)}>
+          <For each={sortedElos().hybridElos}>
             {([player, elo], index) => (
               <tr>
                 <td class={style.minWidth}>{index() + 1}.</td>
@@ -141,7 +134,7 @@ export const EloLeaderboardBase: Component<EloLeaderboardBaseProps> = (
 
       <table class={style.list}>
         <tbody>
-          <For each={Object.entries(sortedElos().teamIndividualElos)}>
+          <For each={sortedElos().teamIndividualElos}>
             {([player, elo], index) => (
               <tr>
                 <td class={style.minWidth}>{index() + 1}.</td>
@@ -184,7 +177,7 @@ export const EloLeaderboardBase: Component<EloLeaderboardBaseProps> = (
 
       <table class={style.list}>
         <tbody>
-          <For each={Object.entries(sortedElos().teamElos)}>
+          <For each={sortedElos().teamElos}>
             {([team, elo], index) => (
               <tr>
                 <td class={style.minWidth}>{index() + 1}.</td>
@@ -228,8 +221,11 @@ export const EloLeaderboard = () => {
 
   const paginator = () => {
     return aggregateStats()
-      ? { component: DayPaginatorWidget, useContext: usePaginatedDayStat }
-      : { component: MatchPaginatorWidget, useContext: usePaginatedStat };
+      ? { component: DayPaginatorWidget, useContext: useDayPaginatedDeltaFrame }
+      : {
+          component: MatchPaginatorWidget,
+          useContext: usePaginatedDeltaFrame,
+        };
   };
 
   return (

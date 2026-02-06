@@ -1,15 +1,17 @@
-import { For } from 'solid-js';
+import { For, Show } from 'solid-js';
 import { AnimatedText } from '#components/AnimatedText';
 import {
   DayPaginatorWidget,
-  usePaginatedDayStat,
+  useDayPaginatedFrame,
 } from '#components/DayPaginatorWidget';
 import { PlayerLink } from '#components/PlayerLink';
 import { Divider } from '#components/Widget';
 import style from './DayStats.module.scss';
 
 export const DayStatsBase: Component = () => {
-  const stats = usePaginatedDayStat();
+  const frame = useDayPaginatedFrame();
+
+  const stats = () => frame().dayStats;
 
   return (
     <>
@@ -44,10 +46,12 @@ export const DayStatsBase: Component = () => {
           <AnimatedText>{stats().averageGoals.toFixed(2)}</AnimatedText>
         </strong>
 
-        <span>Goals Per Minute:</span>
-        <strong>
-          <AnimatedText>{stats().goalsPerMinute.toFixed(2)}</AnimatedText>
-        </strong>
+        <Show when={stats().goalsPerMinute !== null}>
+          <span>Goals Per Minute:</span>
+          <strong>
+            <AnimatedText>{stats().goalsPerMinute!.toFixed(2)}</AnimatedText>
+          </strong>
+        </Show>
       </div>
       <Divider />
       <strong class={style.playersLabel}>Players</strong>

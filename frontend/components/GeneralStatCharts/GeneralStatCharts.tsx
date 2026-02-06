@@ -45,7 +45,7 @@ export const GeneralStatCharts: Component = () => {
   });
 
   const matchesPerFloorChartConfig = createMemo((): ChartConfiguration => {
-    const count = latest().matchStats.generalStats.floorMatchCount;
+    const count = latest().generalStats.floorMatchCount;
 
     return {
       type: 'pie',
@@ -90,7 +90,7 @@ export const GeneralStatCharts: Component = () => {
   });
 
   const winsPerColorChartConfig = createMemo((): ChartConfiguration => {
-    const count = latest().matchStats.generalStats.colorWinCount;
+    const count = latest().generalStats.colorWinCount;
 
     return {
       type: 'pie',

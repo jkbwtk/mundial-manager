@@ -14,7 +14,7 @@ import type { Match } from '#shared/types/Sheets';
 import 'highlight.js/styles/gml.min.css';
 import {
   MatchPaginatorWidget,
-  usePaginatedStat,
+  usePaginatedFrame,
 } from '#components/MatchPaginatorWidget';
 import { getTeamColorClass } from '#flib/teamColors';
 import style from './SheetsTest.module.scss';
@@ -181,22 +181,19 @@ export const SheetsTest: Component = () => {
       </Widget>
 
       <Widget topLeftLabels="Players" class={style.metadata}>
-        <For each={latest().matchStats.generalStats.uniquePlayers}>
+        <For each={latest().generalStats.players}>
           {(player) => <div>{player}</div>}
         </For>
       </Widget>
 
       <Widget topLeftLabels="General Stats" class={style.metadata}>
         <strong>Raw:</strong>
-        <HighlightedCode
-          language="json"
-          code={toJson(latest().matchStats.generalStats)}
-        />
+        <HighlightedCode language="json" code={toJson(latest().generalStats)} />
       </Widget>
 
       <MatchPaginatorWidget topLeftLabels="Match Stats" class={style.metadata}>
         <strong>Raw:</strong>
-        <HighlightedCode language="json" code={toJson(usePaginatedStat()())} />
+        <HighlightedCode language="json" code={toJson(usePaginatedFrame()())} />
       </MatchPaginatorWidget>
 
       <Widget topLeftLabels="Day Stats" class={style.metadata}>

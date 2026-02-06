@@ -38,7 +38,7 @@ export const PlayerPickerModal: Component<PlayerPickerProps> = (props) => {
       ]}
     >
       <form id={formId} class={style.pickerForm} onSubmit={handleSubmit}>
-        <For each={latest().matchStats.generalStats.uniquePlayers}>
+        <For each={latest().generalStats.players}>
           {(player) => (
             <div>
               <Input

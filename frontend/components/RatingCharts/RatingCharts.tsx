@@ -10,24 +10,24 @@ const ChartWrapper = lazy(() =>
 );
 
 export const RatingCharts: Component = () => {
-  const [, { matchStats, latest }] = useSheets();
+  const [, { matchStats, matchData, latest }] = useSheets();
 
   const matchLabels = createMemo(() =>
     Object.values(matchStats()).map((s) => s.label),
   );
 
   const playerChartConfig = createMemo((): ChartConfiguration => {
-    const stats = Object.values(matchStats());
-    const elo = latest().matchStats.eloRatings;
+    const players = latest().generalStats.players;
+    const frames = matchData().frames;
 
     return {
       type: 'line',
       data: {
         labels: matchLabels(),
-        datasets: Object.keys(elo.playerElos).map((player) => ({
+        datasets: players.map((player) => ({
           label: player,
-          data: Object.values(stats).map(
-            (s) => s.eloRatings.playerElos[player]?.rating ?? null,
+          data: frames.map(
+            (frame) => frame.eloRatings.playerElos[player]?.rating ?? null,
           ),
           borderColor: generateTeamColor(player),
           backgroundColor: `${generateTeamColor(player)}20`,
@@ -41,17 +41,17 @@ export const RatingCharts: Component = () => {
   });
 
   const hybridChartConfig = createMemo((): ChartConfiguration => {
-    const stats = Object.values(matchStats());
-    const elo = latest().matchStats.eloRatings;
+    const players = latest().generalStats.players;
+    const frames = matchData().frames;
 
     return {
       type: 'line',
       data: {
         labels: matchLabels(),
-        datasets: Object.keys(elo.hybridElos).map((player) => ({
+        datasets: players.map((player) => ({
           label: player,
-          data: Object.values(stats).map(
-            (s) => s.eloRatings.hybridElos[player]?.rating ?? null,
+          data: frames.map(
+            (frame) => frame.eloRatings.hybridElos[player]?.rating ?? null,
           ),
           borderColor: generateTeamColor(player),
           backgroundColor: `${generateTeamColor(player)}20`,
@@ -65,17 +65,18 @@ export const RatingCharts: Component = () => {
   });
 
   const teamIndividualChartConfig = createMemo((): ChartConfiguration => {
-    const stats = Object.values(matchStats());
-    const elo = latest().matchStats.eloRatings;
+    const players = latest().generalStats.players;
+    const frames = matchData().frames;
 
     return {
       type: 'line',
       data: {
         labels: matchLabels(),
-        datasets: Object.keys(elo.teamIndividualElos).map((player) => ({
+        datasets: players.map((player) => ({
           label: player,
-          data: Object.values(stats).map(
-            (s) => s.eloRatings.teamIndividualElos[player]?.rating ?? null,
+          data: frames.map(
+            (frame) =>
+              frame.eloRatings.teamIndividualElos[player]?.rating ?? null,
           ),
           borderColor: generateTeamColor(player),
           backgroundColor: `${generateTeamColor(player)}20`,
@@ -89,17 +90,17 @@ export const RatingCharts: Component = () => {
   });
 
   const teamChartConfig = createMemo((): ChartConfiguration => {
-    const stats = Object.values(matchStats());
-    const elo = latest().matchStats.eloRatings;
+    const teams = latest().generalStats.teams;
+    const frames = matchData().frames;
 
     return {
       type: 'line',
       data: {
         labels: matchLabels(),
-        datasets: Object.keys(elo.teamElos).map((team) => ({
+        datasets: teams.map((team) => ({
           label: team,
-          data: Object.values(stats).map(
-            (s) => s.eloRatings.teamElos[team]?.rating ?? null,
+          data: frames.map(
+            (frame) => frame.eloRatings.teamElos[team]?.rating ?? null,
           ),
           borderColor: generateTeamColor(team),
           backgroundColor: `${generateTeamColor(team)}20`,
@@ -113,17 +114,18 @@ export const RatingCharts: Component = () => {
   });
 
   const playerGlicko2ChartConfig = createMemo((): ChartConfiguration => {
-    const stats = Object.values(matchStats());
-    const elo = latest().matchStats.eloRatings;
+    const players = latest().generalStats.players;
+    const frames = matchData().frames;
 
     return {
       type: 'line',
       data: {
         labels: matchLabels(),
-        datasets: Object.keys(elo.playerElos).map((player) => ({
+        datasets: players.map((player) => ({
           label: player,
-          data: Object.values(stats).map(
-            (s) => s.glicko2Ratings.playerGlicko2[player]?.rating ?? null,
+          data: frames.map(
+            (frame) =>
+              frame.glicko2Ratings.playerGlicko2[player]?.rating ?? null,
           ),
           borderColor: generateTeamColor(player),
           backgroundColor: `${generateTeamColor(player)}20`,
@@ -137,17 +139,18 @@ export const RatingCharts: Component = () => {
   });
 
   const hybridGlicko2ChartConfig = createMemo((): ChartConfiguration => {
-    const stats = Object.values(matchStats());
-    const elo = latest().matchStats.eloRatings;
+    const players = latest().generalStats.players;
+    const frames = matchData().frames;
 
     return {
       type: 'line',
       data: {
         labels: matchLabels(),
-        datasets: Object.keys(elo.hybridElos).map((player) => ({
+        datasets: players.map((player) => ({
           label: player,
-          data: Object.values(stats).map(
-            (s) => s.glicko2Ratings.hybridGlicko2[player]?.rating ?? null,
+          data: frames.map(
+            (frame) =>
+              frame.glicko2Ratings.hybridGlicko2[player]?.rating ?? null,
           ),
           borderColor: generateTeamColor(player),
           backgroundColor: `${generateTeamColor(player)}20`,
@@ -162,18 +165,19 @@ export const RatingCharts: Component = () => {
 
   const teamIndividualGlicko2ChartConfig = createMemo(
     (): ChartConfiguration => {
-      const stats = Object.values(matchStats());
-      const elo = latest().matchStats.eloRatings;
+      const players = latest().generalStats.players;
+      const frames = matchData().frames;
 
       return {
         type: 'line',
         data: {
           labels: matchLabels(),
-          datasets: Object.keys(elo.teamIndividualElos).map((player) => ({
+          datasets: players.map((player) => ({
             label: player,
-            data: Object.values(stats).map(
-              (s) =>
-                s.glicko2Ratings.teamIndividualGlicko2[player]?.rating ?? null,
+            data: frames.map(
+              (frame) =>
+                frame.glicko2Ratings.teamIndividualGlicko2[player]?.rating ??
+                null,
             ),
             borderColor: generateTeamColor(player),
             backgroundColor: `${generateTeamColor(player)}20`,
@@ -188,17 +192,17 @@ export const RatingCharts: Component = () => {
   );
 
   const teamGlicko2ChartConfig = createMemo((): ChartConfiguration => {
-    const stats = Object.values(matchStats());
-    const elo = latest().matchStats.eloRatings;
+    const teams = latest().generalStats.teams;
+    const frames = matchData().frames;
 
     return {
       type: 'line',
       data: {
         labels: matchLabels(),
-        datasets: Object.keys(elo.teamElos).map((team) => ({
+        datasets: teams.map((team) => ({
           label: team,
-          data: Object.values(stats).map(
-            (s) => s.glicko2Ratings.teamGlicko2[team]?.rating ?? null,
+          data: frames.map(
+            (frame) => frame.glicko2Ratings.teamGlicko2[team]?.rating ?? null,
           ),
           borderColor: generateTeamColor(team),
           backgroundColor: `${generateTeamColor(team)}20`,

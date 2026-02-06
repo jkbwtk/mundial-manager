@@ -2,49 +2,42 @@ import { createMemo, createSignal, For, Match, Switch } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import {
   DayPaginatorWidget,
-  usePaginatedDayStat,
+  useDayPaginatedDeltaFrame,
 } from '#components/DayPaginatorWidget';
 import { InlineAction } from '#components/InlineAction';
 import {
   MatchPaginatorWidget,
-  usePaginatedStat,
+  usePaginatedDeltaFrame,
 } from '#components/MatchPaginatorWidget';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import { PlayerLink } from '#components/PlayerLink';
 import { Divider } from '#components/Widget';
 import { generateTeamColor, getGlicko2Confidence } from '#flib/sheetUtils';
+import type { MatchDataDeltaFrame } from '#frontend/types';
 import style from './Leaderboard.module.scss';
 
 interface Glicko2LeaderboardBaseProps {
-  useContext: typeof usePaginatedStat | typeof usePaginatedDayStat;
+  useContext: () => () => MatchDataDeltaFrame;
 }
 
 export const Glicko2LeaderboardBase: Component<Glicko2LeaderboardBaseProps> = (
   props,
 ) => {
-  const stats = props.useContext();
+  const aggregateFrame = props.useContext();
 
   const sortedGlicko2 = createMemo(() => ({
-    playerGlicko2: Object.fromEntries(
-      Object.entries(stats().glicko2Ratings.playerGlicko2).sort(
-        (a, b) => b[1].rating - a[1].rating,
-      ),
-    ),
-    teamGlicko2: Object.fromEntries(
-      Object.entries(stats().glicko2Ratings.teamGlicko2).sort(
-        (a, b) => b[1].rating - a[1].rating,
-      ),
-    ),
-    teamIndividualGlicko2: Object.fromEntries(
-      Object.entries(stats().glicko2Ratings.teamIndividualGlicko2).sort(
-        (a, b) => b[1].rating - a[1].rating,
-      ),
-    ),
-    hybridGlicko2: Object.fromEntries(
-      Object.entries(stats().glicko2Ratings.hybridGlicko2).sort(
-        (a, b) => b[1].rating - a[1].rating,
-      ),
-    ),
+    playerGlicko2: Object.entries(
+      aggregateFrame().glicko2Ratings.playerGlicko2,
+    ).sort((a, b) => b[1].rating - a[1].rating),
+    teamGlicko2: Object.entries(
+      aggregateFrame().glicko2Ratings.teamGlicko2,
+    ).sort((a, b) => b[1].rating - a[1].rating),
+    teamIndividualGlicko2: Object.entries(
+      aggregateFrame().glicko2Ratings.teamIndividualGlicko2,
+    ).sort((a, b) => b[1].rating - a[1].rating),
+    hybridGlicko2: Object.entries(
+      aggregateFrame().glicko2Ratings.hybridGlicko2,
+    ).sort((a, b) => b[1].rating - a[1].rating),
   }));
 
   return (
@@ -55,7 +48,7 @@ export const Glicko2LeaderboardBase: Component<Glicko2LeaderboardBaseProps> = (
 
       <table class={style.list}>
         <tbody>
-          <For each={Object.entries(sortedGlicko2().playerGlicko2)}>
+          <For each={sortedGlicko2().playerGlicko2}>
             {([player, rating], index) => (
               <tr>
                 <td class={style.minWidth}>{index() + 1}.</td>
@@ -101,7 +94,7 @@ export const Glicko2LeaderboardBase: Component<Glicko2LeaderboardBaseProps> = (
 
       <table class={style.list}>
         <tbody>
-          <For each={Object.entries(sortedGlicko2().hybridGlicko2)}>
+          <For each={sortedGlicko2().hybridGlicko2}>
             {([player, rating], index) => (
               <tr>
                 <td class={style.minWidth}>{index() + 1}.</td>
@@ -147,7 +140,7 @@ export const Glicko2LeaderboardBase: Component<Glicko2LeaderboardBaseProps> = (
 
       <table class={style.list}>
         <tbody>
-          <For each={Object.entries(sortedGlicko2().teamIndividualGlicko2)}>
+          <For each={sortedGlicko2().teamIndividualGlicko2}>
             {([player, rating], index) => (
               <tr>
                 <td class={style.minWidth}>{index() + 1}.</td>
@@ -193,7 +186,7 @@ export const Glicko2LeaderboardBase: Component<Glicko2LeaderboardBaseProps> = (
 
       <table class={style.list}>
         <tbody>
-          <For each={Object.entries(sortedGlicko2().teamGlicko2)}>
+          <For each={sortedGlicko2().teamGlicko2}>
             {([team, rating], index) => (
               <tr>
                 <td class={style.minWidth}>{index() + 1}.</td>
@@ -239,8 +232,11 @@ export const Glicko2Leaderboard = () => {
 
   const paginator = () => {
     return aggregateStats()
-      ? { component: DayPaginatorWidget, useContext: usePaginatedDayStat }
-      : { component: MatchPaginatorWidget, useContext: usePaginatedStat };
+      ? { component: DayPaginatorWidget, useContext: useDayPaginatedDeltaFrame }
+      : {
+          component: MatchPaginatorWidget,
+          useContext: usePaginatedDeltaFrame,
+        };
   };
 
   return (

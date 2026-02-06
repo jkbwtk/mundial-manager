@@ -3,12 +3,12 @@ import { AnimatedText } from '#components/AnimatedText';
 import { Button } from '#components/Button';
 import {
   MatchPaginatorWidget,
-  usePaginatedMatch,
-  usePaginatedStat,
+  usePaginatedFrame,
 } from '#components/MatchPaginatorWidget';
 import { MatchTimelineModal } from '#components/MatchTimelineModal';
 import { Divider } from '#components/Widget';
-import { defaultMatch, formatDate, formatDuration } from '#flib/sheetUtils';
+import { defaultMatch } from '#flib/defaultStats';
+import { formatDate, formatDuration } from '#flib/sheetUtils';
 import { getTeamColorClass } from '#flib/teamColors';
 import { useModal } from '#providers/ModalProvider';
 import type { Match } from '#shared/types/Sheets';
@@ -19,8 +19,8 @@ export interface MatchStatsBaseProps {
 }
 
 export const MatchStatsBase: Component<MatchStatsBaseProps> = (props) => {
-  const match = usePaginatedMatch();
-  const stats = usePaginatedStat();
+  const stats = usePaginatedFrame();
+  const match = () => stats().match;
 
   createEffect(() => {
     const m = match();
@@ -34,7 +34,7 @@ export const MatchStatsBase: Component<MatchStatsBaseProps> = (props) => {
     <>
       <div class={style.container}>
         <span>Match:</span>
-        <strong>{stats().label}</strong>
+        <strong>{stats().matchStats.label}</strong>
 
         <span>Team 1:</span>
         <strong>
@@ -106,13 +106,18 @@ export const MatchStatsBase: Component<MatchStatsBaseProps> = (props) => {
           }}
         />
       </div>
-      <Divider />
-      <div class={style.container}>
-        <span>Goals Per Minute:</span>
-        <strong>
-          <AnimatedText>{stats().goalsPerMinute.toFixed(2)}</AnimatedText>
-        </strong>
-      </div>
+
+      <Show when={stats().matchStats.goalsPerMinute !== null}>
+        <Divider />
+        <div class={style.container}>
+          <span>Goals Per Minute:</span>
+          <strong>
+            <AnimatedText>
+              {stats().matchStats.goalsPerMinute!.toFixed(2)}
+            </AnimatedText>
+          </strong>
+        </div>
+      </Show>
     </>
   );
 };

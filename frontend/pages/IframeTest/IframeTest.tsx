@@ -55,7 +55,7 @@ const IframeTest: Component = () => {
   };
 
   const sendPlayers = () => {
-    const players = latest().matchStats.generalStats.uniquePlayers;
+    const players = latest().generalStats.players;
     ref.contentWindow?.postMessage({ players }, '*');
   };
 

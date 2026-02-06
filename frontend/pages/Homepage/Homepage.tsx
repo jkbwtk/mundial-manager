@@ -6,7 +6,7 @@ import { Dynamic } from 'solid-js/web';
 import { Break } from '#components/Break';
 import {
   DayPaginatorWidget,
-  usePaginatedDayStat,
+  useDayPaginatedDeltaFrame,
 } from '#components/DayPaginatorWidget';
 import { DayStats } from '#components/DayStats';
 import { GeneralStatCharts } from '#components/GeneralStatCharts';
@@ -18,7 +18,7 @@ import {
 } from '#components/Leaderboard';
 import {
   MatchPaginatorWidget,
-  usePaginatedStat,
+  usePaginatedDeltaFrame,
 } from '#components/MatchPaginatorWidget';
 import { MatchStats } from '#components/MatchStats';
 import { MundialCalculatorLink } from '#components/MundialCalculatorLink';
@@ -36,8 +36,11 @@ const Homepage: Component = () => {
 
   const paginator = () => {
     return aggregateStats()
-      ? { component: DayPaginatorWidget, useContext: usePaginatedDayStat }
-      : { component: MatchPaginatorWidget, useContext: usePaginatedStat };
+      ? { component: DayPaginatorWidget, useContext: useDayPaginatedDeltaFrame }
+      : {
+          component: MatchPaginatorWidget,
+          useContext: usePaginatedDeltaFrame,
+        };
   };
 
   const logo = () =>

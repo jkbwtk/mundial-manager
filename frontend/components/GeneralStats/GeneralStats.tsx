@@ -9,7 +9,7 @@ export const GeneralStats: Component = () => {
   const [, { latest }] = useSheets();
   const [extrapolated, setExtrapolated] = createSignal(false);
 
-  const stats = createMemo(() => latest().matchStats.generalStats);
+  const stats = createMemo(() => latest().generalStats);
 
   return (
     <Widget
@@ -34,21 +34,18 @@ export const GeneralStats: Component = () => {
       <div class={style.container}>
         <span>Total Matches:</span>
         <strong>
-          <AnimatedText>{stats().totalMatches}</AnimatedText>
+          <AnimatedText>{stats().matches}</AnimatedText>
         </strong>
 
         <span>Total Goals:</span>
         <strong>
-          <AnimatedText>{stats().totalGoals}</AnimatedText>
+          <AnimatedText>{stats().goals}</AnimatedText>
         </strong>
 
         <span>Total Playtime:</span>
         <strong>
           <AnimatedText>
-            <Show
-              when={extrapolated()}
-              fallback={stats().totalPlaytimeFormatted}
-            >
+            <Show when={extrapolated()} fallback={stats().playtimeFormatted}>
               {stats().totalPlaytimeExtrapolatedFormatted}
             </Show>
           </AnimatedText>
@@ -59,7 +56,7 @@ export const GeneralStats: Component = () => {
           <AnimatedText>
             <Show
               when={extrapolated()}
-              fallback={stats().totalIndividualPlaytimeFormatted}
+              fallback={stats().individualPlaytimeFormatted}
             >
               {stats().totalIndividualPlaytimeExtrapolatedFormatted}
             </Show>
