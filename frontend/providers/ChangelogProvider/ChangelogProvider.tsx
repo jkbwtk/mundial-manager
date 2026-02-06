@@ -89,7 +89,7 @@ export const ChangelogProvider: ParentComponent = (props) => {
   const [, { open: openModal }] = useModal();
 
   const loadChangelog = () => {
-    // @ts-ignore
+    // @ts-expect-error
     const changelog = Changelog.safeDecode(changelogFile);
 
     const storedConfig = localStorage.getItem(changelogConfigKey) ?? '';
