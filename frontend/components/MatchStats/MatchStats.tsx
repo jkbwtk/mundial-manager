@@ -98,6 +98,11 @@ export const MatchStatsBase: Component<MatchStatsBaseProps> = (props) => {
           </strong>
         </Show>
 
+        <span>Season:</span>
+        <strong>
+          <AnimatedText>{stats().season.label}</AnimatedText>
+        </strong>
+
         <span>Winning Color:</span>
         <span
           classList={{
@@ -116,6 +121,67 @@ export const MatchStatsBase: Component<MatchStatsBaseProps> = (props) => {
               {stats().matchStats.goalsPerMinute!.toFixed(2)}
             </AnimatedText>
           </strong>
+
+          <Show when={stats().matchStats.averageTimeBetweenGoals !== null}>
+            <span>Avg. Time Between Goals:</span>
+            <strong>
+              <AnimatedText>
+                {stats().matchStats.averageTimeBetweenGoalsFormatted}
+              </AnimatedText>
+            </strong>
+          </Show>
+
+          <Show when={stats().matchStats.longestTimeBetweenGoals !== null}>
+            <span>Longest Time Between Goals:</span>
+            <strong>
+              <AnimatedText>
+                {stats().matchStats.longestTimeBetweenGoalsFormatted}
+              </AnimatedText>
+            </strong>
+          </Show>
+
+          <Show when={stats().matchStats.shortestTimeBetweenGoals !== null}>
+            <span>Shortest Time Between Goals:</span>
+            <strong>
+              <AnimatedText>
+                {stats().matchStats.shortestTimeBetweenGoalsFormatted}
+              </AnimatedText>
+            </strong>
+          </Show>
+        </div>
+      </Show>
+
+      <Show
+        when={
+          stats().matchStats.ballOutCount !== null ||
+          stats().matchStats.positionChangeCount !== null ||
+          stats().matchStats.ownGoalCount !== null
+        }
+      >
+        <Divider />
+        <div class={style.container}>
+          <Show when={stats().matchStats.ballOutCount !== null}>
+            <span>Ball Outs:</span>
+            <strong>
+              <AnimatedText>{stats().matchStats.ballOutCount}</AnimatedText>
+            </strong>
+          </Show>
+
+          <Show when={stats().matchStats.positionChangeCount !== null}>
+            <span>Position Changes:</span>
+            <strong>
+              <AnimatedText>
+                {stats().matchStats.positionChangeCount}
+              </AnimatedText>
+            </strong>
+          </Show>
+
+          <Show when={stats().matchStats.ownGoalCount !== null}>
+            <span>Own Goals:</span>
+            <strong>
+              <AnimatedText>{stats().matchStats.ownGoalCount}</AnimatedText>
+            </strong>
+          </Show>
         </div>
       </Show>
     </>

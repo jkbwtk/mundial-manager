@@ -52,7 +52,73 @@ export const SeasonStatsBase: Component = () => {
             <AnimatedText>{stats().goalsPerMinute!.toFixed(2)}</AnimatedText>
           </strong>
         </Show>
+
+        <Show when={stats().averageTimeBetweenGoals !== null}>
+          <span>Avg. Time Between Goals:</span>
+          <strong>
+            <AnimatedText>
+              {stats().averageTimeBetweenGoalsFormatted}
+            </AnimatedText>
+          </strong>
+        </Show>
+
+        <Show when={stats().longestTimeBetweenGoals !== null}>
+          <span>Longest Time Between Goals:</span>
+          <strong>
+            <AnimatedText>
+              {stats().longestTimeBetweenGoalsFormatted}
+            </AnimatedText>
+          </strong>
+        </Show>
+
+        <Show when={stats().shortestTimeBetweenGoals !== null}>
+          <span>Shortest Time Between Goals:</span>
+          <strong>
+            <AnimatedText>
+              {stats().shortestTimeBetweenGoalsFormatted}
+            </AnimatedText>
+          </strong>
+        </Show>
       </div>
+
+      <Show
+        when={
+          stats().averageBallOutsPerMatch !== null ||
+          stats().averagePositionChangesPerMatch !== null ||
+          stats().averageOwnGoalsPerMatch !== null
+        }
+      >
+        <Divider />
+        <div class={style.container}>
+          <Show when={stats().averageBallOutsPerMatch !== null}>
+            <span>Avg. Ball Outs/Match:</span>
+            <strong>
+              <AnimatedText>
+                {stats().averageBallOutsPerMatch!.toFixed(2)}
+              </AnimatedText>
+            </strong>
+          </Show>
+
+          <Show when={stats().averagePositionChangesPerMatch !== null}>
+            <span>Avg. Pos. Changes/Match:</span>
+            <strong>
+              <AnimatedText>
+                {stats().averagePositionChangesPerMatch!.toFixed(2)}
+              </AnimatedText>
+            </strong>
+          </Show>
+
+          <Show when={stats().averageOwnGoalsPerMatch !== null}>
+            <span>Avg. Own Goals/Match:</span>
+            <strong>
+              <AnimatedText>
+                {stats().averageOwnGoalsPerMatch!.toFixed(2)}
+              </AnimatedText>
+            </strong>
+          </Show>
+        </div>
+      </Show>
+
       <Divider />
       <strong class={style.playersLabel}>Players</strong>
 
