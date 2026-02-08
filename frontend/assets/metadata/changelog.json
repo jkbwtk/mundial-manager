@@ -1,6 +1,36 @@
 {
   "versions": [
     {
+      "version": "0.6.1",
+      "releaseType": "patch",
+      "date": "2026-02-08",
+      "name": "Chart improvements and custom scoring support",
+      "changes": [
+        {
+          "type": "improvement",
+          "change": "Added ability to zoom and pan charts by default"
+        },
+        {
+          "type": "improvement",
+          "change": "Adjusted win detection logic to handle experimental match lengths"
+        }
+      ],
+      "commits": [
+        {
+          "hash": "8c04abb345",
+          "message": "Add ability to zoom and pan charts"
+        },
+        {
+          "hash": "063992077c",
+          "message": "Fix chart config merging"
+        },
+        {
+          "hash": "08648f7381",
+          "message": "Change win detection logic"
+        }
+      ]
+    },
+    {
       "version": "0.6.0",
       "releaseType": "minor",
       "date": "2026-02-08",
