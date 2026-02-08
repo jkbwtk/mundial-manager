@@ -453,7 +453,7 @@ export function calculatePlayerStats(
     ? match.score2
     : match.score1;
 
-  const hasWon = playerTeamGoals === 10;
+  const hasWon = playerTeamGoals > playerOponentGoals;
 
   const playtime = previousStats.playtime + (match.duration ?? 0);
   const matches = previousStats.matches + 1;
