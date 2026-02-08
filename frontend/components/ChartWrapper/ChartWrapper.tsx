@@ -45,6 +45,24 @@ export const ChartWrapper: Component<ChartWrapperProps> = (props) => {
         intersect: false,
         mode: 'index',
       },
+      plugins: {
+        ...(props.config.options?.plugins ?? {}),
+        zoom: {
+          zoom: {
+            wheel: {
+              enabled: true,
+            },
+            pinch: {
+              enabled: true,
+            },
+            mode: 'x',
+          },
+          pan: {
+            enabled: true,
+            mode: 'x',
+          },
+        },
+      },
     },
   }));
 
