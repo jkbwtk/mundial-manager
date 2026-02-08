@@ -1,7 +1,13 @@
 import Chart, { type ChartConfiguration, type ChartType } from 'chart.js/auto';
-import { createEffect, onCleanup, onMount } from 'solid-js';
+import { createEffect, createMemo, onCleanup, onMount } from 'solid-js';
 import { isServer } from 'solid-js/web';
 import styles from './ChartWrapper.module.scss';
+
+if (!isServer) {
+  const zoomPlugin = (await import('chartjs-plugin-zoom')).default;
+
+  Chart.register(zoomPlugin);
+}
 
 interface ChartWrapperProps<T extends ChartType = ChartType> {
   config: ChartConfiguration<T>;
@@ -26,6 +32,22 @@ export const ChartWrapper: Component<ChartWrapperProps> = (props) => {
     }
   };
 
+  const config = createMemo<ChartConfiguration>(() => ({
+    ...props.config,
+    options: {
+      ...props.config.options,
+      responsive: true,
+      maintainAspectRatio: false,
+      resizeDelay: 200,
+      animation: false,
+      interaction: {
+        ...(props.config.options?.interaction ?? {}),
+        intersect: false,
+        mode: 'index',
+      },
+    },
+  }));
+
   onMount(() => {
     if (!isServer) {
       try {
@@ -33,22 +55,7 @@ export const ChartWrapper: Component<ChartWrapperProps> = (props) => {
         Chart.defaults.backgroundColor = 'transparent';
         Chart.defaults.font.size = 14;
 
-        const config: ChartConfiguration = {
-          ...props.config,
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            resizeDelay: 200,
-            animation: false,
-            interaction: {
-              intersect: false,
-              mode: 'index',
-            },
-            ...props.config.options,
-          },
-        };
-
-        chart = new Chart(canvasRef, config);
+        chart = new Chart(canvasRef, config());
 
         if (props.onChartReady) {
           props.onChartReady(chart);
@@ -87,11 +94,8 @@ export const ChartWrapper: Component<ChartWrapperProps> = (props) => {
   createEffect(() => {
     if (chart && !isServer) {
       try {
-        chart.data = props.config.data;
-
-        if (props.config.options) {
-          chart.options = props.config.options;
-        }
+        chart.data = config().data;
+        chart.options = config().options ?? chart.options;
 
         chart.update('none');
       } catch (error) {
