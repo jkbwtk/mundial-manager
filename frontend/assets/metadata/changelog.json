@@ -1,6 +1,198 @@
 {
   "versions": [
     {
+      "version": "0.6.0",
+      "releaseType": "minor",
+      "date": "2026-02-08",
+      "name": "Seasons, new stats and offline mode",
+      "changes": [
+        {
+          "type": "feature",
+          "change": "Added season system for organizing matches and statistics",
+          "description": "Matches and statistics can now be organized by seasons. Season specific statistics are available through the new SeasonPaginatorWidget and SeasonStats components. Elo and Glicko2 ratings are now also calculated on a per season basis."
+        },
+        {
+          "type": "feature",
+          "change": "Added offline match storage with PWA support",
+          "description": "Matches can now be stored locally and synced when online. PWA support enables offline functionality with proper caching. Match hashes are calculated to prevent duplicate entries."
+        },
+        {
+          "type": "feature",
+          "change": "Implemented toast notification system",
+          "description": "Added a toast notification system for displaying user feedback and important messages."
+        },
+        {
+          "type": "improvement",
+          "change": "Expanded player statistics tracking",
+          "description": "Added last match date, matches today, most matches in day, matches in season, most matches in season, and a detailed head-to-head statistics table showing performance against individual opponents."
+        },
+        {
+          "type": "improvement",
+          "change": "Expanded match statistics tracking",
+          "description": "Added tracking for ball outs, position changes, own goals, goals per minute, and time between goals (average, longest, shortest). Statistics widgets now display more detailed information."
+        },
+        {
+          "type": "improvement",
+          "change": "Reworked match statistics calculation flow",
+          "description": "Complete restructuring of how statistics are calculated and aggregated across matches, days, and seasons for better performance, ease of use and extensibility."
+        },
+        {
+          "type": "bugfix",
+          "change": "Fixed Elo and Glicko2 team ratings calculation"
+        },
+        {
+          "type": "bugfix",
+          "change": "Fixed player losses calculation"
+        }
+      ],
+      "commits": [
+        {
+          "hash": "e9fa863dd8",
+          "message": "Adjust player list gap"
+        },
+        {
+          "hash": "860fd829d1",
+          "message": "Add new stats and head-to-head table to PlayerProfileModal"
+        },
+        {
+          "hash": "dac0b65ff6",
+          "message": "Add detailed statistics display to widgets"
+        },
+        {
+          "hash": "c47c568e5d",
+          "message": "Create SeasonStats widget"
+        },
+        {
+          "hash": "f90e622b50",
+          "message": "Implement SeasonPaginatorWidget"
+        },
+        {
+          "hash": "3adb508049",
+          "message": "Port stat changes to remaining components"
+        },
+        {
+          "hash": "7a1df2ee1c",
+          "message": "Update paginator widgets"
+        },
+        {
+          "hash": "a4a9ba7c62",
+          "message": "Format files"
+        },
+        {
+          "hash": "814dbaa457",
+          "message": "Rework match statistics calculation flow"
+        },
+        {
+          "hash": "47fbb80be9",
+          "message": "Add PWA test page"
+        },
+        {
+          "hash": "e43d7edbbd",
+          "message": "Reimplement PWA support"
+        },
+        {
+          "hash": "9d3bf04edc",
+          "message": "Implement toast system"
+        },
+        {
+          "hash": "ddf2678791",
+          "message": "Add option to configure padding around button content"
+        },
+        {
+          "hash": "4cf985c301",
+          "message": "Fix elo and glicko2 team ratings calculation"
+        },
+        {
+          "hash": "db4a823463",
+          "message": "Temporarily disable PWA support"
+        },
+        {
+          "hash": "810d72156e",
+          "message": "Add  initial support for seasons"
+        },
+        {
+          "hash": "00a3f9275f",
+          "message": "Fix styles"
+        },
+        {
+          "hash": "08a7af9b73",
+          "message": "Fix clearCreatedMatches method"
+        },
+        {
+          "hash": "7bb318b2c9",
+          "message": "Add PWA support with offline caching"
+        },
+        {
+          "hash": "e54075b745",
+          "message": "Use logger in static and dev servers"
+        },
+        {
+          "hash": "5baefc6188",
+          "message": "Remove branded team name"
+        },
+        {
+          "hash": "4d134ff609",
+          "message": "Update packages"
+        },
+        {
+          "hash": "58879a31a6",
+          "message": "Add test page for local match storage functionality"
+        },
+        {
+          "hash": "7fa8af1ac8",
+          "message": "Provide separate local match creation method"
+        },
+        {
+          "hash": "ff8cc8a5ff",
+          "message": "Increase row limit"
+        },
+        {
+          "hash": "c701c60ac8",
+          "message": "Load data from local storage after render"
+        },
+        {
+          "hash": "d3bbb062bb",
+          "message": "Keep original team positions"
+        },
+        {
+          "hash": "8f7c4bd902",
+          "message": "Store created matches as array"
+        },
+        {
+          "hash": "e9ab120f45",
+          "message": "Round match duration to avoid hash mismatches"
+        },
+        {
+          "hash": "84583aa07e",
+          "message": "Add bulk match creation methods"
+        },
+        {
+          "hash": "417399ab54",
+          "message": "Fix player losses calculation"
+        },
+        {
+          "hash": "3002b544d6",
+          "message": "Implement offline match storage layer"
+        },
+        {
+          "hash": "9afe6c9970",
+          "message": "Make match hash calculation consistent for all match types"
+        },
+        {
+          "hash": "9884fe927b",
+          "message": "Check if created match is unique"
+        },
+        {
+          "hash": "3f92f5d668",
+          "message": "Calculate match hashes to identify duplicates"
+        },
+        {
+          "hash": "fb33e1af24",
+          "message": "Replace deprecated function"
+        }
+      ]
+    },
+    {
       "version": "0.5.1",
       "releaseType": "patch",
       "date": "2025-12-02",
