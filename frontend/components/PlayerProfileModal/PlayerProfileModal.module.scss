@@ -80,4 +80,69 @@
       color: $textBrightColor;
     }
   }
+
+  .section-label {
+    display: inline-block;
+
+    width: 100%;
+    text-align: center;
+
+    color: $textBrightColor;
+  }
+
+  .positive {
+    color: $greenBright;
+  }
+
+  .negative {
+    color: $redBright;
+  }
+
+  .hth-table {
+    border-collapse: collapse;
+    width: calc(100% - cw(2));
+
+    margin: 0 cw(1);
+
+    thead {
+      td {
+        font-weight: bold;
+        color: $textBrightColor;
+      }
+    }
+
+    .min-width {
+      width: 1%;
+      white-space: nowrap;
+    }
+
+    .align-right {
+      text-align: right;
+    }
+
+    .align-center {
+      text-align: center;
+    }
+
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+
+      span:first-child {
+        text-align: right;
+      }
+
+      span:last-child {
+        text-align: left;
+      }
+    }
+
+    td {
+      padding: 0;
+
+      &:not(:last-child) {
+        padding-right: cw(1);
+      }
+    }
+  }
 }

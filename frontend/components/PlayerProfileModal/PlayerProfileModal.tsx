@@ -2,9 +2,10 @@ import { createMemo, createSignal, For, Show } from 'solid-js';
 import { Button } from '#components/Button';
 import { DeltaDisplay } from '#components/DeltaDisplay';
 import { Modal } from '#components/Modal';
+import { PlayerLink } from '#components/PlayerLink';
 import { PlayerPickerModal } from '#components/PlayerPickerModal';
 import { Divider } from '#components/Widget';
-import { formatDuration } from '#flib/sheetUtils';
+import { formatDate, formatDuration } from '#flib/sheetUtils';
 import { useModal } from '#providers/ModalProvider';
 import { useSheets } from '#providers/SheetsProvider';
 import style from './PlayerProfileModal.module.scss';
@@ -326,6 +327,53 @@ export const PlayerProfileModal: Component<PlayerProfileModalProps> = (
           </strong>
         </div>
 
+        <Divider class={style.divider} />
+
+        <div class={style.container}>
+          <span>Last Match Date:</span>
+          <strong>{formatDate(playerStats()?.lastMatchDate ?? null)}</strong>
+
+          <span>Matches Today:</span>
+          <strong>
+            <DeltaDisplay
+              base={playerStats()?.matchesInDay}
+              compared={comparedPlayerStats()?.matchesInDay}
+              displayBase={true}
+              displayCompared={true}
+            />
+          </strong>
+
+          <span>Most Matches In Day:</span>
+          <strong>
+            <DeltaDisplay
+              base={playerStats()?.mostMatchesInDay}
+              compared={comparedPlayerStats()?.mostMatchesInDay}
+              displayBase={true}
+              displayCompared={true}
+            />
+          </strong>
+
+          <span>Matches In Season:</span>
+          <strong>
+            <DeltaDisplay
+              base={playerStats()?.matchesInSeason}
+              compared={comparedPlayerStats()?.matchesInSeason}
+              displayBase={true}
+              displayCompared={true}
+            />
+          </strong>
+
+          <span>Most Matches In Season:</span>
+          <strong>
+            <DeltaDisplay
+              base={playerStats()?.mostMatchesInSeason}
+              compared={comparedPlayerStats()?.mostMatchesInSeason}
+              displayBase={true}
+              displayCompared={true}
+            />
+          </strong>
+        </div>
+
         <Show
           when={playerRatings().elo.player || playerRatings().glicko2.player}
         >
@@ -398,6 +446,144 @@ export const PlayerProfileModal: Component<PlayerProfileModalProps> = (
               />
             </strong>
           </div>
+        </Show>
+
+        <Show
+          when={
+            playerStats() &&
+            Object.keys(playerStats()!.matchesWonAgainst).length > 0
+          }
+        >
+          <Divider class={style.divider} />
+
+          <strong class={style.sectionLabel}>Head-to-Head</strong>
+
+          <table class={style.hthTable}>
+            <thead>
+              <tr>
+                <td>Opponent</td>
+                <td
+                  classList={{
+                    [style.minWidth]: true,
+                    [style.alignRight]: true,
+                  }}
+                >
+                  Won
+                </td>
+                <td
+                  classList={{
+                    [style.minWidth]: true,
+                    [style.alignRight]: true,
+                  }}
+                >
+                  Lost
+                </td>
+                <td
+                  classList={{
+                    [style.minWidth]: true,
+                    [style.alignRight]: true,
+                  }}
+                >
+                  Win%
+                </td>
+                <td
+                  classList={{
+                    [style.minWidth]: true,
+                    [style.alignCenter]: true,
+                  }}
+                >
+                  1v1
+                </td>
+                <td
+                  classList={{
+                    [style.minWidth]: true,
+                    [style.alignCenter]: true,
+                  }}
+                >
+                  2v2
+                </td>
+              </tr>
+            </thead>
+            <tbody>
+              <For
+                each={Object.keys({
+                  ...playerStats()?.matchesWonAgainst,
+                  ...playerStats()?.matchesLostAgainst,
+                }).sort()}
+              >
+                {(opponent) => {
+                  const wins = () =>
+                    playerStats()?.matchesWonAgainst[opponent] ?? 0;
+                  const losses = () =>
+                    playerStats()?.matchesLostAgainst[opponent] ?? 0;
+                  const total = () => wins() + losses();
+                  const winPct = () =>
+                    total() > 0 ? (wins() / total()) * 100 : 0;
+
+                  const winsS = () =>
+                    playerStats()?.matchesWonAgainstSingles[opponent] ?? 0;
+                  const lossesS = () =>
+                    playerStats()?.matchesLostAgainstSingles[opponent] ?? 0;
+                  const winsD = () =>
+                    playerStats()?.matchesWonAgainstDoubles[opponent] ?? 0;
+                  const lossesD = () =>
+                    playerStats()?.matchesLostAgainstDoubles[opponent] ?? 0;
+
+                  return (
+                    <tr>
+                      <td>
+                        <PlayerLink name={opponent} />
+                      </td>
+                      <td
+                        classList={{
+                          [style.minWidth]: true,
+                          [style.alignRight]: true,
+                          [style.positive]: true,
+                        }}
+                      >
+                        {wins()}
+                      </td>
+                      <td
+                        classList={{
+                          [style.minWidth]: true,
+                          [style.alignRight]: true,
+                          [style.negative]: true,
+                        }}
+                      >
+                        {losses()}
+                      </td>
+                      <td
+                        classList={{
+                          [style.minWidth]: true,
+                          [style.alignRight]: true,
+                        }}
+                      >
+                        {winPct().toFixed(0)}%
+                      </td>
+                      <td class={style.minWidth}>
+                        <Show when={winsS() + lossesS() > 0}>
+                          <div class={style.comparison}>
+                            <span class={style.positive}>{winsS()}</span>
+                            <span>:</span>
+                            <span class={style.negative}>{lossesS()}</span>
+                          </div>
+                        </Show>
+                      </td>
+                      <td class={style.minWidth}>
+                        <Show when={winsD() + lossesD() > 0}>
+                          <div class={style.comparison}>
+                            <span class={style.positive}>{winsD()}</span>
+                            <span>:</span>
+                            <span class={style.negative}>{lossesD()}</span>
+                          </div>
+                        </Show>
+                      </td>
+                    </tr>
+                  );
+                }}
+              </For>
+            </tbody>
+          </table>
         </Show>
       </Show>
     </Modal>
