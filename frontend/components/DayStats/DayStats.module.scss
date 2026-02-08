@@ -36,7 +36,7 @@
 
 .player-list {
   display: flex;
-  gap: cw(1);
+  gap: 0 cw(1);
 
   flex-wrap: wrap;
   justify-content: center;
