@@ -18,8 +18,10 @@ import type {
   Glicko2Ratings,
   MatchDataFrame,
   MatchStats,
+  MonthStats,
   PlayerStats,
   SeasonStats,
+  WeekStats,
 } from '#frontend/types';
 import type { Match } from '#shared/types/Sheets';
 
@@ -100,6 +102,20 @@ export const defaultDayStats: DayStats = {
   humanDate: '',
 };
 
+export const defaultWeekStats: WeekStats = {
+  ...structuredClone(defaultAggregateStats),
+
+  week: 0,
+  humanWeek: '',
+};
+
+export const defaultMonthStats: MonthStats = {
+  ...structuredClone(defaultAggregateStats),
+
+  month: 0,
+  humanMonth: '',
+};
+
 export const defaultSeasonStats: SeasonStats = {
   ...structuredClone(defaultAggregateStats),
 
@@ -156,6 +172,8 @@ export const defaultMatchDataFrame: MatchDataFrame = {
 
   matchStats: defaultMatchStats,
   dayStats: defaultDayStats,
+  weekStats: defaultWeekStats,
+  monthStats: defaultMonthStats,
   seasonStats: defaultSeasonStats,
   generalStats: defaultGeneralStats,
 

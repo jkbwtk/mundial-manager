@@ -57,6 +57,16 @@ export interface DayStats extends AggregateStats {
   humanDate: string;
 }
 
+export interface WeekStats extends AggregateStats {
+  week: number | null;
+  humanWeek: string;
+}
+
+export interface MonthStats extends AggregateStats {
+  month: number | null;
+  humanMonth: string;
+}
+
 export interface Season {
   number: number;
   label: string;
@@ -181,6 +191,8 @@ export interface MatchDataFrame {
 
   matchStats: MatchStats;
   dayStats: DayStats;
+  weekStats: WeekStats;
+  monthStats: MonthStats;
   seasonStats: SeasonStats;
   generalStats: GeneralStats;
 
@@ -210,5 +222,7 @@ export interface MatchData {
   latest: MatchDataFrame;
 
   dayStats: Record<number, AggregateFrame>;
+  weekStats: Record<number, AggregateFrame>;
+  monthStats: Record<number, AggregateFrame>;
   seasonStats: Record<number, AggregateFrame>;
 }

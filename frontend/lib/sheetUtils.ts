@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
+import weekOfYear from 'dayjs/plugin/weekOfYear';
 import { isServer } from 'solid-js/web';
 import { getSeason } from '#flib/seasons';
 import type {
@@ -22,6 +23,7 @@ import type {
 import { quickSwitch } from '#shared/utils';
 
 dayjs.extend(duration);
+dayjs.extend(weekOfYear);
 
 export const DEFAULT_ELO = 1500;
 
@@ -56,6 +58,52 @@ export function formatDate(timestamp: number | null): string {
   }
 
   return dayjs.unix(timestamp).format('YYYY-MM-DD');
+}
+
+export function getWeek(match: Match): number | null {
+  if (match.date === null) {
+    return null;
+  }
+
+  const date = dayjs.unix(match.date);
+  const year = date.year();
+  const week = date.week();
+
+  return year * 100 + week;
+}
+
+export function formatWeek(week: number | null): string {
+  if (week === null) {
+    return '-----W--';
+  }
+
+  const year = Math.floor(week / 100);
+  const weekNum = week % 100;
+
+  return `${year}-W${weekNum.toString().padStart(2, '0')}`;
+}
+
+export function getMonth(match: Match): number | null {
+  if (match.date === null) {
+    return null;
+  }
+
+  const date = dayjs.unix(match.date);
+  const year = date.year();
+  const month = date.month() + 1;
+
+  return year * 100 + month;
+}
+
+export function formatMonth(month: number | null): string {
+  if (month === null) {
+    return '-----M--';
+  }
+
+  const year = Math.floor(month / 100);
+  const monthNum = month % 100;
+
+  return `${year}-M${monthNum.toString().padStart(2, '0')}`;
 }
 
 export function getPlayersFromTeam(team: string): string[] {

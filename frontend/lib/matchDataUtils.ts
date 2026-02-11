@@ -5,8 +5,10 @@ import {
   defaultGlicko2Rating,
   defaultGlicko2Ratings,
   defaultMatchDataFrame,
+  defaultMonthStats,
   defaultPlayerStats,
   defaultSeasonStats,
+  defaultWeekStats,
 } from '#flib/defaultStats';
 import { getSeason } from '#flib/seasons';
 import {
@@ -15,8 +17,11 @@ import {
   formatDate,
   formatDuration,
   formatMatchLabel,
+  formatMonth,
+  formatWeek,
   getBallOutEvents,
   getGoalEvents,
+  getMonth,
   getOwnGoalEvents,
   getPlayersFromMatch,
   getPlayersFromTeam,
@@ -25,6 +30,7 @@ import {
   getTotalMatches,
   getTotalMatchesWithDuration,
   getTotalMatchesWithTimeline,
+  getWeek,
 } from '#flib/sheetUtils';
 import { addNullable } from '#flib/utils';
 import type {
@@ -42,8 +48,10 @@ import type {
   MatchDataDeltaFrame,
   MatchDataFrame,
   MatchStats,
+  MonthStats,
   PlayerStats,
   SeasonStats,
+  WeekStats,
 } from '#frontend/types';
 import type { Match } from '#shared/types/Sheets';
 
@@ -118,6 +126,8 @@ export function createDeltaFrame(
     season: end.season,
     matchStats: end.matchStats,
     dayStats: end.dayStats,
+    weekStats: end.weekStats,
+    monthStats: end.monthStats,
     seasonStats: end.seasonStats,
     generalStats: end.generalStats,
     playerStats: end.playerStats,
@@ -350,6 +360,60 @@ export function calculateDayStats(
   return {
     date: match.date,
     humanDate: formatDate(match.date),
+
+    ...aggregateStats,
+  };
+}
+
+export function calculateWeekStats(
+  match: Match,
+  matchStats: MatchStats,
+  previousData: MatchDataFrame,
+): WeekStats {
+  const week = getWeek(match);
+
+  const previousStats =
+    week === previousData.weekStats.week
+      ? previousData.weekStats
+      : defaultWeekStats;
+
+  const aggregateStats = calculateAggregateStats(
+    match,
+    matchStats,
+    previousData,
+    previousStats,
+  );
+
+  return {
+    week,
+    humanWeek: formatWeek(week),
+
+    ...aggregateStats,
+  };
+}
+
+export function calculateMonthStats(
+  match: Match,
+  matchStats: MatchStats,
+  previousData: MatchDataFrame,
+): MonthStats {
+  const month = getMonth(match);
+
+  const previousStats =
+    month === previousData.monthStats.month
+      ? previousData.monthStats
+      : defaultMonthStats;
+
+  const aggregateStats = calculateAggregateStats(
+    match,
+    matchStats,
+    previousData,
+    previousStats,
+  );
+
+  return {
+    month,
+    humanMonth: formatMonth(month),
 
     ...aggregateStats,
   };
@@ -662,6 +726,8 @@ export function calculateDataFrame(
 
   const matchStats = calculateMatchStats(match, prev);
   const dayStats = calculateDayStats(match, matchStats, prev);
+  const weekStats = calculateWeekStats(match, matchStats, prev);
+  const monthStats = calculateMonthStats(match, matchStats, prev);
   const seasonStats = calculateSeasonStats(match, matchStats, prev);
   const generalStats = calculateGeneralStats(match, matchStats, prev);
 
@@ -673,6 +739,8 @@ export function calculateDataFrame(
 
     matchStats,
     dayStats,
+    weekStats,
+    monthStats,
     seasonStats,
     generalStats,
 
@@ -689,10 +757,14 @@ export function calculateMatchData(matches: Match[]): MatchData {
   const frames: MatchDataFrame[] = [];
 
   const dayStatsMap: Map<number, AggregateFrame> = new Map();
+  const weekStatsMap: Map<number, AggregateFrame> = new Map();
+  const monthStatsMap: Map<number, AggregateFrame> = new Map();
   const seasonStatsMap: Map<number, AggregateFrame> = new Map();
 
   let previousFrame: MatchDataFrame | null = null;
   let previousDayFrame: MatchDataFrame | null = null;
+  let previousWeekFrame: MatchDataFrame | null = null;
+  let previousMonthFrame: MatchDataFrame | null = null;
   let previousSeasonFrame: MatchDataFrame | null = null;
 
   for (const match of matches) {
@@ -713,6 +785,42 @@ export function calculateMatchData(matches: Match[]): MatchData {
       } else {
         dayStatsMap.set(day, {
           previousFrame: previousDayFrame ?? defaultMatchDataFrame,
+          frame: currentFrame,
+        });
+      }
+    }
+
+    const week = currentFrame.weekStats.week;
+    if (week !== null) {
+      if (previousFrame && previousFrame.weekStats.week !== week) {
+        previousWeekFrame = previousFrame;
+      }
+
+      const aggregateWeekFrame = weekStatsMap.get(week);
+
+      if (aggregateWeekFrame) {
+        aggregateWeekFrame.frame = currentFrame;
+      } else {
+        weekStatsMap.set(week, {
+          previousFrame: previousWeekFrame ?? defaultMatchDataFrame,
+          frame: currentFrame,
+        });
+      }
+    }
+
+    const month = currentFrame.monthStats.month;
+    if (month !== null) {
+      if (previousFrame && previousFrame.monthStats.month !== month) {
+        previousMonthFrame = previousFrame;
+      }
+
+      const aggregateMonthFrame = monthStatsMap.get(month);
+
+      if (aggregateMonthFrame) {
+        aggregateMonthFrame.frame = currentFrame;
+      } else {
+        monthStatsMap.set(month, {
+          previousFrame: previousMonthFrame ?? defaultMatchDataFrame,
           frame: currentFrame,
         });
       }
@@ -743,6 +851,8 @@ export function calculateMatchData(matches: Match[]): MatchData {
     latest: frames.at(-1) ?? defaultMatchDataFrame,
 
     dayStats: Object.fromEntries(dayStatsMap.entries()),
+    weekStats: Object.fromEntries(weekStatsMap.entries()),
+    monthStats: Object.fromEntries(monthStatsMap.entries()),
     seasonStats: Object.fromEntries(seasonStatsMap.entries()),
   };
 }
