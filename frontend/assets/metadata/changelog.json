@@ -1,6 +1,24 @@
 {
   "versions": [
     {
+      "version": "0.6.2",
+      "releaseType": "patch",
+      "date": "2026-02-11",
+      "name": "Chart QOL rollback",
+      "changes": [
+        {
+          "type": "bugfix",
+          "change": "Removed chart panning and zooming features due to incompatibility with mobile browsers"
+        }
+      ],
+      "commits": [
+        {
+          "hash": "826a4ba1c2",
+          "message": "Remove chartjs-plugin-zoom due to incompatibility"
+        }
+      ]
+    },
+    {
       "version": "0.6.1",
       "releaseType": "patch",
       "date": "2026-02-08",
