@@ -3,12 +3,6 @@ import { createEffect, createMemo, onCleanup, onMount } from 'solid-js';
 import { isServer } from 'solid-js/web';
 import styles from './ChartWrapper.module.scss';
 
-if (!isServer) {
-  const zoomPlugin = (await import('chartjs-plugin-zoom')).default;
-
-  Chart.register(zoomPlugin);
-}
-
 interface ChartWrapperProps<T extends ChartType = ChartType> {
   config: ChartConfiguration<T>;
   class?: string;
@@ -44,24 +38,6 @@ export const ChartWrapper: Component<ChartWrapperProps> = (props) => {
         ...(props.config.options?.interaction ?? {}),
         intersect: false,
         mode: 'index',
-      },
-      plugins: {
-        ...(props.config.options?.plugins ?? {}),
-        zoom: {
-          zoom: {
-            wheel: {
-              enabled: true,
-            },
-            pinch: {
-              enabled: true,
-            },
-            mode: 'x',
-          },
-          pan: {
-            enabled: true,
-            mode: 'x',
-          },
-        },
       },
     },
   }));
