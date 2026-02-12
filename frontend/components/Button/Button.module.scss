@@ -7,16 +7,22 @@
 
   border-radius: $borderRadius;
 
-  transition: background-color 0.1s, color 0.1s;
+  transition:
+    background-color 0.1s,
+    color 0.1s;
 
   &::before {
     content: '[';
     padding-right: cw(var(--padding, 1));
+
+    font-weight: bold;
   }
 
   &::after {
     content: ']';
     padding-left: cw(var(--padding, 1));
+
+    font-weight: bold;
   }
 }
 
@@ -73,25 +79,15 @@
   &::before {
     content: '|';
     padding-right: cw(var(--padding, 1));
+
+    font-weight: bold;
   }
 
   &::after {
     content: '|';
     padding-left: cw(var(--padding, 1));
-  }
 
-  @media (hover: hover) {
-    &:hover {
-      &::before {
-        content: '|';
-        padding-right: cw(var(--padding, 1));
-      }
-
-      &::after {
-        content: '|';
-        padding-left: cw(var(--padding, 1));
-      }
-    }
+    font-weight: bold;
   }
 }
 

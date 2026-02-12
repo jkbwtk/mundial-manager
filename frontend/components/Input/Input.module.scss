@@ -27,6 +27,7 @@
     &::before {
       content: '( )';
       color: $textColor;
+      font-weight: bold;
 
       font-family: $monoFontFamily;
     }
@@ -34,16 +35,19 @@
     &:checked::before {
       content: '(*)';
       color: $textBrightColor;
+      font-weight: bold;
     }
 
     &:disabled::before {
       content: '| |';
       color: $textDimColor;
+      font-weight: bold;
     }
 
     &:disabled:checked::before {
       content: '|*|';
       color: $textDimColor;
+      font-weight: bold;
     }
   }
 }
