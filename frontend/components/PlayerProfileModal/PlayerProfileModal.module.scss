@@ -67,11 +67,13 @@
       &::before {
         content: '>';
         color: $primaryColor;
+        font-weight: bold;
       }
 
       &::after {
         content: '<';
         color: $primaryColor;
+        font-weight: bold;
       }
     }
 
