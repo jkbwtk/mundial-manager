@@ -28,6 +28,10 @@ export const SupportedMaterialSymbol = [
   'check_circle',
   'warning',
   'error',
+  'keyboard_arrow_down',
+  'keyboard_arrow_up',
+  'arrow_drop_down',
+  'arrow_drop_up',
 ] as const;
 
 export type SupportedMaterialSymbol = (typeof SupportedMaterialSymbol)[number];

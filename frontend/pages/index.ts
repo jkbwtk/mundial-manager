@@ -8,6 +8,7 @@ export * from './TableTest';
 export * from './ButtonTest';
 export * from './ChangelogTest';
 export * from './CreatedMatchesTest';
+export * from './DropdownTest';
 export * from './Homepage';
 export * from './IframeTest';
 export * from './InputTest';
