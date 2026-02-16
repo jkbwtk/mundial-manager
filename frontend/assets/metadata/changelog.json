@@ -1,6 +1,53 @@
 {
   "versions": [
     {
+      "version": "0.7.0",
+      "releaseType": "minor",
+      "date": "2026-02-17",
+      "name": "Another batch of stat aggregation improvements",
+      "changes": [
+        {
+          "type": "feature",
+          "change": "Implemented unified stat pagination",
+          "description": "Merged all stat paginators into a single component. Leaderboards can now aggregate rating changes over every supported time period. Day and season stat widgets have been replaced with a universal AggregateStats widget."
+        },
+        {
+          "type": "feature",
+          "change": "Added support for weekly and monthly stat aggregation"
+        },
+        {
+          "type": "improvement",
+          "change": "Adjusted decorator styles to match Dropdown component"
+        }
+      ],
+      "commits": [
+        {
+          "hash": "4e2d5b3754",
+          "message": "Merge stat paginators and aggregate stat widgets"
+        },
+        {
+          "hash": "5185d19774",
+          "message": "Adjust Dropdown padding"
+        },
+        {
+          "hash": "983970b52f",
+          "message": "Use bold selectors in PlayerProfileModal"
+        },
+        {
+          "hash": "37d875af44",
+          "message": "Create Dropdown component and related test page"
+        },
+        {
+          "hash": "faad80d1c8",
+          "message": "Adjust decorator styling"
+        },
+        {
+          "hash": "6a0a7b1f79",
+          "message": "Implement per week and per month stat aggregation"
+        }
+      ]
+    },
+    {
       "version": "0.6.2",
       "releaseType": "patch",
       "date": "2026-02-11",
