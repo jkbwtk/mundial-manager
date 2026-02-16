@@ -1,17 +1,24 @@
-import { For, Show } from 'solid-js';
+import { createSignal, For, Show } from 'solid-js';
 import { AnimatedText } from '#components/AnimatedText';
+import { Dropdown } from '#components/Dropdown';
 import { PlayerLink } from '#components/PlayerLink';
 import {
-  SeasonPaginatorWidget,
-  useSeasonPaginatedFrame,
-} from '#components/SeasonPaginatorWidget';
+  type AggregateType,
+  AggregateTypeOptions,
+  StatPaginatorWidget,
+  useStatPaginatedAggregateStats,
+} from '#components/StatPaginatorWidget';
 import { Divider } from '#components/Widget';
-import style from './SeasonStats.module.scss';
+import style from './AggregateStats.module.scss';
 
-export const SeasonStatsBase: Component = () => {
-  const frame = useSeasonPaginatedFrame();
+export interface AggregateStatsBaseProps {
+  type: AggregateType;
+}
 
-  const stats = () => frame().seasonStats;
+export const AggregateStatsBase: Component<AggregateStatsBaseProps> = (
+  props,
+) => {
+  const stats = useStatPaginatedAggregateStats(() => props.type);
 
   return (
     <>
@@ -131,10 +138,23 @@ export const SeasonStatsBase: Component = () => {
   );
 };
 
-export const SeasonStats: Component = () => {
+export const AggregateStats: Component = () => {
+  const [type, setType] = createSignal<AggregateType>('day');
+
   return (
-    <SeasonPaginatorWidget class={style.widget} topLeftLabels="Season Stats">
-      <SeasonStatsBase />
-    </SeasonPaginatorWidget>
+    <StatPaginatorWidget
+      class={style.widget}
+      topLeftLabels="Period Stats"
+      topRightLabels={
+        <Dropdown
+          options={AggregateTypeOptions}
+          value={type()}
+          onChange={setType}
+        />
+      }
+      statType={type()}
+    >
+      <AggregateStatsBase type={type()} />
+    </StatPaginatorWidget>
   );
 };

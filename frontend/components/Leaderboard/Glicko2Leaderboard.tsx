@@ -1,29 +1,19 @@
 import { createMemo, createSignal, For, Match, Switch } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
-import {
-  DayPaginatorWidget,
-  useDayPaginatedDeltaFrame,
-} from '#components/DayPaginatorWidget';
-import { InlineAction } from '#components/InlineAction';
-import {
-  MatchPaginatorWidget,
-  usePaginatedDeltaFrame,
-} from '#components/MatchPaginatorWidget';
+import { Dropdown } from '#components/Dropdown';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import { PlayerLink } from '#components/PlayerLink';
+import {
+  StatPaginatorWidget,
+  type StatType,
+  StatTypeOptions,
+  useStatPaginatedDeltaFrame,
+} from '#components/StatPaginatorWidget';
 import { Divider } from '#components/Widget';
 import { generateTeamColor, getGlicko2Confidence } from '#flib/sheetUtils';
-import type { MatchDataDeltaFrame } from '#frontend/types';
 import style from './Leaderboard.module.scss';
 
-interface Glicko2LeaderboardBaseProps {
-  useContext: () => () => MatchDataDeltaFrame;
-}
-
-export const Glicko2LeaderboardBase: Component<Glicko2LeaderboardBaseProps> = (
-  props,
-) => {
-  const aggregateFrame = props.useContext();
+export const Glicko2LeaderboardBase: Component = () => {
+  const aggregateFrame = useStatPaginatedDeltaFrame();
 
   const sortedGlicko2 = createMemo(() => ({
     playerGlicko2: Object.entries(
@@ -228,39 +218,22 @@ export const Glicko2LeaderboardBase: Component<Glicko2LeaderboardBaseProps> = (
 };
 
 export const Glicko2Leaderboard = () => {
-  const [aggregateStats, setAggregateStats] = createSignal(false);
-
-  const paginator = () => {
-    return aggregateStats()
-      ? { component: DayPaginatorWidget, useContext: useDayPaginatedDeltaFrame }
-      : {
-          component: MatchPaginatorWidget,
-          useContext: usePaginatedDeltaFrame,
-        };
-  };
+  const [aggregateType, setAggregateType] = createSignal<StatType>('match');
 
   return (
-    <Dynamic
-      component={paginator().component}
+    <StatPaginatorWidget
+      statType={aggregateType()}
       topLeftLabels="Glicko-2 Stats"
       class={style.container}
       topRightLabels={[
-        <span
-          classList={{
-            [style.label]: true,
-            [style.activeStats]: aggregateStats(),
-          }}
-        >
-          <InlineAction
-            symbol="a"
-            content="A"
-            onAction={() => setAggregateStats((v) => !v)}
-          />
-          ggregate
-        </span>,
+        <Dropdown
+          options={StatTypeOptions}
+          value={aggregateType()}
+          onChange={setAggregateType}
+        />,
       ]}
     >
-      <Glicko2LeaderboardBase useContext={paginator().useContext} />
-    </Dynamic>
+      <Glicko2LeaderboardBase />
+    </StatPaginatorWidget>
   );
 };

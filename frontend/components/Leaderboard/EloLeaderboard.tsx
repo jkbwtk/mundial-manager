@@ -1,29 +1,19 @@
 import { createMemo, createSignal, For, Match, Switch } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
-import {
-  DayPaginatorWidget,
-  useDayPaginatedDeltaFrame,
-} from '#components/DayPaginatorWidget';
-import { InlineAction } from '#components/InlineAction';
-import {
-  MatchPaginatorWidget,
-  usePaginatedDeltaFrame,
-} from '#components/MatchPaginatorWidget';
+import { Dropdown } from '#components/Dropdown';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import { PlayerLink } from '#components/PlayerLink';
+import {
+  StatPaginatorWidget,
+  type StatType,
+  StatTypeOptions,
+  useStatPaginatedDeltaFrame,
+} from '#components/StatPaginatorWidget';
 import { Divider } from '#components/Widget';
 import { generateTeamColor } from '#flib/sheetUtils';
-import type { MatchDataDeltaFrame } from '#frontend/types';
 import style from './Leaderboard.module.scss';
 
-interface EloLeaderboardBaseProps {
-  useContext: () => () => MatchDataDeltaFrame;
-}
-
-export const EloLeaderboardBase: Component<EloLeaderboardBaseProps> = (
-  props,
-) => {
-  const aggregateFrame = props.useContext();
+export const EloLeaderboardBase: Component = () => {
+  const aggregateFrame = useStatPaginatedDeltaFrame();
 
   const sortedElos = createMemo(() => ({
     playerElos: Object.entries(aggregateFrame().eloRatings.playerElos).sort(
@@ -217,39 +207,22 @@ export const EloLeaderboardBase: Component<EloLeaderboardBaseProps> = (
 };
 
 export const EloLeaderboard = () => {
-  const [aggregateStats, setAggregateStats] = createSignal(false);
-
-  const paginator = () => {
-    return aggregateStats()
-      ? { component: DayPaginatorWidget, useContext: useDayPaginatedDeltaFrame }
-      : {
-          component: MatchPaginatorWidget,
-          useContext: usePaginatedDeltaFrame,
-        };
-  };
+  const [aggregateType, setAggregateType] = createSignal<StatType>('match');
 
   return (
-    <Dynamic
-      component={paginator().component}
+    <StatPaginatorWidget
+      statType={aggregateType()}
       topLeftLabels="Elo Stats"
       class={style.container}
       topRightLabels={[
-        <span
-          classList={{
-            [style.label]: true,
-            [style.activeStats]: aggregateStats(),
-          }}
-        >
-          <InlineAction
-            symbol="a"
-            content="A"
-            onAction={() => setAggregateStats((v) => !v)}
-          />
-          ggregate
-        </span>,
+        <Dropdown
+          options={StatTypeOptions}
+          value={aggregateType()}
+          onChange={setAggregateType}
+        />,
       ]}
     >
-      <EloLeaderboardBase useContext={paginator().useContext} />
-    </Dynamic>
+      <EloLeaderboardBase />
+    </StatPaginatorWidget>
   );
 };

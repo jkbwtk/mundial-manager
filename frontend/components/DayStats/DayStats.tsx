@@ -1,15 +1,15 @@
 import { For, Show } from 'solid-js';
 import { AnimatedText } from '#components/AnimatedText';
-import {
-  DayPaginatorWidget,
-  useDayPaginatedFrame,
-} from '#components/DayPaginatorWidget';
 import { PlayerLink } from '#components/PlayerLink';
+import {
+  StatPaginatorWidget,
+  useStatPaginatedFrame,
+} from '#components/StatPaginatorWidget';
 import { Divider } from '#components/Widget';
 import style from './DayStats.module.scss';
 
 export const DayStatsBase: Component = () => {
-  const frame = useDayPaginatedFrame();
+  const frame = useStatPaginatedFrame();
 
   const stats = () => frame().dayStats;
 
@@ -133,8 +133,12 @@ export const DayStatsBase: Component = () => {
 
 export const DayStats: Component = () => {
   return (
-    <DayPaginatorWidget class={style.widget} topLeftLabels="Day Stats">
+    <StatPaginatorWidget
+      statType="day"
+      class={style.widget}
+      topLeftLabels="Day Stats"
+    >
       <DayStatsBase />
-    </DayPaginatorWidget>
+    </StatPaginatorWidget>
   );
 };

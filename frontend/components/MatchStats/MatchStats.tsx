@@ -1,11 +1,11 @@
 import { createEffect, createSignal, type Setter, Show } from 'solid-js';
 import { AnimatedText } from '#components/AnimatedText';
 import { Button } from '#components/Button';
-import {
-  MatchPaginatorWidget,
-  usePaginatedFrame,
-} from '#components/MatchPaginatorWidget';
 import { MatchTimelineModal } from '#components/MatchTimelineModal';
+import {
+  StatPaginatorWidget,
+  useStatPaginatedFrame,
+} from '#components/StatPaginatorWidget';
 import { Divider } from '#components/Widget';
 import { defaultMatch } from '#flib/defaultStats';
 import { formatDate, formatDuration } from '#flib/sheetUtils';
@@ -19,7 +19,7 @@ export interface MatchStatsBaseProps {
 }
 
 export const MatchStatsBase: Component<MatchStatsBaseProps> = (props) => {
-  const stats = usePaginatedFrame();
+  const stats = useStatPaginatedFrame();
   const match = () => stats().match;
 
   createEffect(() => {
@@ -202,7 +202,8 @@ export const MatchStats: Component = () => {
   };
 
   return (
-    <MatchPaginatorWidget
+    <StatPaginatorWidget
+      statType="match"
       class={style.widget}
       topLeftLabels={'Match Stats'}
       bottomLeftLabels={[
@@ -214,6 +215,6 @@ export const MatchStats: Component = () => {
       ]}
     >
       <MatchStatsBase setMatch={setMatch} />
-    </MatchPaginatorWidget>
+    </StatPaginatorWidget>
   );
 };

@@ -2,13 +2,9 @@ import { A } from '@solidjs/router';
 import figlet from 'figlet';
 import smallSlant from 'figlet/fonts/Small Slant';
 import { createSignal, Match, Switch } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { AggregateStats } from '#components/AggregateStats';
 import { Break } from '#components/Break';
-import {
-  DayPaginatorWidget,
-  useDayPaginatedDeltaFrame,
-} from '#components/DayPaginatorWidget';
-import { DayStats } from '#components/DayStats';
+import { Dropdown } from '#components/Dropdown';
 import { GeneralStatCharts } from '#components/GeneralStatCharts';
 import { GeneralStats } from '#components/GeneralStats';
 import { InlineAction } from '#components/InlineAction';
@@ -16,14 +12,14 @@ import {
   EloLeaderboardBase,
   Glicko2LeaderboardBase,
 } from '#components/Leaderboard';
-import {
-  MatchPaginatorWidget,
-  usePaginatedDeltaFrame,
-} from '#components/MatchPaginatorWidget';
 import { MatchStats } from '#components/MatchStats';
 import { MundialCalculatorLink } from '#components/MundialCalculatorLink';
 import { RatingCharts } from '#components/RatingCharts';
-import { SeasonStats } from '#components/SeasonStats';
+import {
+  StatPaginatorWidget,
+  type StatType,
+  StatTypeOptions,
+} from '#components/StatPaginatorWidget';
 import { useConsoleUnitPrototype } from '#providers/ConsoleUnitPrototypeProvider';
 import style from './Homepage.module.scss';
 
@@ -32,17 +28,9 @@ figlet.parseFont('Small Slant', smallSlant);
 const Homepage: Component = () => {
   const [{ windowSize }] = useConsoleUnitPrototype();
 
-  const [aggregateStats, setAggregateStats] = createSignal(false);
+  const [leaderboardStatType, setLeaderboardStatType] =
+    createSignal<StatType>('match');
   const [statsPage, setStatsPage] = createSignal<'elo' | 'glicko2'>('elo');
-
-  const paginator = () => {
-    return aggregateStats()
-      ? { component: DayPaginatorWidget, useContext: useDayPaginatedDeltaFrame }
-      : {
-          component: MatchPaginatorWidget,
-          useContext: usePaginatedDeltaFrame,
-        };
-  };
 
   const logo = () =>
     figlet.textSync('Mundial Manager', {
@@ -72,27 +60,18 @@ const Homepage: Component = () => {
       <div class={style.dashboardContainer}>
         <div>
           <GeneralStats />
-          <SeasonStats />
-          <DayStats />
+          <AggregateStats />
           <MatchStats />
-          <Dynamic
-            component={paginator().component}
+          <StatPaginatorWidget
+            statType={leaderboardStatType()}
             class={style.statsWidget}
             topLeftLabels="Leaderboards"
             topRightLabels={[
-              <span
-                classList={{
-                  [style.label]: true,
-                  [style.activeStats]: aggregateStats(),
-                }}
-              >
-                <InlineAction
-                  symbol="a"
-                  content="A"
-                  onAction={() => setAggregateStats((v) => !v)}
-                />
-                ggregate
-              </span>,
+              <Dropdown
+                options={StatTypeOptions}
+                value={leaderboardStatType()}
+                onChange={setLeaderboardStatType}
+              />,
               <span
                 classList={{
                   [style.label]: true,
@@ -123,13 +102,13 @@ const Homepage: Component = () => {
           >
             <Switch>
               <Match when={statsPage() === 'elo'}>
-                <EloLeaderboardBase useContext={paginator().useContext} />
+                <EloLeaderboardBase />
               </Match>
               <Match when={statsPage() === 'glicko2'}>
-                <Glicko2LeaderboardBase useContext={paginator().useContext} />
+                <Glicko2LeaderboardBase />
               </Match>
             </Switch>
-          </Dynamic>
+          </StatPaginatorWidget>
         </div>
 
         <div>
