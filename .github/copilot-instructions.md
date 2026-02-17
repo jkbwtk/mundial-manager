@@ -1,75 +1,54 @@
-## General Guidelines
+## Project Architecture
 
-- Don't waste tokens on describing the task and actions you are performing, keep it concise
-- Use available context to understand the task
-- If you don't have enough context, ask for more information
-- Available scripts are defined in package.json
-- The development server is always running so don't suggest starting it
-- Pages are pregenerated so keep SSR compatibility in mind
-- Test pages are used to test components in isolation (consult ButtonTest, SheetsTest and other \*Test pages to get general idea)
+- `frontend/` is a SolidJS SSR app (see `frontend/entryServer.tsx`, `frontend/App.tsx`) hydrated on client via `frontend/entryClient.tsx`.
+- `backend/` is a standalone tRPC server (`backend/index.ts`) exposing `system` + `sheets` routers via `backend/routes/app.ts`.
+- Core data flow is Google Sheets-backed: `SheetStore` in `backend/SheetStore.ts` reads/writes sheet rows and emits `matchCreated` events.
+- Frontend state is provider-driven: `TRPCProvider` configures query/mutation/subscription links; `SheetsProvider` hydrates cache + subscribes to `sheets.onMatchAdded`.
+- Shared contracts live in `shared/types/*` (notably `shared/types/Sheets.ts` with Zod codecs for sheet date/duration encoding).
 
-## Coding standards
+## Runtime + Build Workflow
 
-- Avoid using emojis
-- Consult solidjs documentation
-- Don't use comments in the code
-- Don't create documentation
-- Use programming patterns and best practices
-- Write clean and maintainable code
-- Don't crease summary files for any tasks
-- Index files and scss module type declarations are generated automatically
-- Use best practices for solidjs
-- Component and ParentComponent types are defined globally
-- Minimize the use of side effects
-- Use only scss modules for styling.
-- Use onDestroy lifecycle method to clean up event listeners and other stuff that should be properly disposed of
-- Keep in mind that everything should be SSR compatible
-- Use solid-primitives where appropriate
-- If a page requires additional files like scss module it should be located in a dedicated folder with the same name as the page
-- When adding new pages update the routes.tsx file
-- Don't try to edit index.ts files, they are generated automatically
-- Don't provide edit summaries
-- Ignore typescript type errors regarding missing class names in scss modules, ask for typescript server restart if you want to make sure the types are defined correctly
+- Use scripts from `package.json`: `pnpm dev`, `pnpm build`, `pnpm prerender`, `pnpm preview`, `pnpm test`, `pnpm lint`.
+- Do not suggest starting a dev server unless asked; assume one is already running.
+- Production output is split: Vite builds client/server, Rollup builds backend (`rollup.config.js`), then prerender emits static pages (`tools/prerenderPages.ts`).
+- Keep SSR + prerender compatibility; avoid browser-only access outside guarded client lifecycle blocks.
+- tRPC is mounted at `/trpc` in both dev (`tools/devServer.ts`) and preview/static (`tools/staticServer.ts`).
 
-## UI Guidelines
+## Model Tool Usage
 
-- Entire gui is stylized to look like a terminal
-- Fonts and colors are defined in \_app.css
-- Every text has the same size
-- Everything should be aligned to the global grid
-- Use only the colors defined in \_app.css
-- Component sizes are defined in line heights and character widths
-- ch and cw functions are used to define sizes
-- Keep the design minimalistic and clean
-- Keep mobile responsiveness in mind
-- Widget component is used as generic container
-- Consult existing components for design patterns
-- Base component and page designs on terminal applications like btop, neofetch, nmtui
-- All containers should have transparent background so the acrylic effect is visible through them (unless they are supposed to be displayed on top of other containers)
-- Use css effects like blur where appropriate
-- Text that is supposed to update can be animated with AnimatedText component
-- Text that can overflow can be wrapped in TextMarquee component
-- MaterialSymbol component is used for icons, it uses Googles Material Symbols, supported symbols are defined in supportedMaterialSymbols.ts file, new symbols can be added there
-- Don't declare components as functions, use const with type Component or ParentComponent
-- Use transitions and animations especially for changing colors
-- Don't use elements like headers and paragraphs that impact page layout and font sizes
-- Font sizes should not be changed either explicitly or by default styles of html elements
-- Test pages should fill the entire screen
-- Make use of round function in css to make sure component widths and heights are always floored to character widths and line heights
-- Use ButtonTest page as an example of how to create test pages
-- Avoid using margins and paddings
-- Stick to the global grid for positioning and spacing of elements
-- Stick to the global grid when using borders
-- Don't use React patterns like condition && <Component /> for conditional rendering use <Show> component instead, same goes for lists use <For> component instead of map function and <Switch> component for multiple conditions instead of chained if else statements
-- Use classList instead of joining classes manually
-- Allow passing class to components and merging it with component's own classes using classList (check Button component for example on how to merge classes and other properties correctly)
-- Don't use camelCase in scss modules
-- Class names in scss modules are converted to camelCase so use camelCase when referencing them in typescript files
+- Start with targeted discovery: use file search + focused reads before editing; prioritize files already used by feature entry points (`frontend/routes.tsx`, providers, routers).
+- Prefer minimal diffs with `apply_patch`; keep changes scoped to requested behavior and existing patterns.
+- For UI work, inspect the closest `*Test` page first (for example `frontend/pages/WidgetTest/WidgetTest.tsx`, `frontend/pages/DropdownTest/DropdownTest.tsx`) before introducing new patterns.
+- Do not edit generated outputs (`**/index.ts`, `*.module.scss.d.ts`); update source files and let plugins regenerate.
+- Validate with project scripts when relevant (`pnpm lint`, `pnpm test`); avoid suggesting `pnpm dev` unless explicitly asked.
+- Preserve SSR safety during edits: guard browser APIs with lifecycle/client checks (`isServer`, `onMount`, `onCleanup`) as done in `Dropdown`, `Modal`, `TextMarquee`.
 
-## Libraries and Frameworks
+## Coding Conventions (Codebase-Specific)
 
-- Use SolidJS for building user interfaces
-- Use TypeScript for type safety and better developer experience
-- Use SCSS modules for styling components
-- Use Zod validator v4 (consult zod documentation for changes in this version compared to v3)
-- Use Chart.js for charts
+- Solid patterns only: use `<Show>`, `<For>`, `<Switch>/<Match>` instead of React-style conditionals/maps.
+- Define components as `const X: Component` / `ParentComponent`; keep side effects minimal and cleaned up (`onCleanup` / `onDestroy`).
+- Prefer `classList` merging pattern used in `frontend/components/Button/Button.tsx`.
+- Use path aliases (`#components`, `#pages`, `#backend`, `#shared`, etc.) from `tsconfig.json`/`vite.config.ts`.
+- Do not edit generated barrels (`index.ts`) or generated SCSS typings (`*.module.scss.d.ts`); plugins regenerate them.
+- Avoid code comments unless explicitly requested.
+
+## UI + Styling Rules
+
+- Use SCSS modules only; no inline styling systems.
+- Terminal-like design is intentional; base tokens/functions are in `frontend/styles/_app.scss` (`ch()`, `cw()`, color/font variables).
+- Character-unit sizing is runtime-driven by `ConsoleUnitPrototypeProvider`; prefer unit-based layout and avoid pixel-first sizing.
+- Keep layout on the character grid and use `round(...)` for snap-to-grid constraints (see `Homepage.module.scss`, `Table.module.scss`, `Modal.module.scss`).
+- Reuse primitives before creating new ones: `Widget`, `WidgetAlt`, `Divider`, `Modal`, `Button`, `Input`, `Dropdown`, `Table`, `MaterialSymbol`, `InlineAction`, `AnimatedText`, `TextMarquee`, `Break`.
+- `Widget` is the default framed container with label slots; prefer it for dashboard blocks and test pages.
+- `Dropdown` uses portal rendering + keyboard/typeahead/listbox ARIA behavior; preserve this accessibility behavior when modifying it.
+- `Modal` supports drag + narrow-screen fallback; preserve pointer/resize cleanup behavior.
+- Compose classes via `classList` merge style used across components (`Button`, `Widget`, `WidgetAlt`, `Input`, `Dropdown`, `Table`).
+- Keep acrylic background visibility in mind (containers are typically transparent unless explicitly modal/overlay).
+- Test and demo UI changes through existing `*Test` pages under `frontend/pages`; if adding a new test page, register it in `frontend/routes.tsx` under `/tests`.
+
+## Data + Integration Constraints
+
+- Backend env vars are required and validated in `backend/environment.ts` (`SERVER_PORT`, Google API email/key, spreadsheet ID).
+- `SheetStore` deduplicates matches by hash and uses cached cell loading; preserve this behavior when changing sheet write logic.
+- Match and replay payloads must conform to shared Zod schemas/codecs in `shared/types/Sheets.ts`.
+- For Sheets-related features, maintain compatibility with local-created-match cache behavior in `frontend/lib/sheetUtils.ts` + `SheetsProvider`.
