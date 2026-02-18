@@ -8,10 +8,9 @@ import {
   mergeProps,
   on,
   onCleanup,
-  Show,
   splitProps,
 } from 'solid-js';
-import { isServer, Portal } from 'solid-js/web';
+import { AnchoredPopup } from '#components/AnchoredPopup';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import { useConsoleUnitPrototype } from '#providers/ConsoleUnitPrototypeProvider';
 import style from './Dropdown.module.scss';
@@ -55,12 +54,10 @@ export const Dropdown: DropdownSignature = <T extends string = string>(
   const menuId = `${instanceId}-menu`;
   const triggerId = `${instanceId}-trigger`;
   const [open, setOpen] = createSignal(false);
-  const [menuStyle, setMenuStyle] = createSignal<JSX.CSSProperties>({});
   const [activeIndex, setActiveIndex] = createSignal(-1);
   const [typeaheadQuery, setTypeaheadQuery] = createSignal('');
 
   let triggerRef: HTMLButtonElement | undefined;
-  let menuRef: HTMLDivElement | undefined;
   let typeaheadTimeout: ReturnType<typeof setTimeout> | undefined;
   const optionRefs: Array<HTMLDivElement | undefined> = [];
   const typeaheadResetMs = 350;
@@ -83,59 +80,6 @@ export const Dropdown: DropdownSignature = <T extends string = string>(
   );
 
   const getOptionId = (index: number) => `${instanceId}-option-${index}`;
-
-  const updateMenuStyle = () => {
-    if (!triggerRef || !menuRef) return;
-
-    const rect = triggerRef.getBoundingClientRect();
-    const anchor = props.anchor;
-    const viewportHeight = document.documentElement.clientHeight;
-    const viewportWidth = document.documentElement.clientWidth;
-
-    const maxHeight = Number.parseFloat(getComputedStyle(menuRef).maxHeight);
-    const menuHeight = Math.min(
-      menuRef.scrollHeight,
-      Number.isFinite(maxHeight) && maxHeight > 0
-        ? maxHeight
-        : Number.POSITIVE_INFINITY,
-    );
-
-    const availableBelow = viewportHeight - rect.bottom - unit.height;
-    const availableAbove = rect.top - unit.height;
-
-    const shouldOpenAbove =
-      availableBelow < menuHeight &&
-      (availableAbove >= menuHeight || availableAbove > availableBelow);
-
-    const menuWidth = Math.max(
-      rect.width,
-      menuRef.getBoundingClientRect().width,
-    );
-
-    const anchorPositions = {
-      left: rect.left,
-      middle: rect.left + rect.width / 2 - menuWidth / 2,
-      right: rect.right - menuWidth,
-    } satisfies Record<DropdownAnchor, number>;
-
-    const unclampedLeft = anchorPositions[anchor];
-    const left = Math.min(
-      Math.max(unit.width, unclampedLeft),
-      Math.max(unit.width, viewportWidth - menuWidth - unit.width),
-    );
-
-    const unclampedTop = shouldOpenAbove ? rect.top - menuHeight : rect.bottom;
-    const top = Math.min(
-      Math.max(0, unclampedTop),
-      Math.max(0, viewportHeight - menuHeight),
-    );
-
-    setMenuStyle({
-      top: `${top}px`,
-      left: `${left}px`,
-      'min-width': `${rect.width}px`,
-    });
-  };
 
   const openMenu = (initialIndex = selectedIndex()) => {
     if (!canOpen()) return;
@@ -201,14 +145,8 @@ export const Dropdown: DropdownSignature = <T extends string = string>(
     closeMenu();
   };
 
-  const handleClickOutside = (ev: MouseEvent) => {
-    const path = ev.composedPath();
-    if (
-      (!triggerRef || !path.includes(triggerRef)) &&
-      (!menuRef || !path.includes(menuRef))
-    ) {
-      closeMenu(false);
-    }
+  const handleClickOutside = () => {
+    closeMenu(false);
   };
 
   const handleTriggerKeyDown = (ev: KeyboardEvent) => {
@@ -294,47 +232,6 @@ export const Dropdown: DropdownSignature = <T extends string = string>(
   };
 
   createEffect(
-    on(open, (isOpen) => {
-      if (isServer || !isOpen) return;
-
-      const observer =
-        typeof ResizeObserver !== 'undefined'
-          ? new ResizeObserver(() => {
-              updateMenuStyle();
-            })
-          : undefined;
-
-      requestAnimationFrame(() => {
-        updateMenuStyle();
-        menuRef?.focus();
-        triggerRef && observer?.observe(triggerRef);
-        menuRef && observer?.observe(menuRef);
-      });
-
-      document.addEventListener('pointerdown', handleClickOutside);
-      window.addEventListener('scroll', updateMenuStyle, true);
-      window.addEventListener('resize', updateMenuStyle);
-
-      return () => {
-        observer?.disconnect();
-        document.removeEventListener('pointerdown', handleClickOutside);
-        window.removeEventListener('scroll', updateMenuStyle, true);
-        window.removeEventListener('resize', updateMenuStyle);
-      };
-    }),
-  );
-
-  createEffect(
-    on([open, () => props.anchor, () => props.value], ([isOpen]) => {
-      if (isServer || !isOpen) return;
-
-      requestAnimationFrame(() => {
-        updateMenuStyle();
-      });
-    }),
-  );
-
-  createEffect(
     on([open, activeIndex], ([isOpen, index]) => {
       if (!isOpen || index < 0) return;
 
@@ -387,46 +284,44 @@ export const Dropdown: DropdownSignature = <T extends string = string>(
         </span>
       </button>
 
-      <Show when={open()}>
-        <Portal>
-          <div
-            ref={menuRef}
-            id={menuId}
-            role="listbox"
-            aria-labelledby={triggerId}
-            tabIndex={-1}
-            aria-activedescendant={
-              activeIndex() >= 0 ? getOptionId(activeIndex()) : undefined
-            }
-            class={style.menu}
-            style={menuStyle()}
-            onKeyDown={handleMenuKeyDown}
-          >
-            <For each={props.options}>
-              {(option, index) => (
-                <div
-                  ref={(el) => {
-                    optionRefs[index()] = el;
-                  }}
-                  id={getOptionId(index())}
-                  role="option"
-                  tabIndex={-1}
-                  aria-selected={option.value === props.value}
-                  classList={{
-                    [style.option]: true,
-                    [style.optionSelected]: option.value === props.value,
-                    [style.optionActive]: index() === activeIndex(),
-                  }}
-                  onPointerUp={() => selectOption(option.value)}
-                  onPointerEnter={() => setActiveIndex(index())}
-                >
-                  {option.label}
-                </div>
-              )}
-            </For>
-          </div>
-        </Portal>
-      </Show>
+      <AnchoredPopup
+        id={menuId}
+        role="listbox"
+        aria-labelledby={triggerId}
+        aria-activedescendant={
+          activeIndex() >= 0 ? getOptionId(activeIndex()) : undefined
+        }
+        class={style.menu}
+        open={open()}
+        triggerRef={() => triggerRef}
+        onClickOutside={handleClickOutside}
+        anchor={props.anchor}
+        matchTriggerWidth
+        onKeyDown={handleMenuKeyDown}
+      >
+        <For each={props.options}>
+          {(option, index) => (
+            <div
+              ref={(el) => {
+                optionRefs[index()] = el;
+              }}
+              id={getOptionId(index())}
+              role="option"
+              tabIndex={-1}
+              aria-selected={option.value === props.value}
+              classList={{
+                [style.option]: true,
+                [style.optionSelected]: option.value === props.value,
+                [style.optionActive]: index() === activeIndex(),
+              }}
+              onPointerUp={() => selectOption(option.value)}
+              onPointerEnter={() => setActiveIndex(index())}
+            >
+              {option.label}
+            </div>
+          )}
+        </For>
+      </AnchoredPopup>
     </div>
   );
 };

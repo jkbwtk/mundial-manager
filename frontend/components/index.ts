@@ -3,6 +3,7 @@
 
 export * from './AcrylicBackground';
 export * from './AggregateStats';
+export * from './AnchoredPopup';
 export * from './AnimatedText';
 export * from './AudioPlayer';
 export * from './BrailleChart';
@@ -39,5 +40,5 @@ export * from './RatingCharts';
 export * from './StatPaginatorWidget';
 export * from './Table';
 export * from './TextMarquee';
-export * from './WidgetAlt';
 export * from './Widget';
+export * from './WidgetAlt';

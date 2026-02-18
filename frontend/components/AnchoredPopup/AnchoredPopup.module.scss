@@ -1,0 +1,17 @@
+@use 'app' as *;
+
+.popup {
+  position: fixed;
+  z-index: 9000;
+
+  background-color: $backgroundColor;
+  border-radius: $borderRadius;
+
+  outline: 0;
+
+  box-shadow: inset 0 0 0 0.1rem $textDimColor;
+
+  &:focus {
+    outline: none;
+  }
+}
