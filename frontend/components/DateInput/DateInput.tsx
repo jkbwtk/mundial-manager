@@ -103,7 +103,7 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
   let calRef!: HTMLDivElement;
   let wrapRef!: HTMLSpanElement;
 
-  const [open, setOpen] = createSignal(true);
+  const [open, setOpen] = createSignal(false);
   const [focusIdx, setFocusIdx] = createSignal(-1);
 
   const [viewYear, setViewYear] = createSignal(
