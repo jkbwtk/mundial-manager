@@ -16,7 +16,12 @@
 }
 
 @mixin highlight($highlight) {
-  &:hover,
+  @media (hover: hover) {
+    &:hover {
+      color: $highlight;
+    }
+  }
+
   &:active,
   &:not(:not(.active)) {
     color: $highlight;
@@ -26,12 +31,14 @@
 @mixin interactive($highlight: false) {
   cursor: pointer;
 
-  &:hover,
-  &:active {
-    translate: 0 -0.2rem;
+  @media (hover: hover) {
+    &:hover {
+      translate: 0 -0.2rem;
+    }
   }
 
   &:active {
+    translate: 0 -0.2rem;
     @include symbolFont(1);
   }
 
