@@ -66,8 +66,19 @@ export const AnchoredPopup: ParentComponent<AnchoredPopupProps> = (
     if (!trigger || !popupRef) return;
 
     const triggerRect = trigger.getBoundingClientRect();
-    const viewportHeight = document.documentElement.clientHeight;
-    const viewportWidth = document.documentElement.clientWidth;
+
+    const vv = window.visualViewport;
+    const viewportHeight = vv
+      ? vv.height
+      : document.documentElement.clientHeight;
+    const viewportWidth = vv ? vv.width : document.documentElement.clientWidth;
+    const vpOffsetLeft = vv ? vv.offsetLeft : 0;
+    const vpOffsetTop = vv ? vv.offsetTop : 0;
+
+    const triggerLeft = triggerRect.left + vpOffsetLeft;
+    const triggerRight = triggerRect.right + vpOffsetLeft;
+    const triggerTop = triggerRect.top + vpOffsetTop;
+    const triggerBottom = triggerRect.bottom + vpOffsetTop;
 
     const maxHeightRaw = Number.parseFloat(
       getComputedStyle(popupRef).maxHeight,
@@ -91,23 +102,24 @@ export const AnchoredPopup: ParentComponent<AnchoredPopupProps> = (
     );
 
     const anchorX = {
-      left: triggerRect.left,
-      middle: triggerRect.left + triggerRect.width / 2 - popupWidth / 2,
-      right: triggerRect.right - popupWidth,
+      left: triggerLeft,
+      middle: triggerLeft + triggerRect.width / 2 - popupWidth / 2,
+      right: triggerRight - popupWidth,
     } satisfies Record<AnchoredPopupAnchor, number>;
 
     const rawLeft = anchorX[props.anchor];
     const left = Math.min(
-      Math.max(unit.width, rawLeft),
-      Math.max(unit.width, viewportWidth - popupWidth - unit.width),
+      Math.max(vpOffsetLeft + unit.width, rawLeft),
+      Math.max(
+        vpOffsetLeft + unit.width,
+        vpOffsetLeft + viewportWidth - popupWidth - unit.width,
+      ),
     );
 
-    const rawTop = openAbove
-      ? triggerRect.top - popupHeight
-      : triggerRect.bottom;
+    const rawTop = openAbove ? triggerTop - popupHeight : triggerBottom;
     const top = Math.min(
-      Math.max(0, rawTop),
-      Math.max(0, viewportHeight - popupHeight),
+      Math.max(vpOffsetTop, rawTop),
+      Math.max(vpOffsetTop, vpOffsetTop + viewportHeight - popupHeight),
     );
 
     Object.assign(popupRef.style, {
@@ -149,12 +161,22 @@ export const AnchoredPopup: ParentComponent<AnchoredPopupProps> = (
         document.addEventListener('pointerdown', handleClickOutside);
         window.addEventListener('scroll', updatePopupStyle, true);
         window.addEventListener('resize', updatePopupStyle);
+        window.visualViewport?.addEventListener('scroll', updatePopupStyle);
+        window.visualViewport?.addEventListener('resize', updatePopupStyle);
 
         onCleanup(() => {
           observer?.disconnect();
           document.removeEventListener('pointerdown', handleClickOutside);
           window.removeEventListener('scroll', updatePopupStyle, true);
           window.removeEventListener('resize', updatePopupStyle);
+          window.visualViewport?.removeEventListener(
+            'scroll',
+            updatePopupStyle,
+          );
+          window.visualViewport?.removeEventListener(
+            'resize',
+            updatePopupStyle,
+          );
         });
       },
     ),
