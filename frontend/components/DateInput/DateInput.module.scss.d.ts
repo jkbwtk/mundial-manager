@@ -1,0 +1,15 @@
+export declare const calendar: string;
+export declare const dateInput: string;
+export declare const day: string;
+export declare const dayCell: string;
+export declare const dayName: string;
+export declare const focused: string;
+export declare const grid: string;
+export declare const header: string;
+export declare const invalid: string;
+export declare const month: string;
+export declare const otherMonth: string;
+export declare const selected: string;
+export declare const title: string;
+export declare const today: string;
+export declare const year: string;

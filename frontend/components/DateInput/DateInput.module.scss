@@ -1,0 +1,147 @@
+@use 'app' as *;
+@use 'sass:color';
+
+.date-input {
+  &::before {
+    content: '[';
+
+    font-weight: bold;
+  }
+
+  &::after {
+    content: ']';
+
+    font-weight: bold;
+  }
+
+  &:has(input:disabled) {
+    %date-input {
+      color: $textDimColor;
+    }
+
+    &::before {
+      content: '|';
+    }
+
+    &::after {
+      content: '|';
+    }
+  }
+
+  &.invalid {
+    %date-input {
+      color: $red;
+    }
+
+    &::before {
+      color: $red;
+    }
+
+    &::after {
+      color: $red;
+    }
+  }
+}
+
+%date-input {
+  background-color: transparent;
+  color: $textBrightColor;
+
+  border: none;
+  outline: none;
+
+  padding: 0;
+  margin: 0;
+
+  font-family: inherit;
+
+  text-align: center;
+}
+
+.year,
+.month,
+.day {
+  @extend %date-input;
+}
+
+.year {
+  width: cw(4);
+}
+
+.month,
+.day {
+  width: cw(2);
+}
+
+.calendar {
+  .header {
+    display: flex;
+    width: 100%;
+
+    gap: cw(1);
+    padding: 0 cw(1);
+
+    background-color: $textBrightColor;
+    border-radius: $borderRadius $borderRadius 0 0;
+
+    .title {
+      flex-grow: 1;
+
+      text-align: center;
+
+      color: $backgroundColor;
+    }
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(7, cw(4));
+
+    @mixin weekend-color($color: $red) {
+      &:nth-child(7n),
+      &:nth-child(7n - 1) {
+        color: $color;
+      }
+    }
+
+    text-align: center;
+
+    .day-name {
+      @include weekend-color(color.scale($red, $lightness: -30%));
+
+      color: $textDimColor;
+    }
+
+    .day-cell {
+      width: cw(4);
+
+      @include weekend-color();
+
+      &.other-month {
+        @include weekend-color(color.scale($red, $lightness: -50%));
+
+        color: $textDimColor;
+      }
+
+      &.selected {
+        color: $textBrightColor;
+
+        &:not(.focused) {
+          background-color: $primaryColor;
+          border-radius: $borderRadius;
+        }
+      }
+
+      &.today {
+        color: $yellow;
+      }
+
+      &.focused {
+        outline: $primaryColor solid $borderSize;
+        outline-offset: -$borderSize;
+
+        border-radius: $borderRadius;
+      }
+    }
+  }
+}

@@ -1,4 +1,6 @@
 import { createSignal } from 'solid-js';
+import { Break } from '#components/Break';
+import { DateInput } from '#components/DateInput';
 import { Input } from '#components/Input';
 import { Divider, Widget } from '#components/Widget';
 import style from './InputTest.module.scss';
@@ -9,7 +11,7 @@ export const InputTest: Component = () => {
   const [passwordValue, setPasswordValue] = createSignal('secret123');
   const [numberValue, setNumberValue] = createSignal('42');
   const [searchValue, setSearchValue] = createSignal('search term');
-  const [dateValue, setDateValue] = createSignal('2025-09-25');
+  const [dateValue, setDateValue] = createSignal<Date | null>(null);
   const [rangeValue, setRangeValue] = createSignal('75');
 
   return (
@@ -58,11 +60,23 @@ export const InputTest: Component = () => {
           onInput={(e) => setEmailValue(e.currentTarget.value)}
           placeholder="user@example.com"
         />{' '}
+        <Divider />
         Date input:{' '}
-        <Input
-          type="date"
+        <DateInput value={dateValue()} onInput={(v) => setDateValue(v)} /> Date
+        value: {dateValue()?.toISOString() ?? 'None'}
+        <Break />
+        Disabled date input:{' '}
+        <DateInput
           value={dateValue()}
-          onInput={(e) => setDateValue(e.currentTarget.value)}
+          onInput={(v) => setDateValue(v)}
+          disabled
+        />
+        <Break />
+        Invalid date input:{' '}
+        <DateInput
+          value={dateValue()}
+          onInput={(v) => setDateValue(v)}
+          invalid
         />
         <Divider />
         Range input:{' '}

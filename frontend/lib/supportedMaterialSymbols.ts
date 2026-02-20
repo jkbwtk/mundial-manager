@@ -32,6 +32,11 @@ export const SupportedMaterialSymbol = [
   'keyboard_arrow_up',
   'arrow_drop_down',
   'arrow_drop_up',
+  'calendar_month',
+  'keyboard_arrow_left',
+  'keyboard_arrow_right',
+  'keyboard_double_arrow_left',
+  'keyboard_double_arrow_right',
 ] as const;
 
 export type SupportedMaterialSymbol = (typeof SupportedMaterialSymbol)[number];
