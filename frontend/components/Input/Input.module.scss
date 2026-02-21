@@ -30,7 +30,8 @@
 .password,
 .search,
 .email,
-.number {
+.number,
+.file {
   &::before {
     content: '[';
 
@@ -150,6 +151,40 @@
     }
   }
 }
+
+.file {
+  @extend %label-disabled;
+
+  cursor: pointer;
+
+  input {
+    color: $textDimColor;
+
+    &::file-selector-button {
+      cursor: pointer;
+
+      background: transparent;
+      border: none;
+      border-right: $borderSize solid $textDimColor;
+
+      color: $textBrightColor;
+      font: inherit;
+
+      padding: 0 cw(1) 0 0;
+      margin-right: cw(1);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+
+      &::file-selector-button {
+        cursor: not-allowed;
+        color: $textDimColor;
+      }
+    }
+  }
+}
+
 .range {
   @extend %label-disabled;
 

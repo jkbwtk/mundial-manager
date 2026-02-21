@@ -1,4 +1,5 @@
 export declare const email: string;
+export declare const file: string;
 export declare const input: string;
 export declare const invalid: string;
 export declare const number: string;
