@@ -16,6 +16,7 @@ export * from './DayStats';
 export * from './DeltaDisplay';
 export * from './DevGrid';
 export * from './Dropdown';
+export * from './EChartWrapper';
 export * from './FilePicker';
 export * from './FileSizeWithUnit';
 export * from './FileTree';
