@@ -1,6 +1,13 @@
 @use 'app' as *;
 @use 'sass:color';
 
+%label-disabled {
+  &:has(input:disabled) {
+    cursor: not-allowed;
+    color: $textDimColor;
+  }
+}
+
 .input {
   input {
     background-color: transparent;
@@ -88,31 +95,25 @@
 .number {
   input {
     text-align: right;
+
+    appearance: textfield;
   }
 
   input::-webkit-inner-spin-button,
   input::-webkit-outer-spin-button {
     -webkit-appearance: none;
-    margin: 0;
-  }
-
-  input {
-    appearance: textfield;
   }
 }
 
 .radio {
+  @extend %label-disabled;
+
   cursor: pointer;
 
   @media (hover: hover) {
     &:hover {
       color: $textBrightColor;
     }
-  }
-
-  &:has(input:disabled) {
-    cursor: not-allowed;
-    color: $textDimColor;
   }
 
   input {
@@ -136,19 +137,95 @@
     &:checked::before {
       content: '(*)';
       color: $textBrightColor;
-      font-weight: bold;
     }
 
     &:disabled::before {
       content: '| |';
       color: $textDimColor;
-      font-weight: bold;
     }
 
     &:disabled:checked::before {
       content: '|*|';
       color: $textDimColor;
-      font-weight: bold;
+    }
+  }
+}
+.range {
+  @extend %label-disabled;
+
+  cursor: pointer;
+
+  &::before {
+    content: '<';
+
+    font-weight: bold;
+  }
+
+  &::after {
+    content: '>';
+
+    font-weight: bold;
+  }
+
+  input {
+    appearance: none;
+
+    vertical-align: middle;
+
+    position: relative;
+    top: calc(#{$borderSize} / -2);
+
+    cursor: pointer;
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+
+    &::-webkit-slider-runnable-track {
+      height: $borderSize;
+
+      background: $textDimColor;
+    }
+
+    &::-moz-range-track {
+      height: $borderSize;
+
+      background: $textDimColor;
+
+      border: none;
+    }
+
+    &::-webkit-slider-thumb {
+      appearance: none;
+
+      width: cw(1);
+      height: ch(1);
+
+      background: $textBrightColor;
+
+      margin-top: calc(ch(0.5) * -1 + #{$borderSize} / 2);
+
+      border-radius: $borderRadius;
+    }
+
+    &::-moz-range-thumb {
+      width: cw(1);
+      height: ch(1);
+
+      background: $textBrightColor;
+
+      border: none;
+      border-radius: $borderRadius;
+    }
+
+    &:disabled {
+      &::-webkit-slider-thumb {
+        background: $textDimColor;
+      }
+
+      &::-moz-range-thumb {
+        background: $textDimColor;
+      }
     }
   }
 }

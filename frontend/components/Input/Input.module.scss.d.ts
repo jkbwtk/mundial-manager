@@ -6,5 +6,6 @@ export declare const overflowLeft: string;
 export declare const overflowRight: string;
 export declare const password: string;
 export declare const radio: string;
+export declare const range: string;
 export declare const search: string;
 export declare const text: string;
