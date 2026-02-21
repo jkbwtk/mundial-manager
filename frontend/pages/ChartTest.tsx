@@ -1,6 +1,6 @@
-import { createEffect, createSignal } from 'solid-js';
+import { createEffect, createSignal, onCleanup } from 'solid-js';
 import { BrailleChart } from '#components/BrailleChart';
-import { ChartWrapper } from '#components/ChartWrapper';
+import { type ChartOptions, EChartWrapper } from '#components/EChartWrapper';
 import { Widget } from '#components/Widget';
 
 const ChartTest: Component = () => {
@@ -16,7 +16,7 @@ const ChartTest: Component = () => {
       );
     }, 2000);
 
-    return () => clearInterval(interval);
+    onCleanup(() => clearInterval(interval));
   });
 
   createEffect(() => {
@@ -28,137 +28,80 @@ const ChartTest: Component = () => {
       ]);
     }, 5000);
 
-    return () => clearInterval(interval);
+    onCleanup(() => clearInterval(interval));
   });
 
-  const lineData = () => ({
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-    datasets: [
+  const lineChartConfig = (): ChartOptions => ({
+    legend: {},
+    xAxis: {
+      type: 'category',
+      data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    },
+    yAxis: { type: 'value' },
+    series: [
       {
-        label: 'ELO Rating',
+        name: 'ELO Rating',
+        type: 'line',
         data: animatedData(),
-        borderColor: '#00ff00',
-        backgroundColor: 'rgba(0, 255, 0, 0.1)',
-        tension: 0.1,
-        pointBackgroundColor: '#00ff00',
-        pointBorderColor: '#ffffff',
+        smooth: true,
       },
       {
-        label: 'Team Average',
+        name: 'Team Average',
+        type: 'line',
         data: [1180, 1220, 1200, 1280, 1260, 1300],
-        borderColor: '#ff6b35',
-        backgroundColor: 'rgba(255, 107, 53, 0.1)',
-        tension: 0.1,
-        pointBackgroundColor: '#ff6b35',
-        pointBorderColor: '#ffffff',
+        smooth: true,
       },
     ],
+    tooltip: { trigger: 'axis' },
   });
 
-  const barData = () => ({
-    labels: ['Wins', 'Draws', 'Losses'],
-    datasets: [
+  const barChartConfig = (): ChartOptions => ({
+    xAxis: { type: 'category', data: ['Wins', 'Draws', 'Losses'] },
+    yAxis: { type: 'value' },
+    series: [
       {
-        label: 'Match Results',
+        name: 'Match Results',
+        type: 'bar',
         data: barValues(),
-        backgroundColor: ['#00ff00', '#ffff00', '#ff0000'],
-        borderColor: '#ffffff',
-        borderWidth: 1,
       },
     ],
+    tooltip: { trigger: 'axis' },
   });
 
-  const chartOptions = () => ({
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      y: {
-        beginAtZero: true,
-        grid: {
-          color: 'rgba(255, 255, 255, 0.1)',
-        },
-        ticks: {
-          color: '#ffffff',
-        },
+  const doughnutChartConfig = (): ChartOptions => ({
+    legend: { bottom: 0 },
+    tooltip: { trigger: 'item' },
+    series: [
+      {
+        name: 'Match Results',
+        type: 'pie',
+        radius: ['40%', '70%'],
+        data: [
+          { name: 'Wins', value: barValues()[0] },
+          { name: 'Draws', value: barValues()[1] },
+          { name: 'Losses', value: barValues()[2] },
+        ],
       },
-      x: {
-        grid: {
-          color: 'rgba(255, 255, 255, 0.1)',
-        },
-        ticks: {
-          color: '#ffffff',
-        },
-      },
-    },
-    plugins: {
-      legend: {
-        labels: {
-          color: '#ffffff',
-        },
-      },
-    },
-  });
-
-  const lineConfig = () => ({
-    type: 'line' as const,
-    data: lineData(),
-    options: chartOptions(),
-  });
-
-  const barConfig = () => ({
-    type: 'bar' as const,
-    data: barData(),
-    options: chartOptions(),
-  });
-
-  const doughnutConfig = () => ({
-    type: 'doughnut' as const,
-    data: {
-      labels: ['Wins', 'Draws', 'Losses'],
-      datasets: [
-        {
-          data: barValues(),
-          backgroundColor: ['#00ff00', '#ffff00', '#ff0000'],
-          borderColor: '#ffffff',
-          borderWidth: 2,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'bottom' as const,
-          labels: {
-            color: '#ffffff',
-            padding: 20,
-          },
-        },
-      },
-    },
+    ],
   });
 
   return (
     <div style="display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 20px; height: 100vh; padding: 20px;">
-      <Widget topLeftLabels="Animated Line Chart (Chart.js)">
-        <div style="height: 300px;">
-          <ChartWrapper
-            config={lineConfig()}
-            onChartReady={(chart) => console.log('Line chart ready:', chart)}
-          />
+      <Widget topLeftLabels="Animated Line Chart (Echarts)">
+        <div style="height: 100%;">
+          <EChartWrapper config={lineChartConfig()} />
         </div>
       </Widget>
 
-      <Widget topLeftLabels="Bar Chart (Chart.js)">
-        <div style="height: 300px;">
-          <ChartWrapper config={barConfig()} />
+      <Widget topLeftLabels="Bar Chart (Echarts)">
+        <div style="height: 100%;">
+          <EChartWrapper config={barChartConfig()} />
         </div>
       </Widget>
 
-      <Widget topLeftLabels="Doughnut Chart (Chart.js)">
-        <div style="height: 300px;">
-          <ChartWrapper config={doughnutConfig()} />
+      <Widget topLeftLabels="Doughnut Chart (Echarts)">
+        <div style="height: 100%;">
+          <EChartWrapper config={doughnutChartConfig()} />
         </div>
       </Widget>
 
