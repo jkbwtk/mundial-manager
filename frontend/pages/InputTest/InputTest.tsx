@@ -10,7 +10,7 @@ export const InputTest: Component = () => {
   const [emailValue, setEmailValue] = createSignal('user@example.com');
   const [passwordValue, setPasswordValue] = createSignal('secret123');
   const [numberValue, setNumberValue] = createSignal('42');
-  const [searchValue, setSearchValue] = createSignal('search term');
+  const [invalidValue, setInvalidValue] = createSignal('test');
   const [dateValue, setDateValue] = createSignal<Date | null>(null);
   const [rangeValue, setRangeValue] = createSignal('75');
 
@@ -25,15 +25,16 @@ export const InputTest: Component = () => {
           placeholder="Enter text..."
         />
         <Divider />
-        Secondary input:{' '}
+        Invalid input:{' '}
         <Input
-          value={searchValue()}
-          onInput={(e) => setSearchValue(e.currentTarget.value)}
-          placeholder="Search..."
-          type="search"
+          value={invalidValue()}
+          onInput={(e) => setInvalidValue(e.currentTarget.value)}
+          placeholder="Invalid..."
+          type="text"
+          invalid
         />
         <Divider />
-        Danger input:{' '}
+        Password input:{' '}
         <Input
           value={passwordValue()}
           onInput={(e) => setPasswordValue(e.currentTarget.value)}

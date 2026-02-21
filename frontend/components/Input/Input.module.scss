@@ -1,20 +1,105 @@
 @use 'app' as *;
+@use 'sass:color';
 
 .input {
+  input {
+    background-color: transparent;
+
+    border: none;
+    outline: none;
+
+    padding: 0;
+    margin: 0;
+
+    font-family: inherit;
+  }
+
+  input::placeholder {
+    color: $textDimColor;
+  }
+}
+
+.text,
+.password,
+.search,
+.email,
+.number {
+  &::before {
+    content: '[';
+
+    font-weight: bold;
+  }
+
+  &::after {
+    content: ']';
+
+    font-weight: bold;
+  }
+
+  &:has(input:disabled) {
+    &::before {
+      content: '|';
+    }
+
+    &::after {
+      content: '|';
+    }
+  }
+
+  &.invalid {
+    &::before {
+      color: $red;
+    }
+
+    &::after {
+      color: $red;
+    }
+
+    input {
+      color: $red;
+
+      &::placeholder {
+        color: color.scale($red, $lightness: -30%);
+      }
+    }
+  }
+
+  &.overflow-left {
+    &::before {
+      content: '⟪';
+    }
+  }
+
+  &.overflow-right {
+    &::after {
+      content: '⟫';
+    }
+  }
+
+  input {
+    color: $textBrightColor;
+
+    &:disabled {
+      color: $textDimColor;
+    }
+  }
+}
+
+.radio {
   cursor: pointer;
 
-  &:has(input[type='radio']) {
+  @media (hover: hover) {
     &:hover {
       color: $textBrightColor;
     }
   }
 
-  &:has(input[type='radio']:disabled) {
+  &:has(input:disabled) {
     cursor: not-allowed;
     color: $textDimColor;
   }
 
-  input[type='radio'] {
+  input {
     margin: 0;
 
     appearance: none;

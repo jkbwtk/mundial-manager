@@ -1,1 +1,10 @@
+export declare const email: string;
 export declare const input: string;
+export declare const invalid: string;
+export declare const number: string;
+export declare const overflowLeft: string;
+export declare const overflowRight: string;
+export declare const password: string;
+export declare const radio: string;
+export declare const search: string;
+export declare const text: string;
