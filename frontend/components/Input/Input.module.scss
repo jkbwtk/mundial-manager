@@ -85,6 +85,22 @@
   }
 }
 
+.number {
+  input {
+    text-align: right;
+  }
+
+  input::-webkit-inner-spin-button,
+  input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input {
+    appearance: textfield;
+  }
+}
+
 .radio {
   cursor: pointer;
 
