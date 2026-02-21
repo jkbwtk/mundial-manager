@@ -31,6 +31,10 @@
   &.invalid {
     %date-input {
       color: $red;
+
+      &::placeholder {
+        color: color.scale($red, $lightness: -30%);
+      }
     }
 
     &::before {
