@@ -52,7 +52,7 @@ export type AxisTooltipParams = CallbackDataParams & { axisValue?: string };
 
 export const defaultCategoryAxis = {
   type: 'category' as const,
-  axisLabel: { rotate: 30, hideOverlap: true, interval: 0, margin: 14 },
+  axisLabel: { rotate: 50, hideOverlap: true, margin: 14 },
   axisTick: { show: false },
 };
 
