@@ -19,6 +19,10 @@ import {
 import type { ECharts } from 'echarts/core';
 import * as echarts from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
+import type {
+  CallbackDataParams,
+  TopLevelFormatterParams,
+} from 'echarts/types/dist/shared';
 import { createEffect, createMemo, onCleanup, onMount } from 'solid-js';
 import { defaultTheme } from '#flib/chartTheme';
 
@@ -41,6 +45,44 @@ export interface EChartWrapperProps {
   classList?: Record<string, boolean>;
   onChartReady?: (chart: ECharts) => void;
 }
+
+export type { CallbackDataParams, TopLevelFormatterParams };
+
+export type AxisTooltipParams = CallbackDataParams & { axisValue?: string };
+
+export const defaultCategoryAxis = {
+  type: 'category' as const,
+  axisLabel: { rotate: 30, hideOverlap: true, interval: 0, margin: 14 },
+  axisTick: { show: false },
+};
+
+export const defaultValueAxis = {
+  type: 'value' as const,
+  axisTick: { show: false },
+};
+
+export const axisTooltipDefaults = {
+  trigger: 'axis' as const,
+  appendToBody: true,
+};
+export const itemTooltipDefaults = {
+  trigger: 'item' as const,
+  appendToBody: true,
+};
+
+export const pieSeriesDefaults = {
+  type: 'pie' as const,
+  radius: '65%',
+  center: ['50%', '58%'] as [string, string],
+  label: { show: false },
+  labelLine: { show: false },
+};
+
+export const formatPieTooltip = (params: TopLevelFormatterParams): string => {
+  const p = Array.isArray(params) ? params[0] : params;
+  if (!p) return '';
+  return `${p.marker}${p.name}: ${(p.percent as number | undefined)?.toFixed(1) ?? 0}% (${p.value})`;
+};
 
 echarts.registerTheme('default', defaultTheme);
 

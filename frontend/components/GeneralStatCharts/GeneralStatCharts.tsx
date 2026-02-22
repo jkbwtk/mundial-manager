@@ -1,5 +1,17 @@
-import type { ChartConfiguration } from 'chart.js/auto';
-import { createMemo, lazy } from 'solid-js';
+import { createMemo } from 'solid-js';
+
+import {
+  type AxisTooltipParams,
+  axisTooltipDefaults,
+  type ChartOptions,
+  defaultCategoryAxis,
+  defaultValueAxis,
+  EChartWrapper,
+  formatPieTooltip,
+  itemTooltipDefaults,
+  pieSeriesDefaults,
+  type TopLevelFormatterParams,
+} from '#components/EChartWrapper';
 import { Widget } from '#components/Widget';
 import { formatDuration } from '#flib/sheetUtils';
 import { getTeamColor } from '#flib/teamColors';
@@ -7,9 +19,14 @@ import { useSheets } from '#providers/SheetsProvider';
 import variables from '#styles/variables.module.scss';
 import style from './GeneralStatCharts.module.scss';
 
-const ChartWrapper = lazy(() =>
-  import('#components/ChartWrapper').then((c) => ({ default: c.ChartWrapper })),
-);
+const makePieConfig = (
+  name: string,
+  data: { name: string; value: number; itemStyle: { color: string } }[],
+): ChartOptions => ({
+  legend: { top: '5%' },
+  tooltip: { ...itemTooltipDefaults, formatter: formatPieTooltip },
+  series: [{ ...pieSeriesDefaults, name, data }],
+});
 
 export const GeneralStatCharts: Component = () => {
   const [sheets, { matchStats, dayStats, latest }] = useSheets();
@@ -22,177 +39,103 @@ export const GeneralStatCharts: Component = () => {
     Object.values(matchStats()).map((s) => s.label),
   );
 
-  const matchesPerDayChartConfig = createMemo((): ChartConfiguration => {
-    const days = Object.values(dayStats());
+  const matchesPerDayChartConfig = createMemo(
+    (): ChartOptions => ({
+      tooltip: { ...axisTooltipDefaults },
+      grid: { containLabel: true },
+      xAxis: { ...defaultCategoryAxis, data: dayLabels() },
+      yAxis: { ...defaultValueAxis },
+      series: [
+        {
+          name: 'Matches Per Day',
+          type: 'bar',
+          data: Object.values(dayStats()).map((d) => d.matches),
+          itemStyle: { color: variables.primaryColor },
+        },
+      ],
+    }),
+  );
 
-    return {
-      type: 'bar',
-      data: {
-        labels: dayLabels(),
-        datasets: [
-          {
-            label: 'Matches Per Day',
-            data: days.map((d) => d.matches),
-            backgroundColor: variables.primaryColor,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-      },
-    };
-  });
-
-  const matchesPerFloorChartConfig = createMemo((): ChartConfiguration => {
+  const matchesPerFloorChartConfig = createMemo((): ChartOptions => {
     const count = latest().generalStats.floorMatchCount;
-
-    return {
-      type: 'pie',
-      data: {
-        labels: Object.keys(count).map((floor) => `Floor ${floor}`),
-        datasets: [
-          {
-            label: 'Matches Per Floor',
-            data: Object.values(count),
-            backgroundColor: [
-              variables.green,
-              variables.yellow,
-              variables.red,
-              variables.blue,
-            ],
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          tooltip: {
-            callbacks: {
-              label: (context) => {
-                const total = context.dataset.data.reduce(
-                  (acc, val) => Number(acc) + Number(val),
-                  0,
-                );
-
-                // @ts-expect-error
-                const percent = (context.raw / total) * 100;
-
-                const label = context.dataset.label;
-                return `${label}: ${percent.toFixed(2)}% (${context.raw})`;
-              },
-            },
-          },
+    return makePieConfig(
+      'Matches Per Floor',
+      Object.entries(count).map(([floor, val], i) => ({
+        name: `Floor ${floor}`,
+        value: val,
+        itemStyle: {
+          color: [
+            variables.green,
+            variables.yellow,
+            variables.red,
+            variables.blue,
+          ][i],
         },
-      },
-    };
+      })),
+    );
   });
 
-  const winsPerColorChartConfig = createMemo((): ChartConfiguration => {
+  const winsPerColorChartConfig = createMemo((): ChartOptions => {
     const count = latest().generalStats.colorWinCount;
-
-    return {
-      type: 'pie',
-      data: {
-        labels: Object.keys(count),
-        datasets: [
-          {
-            label: 'Wins Per Color',
-            data: Object.values(count),
-            backgroundColor: Object.keys(count).map((color) =>
-              getTeamColor(color),
-            ),
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          tooltip: {
-            callbacks: {
-              label: (context) => {
-                const total = context.dataset.data.reduce(
-                  (acc, value, index) => {
-                    const visible = context.chart.getDataVisibility(index);
-                    return visible ? Number(acc) + Number(value) : acc;
-                  },
-                  0,
-                );
-
-                // @ts-expect-error
-                const percent = (context.raw / total) * 100;
-
-                const label = context.dataset.label;
-                return `${label}: ${percent.toFixed(2)}% (${context.raw})`;
-              },
-            },
-          },
-        },
-      },
-    };
+    return makePieConfig(
+      'Wins Per Color',
+      Object.entries(count).map(([color, val]) => ({
+        name: color,
+        value: val,
+        itemStyle: { color: getTeamColor(color) },
+      })),
+    );
   });
 
-  const matchDurationConfig = createMemo((): ChartConfiguration => {
-    return {
-      type: 'bar',
-      data: {
-        labels: matchLabels(),
-
-        datasets: [
-          {
-            label: 'Match Duration',
-            data: sheets.matches.map((m) => m.duration),
-            backgroundColor: variables.primaryColor,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            ticks: {
-              callback: (value) => formatDuration(Number(value)),
-            },
-          },
-        },
-        plugins: {
-          tooltip: {
-            callbacks: {
-              label: (context) => {
-                const label = context.dataset.label;
-                const value = formatDuration(Number(context.parsed.y));
-                return `${label}: ${value}`;
-              },
-            },
-          },
+  const matchDurationConfig = createMemo(
+    (): ChartOptions => ({
+      tooltip: {
+        ...axisTooltipDefaults,
+        formatter: (params: TopLevelFormatterParams) => {
+          const p = (
+            Array.isArray(params) ? params[0] : params
+          ) as AxisTooltipParams;
+          if (!p) return '';
+          return `${p.axisValue ?? p.name}<br/>${p.marker}${p.seriesName}: ${formatDuration(p.value as number)}`;
         },
       },
-    };
-  });
+      grid: { containLabel: true },
+      xAxis: { ...defaultCategoryAxis, data: matchLabels() },
+      yAxis: {
+        ...defaultValueAxis,
+        axisLabel: { formatter: (val: number) => formatDuration(val) },
+      },
+      series: [
+        {
+          name: 'Match Duration',
+          type: 'bar',
+          data: sheets.matches.map((m) => m.duration),
+          itemStyle: { color: variables.primaryColor },
+        },
+      ],
+    }),
+  );
 
   return (
     <div class={style.chartsContainer}>
       <div class={style.multiChartRow}>
         <Widget topLeftLabels="Matches Per Day" class={style.chart}>
-          <ChartWrapper config={matchesPerDayChartConfig()} />
+          <EChartWrapper config={matchesPerDayChartConfig()} />
         </Widget>
 
         <div class={style.pieChartContainer}>
           <Widget topLeftLabels="Matches Per Floor" class={style.pieChart}>
-            <ChartWrapper config={matchesPerFloorChartConfig()} />
+            <EChartWrapper config={matchesPerFloorChartConfig()} />
           </Widget>
 
           <Widget topLeftLabels="Wins Per Color" class={style.pieChart}>
-            <ChartWrapper config={winsPerColorChartConfig()} />
+            <EChartWrapper config={winsPerColorChartConfig()} />
           </Widget>
         </div>
       </div>
 
       <Widget topLeftLabels="Match Duration" class={style.chart}>
-        <ChartWrapper config={matchDurationConfig()} />
+        <EChartWrapper config={matchDurationConfig()} />
       </Widget>
     </div>
   );

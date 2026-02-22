@@ -1,13 +1,18 @@
-import type { ChartConfiguration } from 'chart.js';
-import { createMemo, lazy } from 'solid-js';
+import { createMemo, For } from 'solid-js';
+
+import {
+  type AxisTooltipParams,
+  axisTooltipDefaults,
+  type ChartOptions,
+  defaultCategoryAxis,
+  defaultValueAxis,
+  EChartWrapper,
+  type TopLevelFormatterParams,
+} from '#components/EChartWrapper';
 import { Widget } from '#components/Widget';
 import { generateTeamColor } from '#flib/sheetUtils';
 import { useSheets } from '#providers/SheetsProvider';
 import style from './RatingChats.module.scss';
-
-const ChartWrapper = lazy(() =>
-  import('#components/ChartWrapper').then((c) => ({ default: c.ChartWrapper })),
-);
 
 export const RatingCharts: Component = () => {
   const [, { matchStats, matchData, latest }] = useSheets();
@@ -16,241 +21,122 @@ export const RatingCharts: Component = () => {
     Object.values(matchStats()).map((s) => s.label),
   );
 
-  const playerChartConfig = createMemo((): ChartConfiguration => {
-    const players = latest().generalStats.players;
-    const frames = matchData().frames;
-
-    return {
-      type: 'line',
-      data: {
-        labels: matchLabels(),
-        datasets: players.map((player) => ({
-          label: player,
-          data: frames.map(
-            (frame) => frame.eloRatings.playerElos[player]?.rating ?? null,
-          ),
-          borderColor: generateTeamColor(player),
-          backgroundColor: `${generateTeamColor(player)}20`,
-        })),
+  const makeLineConfig = (
+    series: { name: string; data: (number | null)[] }[],
+  ): ChartOptions => ({
+    legend: { type: 'scroll', top: '5%' },
+    grid: { top: '15%', containLabel: true },
+    tooltip: {
+      ...axisTooltipDefaults,
+      formatter: (params: TopLevelFormatterParams) => {
+        const items = (
+          Array.isArray(params) ? params : [params]
+        ) as AxisTooltipParams[];
+        const header = items[0]?.axisValue ?? items[0]?.name ?? '';
+        const lines = items
+          .filter((p) => p.value !== null && p.value !== undefined)
+          .map(
+            (p) =>
+              `${p.marker}${p.seriesName}: ${typeof p.value === 'number' ? p.value.toFixed(1) : p.value}`,
+          );
+        return [header, ...lines].join('<br/>');
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-      },
-    };
-  });
-
-  const hybridChartConfig = createMemo((): ChartConfiguration => {
-    const players = latest().generalStats.players;
-    const frames = matchData().frames;
-
-    return {
-      type: 'line',
-      data: {
-        labels: matchLabels(),
-        datasets: players.map((player) => ({
-          label: player,
-          data: frames.map(
-            (frame) => frame.eloRatings.hybridElos[player]?.rating ?? null,
-          ),
-          borderColor: generateTeamColor(player),
-          backgroundColor: `${generateTeamColor(player)}20`,
-        })),
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-      },
-    };
-  });
-
-  const teamIndividualChartConfig = createMemo((): ChartConfiguration => {
-    const players = latest().generalStats.players;
-    const frames = matchData().frames;
-
-    return {
-      type: 'line',
-      data: {
-        labels: matchLabels(),
-        datasets: players.map((player) => ({
-          label: player,
-          data: frames.map(
-            (frame) =>
-              frame.eloRatings.teamIndividualElos[player]?.rating ?? null,
-          ),
-          borderColor: generateTeamColor(player),
-          backgroundColor: `${generateTeamColor(player)}20`,
-        })),
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-      },
-    };
-  });
-
-  const teamChartConfig = createMemo((): ChartConfiguration => {
-    const teams = latest().generalStats.teams;
-    const frames = matchData().frames;
-
-    return {
-      type: 'line',
-      data: {
-        labels: matchLabels(),
-        datasets: teams.map((team) => ({
-          label: team,
-          data: frames.map(
-            (frame) => frame.eloRatings.teamElos[team]?.rating ?? null,
-          ),
-          borderColor: generateTeamColor(team),
-          backgroundColor: `${generateTeamColor(team)}20`,
-        })),
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-      },
-    };
-  });
-
-  const playerGlicko2ChartConfig = createMemo((): ChartConfiguration => {
-    const players = latest().generalStats.players;
-    const frames = matchData().frames;
-
-    return {
-      type: 'line',
-      data: {
-        labels: matchLabels(),
-        datasets: players.map((player) => ({
-          label: player,
-          data: frames.map(
-            (frame) =>
-              frame.glicko2Ratings.playerGlicko2[player]?.rating ?? null,
-          ),
-          borderColor: generateTeamColor(player),
-          backgroundColor: `${generateTeamColor(player)}20`,
-        })),
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-      },
-    };
-  });
-
-  const hybridGlicko2ChartConfig = createMemo((): ChartConfiguration => {
-    const players = latest().generalStats.players;
-    const frames = matchData().frames;
-
-    return {
-      type: 'line',
-      data: {
-        labels: matchLabels(),
-        datasets: players.map((player) => ({
-          label: player,
-          data: frames.map(
-            (frame) =>
-              frame.glicko2Ratings.hybridGlicko2[player]?.rating ?? null,
-          ),
-          borderColor: generateTeamColor(player),
-          backgroundColor: `${generateTeamColor(player)}20`,
-        })),
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-      },
-    };
-  });
-
-  const teamIndividualGlicko2ChartConfig = createMemo(
-    (): ChartConfiguration => {
-      const players = latest().generalStats.players;
-      const frames = matchData().frames;
-
-      return {
-        type: 'line',
-        data: {
-          labels: matchLabels(),
-          datasets: players.map((player) => ({
-            label: player,
-            data: frames.map(
-              (frame) =>
-                frame.glicko2Ratings.teamIndividualGlicko2[player]?.rating ??
-                null,
-            ),
-            borderColor: generateTeamColor(player),
-            backgroundColor: `${generateTeamColor(player)}20`,
-          })),
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-        },
-      };
     },
-  );
+    xAxis: { ...defaultCategoryAxis, data: matchLabels() },
+    yAxis: {
+      ...defaultValueAxis,
+      axisLabel: { formatter: (val: number) => Math.round(val).toString() },
+    },
+    series: series.map((s) => ({
+      name: s.name,
+      type: 'line' as const,
+      data: s.data,
+      lineStyle: { color: generateTeamColor(s.name) },
+      itemStyle: { color: generateTeamColor(s.name) },
+      connectNulls: false,
+    })),
+  });
 
-  const teamGlicko2ChartConfig = createMemo((): ChartConfiguration => {
+  const ratingConfigs = createMemo(() => {
+    const players = latest().generalStats.players;
     const teams = latest().generalStats.teams;
     const frames = matchData().frames;
 
-    return {
-      type: 'line',
-      data: {
-        labels: matchLabels(),
-        datasets: teams.map((team) => ({
-          label: team,
-          data: frames.map(
-            (frame) => frame.glicko2Ratings.teamGlicko2[team]?.rating ?? null,
-          ),
-          borderColor: generateTeamColor(team),
-          backgroundColor: `${generateTeamColor(team)}20`,
-        })),
+    const playerSeries = (
+      getRating: (f: (typeof frames)[number], key: string) => number | null,
+    ) =>
+      players.map((player) => ({
+        name: player,
+        data: frames.map((f) => getRating(f, player)),
+      }));
+
+    const teamSeries = (
+      getRating: (f: (typeof frames)[number], key: string) => number | null,
+    ) =>
+      teams.map((team) => ({
+        name: team,
+        data: frames.map((f) => getRating(f, team)),
+      }));
+
+    return [
+      {
+        label: 'Player Elo Chart',
+        series: playerSeries(
+          (f, p) => f.eloRatings.playerElos[p]?.rating ?? null,
+        ),
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
+      {
+        label: 'Hybrid Elo Chart',
+        series: playerSeries(
+          (f, p) => f.eloRatings.hybridElos[p]?.rating ?? null,
+        ),
       },
-    };
+      {
+        label: 'Team Individual Elo Chart',
+        series: playerSeries(
+          (f, p) => f.eloRatings.teamIndividualElos[p]?.rating ?? null,
+        ),
+      },
+      {
+        label: 'Team Elo Chart',
+        series: teamSeries((f, t) => f.eloRatings.teamElos[t]?.rating ?? null),
+      },
+      {
+        label: 'Player Glicko-2 Chart',
+        series: playerSeries(
+          (f, p) => f.glicko2Ratings.playerGlicko2[p]?.rating ?? null,
+        ),
+      },
+      {
+        label: 'Hybrid Glicko-2 Chart',
+        series: playerSeries(
+          (f, p) => f.glicko2Ratings.hybridGlicko2[p]?.rating ?? null,
+        ),
+      },
+      {
+        label: 'Team Individual Glicko-2 Chart',
+        series: playerSeries(
+          (f, p) => f.glicko2Ratings.teamIndividualGlicko2[p]?.rating ?? null,
+        ),
+      },
+      {
+        label: 'Team Glicko-2 Chart',
+        series: teamSeries(
+          (f, t) => f.glicko2Ratings.teamGlicko2[t]?.rating ?? null,
+        ),
+      },
+    ].map(({ label, series }) => ({ label, config: makeLineConfig(series) }));
   });
 
   return (
     <div class={style.chartsContainer}>
-      <Widget topLeftLabels="Player Elo Chart" class={style.eloChart}>
-        <ChartWrapper config={playerChartConfig()} />
-      </Widget>
-
-      <Widget topLeftLabels="Hybrid Elo Chart" class={style.eloChart}>
-        <ChartWrapper config={hybridChartConfig()} />
-      </Widget>
-
-      <Widget topLeftLabels="Team Individual Elo Chart" class={style.eloChart}>
-        <ChartWrapper config={teamIndividualChartConfig()} />
-      </Widget>
-
-      <Widget topLeftLabels="Team Elo Chart" class={style.eloChart}>
-        <ChartWrapper config={teamChartConfig()} />
-      </Widget>
-
-      <Widget topLeftLabels="Player Glicko-2 Chart" class={style.eloChart}>
-        <ChartWrapper config={playerGlicko2ChartConfig()} />
-      </Widget>
-
-      <Widget topLeftLabels="Hybrid Glicko-2 Chart" class={style.eloChart}>
-        <ChartWrapper config={hybridGlicko2ChartConfig()} />
-      </Widget>
-
-      <Widget
-        topLeftLabels="Team Individual Glicko-2 Chart"
-        class={style.eloChart}
-      >
-        <ChartWrapper config={teamIndividualGlicko2ChartConfig()} />
-      </Widget>
-
-      <Widget topLeftLabels="Team Glicko-2 Chart" class={style.eloChart}>
-        <ChartWrapper config={teamGlicko2ChartConfig()} />
-      </Widget>
+      <For each={ratingConfigs()}>
+        {({ label, config }) => (
+          <Widget topLeftLabels={label} class={style.eloChart}>
+            <EChartWrapper config={config} />
+          </Widget>
+        )}
+      </For>
     </div>
   );
 };
