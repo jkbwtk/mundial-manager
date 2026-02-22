@@ -69,7 +69,7 @@ export const GeneralStatCharts: Component = () => {
             variables.yellow,
             variables.red,
             variables.blue,
-          ][i],
+          ][i % 4]!,
         },
       })),
     );
