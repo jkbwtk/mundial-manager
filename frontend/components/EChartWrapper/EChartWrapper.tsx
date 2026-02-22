@@ -8,6 +8,8 @@ import {
 } from 'echarts/charts';
 import {
   type DatasetComponentOption,
+  DataZoomComponent,
+  type DataZoomComponentOption,
   GridComponent,
   type GridComponentOption,
   LegendComponent,
@@ -37,6 +39,7 @@ export type ChartOptions = echarts.EChartsCoreOption &
     | LegendComponentOption
     | DatasetComponentOption
     | TooltipComponentOption
+    | DataZoomComponentOption
   >;
 
 export interface EChartWrapperProps {
@@ -95,6 +98,7 @@ echarts.use([
   TitleComponent,
   TooltipComponent,
   CanvasRenderer,
+  DataZoomComponent,
 ]);
 
 export const EChartWrapper: Component<EChartWrapperProps> = (props) => {

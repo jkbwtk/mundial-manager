@@ -53,6 +53,14 @@ export const GeneralStatCharts: Component = () => {
           itemStyle: { color: variables.primaryColor },
         },
       ],
+      dataZoom: [
+        {
+          type: 'inside',
+          start: 0,
+          end: 100,
+          throttle: 50,
+        },
+      ],
     }),
   );
 
@@ -111,6 +119,14 @@ export const GeneralStatCharts: Component = () => {
           type: 'bar',
           data: sheets.matches.map((m) => m.duration),
           itemStyle: { color: variables.primaryColor },
+        },
+      ],
+      dataZoom: [
+        {
+          type: 'inside',
+          start: 0,
+          end: 100,
+          throttle: 50,
         },
       ],
     }),

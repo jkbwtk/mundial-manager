@@ -55,6 +55,14 @@ export const RatingCharts: Component = () => {
       itemStyle: { color: generateTeamColor(s.name) },
       connectNulls: false,
     })),
+    dataZoom: [
+      {
+        type: 'inside',
+        start: 0,
+        end: 100,
+        throttle: 50,
+      },
+    ],
   });
 
   const ratingConfigs = createMemo(() => {
