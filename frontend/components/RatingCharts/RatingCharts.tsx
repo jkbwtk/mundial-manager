@@ -46,6 +46,7 @@ export const RatingCharts: Component = () => {
     yAxis: {
       ...defaultValueAxis,
       axisLabel: { formatter: (val: number) => Math.round(val).toString() },
+      scale: true,
     },
     series: series.map((s) => ({
       name: s.name,
