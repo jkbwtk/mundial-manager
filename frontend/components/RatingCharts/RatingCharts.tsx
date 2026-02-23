@@ -24,7 +24,11 @@ export const RatingCharts: Component = () => {
   const makeLineConfig = (
     series: { name: string; data: (number | null)[] }[],
   ): ChartOptions => ({
-    legend: { type: 'scroll', top: '5%' },
+    legend: {
+      top: '5%',
+      type: 'scroll',
+      icon: 'roundRect',
+    },
     grid: { top: '15%', containLabel: true },
     tooltip: {
       ...axisTooltipDefaults,
