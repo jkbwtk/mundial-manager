@@ -37,6 +37,14 @@ export const SupportedMaterialSymbol = [
   'keyboard_arrow_right',
   'keyboard_double_arrow_left',
   'keyboard_double_arrow_right',
+  'refresh',
+  'bug_report',
+  'timer',
+  'memory',
+  'code',
+  'home',
+  'select_all',
+  'remove_selection',
 ] as const;
 
 export type SupportedMaterialSymbol = (typeof SupportedMaterialSymbol)[number];

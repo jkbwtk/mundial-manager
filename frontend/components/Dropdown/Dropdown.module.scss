@@ -1,11 +1,13 @@
 @use 'app' as *;
 
 .dropdown {
-  display: inline-grid;
+  display: inline-flex;
 }
 
 .trigger {
-  display: inline-flex;
+  display: flex;
+
+  width: 100%;
 
   white-space: nowrap;
 
@@ -67,6 +69,11 @@
   color: $backgroundColor;
 }
 
+.label {
+  display: flex;
+  width: 100%;
+}
+
 .menu {
   max-height: round(down, ch(12), ch(1));
   overflow-y: auto;
@@ -98,4 +105,13 @@
 .option-active {
   background-color: $gray;
   color: $backgroundColor;
+}
+
+.selection-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  button {
+    width: 100%;
+  }
 }

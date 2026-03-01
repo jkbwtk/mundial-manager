@@ -6,9 +6,10 @@ import style from './DropdownTest.module.scss';
 export const DropdownTest: Component = () => {
   const [basicDropdownValue, setBasicDropdownValue] = createSignal('option1');
   const [emptyDropdownValue, setEmptyDropdownValue] = createSignal('');
-  const [wideLabelDropdownValue] = createSignal('short');
+  const [wideLabelDropdownValue, setWideLabelDropdownValue] = createSignal('short');
   const [manyOptionsDropdownValue] = createSignal('item1');
   const [labelDropdownValue, setLabelDropdownValue] = createSignal('day');
+  const [multipleChoiceValue, setMultipleChoiceValue] = createSignal(['day']);
 
   const aggregateLabels: DropdownOption[] = [
     { label: 'Day', value: 'day' },
@@ -66,6 +67,7 @@ export const DropdownTest: Component = () => {
           Wide labels:{' '}
           <Dropdown
             value={wideLabelDropdownValue()}
+            onChange={setWideLabelDropdownValue}
             options={[
               { label: 'Short', value: 'short' },
               { label: 'A much wider label that overflows', value: 'wide' },
@@ -96,6 +98,16 @@ export const DropdownTest: Component = () => {
             options={[{ label: 'Test', value: 'test' }]}
           />
         </div>
+        <Divider />
+        Multi choice picker{' '}
+        <Dropdown
+          class={style.forcedDropdownWidth}
+          options={aggregateLabels}
+          value={multipleChoiceValue()}
+          onChange={setMultipleChoiceValue}
+          anchor="left"
+          multiple
+        />
       </Widget>
 
       <Widget

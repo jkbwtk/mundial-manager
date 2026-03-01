@@ -5,14 +5,17 @@ import {
   createUniqueId,
   For,
   type JSX,
-  mergeProps,
   on,
   onCleanup,
+  Show,
   splitProps,
 } from 'solid-js';
 import { AnchoredPopup } from '#components/AnchoredPopup';
+import { Button } from '#components/Button';
 import { MaterialSymbol } from '#components/MaterialSymbol';
+import { TextMarquee } from '#components/TextMarquee';
 import { useConsoleUnitPrototype } from '#providers/ConsoleUnitPrototypeProvider';
+import { arrayFrom } from '#shared/utils';
 import style from './Dropdown.module.scss';
 
 export interface DropdownOption<T extends string = string> {
@@ -22,33 +25,39 @@ export interface DropdownOption<T extends string = string> {
 
 export type DropdownAnchor = 'left' | 'middle' | 'right';
 
-export interface DropdownProps<T extends string = string> {
+type DropdownCommonProps<T extends string> = {
   options: DropdownOption<T>[];
-  value: T;
-  onChange?: (value: T) => void;
   disabled?: boolean;
   ariaLabel?: string;
   anchor?: DropdownAnchor;
   class?: string;
   classList?: JSX.CustomAttributes<HTMLElement>['classList'];
-}
-
-type DropdownSignature = <T extends string = string>(
-  userProps: DropdownProps<T>,
-) => JSX.Element;
-
-const dropdownDefaultProps = {
-  disabled: false,
-  anchor: 'right' as DropdownAnchor,
 };
 
+export type DropdownPropsSingle<T extends string = string> = DropdownCommonProps<T> & {
+  multiple?: false;
+  value: T;
+  onChange?: (val: T) => void;
+};
+
+export type DropdownPropsMultiple<T extends string = string> = DropdownCommonProps<T> & {
+  multiple: true;
+  value: T[];
+  onChange?: (val: T[]) => void;
+};
+
+export type DropdownProps<T extends string = string, M extends boolean = false> =
+  M extends true ? DropdownPropsMultiple<T> : DropdownPropsSingle<T>;
+
+type DropdownSignature = <T extends string = string>(
+  userProps: DropdownPropsSingle<T> | DropdownPropsMultiple<T>,
+) => JSX.Element;
+
 export const Dropdown: DropdownSignature = <T extends string = string>(
-  userProps: DropdownProps<T>,
+  userProps: DropdownPropsSingle<T> | DropdownPropsMultiple<T>,
 ) => {
   const [{ unit }] = useConsoleUnitPrototype();
-  const [classProps, restProps] = splitProps(userProps, ['class', 'classList']);
-
-  const props = mergeProps(dropdownDefaultProps, restProps);
+  const [classProps, props] = splitProps(userProps, ['class', 'classList']);
 
   const instanceId = createUniqueId();
   const menuId = `${instanceId}-menu`;
@@ -62,12 +71,18 @@ export const Dropdown: DropdownSignature = <T extends string = string>(
   const optionRefs: Array<HTMLDivElement | undefined> = [];
   const typeaheadResetMs = 350;
 
-  const selectedIndex = createMemo(() =>
-    props.options.findIndex((option) => option.value === props.value),
+  const valueArray = createMemo(() => arrayFrom(props.value));
+
+  const selectedIndices = createMemo(() =>
+    valueArray().map((v) =>
+      props.options.findIndex((option) => option.value === v),
+    ),
   );
 
-  const selectedLabel = () =>
-    props.options[selectedIndex()]?.label ?? props.value;
+  const selectedLabels = () =>
+    selectedIndices()
+      .map((index) => props.options[index]?.label ?? '')
+      .join(', ');
 
   const canOpen = () => props.options.length > 0 && !props.disabled;
 
@@ -81,7 +96,9 @@ export const Dropdown: DropdownSignature = <T extends string = string>(
 
   const getOptionId = (index: number) => `${instanceId}-option-${index}`;
 
-  const openMenu = (initialIndex = selectedIndex()) => {
+  const openMenu = (
+    initialIndex = props.multiple ? -1 : (selectedIndices().at(0) ?? -1),
+  ) => {
     if (!canOpen()) return;
     setActiveIndex(initialIndex);
     setOpen(true);
@@ -114,7 +131,7 @@ export const Dropdown: DropdownSignature = <T extends string = string>(
     const query = `${typeaheadQuery()}${key.toLowerCase()}`;
     const labels = normalizedOptions();
     const count = labels.length;
-    const from = activeIndex() >= 0 ? activeIndex() : selectedIndex();
+    const from = activeIndex() >= 0 ? activeIndex() : -1;
 
     for (let offset = 1; offset <= count; offset += 1) {
       const index = (from + offset + count) % count;
@@ -141,8 +158,33 @@ export const Dropdown: DropdownSignature = <T extends string = string>(
   };
 
   const selectOption = (value: T) => {
-    props.onChange?.(value);
-    closeMenu();
+    if (props.multiple) {
+      const selectedOptions = valueArray();
+
+      if (selectedOptions.includes(value)) {
+        selectedOptions.splice(selectedOptions.indexOf(value), 1);
+      } else {
+        selectedOptions.push(value);
+      }
+
+      props.onChange?.(selectedOptions);
+    } else {
+      props.onChange?.(value);
+      closeMenu();
+    }
+  };
+
+  const selectAll = () => {
+    if (!props.multiple) return;
+
+    const allValues = props.options.map((option) => option.value);
+
+    props.onChange?.(allValues);
+  };
+
+  const deselectAll = () => {
+    if (!props.multiple) return;
+    props.onChange?.([]);
   };
 
   const handleClickOutside = () => {
@@ -264,16 +306,17 @@ export const Dropdown: DropdownSignature = <T extends string = string>(
           [style.trigger]: true,
           [style.triggerOpen]: open(),
         }}
-        onClick={toggleMenu}
+        onPointerUp={toggleMenu}
         onKeyDown={handleTriggerKeyDown}
       >
         {
           <span
+            class={style.label}
             style={{
               'min-width': `${minLabelTriggerWidth()}px`,
             }}
           >
-            {selectedLabel()}
+            <TextMarquee>{selectedLabels()}</TextMarquee>
           </span>
         }{' '}
         <span aria-hidden="true">
@@ -295,10 +338,22 @@ export const Dropdown: DropdownSignature = <T extends string = string>(
         open={open()}
         triggerRef={() => triggerRef}
         onClickOutside={handleClickOutside}
-        anchor={props.anchor}
+        anchor={props.anchor ?? 'right'}
         matchTriggerWidth
         onKeyDown={handleMenuKeyDown}
       >
+        <Show when={props.multiple}>
+          <div class={style.selectionControls}>
+            <Button severity="secondary" padding={0} onPointerUp={selectAll}>
+              <MaterialSymbol symbol="select_all" />
+            </Button>
+
+            <Button severity="secondary" padding={0} onPointerUp={deselectAll}>
+              <MaterialSymbol symbol="remove_selection" />
+            </Button>
+          </div>
+        </Show>
+
         <For each={props.options}>
           {(option, index) => (
             <div
@@ -308,10 +363,10 @@ export const Dropdown: DropdownSignature = <T extends string = string>(
               id={getOptionId(index())}
               role="option"
               tabIndex={-1}
-              aria-selected={option.value === props.value}
+              aria-selected={valueArray().includes(option.value)}
               classList={{
                 [style.option]: true,
-                [style.optionSelected]: option.value === props.value,
+                [style.optionSelected]: valueArray().includes(option.value),
                 [style.optionActive]: index() === activeIndex(),
               }}
               onPointerUp={() => selectOption(option.value)}
