@@ -67,11 +67,12 @@ export const Button: ParentComponent<ButtonProps> = (userProps) => {
         ...(props.classList ?? {}),
       }}
       style={{
-        '--padding': props.padding,
+        '--padding': props.padding + 1,
       }}
     >
       <span
         classList={{
+          [style.content]: true,
           [style.loading]: props.loading,
         }}
       >
