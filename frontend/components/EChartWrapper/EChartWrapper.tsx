@@ -20,7 +20,7 @@ import {
 } from 'echarts/components';
 import type { ECharts } from 'echarts/core';
 import * as echarts from 'echarts/core';
-import { CanvasRenderer } from 'echarts/renderers';
+import { SVGRenderer } from 'echarts/renderers';
 import type {
   CallbackDataParams,
   TopLevelFormatterParams,
@@ -97,7 +97,7 @@ echarts.use([
   PieChart,
   TitleComponent,
   TooltipComponent,
-  CanvasRenderer,
+  SVGRenderer,
   DataZoomComponent,
 ]);
 
