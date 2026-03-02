@@ -15,6 +15,7 @@ import {
 import { MatchStats } from '#components/MatchStats';
 import { MundialCalculatorLink } from '#components/MundialCalculatorLink';
 import { RatingCharts } from '#components/RatingCharts';
+import { SeasonProgress } from '#components/SeasonProgress';
 import {
   StatPaginatorWidget,
   type StatType,
@@ -59,6 +60,7 @@ const Homepage: Component = () => {
 
       <div class={style.dashboardContainer}>
         <div>
+          <SeasonProgress />
           <GeneralStats />
           <AggregateStats />
           <MatchStats />

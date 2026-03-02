@@ -1,0 +1,45 @@
+@use 'app' as *;
+
+.widget {
+  width: round(down, 100%, cw(1));
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+
+  .label {
+    color: $textBrightColor;
+    font-weight: bold;
+
+    text-transform: uppercase;
+  }
+
+  .progress {
+    color: $primaryBrightColor;
+    font-weight: bold;
+  }
+}
+
+.dates {
+  display: flex;
+  justify-content: space-between;
+
+  gap: cw(1);
+
+  color: $textDimColor;
+}
+
+.section {
+  display: grid;
+  grid-template-columns: auto auto;
+
+  align-items: end;
+
+  column-gap: cw(1);
+
+  span {
+    text-align: right;
+    color: $textDimColor;
+  }
+}

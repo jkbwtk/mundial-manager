@@ -45,6 +45,7 @@ export const SupportedMaterialSymbol = [
   'home',
   'select_all',
   'remove_selection',
+  'arrow_forward',
 ] as const;
 
 export type SupportedMaterialSymbol = (typeof SupportedMaterialSymbol)[number];
