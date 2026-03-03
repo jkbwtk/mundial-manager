@@ -1,5 +1,9 @@
 import variables from '#styles/variables.module.scss';
 
+const defaultFontSize =
+  Number.parseFloat(variables.defaultFontSize) *
+  Number.parseFloat(variables.baseFontSize);
+
 export const defaultTheme = {
   color: [
     variables.red,
@@ -17,7 +21,7 @@ export const defaultTheme = {
   textStyle: {
     fontFamily: variables.fontFamily,
     color: variables.textColor,
-    fontSize: variables.defaultFontSize,
+    fontSize: defaultFontSize,
     textBorderWidth: 0,
     textBorderColor: 'transparent',
   },
@@ -185,7 +189,7 @@ export const defaultTheme = {
     axisLabel: {
       show: true,
       color: variables.textBrightColor,
-      fontSize: variables.defaultFontSize,
+      fontSize: defaultFontSize,
     },
     splitLine: {
       show: false,
@@ -210,7 +214,7 @@ export const defaultTheme = {
     axisLabel: {
       show: true,
       color: variables.textBrightColor,
-      fontSize: variables.defaultFontSize,
+      fontSize: defaultFontSize,
     },
     splitLine: {
       show: true,
@@ -240,7 +244,7 @@ export const defaultTheme = {
     axisLabel: {
       show: true,
       color: variables.textBrightColor,
-      fontSize: variables.defaultFontSize,
+      fontSize: defaultFontSize,
     },
     splitLine: {
       show: true,
@@ -270,7 +274,7 @@ export const defaultTheme = {
     axisLabel: {
       show: true,
       color: variables.textBrightColor,
-      fontSize: variables.defaultFontSize,
+      fontSize: defaultFontSize,
     },
     splitLine: {
       show: true,
@@ -297,7 +301,7 @@ export const defaultTheme = {
   legend: {
     textStyle: {
       color: variables.textColor,
-      fontSize: variables.defaultFontSize,
+      fontSize: defaultFontSize,
     },
     left: 'center',
     right: 'auto',
@@ -310,7 +314,7 @@ export const defaultTheme = {
 
     textStyle: {
       color: variables.textBrightColor,
-      fontSize: variables.defaultFontSize,
+      fontSize: defaultFontSize,
     },
     axisPointer: {
       lineStyle: {
