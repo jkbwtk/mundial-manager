@@ -21,6 +21,7 @@ import type {
   MonthStats,
   PlayerStats,
   SeasonStats,
+  SessionStats,
   WeekStats,
 } from '#frontend/types';
 import type { Match } from '#shared/types/Sheets';
@@ -93,6 +94,13 @@ export const defaultAggregateStats: AggregateStats = {
 
   floorMatchCount: {},
   colorWinCount: {},
+};
+
+export const defaultSessionStats: SessionStats = {
+  ...structuredClone(defaultAggregateStats),
+
+  session: '0#0',
+  humanSession: '',
 };
 
 export const defaultDayStats: DayStats = {
@@ -171,6 +179,7 @@ export const defaultMatchDataFrame: MatchDataFrame = {
   season: defaultSeason,
 
   matchStats: defaultMatchStats,
+  sessionStats: defaultSessionStats,
   dayStats: defaultDayStats,
   weekStats: defaultWeekStats,
   monthStats: defaultMonthStats,

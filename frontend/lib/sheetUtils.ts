@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 import { isServer } from 'solid-js/web';
+import { defaultSessionStats } from '#flib/defaultStats';
 import { getSeason } from '#flib/seasons';
 import type {
   BaseStats,
@@ -58,6 +59,66 @@ export function formatDate(timestamp: number | null): string {
   }
 
   return dayjs.unix(timestamp).format('YYYY-MM-DD');
+}
+
+function decodeSession(
+  session = defaultSessionStats.session,
+): [number, number] {
+  const parsed = session.split('#').map((v) => Number.parseInt(v, 10));
+
+  if (parsed.length === 2) return parsed as [number, number];
+
+  return [0, 0];
+}
+
+function encodeSession(date: number, index: number): string {
+  return `${date}#${index}`;
+}
+
+export function getSession(
+  match: Match,
+  previousData: MatchDataFrame | null,
+): string {
+  if (
+    match.date === null ||
+    match.replayMetadata?.startedAt === undefined ||
+    typeof match.duration !== 'number'
+  ) {
+    return defaultSessionStats.session;
+  }
+
+  const prevSession =
+    previousData?.sessionStats.session ?? defaultSessionStats.session;
+  const [prevDate, prevIndex] = decodeSession(prevSession);
+
+  const sameDay = prevDate === match.date;
+  const timeDelta = dayjs
+    .unix(match.replayMetadata.startedAt)
+    .diff(
+      dayjs.unix(
+        (previousData?.match.replayMetadata?.startedAt ?? 0) +
+          (previousData?.match.duration ?? 0),
+      ),
+      'minutes',
+    );
+
+  const sessionThreshold = 15; //minutes
+
+  if (sameDay) {
+    if (timeDelta > sessionThreshold) {
+      return encodeSession(prevDate, prevIndex + 1);
+    }
+
+    return prevSession;
+  }
+
+  return encodeSession(match.date, 1);
+}
+
+export function formatSession(session: string): string {
+  const [date, index] = decodeSession(session);
+
+  return `${formatDate(date)}#${index}`;
 }
 
 export function getWeek(match: Match): number | null {

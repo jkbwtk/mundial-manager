@@ -24,7 +24,7 @@ import type {
 import { useSheets } from '#providers/SheetsProvider';
 import { arrayFrom } from '#shared/utils';
 
-export type AggregateType = 'day' | 'week' | 'month' | 'season';
+export type AggregateType = 'session' | 'day' | 'week' | 'month' | 'season';
 
 export type StatType = AggregateType | 'match';
 
@@ -48,6 +48,7 @@ export interface StatPaginatorWidgetProps
 }
 
 export const AggregateTypeOptions = [
+  { label: 'Session', value: 'session' },
   { label: 'Day', value: 'day' },
   { label: 'Week', value: 'week' },
   { label: 'Month', value: 'month' },
@@ -59,6 +60,7 @@ export const AggregateTypeOptions = [
 
 export const StatTypeOptions = [
   { label: 'Match', value: 'match' },
+  { label: 'Session', value: 'session' },
   { label: 'Day', value: 'day' },
   { label: 'Week', value: 'week' },
   { label: 'Month', value: 'month' },
@@ -88,6 +90,13 @@ const StatMappings = {
     },
     paginatorLabel: (d, f) => `${f.match.id}/${d.frames.length}`,
     paginatorLength: (d) => d.frames.length,
+  },
+  session: {
+    aggregateFrame: (d, page) =>
+      Object.values(d.sessionStats).at(-page - 1) ?? null,
+    aggregateStats: (f) => f.sessionStats,
+    paginatorLabel: (_, f) => f.sessionStats.humanSession,
+    paginatorLength: (d) => Object.keys(d.sessionStats).length,
   },
   day: {
     aggregateFrame: (d, page) =>

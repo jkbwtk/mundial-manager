@@ -52,6 +52,11 @@ export interface AggregateStats extends BaseStats {
   colorWinCount: Record<string, number>;
 }
 
+export interface SessionStats extends AggregateStats {
+  session: string;
+  humanSession: string;
+}
+
 export interface DayStats extends AggregateStats {
   date: number | null;
   humanDate: string;
@@ -190,6 +195,7 @@ export interface MatchDataFrame {
   season: Season;
 
   matchStats: MatchStats;
+  sessionStats: SessionStats;
   dayStats: DayStats;
   weekStats: WeekStats;
   monthStats: MonthStats;
@@ -221,6 +227,7 @@ export interface MatchData {
   frames: MatchDataFrame[];
   latest: MatchDataFrame;
 
+  sessionStats: Record<string, AggregateFrame>;
   dayStats: Record<number, AggregateFrame>;
   weekStats: Record<number, AggregateFrame>;
   monthStats: Record<number, AggregateFrame>;

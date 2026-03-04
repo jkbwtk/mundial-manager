@@ -8,6 +8,7 @@ import {
   defaultMonthStats,
   defaultPlayerStats,
   defaultSeasonStats,
+  defaultSessionStats,
   defaultWeekStats,
 } from '#flib/defaultStats';
 import { getSeason } from '#flib/seasons';
@@ -18,6 +19,7 @@ import {
   formatDuration,
   formatMatchLabel,
   formatMonth,
+  formatSession,
   formatWeek,
   getBallOutEvents,
   getGoalEvents,
@@ -26,6 +28,7 @@ import {
   getPlayersFromMatch,
   getPlayersFromTeam,
   getPositionChangeEvents,
+  getSession,
   getTotalGoalsWithDuration,
   getTotalMatches,
   getTotalMatchesWithDuration,
@@ -51,6 +54,7 @@ import type {
   MonthStats,
   PlayerStats,
   SeasonStats,
+  SessionStats,
   WeekStats,
 } from '#frontend/types';
 import type { Match } from '#shared/types/Sheets';
@@ -125,6 +129,7 @@ export function createDeltaFrame(
     match: end.match,
     season: end.season,
     matchStats: end.matchStats,
+    sessionStats: end.sessionStats,
     dayStats: end.dayStats,
     weekStats: end.weekStats,
     monthStats: end.monthStats,
@@ -337,6 +342,33 @@ export function calculateAggregateStats(
     _goalsWithDuration,
     _matchesWithDuration,
     _matchesWithTimeline,
+  };
+}
+
+export function calculateSessionStats(
+  match: Match,
+  matchStats: MatchStats,
+  previousData: MatchDataFrame,
+): SessionStats {
+  const session = getSession(match, previousData);
+
+  const previousStats =
+    previousData.sessionStats.session === session
+      ? previousData.sessionStats
+      : defaultSessionStats;
+
+  const aggregateStats = calculateAggregateStats(
+    match,
+    matchStats,
+    previousData,
+    previousStats,
+  );
+
+  return {
+    session,
+    humanSession: formatSession(session),
+
+    ...aggregateStats,
   };
 }
 
@@ -725,6 +757,7 @@ export function calculateDataFrame(
   const season = getSeason(match.date);
 
   const matchStats = calculateMatchStats(match, prev);
+  const sessionStats = calculateSessionStats(match, matchStats, prev);
   const dayStats = calculateDayStats(match, matchStats, prev);
   const weekStats = calculateWeekStats(match, matchStats, prev);
   const monthStats = calculateMonthStats(match, matchStats, prev);
@@ -738,6 +771,7 @@ export function calculateDataFrame(
     season,
 
     matchStats,
+    sessionStats,
     dayStats,
     weekStats,
     monthStats,
@@ -756,12 +790,14 @@ export function calculateDataFrame(
 export function calculateMatchData(matches: Match[]): MatchData {
   const frames: MatchDataFrame[] = [];
 
+  const sessionStatsMap: Map<string, AggregateFrame> = new Map();
   const dayStatsMap: Map<number, AggregateFrame> = new Map();
   const weekStatsMap: Map<number, AggregateFrame> = new Map();
   const monthStatsMap: Map<number, AggregateFrame> = new Map();
   const seasonStatsMap: Map<number, AggregateFrame> = new Map();
 
   let previousFrame: MatchDataFrame | null = null;
+  let previousSessionFrame: MatchDataFrame | null = null;
   let previousDayFrame: MatchDataFrame | null = null;
   let previousWeekFrame: MatchDataFrame | null = null;
   let previousMonthFrame: MatchDataFrame | null = null;
@@ -771,6 +807,22 @@ export function calculateMatchData(matches: Match[]): MatchData {
     const currentFrame = calculateDataFrame(match, previousFrame);
 
     frames.push(currentFrame);
+
+    const session = currentFrame.sessionStats.session;
+    if (previousFrame && previousFrame.sessionStats.session !== session) {
+      previousSessionFrame = previousFrame;
+    }
+
+    const aggregateSessionFrame = sessionStatsMap.get(session);
+
+    if (aggregateSessionFrame) {
+      aggregateSessionFrame.frame = currentFrame;
+    } else {
+      sessionStatsMap.set(session, {
+        previousFrame: previousSessionFrame ?? defaultMatchDataFrame,
+        frame: currentFrame,
+      });
+    }
 
     const day = currentFrame.dayStats.date;
     if (day !== null) {
@@ -850,6 +902,7 @@ export function calculateMatchData(matches: Match[]): MatchData {
     frames,
     latest: frames.at(-1) ?? defaultMatchDataFrame,
 
+    sessionStats: Object.fromEntries(sessionStatsMap.entries()),
     dayStats: Object.fromEntries(dayStatsMap.entries()),
     weekStats: Object.fromEntries(weekStatsMap.entries()),
     monthStats: Object.fromEntries(monthStatsMap.entries()),
