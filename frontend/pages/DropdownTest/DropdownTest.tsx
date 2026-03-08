@@ -6,7 +6,8 @@ import style from './DropdownTest.module.scss';
 export const DropdownTest: Component = () => {
   const [basicDropdownValue, setBasicDropdownValue] = createSignal('option1');
   const [emptyDropdownValue, setEmptyDropdownValue] = createSignal('');
-  const [wideLabelDropdownValue, setWideLabelDropdownValue] = createSignal('short');
+  const [wideLabelDropdownValue, setWideLabelDropdownValue] =
+    createSignal('short');
   const [manyOptionsDropdownValue] = createSignal('item1');
   const [labelDropdownValue, setLabelDropdownValue] = createSignal('day');
   const [multipleChoiceValue, setMultipleChoiceValue] = createSignal(['day']);

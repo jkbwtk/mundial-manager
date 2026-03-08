@@ -18,14 +18,14 @@ import { useConsoleUnitPrototype } from '#providers/ConsoleUnitPrototypeProvider
 import { arrayFrom } from '#shared/utils';
 import style from './Dropdown.module.scss';
 
-export interface DropdownOption<T extends string = string> {
+export interface DropdownOption<T = string> {
   label: string;
   value: T;
 }
 
 export type DropdownAnchor = 'left' | 'middle' | 'right';
 
-type DropdownCommonProps<T extends string> = {
+type DropdownCommonProps<T> = {
   options: DropdownOption<T>[];
   disabled?: boolean;
   ariaLabel?: string;
@@ -34,26 +34,29 @@ type DropdownCommonProps<T extends string> = {
   classList?: JSX.CustomAttributes<HTMLElement>['classList'];
 };
 
-export type DropdownPropsSingle<T extends string = string> = DropdownCommonProps<T> & {
+export type DropdownPropsSingle<T = string> = DropdownCommonProps<T> & {
   multiple?: false;
   value: T;
-  onChange?: (val: T) => void;
+  onChange?: (val: NoInfer<T>) => void;
 };
 
-export type DropdownPropsMultiple<T extends string = string> = DropdownCommonProps<T> & {
+export type DropdownPropsMultiple<T = string> = DropdownCommonProps<T> & {
   multiple: true;
   value: T[];
-  onChange?: (val: T[]) => void;
+  onChange?: (val: NoInfer<T>[]) => void;
 };
 
-export type DropdownProps<T extends string = string, M extends boolean = false> =
-  M extends true ? DropdownPropsMultiple<T> : DropdownPropsSingle<T>;
+export type DropdownProps<
+  T = string,
+  M extends boolean = false,
+> = M extends true ? DropdownPropsMultiple<T> : DropdownPropsSingle<T>;
 
-type DropdownSignature = <T extends string = string>(
-  userProps: DropdownPropsSingle<T> | DropdownPropsMultiple<T>,
-) => JSX.Element;
+type DropdownSignature = {
+  <T = string>(userProps: DropdownPropsSingle<T>): JSX.Element;
+  <T = string>(userProps: DropdownPropsMultiple<T>): JSX.Element;
+};
 
-export const Dropdown: DropdownSignature = <T extends string = string>(
+export const Dropdown: DropdownSignature = <T = string>(
   userProps: DropdownPropsSingle<T> | DropdownPropsMultiple<T>,
 ) => {
   const [{ unit }] = useConsoleUnitPrototype();
