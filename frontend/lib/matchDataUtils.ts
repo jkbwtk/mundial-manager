@@ -57,6 +57,7 @@ import type {
   SessionStats,
   WeekStats,
 } from '#frontend/types';
+import { normalizeTeamName } from '#shared/matchUtils';
 import type { Match } from '#shared/types/Sheets';
 
 function computeEloDeltas(
@@ -503,7 +504,9 @@ export function calculateGeneralStats(
       2.5;
 
   const matchTeams =
-    getPlayersFromMatch(match).length === 4 ? [match.team1, match.team2] : [];
+    getPlayersFromMatch(match).length === 4
+      ? [normalizeTeamName(match.team1), normalizeTeamName(match.team2)]
+      : [];
 
   const teams = Array.from(
     new Set<string>([...previousStats.teams, ...matchTeams]),
