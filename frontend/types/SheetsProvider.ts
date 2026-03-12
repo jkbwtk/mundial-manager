@@ -50,6 +50,9 @@ export interface AggregateStats extends BaseStats {
 
   floorMatchCount: Record<number, number>;
   colorWinCount: Record<string, number>;
+
+  floors: number[];
+  colors: string[];
 }
 
 export interface SessionStats extends AggregateStats {

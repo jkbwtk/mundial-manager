@@ -94,6 +94,9 @@ export const defaultAggregateStats: AggregateStats = {
 
   floorMatchCount: {},
   colorWinCount: {},
+
+  floors: [],
+  colors: [],
 };
 
 export const defaultSessionStats: SessionStats = {

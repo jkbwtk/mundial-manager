@@ -301,6 +301,18 @@ export function calculateAggregateStats(
       (colorWinCount[match.winningColor] ?? 0) + 1;
   }
 
+  const floors = Array.from(
+    new Set([...previousStats.floors, match.floor].filter((f) => f !== null)),
+  );
+
+  const colors = Array.from(
+    new Set(
+      [...previousStats.colors, match.winningColor].filter(
+        (c) => c !== null && c !== 'unknown',
+      ),
+    ),
+  );
+
   return {
     ballOutCount,
     positionChangeCount,
@@ -338,6 +350,9 @@ export function calculateAggregateStats(
 
     floorMatchCount,
     colorWinCount,
+
+    floors,
+    colors,
 
     _matchCounter,
     _goalsWithDuration,
