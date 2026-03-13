@@ -1,5 +1,6 @@
 import { children, createSignal, onCleanup, onMount } from 'solid-js';
 import { isServer } from 'solid-js/web';
+import { useModal, useModalActions } from '#providers/ModalProvider';
 import style from './InlineAction.module.scss';
 
 export type TriggerType = 'shortcut' | 'click';
@@ -13,6 +14,9 @@ export interface InlineActionProps {
 const ignoredTargets = isServer ? [] : [HTMLInputElement];
 
 export const InlineAction: Component<InlineActionProps> = (props) => {
+  const [, { isActive }] = useModal();
+  const { isTop } = useModalActions();
+
   const [activated, setActivated] = createSignal(false);
   const content = children(() => props.content ?? props.symbol);
 
@@ -26,6 +30,10 @@ export const InlineAction: Component<InlineActionProps> = (props) => {
     }
 
     if (ev.key === props.symbol) {
+      if (isActive() && isTop() === false) {
+        return;
+      }
+
       triggerAction('shortcut');
     }
   };
@@ -47,12 +55,10 @@ export const InlineAction: Component<InlineActionProps> = (props) => {
   onMount(() => {
     if (isServer === false) {
       document.addEventListener('keyup', handleKeyPress);
-    }
-  });
 
-  onCleanup(() => {
-    if (isServer === false) {
-      document.removeEventListener('keyup', handleKeyPress);
+      onCleanup(() => {
+        document.removeEventListener('keyup', handleKeyPress);
+      });
     }
   });
 

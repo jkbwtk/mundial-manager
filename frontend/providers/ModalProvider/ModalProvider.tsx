@@ -2,6 +2,7 @@ import {
   createContext,
   createEffect,
   createUniqueId,
+  on,
   useContext,
   type ValidComponent,
 } from 'solid-js';
@@ -21,6 +22,7 @@ export interface ModalContextActions {
   };
   closeTop: () => void;
   closeAll: () => void;
+  isActive: () => boolean;
 }
 export type ModalContextValue = [
   state: ModalContextState,
@@ -42,6 +44,9 @@ const ModalContext = createContext<ModalContextValue>([
     },
     closeAll: () => {
       throw new Error('ModalContext: closeAll() called before provider');
+    },
+    isActive: () => {
+      throw new Error('ModalContext: isActive() called before provider');
     },
   },
 ]);
@@ -89,16 +94,26 @@ export const ModalProvider: ParentComponent = (props) => {
     }
   };
 
+  const isActive: ModalContextActions['isActive'] = () =>
+    state.modals.length > 0;
+
   createEffect(() => {
-    if (state.modals.length > 0) {
-      document.body.classList.add(style.modalActive);
-    } else {
-      document.body.classList.remove(style.modalActive);
-    }
+    on(
+      () => isActive(),
+      (active) => {
+        if (active) {
+          document.body.classList.add(style.modalActive);
+        } else {
+          document.body.classList.remove(style.modalActive);
+        }
+      },
+    );
   });
 
   return (
-    <ModalContext.Provider value={[state, { open, closeTop, closeAll }]}>
+    <ModalContext.Provider
+      value={[state, { open, closeTop, closeAll, isActive }]}
+    >
       <div
         aria-hidden={state.modals.length > 0}
         aria-disabled={state.modals.length > 0}
