@@ -1,4 +1,5 @@
 import {
+  type Accessor,
   batch,
   createContext,
   createEffect,
@@ -41,7 +42,10 @@ export interface StatPaginatorState {
   aggregateFrame: AggregateFrame;
 }
 
-export type StatPaginatorContextValue = [state: StatPaginatorState];
+export type StatPaginatorContextValue = [
+  state: StatPaginatorState,
+  mapping: Accessor<StatMapping>,
+];
 
 export interface StatPaginatorWidgetProps
   extends WidgetPropsWithoutComponent<'div'> {
@@ -140,6 +144,7 @@ function createDefaultState(): StatPaginatorState {
 
 const StatPaginatorContext = createContext<StatPaginatorContextValue>([
   createDefaultState(),
+  () => StatMappings.day,
 ]);
 
 export const StatPaginatorWidget: Component<StatPaginatorWidgetProps> = (
@@ -183,7 +188,7 @@ export const StatPaginatorWidget: Component<StatPaginatorWidgetProps> = (
   };
 
   return (
-    <StatPaginatorContext.Provider value={[state]}>
+    <StatPaginatorContext.Provider value={[state, mapping]}>
       <Dynamic
         {...props}
         component={local.component ?? Widget}
@@ -233,9 +238,8 @@ export const useStatPaginatedDeltaFrame = () => {
     );
 };
 
-export const useStatPaginatedAggregateStats = (type: () => AggregateType) => {
-  const frame = useStatPaginatedFrame();
-  const mapping = createMemo(() => StatMappings[type()]);
+export const useStatPaginatedAggregateStats = () => {
+  const [state, mapping] = useStatPaginator();
 
-  return () => mapping().aggregateStats(frame());
+  return () => mapping().aggregateStats(state.aggregateFrame.frame);
 };

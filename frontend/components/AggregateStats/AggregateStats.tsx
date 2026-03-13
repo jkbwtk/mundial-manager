@@ -11,14 +11,8 @@ import {
 import { Divider } from '#components/Widget';
 import style from './AggregateStats.module.scss';
 
-export interface AggregateStatsBaseProps {
-  type: AggregateType;
-}
-
-export const AggregateStatsBase: Component<AggregateStatsBaseProps> = (
-  props,
-) => {
-  const stats = useStatPaginatedAggregateStats(() => props.type);
+export const AggregateStatsBase: Component = () => {
+  const stats = useStatPaginatedAggregateStats();
 
   return (
     <>
@@ -154,7 +148,7 @@ export const AggregateStats: Component = () => {
       }
       statType={type()}
     >
-      <AggregateStatsBase type={type()} />
+      <AggregateStatsBase />
     </StatPaginatorWidget>
   );
 };
