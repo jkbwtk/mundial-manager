@@ -11,13 +11,13 @@ const MatchTimelineTest: Component = () => {
   const [sheets] = useSheets();
 
   const openMatchTimelineModal = (matchId: number) => {
-    const match = sheets.matches.find((m) => m.id === matchId);
-    if (!match) return;
+    const index = sheets.matches.findIndex((m) => m.id === matchId);
+    if (index === -1) return;
 
     open({
       props: {
         component: MatchTimelineModal,
-        match,
+        page: sheets.matches.length - 1 - index,
       },
     });
   };

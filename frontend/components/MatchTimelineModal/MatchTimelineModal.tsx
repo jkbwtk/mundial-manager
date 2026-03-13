@@ -1,4 +1,4 @@
-import { For, Show } from 'solid-js';
+import { createMemo, For, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import {
   BallOutEvent,
@@ -7,6 +7,10 @@ import {
   PositionChangeEvent,
 } from '#components/MatchTimelineModal';
 import { Modal } from '#components/Modal';
+import {
+  StatPaginatorWidget,
+  useStatPaginatedFrame,
+} from '#components/StatPaginatorWidget';
 import { Divider } from '#components/Widget';
 import { formatDate, formatDuration, getTeamColors } from '#flib/sheetUtils';
 import { getTeamColorClass } from '#flib/teamColors';
@@ -19,7 +23,7 @@ export interface TimelineEntryProps {
 }
 
 export interface MatchTimelineModalProps {
-  match: Match;
+  page?: number;
 }
 
 function getEventComponent(eventType: MatchEventType) {
@@ -37,13 +41,14 @@ function getEventComponent(eventType: MatchEventType) {
   }
 }
 
-export const MatchTimelineModal: Component<MatchTimelineModalProps> = (
-  props,
-) => {
-  const teamColors = () => getTeamColors(props.match);
+const MatchTimelineModalBase: Component = () => {
+  const frame = useStatPaginatedFrame();
+
+  const match = createMemo(() => frame().match);
+  const teamColors = () => getTeamColors(match());
 
   return (
-    <Modal class={style.modal} topLeftLabels="Match Timeline">
+    <>
       <div class={style.scoreContainer}>
         <div>
           <span
@@ -52,7 +57,7 @@ export const MatchTimelineModal: Component<MatchTimelineModalProps> = (
               [getTeamColorClass(teamColors()[0])]: true,
             }}
           >
-            {props.match.team1}
+            {match().team1}
           </span>{' '}
           vs{' '}
           <span
@@ -61,46 +66,46 @@ export const MatchTimelineModal: Component<MatchTimelineModalProps> = (
               [getTeamColorClass(teamColors()[1])]: true,
             }}
           >
-            {props.match.team2}
+            {match().team2}
           </span>
         </div>
         <div>
           <span
             classList={{
-              [style.highlightedScore]: props.match.score1 > props.match.score2,
+              [style.highlightedScore]: match().score1 > match().score2,
             }}
           >
-            {props.match.score1}
+            {match().score1}
           </span>{' '}
           :{' '}
           <span
             classList={{
-              [style.highlightedScore]: props.match.score2 > props.match.score1,
+              [style.highlightedScore]: match().score2 > match().score1,
             }}
           >
-            {props.match.score2}
+            {match().score2}
           </span>
         </div>
       </div>
-
       <Divider class={style.dashedDivider} />
-
       <div class={style.statsContainer}>
-        <Show when={props.match.duration}>
-          <span>Duration:</span>
-          <strong>{formatDuration(props.match.duration!)}</strong>
+        <Show when={match().duration}>
+          {(duration) => (
+            <>
+              <span>Duration:</span>
+              <strong>{formatDuration(duration())}</strong>
+            </>
+          )}
         </Show>
 
-        <Show when={props.match.date}>
+        <Show when={match().date}>
           <span>Date:</span>
-          <strong>{formatDate(props.match.date!)}</strong>
+          <strong>{formatDate(match().date!)}</strong>
         </Show>
       </div>
-
       <Divider />
-
       <Show
-        when={props.match.replayMetadata !== null}
+        when={match().replayMetadata !== null}
         fallback={
           <div class={style.noData}>
             No timeline data available for this match.
@@ -139,7 +144,7 @@ export const MatchTimelineModal: Component<MatchTimelineModalProps> = (
           </thead>
 
           <tbody>
-            <For each={props.match.replayMetadata?.events}>
+            <For each={match().replayMetadata?.events}>
               {(event) => (
                 <tr>
                   <Dynamic
@@ -148,7 +153,7 @@ export const MatchTimelineModal: Component<MatchTimelineModalProps> = (
                         event.type,
                       ) as Component<TimelineEntryProps>
                     }
-                    match={props.match}
+                    match={match()}
                     event={event}
                   />
                 </tr>
@@ -157,6 +162,22 @@ export const MatchTimelineModal: Component<MatchTimelineModalProps> = (
           </tbody>
         </table>
       </Show>
-    </Modal>
+    </>
+  );
+};
+
+export const MatchTimelineModal: Component<MatchTimelineModalProps> = (
+  props,
+) => {
+  return (
+    <StatPaginatorWidget
+      statType="match"
+      component={Modal}
+      page={props.page}
+      class={style.modal}
+      topLeftLabels="Match Timeline"
+    >
+      <MatchTimelineModalBase />
+    </StatPaginatorWidget>
   );
 };

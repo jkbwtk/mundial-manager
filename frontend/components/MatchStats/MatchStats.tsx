@@ -1,34 +1,57 @@
-import { createEffect, createSignal, type Setter, Show } from 'solid-js';
+import {
+  createEffect,
+  createSignal,
+  type JSX,
+  on,
+  type Setter,
+  Show,
+} from 'solid-js';
 import { AnimatedText } from '#components/AnimatedText';
 import { Button } from '#components/Button';
 import { MatchTimelineModal } from '#components/MatchTimelineModal';
 import {
   StatPaginatorWidget,
   useStatPaginatedFrame,
+  useStatPaginator,
 } from '#components/StatPaginatorWidget';
 import { Divider } from '#components/Widget';
-import { defaultMatch } from '#flib/defaultStats';
 import { formatDate, formatDuration } from '#flib/sheetUtils';
 import { getTeamColorClass } from '#flib/teamColors';
 import { useModal } from '#providers/ModalProvider';
-import type { Match } from '#shared/types/Sheets';
 import style from './MatchStats.module.scss';
 
 export interface MatchStatsBaseProps {
-  setMatch?: Setter<Match>;
+  setButton?: Setter<JSX.Element>;
 }
 
 export const MatchStatsBase: Component<MatchStatsBaseProps> = (props) => {
+  const [, { open }] = useModal();
+  const [state] = useStatPaginator();
   const stats = useStatPaginatedFrame();
   const match = () => stats().match;
 
-  createEffect(() => {
-    const m = match();
+  const openTimeline = () => {
+    open({
+      props: {
+        component: MatchTimelineModal,
+        page: state.currentPage,
+      },
+    });
+  };
 
-    if (props.setMatch) {
-      props.setMatch(m);
-    }
-  });
+  createEffect(
+    on([() => match(), () => props.setButton], ([match, setButton]) => {
+      if (setButton) {
+        setButton(
+          <Show when={match.replayMetadata}>
+            <Button severity="secondary" onPointerUp={openTimeline}>
+              Timeline
+            </Button>
+          </Show>,
+        );
+      }
+    }),
+  );
 
   return (
     <>
@@ -189,32 +212,16 @@ export const MatchStatsBase: Component<MatchStatsBaseProps> = (props) => {
 };
 
 export const MatchStats: Component = () => {
-  const [match, setMatch] = createSignal<Match>(defaultMatch);
-  const [, { open }] = useModal();
-
-  const openTimeline = () => {
-    open({
-      props: {
-        component: MatchTimelineModal,
-        match: match(),
-      },
-    });
-  };
+  const [button, setPage] = createSignal<JSX.Element>(null);
 
   return (
     <StatPaginatorWidget
       statType="match"
       class={style.widget}
       topLeftLabels={'Match Stats'}
-      bottomLeftLabels={[
-        <Show when={match().replayMetadata}>
-          <Button severity="secondary" onPointerUp={openTimeline}>
-            Timeline
-          </Button>
-        </Show>,
-      ]}
+      bottomLeftLabels={[button()]}
     >
-      <MatchStatsBase setMatch={setMatch} />
+      <MatchStatsBase setButton={setPage} />
     </StatPaginatorWidget>
   );
 };
