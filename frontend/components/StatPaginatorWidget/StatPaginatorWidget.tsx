@@ -50,6 +50,7 @@ export type StatPaginatorContextValue = [
 export interface StatPaginatorWidgetProps
   extends WidgetPropsWithoutComponent<'div'> {
   statType: StatType;
+  page?: number;
 
   component?: Component<WidgetPropsWithoutComponent<'div'>>;
 }
@@ -135,9 +136,9 @@ const StatMappings = {
   },
 } satisfies Record<StatType, StatMapping>;
 
-function createDefaultState(): StatPaginatorState {
+function createDefaultState(page = 0): StatPaginatorState {
   return {
-    currentPage: 0,
+    currentPage: page,
     aggregateFrame: structuredClone(defaultAggregateFrame),
   };
 }
@@ -150,11 +151,15 @@ const StatPaginatorContext = createContext<StatPaginatorContextValue>([
 export const StatPaginatorWidget: Component<StatPaginatorWidgetProps> = (
   userProps,
 ) => {
-  const [local, props] = splitProps(userProps, ['statType', 'component']);
+  const [local, props] = splitProps(userProps, [
+    'statType',
+    'page',
+    'component',
+  ]);
   const [, { matchData }] = useSheets();
 
   const [state, setState] = createStore<StatPaginatorState>(
-    createDefaultState(),
+    createDefaultState(local.page),
   );
 
   const mapping = createMemo(() => StatMappings[local.statType]);
@@ -164,6 +169,16 @@ export const StatPaginatorWidget: Component<StatPaginatorWidgetProps> = (
       () => local.statType,
       () => setState('currentPage', 0),
       { defer: true },
+    ),
+  );
+
+  createEffect(
+    on(
+      () => local.page,
+      (page) => setState('currentPage', page ?? 0),
+      {
+        defer: true,
+      },
     ),
   );
 
