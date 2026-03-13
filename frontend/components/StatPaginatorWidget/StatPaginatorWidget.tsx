@@ -8,6 +8,7 @@ import {
   useContext,
 } from 'solid-js';
 import { createStore } from 'solid-js/store';
+import { Dynamic } from 'solid-js/web';
 import { InlineAction } from '#components/InlineAction';
 import { Widget, type WidgetPropsWithoutComponent } from '#components/Widget';
 import {
@@ -45,6 +46,8 @@ export type StatPaginatorContextValue = [state: StatPaginatorState];
 export interface StatPaginatorWidgetProps
   extends WidgetPropsWithoutComponent<'div'> {
   statType: StatType;
+
+  component?: Component<WidgetPropsWithoutComponent<'div'>>;
 }
 
 export const AggregateTypeOptions = [
@@ -142,7 +145,7 @@ const StatPaginatorContext = createContext<StatPaginatorContextValue>([
 export const StatPaginatorWidget: Component<StatPaginatorWidgetProps> = (
   userProps,
 ) => {
-  const [local, props] = splitProps(userProps, ['statType']);
+  const [local, props] = splitProps(userProps, ['statType', 'component']);
   const [, { matchData }] = useSheets();
 
   const [state, setState] = createStore<StatPaginatorState>(
@@ -181,8 +184,9 @@ export const StatPaginatorWidget: Component<StatPaginatorWidgetProps> = (
 
   return (
     <StatPaginatorContext.Provider value={[state]}>
-      <Widget
+      <Dynamic
         {...props}
+        component={local.component ?? Widget}
         bottomRightLabels={[
           ...arrayFrom(props.bottomRightLabels).filter(Boolean),
           <span>
