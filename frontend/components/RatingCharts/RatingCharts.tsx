@@ -1,13 +1,15 @@
 import { createMemo, For } from 'solid-js';
 
 import {
-  type AxisTooltipParams,
   axisTooltipDefaults,
   type ChartOptions,
-  defaultCategoryAxis,
-  defaultValueAxis,
+  categoryAxisDefaults,
+  dataZoomDefaults,
   EChartWrapper,
-  type TopLevelFormatterParams,
+  formatLinearTooltip,
+  gridDefaults,
+  legendDefaults,
+  valueAxisDefaults,
 } from '#components/EChartWrapper';
 import { Widget } from '#components/Widget';
 import { generateTeamColor } from '#flib/sheetUtils';
@@ -24,33 +26,16 @@ export const RatingCharts: Component = () => {
   const makeLineConfig = (
     series: { name: string; data: (number | null)[] }[],
   ): ChartOptions => ({
-    legend: {
-      top: '5%',
-      type: 'scroll',
-      icon: 'roundRect',
-    },
-    grid: { top: '15%', containLabel: true },
+    legend: legendDefaults,
+    grid: gridDefaults,
     tooltip: {
       ...axisTooltipDefaults,
-      formatter: (params: TopLevelFormatterParams) => {
-        const items = (
-          Array.isArray(params) ? params : [params]
-        ) as AxisTooltipParams[];
-        const header = items[0]?.axisValue ?? items[0]?.name ?? '';
-        const lines = items
-          .filter((p) => p.value !== null && p.value !== undefined)
-          .map(
-            (p) =>
-              `${p.marker}${p.seriesName}: ${typeof p.value === 'number' ? p.value.toFixed(1) : p.value}`,
-          );
-        return [header, ...lines].join('<br/>');
-      },
+      formatter: formatLinearTooltip((param) => param.value.toFixed(2)),
     },
-    xAxis: { ...defaultCategoryAxis, data: matchLabels() },
+    xAxis: { ...categoryAxisDefaults, data: matchLabels() },
     yAxis: {
-      ...defaultValueAxis,
+      ...valueAxisDefaults,
       axisLabel: { formatter: (val: number) => Math.round(val).toString() },
-      scale: true,
     },
     series: series.map((s) => ({
       name: s.name,
@@ -60,14 +45,7 @@ export const RatingCharts: Component = () => {
       itemStyle: { color: generateTeamColor(s.name) },
       connectNulls: false,
     })),
-    dataZoom: [
-      {
-        type: 'inside',
-        start: 0,
-        end: 100,
-        throttle: 50,
-      },
-    ],
+    dataZoom: dataZoomDefaults,
   });
 
   const ratingConfigs = createMemo(() => {

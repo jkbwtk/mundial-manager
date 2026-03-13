@@ -1,16 +1,16 @@
 import { createMemo } from 'solid-js';
 
 import {
-  type AxisTooltipParams,
   axisTooltipDefaults,
   type ChartOptions,
-  defaultCategoryAxis,
-  defaultValueAxis,
+  categoryAxisDefaults,
+  dataZoomDefaults,
   EChartWrapper,
+  formatLinearTooltip,
   formatPieTooltip,
   itemTooltipDefaults,
   pieSeriesDefaults,
-  type TopLevelFormatterParams,
+  valueAxisDefaults,
 } from '#components/EChartWrapper';
 import { Widget } from '#components/Widget';
 import { formatDuration } from '#flib/sheetUtils';
@@ -24,7 +24,10 @@ const makePieConfig = (
   data: { name: string; value: number; itemStyle: { color: string } }[],
 ): ChartOptions => ({
   legend: { top: '5%' },
-  tooltip: { ...itemTooltipDefaults, formatter: formatPieTooltip },
+  tooltip: {
+    ...itemTooltipDefaults,
+    formatter: formatPieTooltip((param) => param.value.toFixed(0)),
+  },
   series: [{ ...pieSeriesDefaults, name, data }],
 });
 
@@ -42,9 +45,8 @@ export const GeneralStatCharts: Component = () => {
   const matchesPerDayChartConfig = createMemo(
     (): ChartOptions => ({
       tooltip: { ...axisTooltipDefaults },
-      grid: { containLabel: true },
-      xAxis: { ...defaultCategoryAxis, data: dayLabels() },
-      yAxis: { ...defaultValueAxis },
+      xAxis: { ...categoryAxisDefaults, data: dayLabels() },
+      yAxis: { ...valueAxisDefaults },
       series: [
         {
           name: 'Matches Per Day',
@@ -53,14 +55,7 @@ export const GeneralStatCharts: Component = () => {
           itemStyle: { color: variables.primaryColor },
         },
       ],
-      dataZoom: [
-        {
-          type: 'inside',
-          start: 0,
-          end: 100,
-          throttle: 50,
-        },
-      ],
+      dataZoom: dataZoomDefaults,
     }),
   );
 
@@ -99,18 +94,11 @@ export const GeneralStatCharts: Component = () => {
     (): ChartOptions => ({
       tooltip: {
         ...axisTooltipDefaults,
-        formatter: (params: TopLevelFormatterParams) => {
-          const p = (
-            Array.isArray(params) ? params[0] : params
-          ) as AxisTooltipParams;
-          if (!p) return '';
-          return `${p.axisValue ?? p.name}<br/>${p.marker}${p.seriesName}: ${formatDuration(p.value as number)}`;
-        },
+        formatter: formatLinearTooltip((param) => formatDuration(param.value)),
       },
-      grid: { containLabel: true },
-      xAxis: { ...defaultCategoryAxis, data: matchLabels() },
+      xAxis: { ...categoryAxisDefaults, data: matchLabels() },
       yAxis: {
-        ...defaultValueAxis,
+        ...valueAxisDefaults,
         axisLabel: { formatter: (val: number) => formatDuration(val) },
       },
       series: [
@@ -121,14 +109,7 @@ export const GeneralStatCharts: Component = () => {
           itemStyle: { color: variables.primaryColor },
         },
       ],
-      dataZoom: [
-        {
-          type: 'inside',
-          start: 0,
-          end: 100,
-          throttle: 50,
-        },
-      ],
+      dataZoom: dataZoomDefaults,
     }),
   );
 
