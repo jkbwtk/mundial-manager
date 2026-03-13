@@ -21,6 +21,7 @@ import type {
   MatchData,
   MatchDataFrame,
   MatchStats,
+  SessionStats,
 } from '#frontend/types';
 import { useTRPC } from '#providers/TRPCProvider';
 import { getMatchHash } from '#shared/matchUtils';
@@ -36,6 +37,7 @@ export interface SheetsContextState {
 export interface SheetsContextActions {
   initialize: () => Promise<void>;
   matchStats: () => Record<number, MatchStats>;
+  sessionStats: () => Record<string, SessionStats>;
   dayStats: () => Record<number, DayStats>;
   matchData: () => MatchData;
   latest: () => MatchDataFrame;
@@ -80,6 +82,9 @@ const SheetsContext = createContext<SheetsContextValue>([
       throw new Error(
         'SheetsContext: latestMatchStats() called before provider',
       );
+    },
+    sessionStats: () => {
+      throw new Error('SheetsContext: sessionStats() called before provider');
     },
     dayStats: () => {
       throw new Error('SheetsContext: dayStats() called before provider');
@@ -194,6 +199,16 @@ export const SheetsProvider: ParentComponent = (props) => {
     );
   });
 
+  const sessionStats = createMemo<Record<string, SessionStats>>(() => {
+    return Object.fromEntries(
+      Array.from(Object.entries(matchData().sessionStats)).map(
+        ([session, aggregate]) => {
+          return [session, aggregate.frame.sessionStats];
+        },
+      ),
+    );
+  });
+
   const dayStats = createMemo<Record<number, DayStats>>(() => {
     return Object.fromEntries(
       Array.from(Object.entries(matchData().dayStats)).map(
@@ -273,6 +288,7 @@ export const SheetsProvider: ParentComponent = (props) => {
     initialize,
     matchStats,
     latest,
+    sessionStats,
     dayStats,
     matchData,
     matchHashMap,
