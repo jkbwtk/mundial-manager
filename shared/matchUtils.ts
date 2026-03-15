@@ -1,5 +1,3 @@
-import crypto from 'crypto-js';
-import stableHash from 'stable-hash';
 import { prettifyError } from 'zod';
 import {
   type Match,
@@ -7,6 +5,7 @@ import {
   type MatchWithoutMetadata,
   NormalizedTeamName,
 } from '#shared/types/Sheets';
+import { getValueHash } from '#shared/utils';
 
 export function getMatchHash(
   match: Match | MatchWithoutMetadata | MatchCreate,
@@ -21,10 +20,7 @@ export function getMatchHash(
     );
   }
 
-  const preHash = stableHash(normalizedMatch.data);
-  const hash = crypto.SHA256(preHash).toString();
-
-  return hash;
+  return getValueHash(normalizedMatch.data);
 }
 
 export function normalizeTeamName(team: string): NormalizedTeamName {

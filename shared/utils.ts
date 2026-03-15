@@ -1,4 +1,6 @@
+import crypto from 'crypto-js';
 import dayjs from 'dayjs';
+import stableHash from 'stable-hash';
 
 export const sleep = (time: number): Promise<void> => {
   return new Promise((resolve) => setTimeout(resolve, time));
@@ -184,4 +186,11 @@ export function objectToEntries<T extends object>(
   obj: T,
 ): [keyof T, T[keyof T]][] {
   return Object.entries(obj) as [keyof T, T[keyof T]][];
+}
+
+export function getValueHash(value: unknown): string {
+  const preHash = stableHash(value);
+  const hash = crypto.SHA256(preHash).toString();
+
+  return hash;
 }
