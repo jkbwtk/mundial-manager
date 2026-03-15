@@ -31,6 +31,9 @@ const DropdownTest = lazy(() => import('#pages/DropdownTest/DropdownTest'));
 const SeasonSummaryTest = lazy(
   () => import('#pages/SeasonSummaryTest/SeasonSummaryTest'),
 );
+const MaterialSymbolTest = lazy(
+  () => import('#pages/MaterialSymbolTest/MaterialSymbolTest'),
+);
 
 export const routes: RouteDefinition[] = [
   {
@@ -126,6 +129,11 @@ export const routes: RouteDefinition[] = [
         path: '/season-summary-test',
         info: { title: 'Mundial Manager - Season Summary Test' },
         component: SeasonSummaryTest,
+      },
+      {
+        path: '/material-symbol-test',
+        info: { title: 'Mundial Manager - Material Symbol Test' },
+        component: MaterialSymbolTest,
       },
     ],
   },
