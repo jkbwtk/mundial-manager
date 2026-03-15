@@ -43,6 +43,7 @@
     "figlet": "^1.10.0",
     "google-spreadsheet": "^5.2.0",
     "highlight.js": "^11.11.1",
+    "jdenticon": "^3.3.0",
     "music-metadata": "^11.12.1",
     "pure-rand": "^7.0.1",
     "safe-stable-stringify": "^2.5.0",
