@@ -28,6 +28,9 @@ const CreatedMatchesTest = lazy(
 const ToastTest = lazy(() => import('#pages/ToastTest/ToastTest'));
 const PWATest = lazy(() => import('#pages/PWATest/PWATest'));
 const DropdownTest = lazy(() => import('#pages/DropdownTest/DropdownTest'));
+const SeasonSummaryTest = lazy(
+  () => import('#pages/SeasonSummaryTest/SeasonSummaryTest'),
+);
 
 export const routes: RouteDefinition[] = [
   {
@@ -118,6 +121,11 @@ export const routes: RouteDefinition[] = [
         path: '/dropdown-test',
         info: { title: 'Mundial Manager - Dropdown Test' },
         component: DropdownTest,
+      },
+      {
+        path: '/season-summary-test',
+        info: { title: 'Mundial Manager - Season Summary Test' },
+        component: SeasonSummaryTest,
       },
     ],
   },

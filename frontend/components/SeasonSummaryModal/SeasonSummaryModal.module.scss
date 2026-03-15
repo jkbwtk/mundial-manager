@@ -1,0 +1,195 @@
+@use 'app' as *;
+@use 'sass:color';
+
+.container {
+  --modal-width: #{cw(50)};
+}
+
+.dashed-divider {
+  --divider-border-style: dashed;
+}
+
+.podium-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: cw(2);
+
+  .podium {
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: flex-end;
+
+    order: 99;
+  }
+
+  .divider {
+    order: 4;
+    grid-column: 1 / -1;
+
+    --divider-border-style: dashed;
+  }
+
+  .team-name {
+    max-width: cw(12);
+
+    text-overflow: ellipsis;
+    overflow: hidden;
+    text-align: center;
+
+    font-weight: bold;
+  }
+
+  .step {
+    width: cw(4);
+    height: ch(1);
+
+    background-color: $textColor;
+    border-radius: $borderRadius;
+
+    .position {
+      width: 100%;
+
+      color: $backgroundColor;
+
+      text-align: center;
+    }
+  }
+
+  @mixin gradient($color) {
+    background: repeating-linear-gradient(
+      45deg,
+      $color,
+      $color 1rem,
+      color.scale($color, $lightness: -20%) 1rem,
+      color.scale($color, $lightness: -20%) 2rem
+    );
+  }
+
+  .rating {
+    color: $textDimColor;
+  }
+
+  .place-1 {
+    order: 2;
+
+    .icon svg {
+      border: 0.2rem solid $gold;
+    }
+
+    .step {
+      height: ch(4);
+
+      animation: pulse-podium 2s infinite ease-in-out;
+
+      @include gradient($gold);
+    }
+
+    .team-name {
+      color: $textBrightColor;
+    }
+  }
+
+  .place-2 {
+    order: 1;
+
+    .icon svg {
+      border: 0.2rem solid $silver;
+    }
+
+    .step {
+      height: ch(3);
+
+      box-shadow: 0 0 1rem $silver;
+
+      @include gradient($silver);
+    }
+  }
+
+  .place-3 {
+    order: 3;
+
+    .icon svg {
+      border: 0.2rem solid $bronze;
+    }
+
+    .step {
+      height: ch(2);
+
+      box-shadow: 0 0 1rem $bronze;
+
+      @include gradient($bronze);
+    }
+  }
+}
+
+.header-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: ch(1);
+
+  .label {
+    // background-color: $textBrightColor;
+
+    // font-weight: bold;
+    // color: $backgroundColor;
+
+    // padding: 0 cw(1);
+    // border-radius: $borderRadius;
+
+    color: $textBrightColor;
+
+    font-weight: bold;
+    text-transform: uppercase;
+
+    text-shadow: 0 0 0.5rem $codeColor;
+  }
+
+  .dates {
+    color: $textDimColor;
+  }
+
+  .stats {
+    display: flex;
+    gap: cw(1);
+
+    flex-wrap: wrap;
+    justify-content: center;
+
+    width: 100%;
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      .stat-value {
+        color: $textBrightColor;
+        font-weight: bold;
+      }
+
+      .stat-label {
+        color: $textDimColor;
+      }
+    }
+
+    .stat-divider {
+      height: ch(1);
+      align-self: center;
+    }
+  }
+
+  @keyframes pulse-podium {
+    0% {
+      box-shadow: 0 0 0.5rem $gold;
+    }
+    50% {
+      box-shadow: 0 0 1.5rem $gold;
+    }
+    100% {
+      box-shadow: 0 0 0.5rem $gold;
+    }
+  }
+}
