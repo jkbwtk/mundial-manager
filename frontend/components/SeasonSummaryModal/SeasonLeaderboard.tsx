@@ -9,10 +9,16 @@ import { DEFAULT_ELO } from '#flib/sheetUtils';
 import style from './SeasonSummaryModal.module.scss';
 
 const columns: Column[] = [
-  { key: 'rank', header: '#', align: 'right', width: 3 },
+  {
+    key: 'rank',
+    header: '#',
+    align: 'right',
+    width: 3,
+  },
   {
     key: 'player',
     header: 'Player',
+    align: 'left',
     transform: (val) => (
       <>
         <Identicon value={val} size={1} /> {val}
@@ -23,7 +29,7 @@ const columns: Column[] = [
     key: 'elo',
     header: 'Elo',
     align: 'right',
-    transform: (val) => val.toFixed(1),
+    transform: (val) => val?.toFixed(1),
   },
   {
     key: 'deltaElo',
@@ -32,9 +38,21 @@ const columns: Column[] = [
     transform: (val) => <DeltaDisplay base={val as number} compared={0} />,
   },
   {
+    key: 'deltaGoals',
+    header: 'ΔGoals',
+    align: 'right',
+    transform: (val) => <DeltaDisplay base={val as number} compared={0} />,
+  },
+  {
     key: 'wonLost',
     header: 'W-L',
     align: 'right',
+  },
+  {
+    key: 'winRate',
+    header: 'Win%',
+    align: 'right',
+    transform: (val) => (val ? `${val.toFixed(0)}%` : null),
   },
 ];
 
@@ -53,6 +71,15 @@ export const SeasonLeaderboard: Component = () => {
         elo: curr().eloRatings.hybridElos[name]?.rating ?? DEFAULT_ELO,
         deltaElo: delta().eloRatings.hybridElos[name]?.ratingChange ?? 0,
         wonLost: `${delta().playerStats[name]?.wins ?? 0}-${delta().playerStats[name]?.losses ?? 0}`,
+        winRate: delta().playerStats[name]
+          ? (delta().playerStats[name]!.wins /
+              (delta().playerStats[name]!.wins +
+                delta().playerStats[name]!.losses)) *
+            100
+          : 0,
+        deltaGoals:
+          (delta().playerStats[name]?.goalsFor ?? 0) -
+          (delta().playerStats[name]?.goalsAgainst ?? 0),
       }))
       .sort((a, b) => b.elo - a.elo)
       .map((entry, index) => ({ ...entry, rank: index + 1 }));
@@ -64,7 +91,12 @@ export const SeasonLeaderboard: Component = () => {
         Leaderboard
       </div>
 
-      <Table class={style.leaderboard} columns={columns} data={data()} />
+      <Table
+        class={style.leaderboard}
+        columns={columns}
+        data={data()}
+        classic={false}
+      />
     </div>
   );
 };

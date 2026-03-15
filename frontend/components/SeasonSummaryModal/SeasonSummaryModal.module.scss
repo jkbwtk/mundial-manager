@@ -260,8 +260,45 @@
   align-items: center;
   gap: ch(1);
 
+  container-type: inline-size;
+  container-name: leaderboard;
+
   .leaderboard {
     width: calc(100% - cw(2));
+
+    :global(.data-row-0) {
+      * {
+        color: $gold !important;
+      }
+    }
+
+    :global(.data-row-1) {
+      * {
+        color: $silver !important;
+      }
+    }
+
+    :global(.data-row-2) {
+      * {
+        color: $bronze !important;
+      }
+    }
+  }
+
+  @container leaderboard (max-width: 400px) {
+    .leaderboard {
+      :global(.data-column-deltaGoals) {
+        display: none;
+      }
+    }
+  }
+
+  @container leaderboard (max-width: 350px) {
+    .leaderboard {
+      :global(.data-column-wonLost) {
+        display: none;
+      }
+    }
   }
 }
 
