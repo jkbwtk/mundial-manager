@@ -1,4 +1,5 @@
 import { Modal } from '#components/Modal';
+import { SeasonAwards } from '#components/SeasonSummaryModal/SeasonAwards';
 import { SeasonPodium } from '#components/SeasonSummaryModal/SeasonPodium';
 import { SummaryHeader } from '#components/SeasonSummaryModal/SummaryHeader';
 import { StatPaginatorWidget } from '#components/StatPaginatorWidget';
@@ -17,6 +18,8 @@ export const SeasonSummary: Component = () => {
       <SummaryHeader />
       <Divider class={style.dashedDivider} />
       <SeasonPodium />
+      <Divider class={style.dashedDivider} />
+      <SeasonAwards />
     </StatPaginatorWidget>
   );
 };

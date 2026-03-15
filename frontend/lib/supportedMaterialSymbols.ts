@@ -48,6 +48,13 @@ export const SupportedMaterialSymbol = [
   'arrow_forward',
   'leaderboard',
   'trophy',
+  'editor_choice',
+  'moon_stars',
+  'cyclone',
+  'shield',
+  'gps_fixed',
+  'local_fire_department',
+  'sentiment_very_dissatisfied',
 ] as const;
 
 export type SupportedMaterialSymbol = (typeof SupportedMaterialSymbol)[number];
