@@ -249,7 +249,7 @@ export const SeasonAwards: Component = () => {
 
   return (
     <div class={style.awardsContainer}>
-      <div class={style.header}>
+      <div class={style.sectionHeader}>
         <MaterialSymbol symbol="editor_choice" color="gray" />
         Awards
       </div>

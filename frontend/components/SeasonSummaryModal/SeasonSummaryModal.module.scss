@@ -182,32 +182,32 @@
   }
 }
 
+.section-header {
+  color: $textBrightColor;
+  text-transform: uppercase;
+
+  &::before {
+    content: '-';
+
+    margin-right: cw(1);
+
+    color: $gold;
+  }
+
+  &::after {
+    content: '-';
+
+    margin-left: cw(1);
+
+    color: $gold;
+  }
+}
+
 .awards-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: ch(1);
-
-  .header {
-    color: $textBrightColor;
-    text-transform: uppercase;
-
-    &::before {
-      content: '-';
-
-      margin-right: cw(1);
-
-      color: $gold;
-    }
-
-    &::after {
-      content: '-';
-
-      margin-left: cw(1);
-
-      color: $gold;
-    }
-  }
 
   .awards {
     display: grid;
@@ -251,6 +251,17 @@
         color: $textDimColor;
       }
     }
+  }
+}
+
+.leaderboard-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: ch(1);
+
+  .leaderboard {
+    width: calc(100% - cw(2));
   }
 }
 
