@@ -28,6 +28,7 @@ export type Column<T = string> = {
 export type TableBaseProps = {
   columns: Column[];
   data: Record<string, unknown>[];
+  classic?: boolean;
   sortBy?: string | null;
   sortDirection?: 'asc' | 'desc' | null;
   onSort?: (column: string, direction: 'asc' | 'desc') => void;
@@ -47,6 +48,7 @@ const defaultColumn: RequiredDefaults<Column> = {
 };
 
 const defaultProps: RequiredDefaults<TableBaseProps> = {
+  classic: true,
   sortBy: null,
   sortDirection: null,
   onSort: () => {},
@@ -62,6 +64,7 @@ export const Table: Component<TableProps> = (userProps) => {
     'onSort',
     'class',
     'classList',
+    'classic',
   ]);
 
   const [sortBy, setSortBy] = createSignal(props.sortBy);
@@ -102,13 +105,14 @@ export const Table: Component<TableProps> = (userProps) => {
       {...tableProps}
       classList={{
         [style.table]: true,
+        [style.classic]: props.classic,
 
         [props.class ?? '']: !!props.class,
         ...(props.classList ?? {}),
       }}
     >
       <thead>
-        <tr>
+        <tr class={style.header}>
           <For each={props.columns}>
             {(column, index) => {
               return (
@@ -122,7 +126,11 @@ export const Table: Component<TableProps> = (userProps) => {
                     [style.valignBottom]: true,
                     [style.horizontalBorder]: true,
                     [style.sortable]: column.sortable,
+                    [style.alignLeft]: column.align === 'left',
+                    [style.alignCenter]: column.align === 'center',
+                    [style.alignRight]: column.align === 'right',
                     [style.verticalBorder]: index() < props.columns.length - 1,
+                    [`data-column-${column.key}`]: true,
                   }}
                   onMouseUp={() => handleSort(column)}
                 >
@@ -145,10 +153,11 @@ export const Table: Component<TableProps> = (userProps) => {
 
       <tbody>
         <For each={props.data}>
-          {(row) => (
+          {(row, rowIndex) => (
             <tr
               classList={{
                 [style.highlightable]: true,
+                [`data-row-${rowIndex()}`]: true,
               }}
             >
               <For each={props.columns}>
@@ -169,6 +178,7 @@ export const Table: Component<TableProps> = (userProps) => {
                         [style.alignRight]: column.align === 'right',
                         [style.verticalBorder]:
                           colIndex() < props.columns.length - 1,
+                        [`data-column-${column.key}`]: true,
                       }}
                     >
                       {resolved()}

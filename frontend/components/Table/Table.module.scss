@@ -3,32 +3,10 @@
 .table {
   position: relative;
 
-  padding: ch(1) cw(1);
-
   max-width: round(down, calc(100% + 1px), cw(1));
 
   // border-collapse: collapse;
   border-spacing: 0;
-
-  &::after {
-    content: '';
-
-    position: absolute;
-
-    top: calc(ch(1) / 2 - $borderSize / 2);
-    left: calc(cw(1) / 2 - $borderSize / 2);
-
-    width: calc(100% - cw(1) + $borderSize);
-    height: calc(100% - ch(1) + $borderSize);
-
-    border-radius: $borderRadius;
-
-    border-color: $borderColor;
-    border-style: solid;
-    border-width: $borderSize;
-
-    pointer-events: none;
-  }
 
   th,
   td {
@@ -37,9 +15,9 @@
   }
 
   th {
-    padding: 0 cw(1);
-
     user-select: none;
+
+    color: $textDimColor;
 
     &.sortable {
       position: relative;
@@ -63,6 +41,120 @@
     min-width: calc(cw(1) * var(--min-width, 'auto'));
     width: calc(cw(1) * var(--width, 'auto'));
     max-width: calc(cw(1) * var(--max-width, 'auto'));
+  }
+
+  tr {
+    &:nth-child(odd):not(.header) {
+      background-color: $backgroundColor;
+    }
+
+    &:nth-child(even) {
+      background-color: $modalColor;
+    }
+  }
+
+  .vertical-border {
+    padding-right: cw(1);
+  }
+
+  .horizontal-border {
+    position: relative;
+
+    &::before {
+      content: '';
+
+      position: absolute;
+
+      left: 50%;
+      bottom: 0;
+
+      width: calc(100%);
+      height: calc($borderSize / 2);
+
+      transform: translateX(-50%);
+
+      background-color: $dividerColor;
+
+      pointer-events: none;
+    }
+  }
+
+  .align-right {
+    text-align: right;
+  }
+
+  .align-center {
+    text-align: center;
+  }
+
+  .align-left {
+    text-align: left;
+  }
+
+  .valign-top {
+    vertical-align: top;
+  }
+
+  .valign-middle {
+    vertical-align: middle;
+  }
+
+  .valign-bottom {
+    vertical-align: bottom;
+  }
+}
+
+.classic {
+  padding: ch(1) cw(1);
+
+  &::after {
+    content: '';
+
+    position: absolute;
+
+    top: calc(ch(1) / 2 - $borderSize / 2);
+    left: calc(cw(1) / 2 - $borderSize / 2);
+
+    width: calc(100% - cw(1) + $borderSize);
+    height: calc(100% - ch(1) + $borderSize);
+
+    border-radius: $borderRadius;
+
+    border-color: $borderColor;
+    border-style: solid;
+    border-width: $borderSize;
+
+    pointer-events: none;
+  }
+
+  th {
+    padding: 0 cw(1);
+
+    color: $textColor;
+  }
+
+  .horizontal-border {
+    position: relative;
+
+    padding-bottom: ch(1);
+
+    &::before {
+      content: '';
+
+      position: absolute;
+
+      bottom: calc(ch(1) / 2 - $borderSize / 2);
+      left: 50%;
+
+      width: calc(100% + cw(1));
+      height: $borderSize;
+
+      transform: translateX(-50%);
+
+      background-color: $borderColor;
+
+      pointer-events: none;
+    }
   }
 
   .vertical-border {
@@ -97,30 +189,6 @@
     }
   }
 
-  .horizontal-border {
-    position: relative;
-
-    padding-bottom: ch(1);
-
-    &::before {
-      content: '';
-
-      position: absolute;
-
-      bottom: calc(ch(1) / 2 - $borderSize / 2);
-      left: 50%;
-
-      width: calc(100% + cw(1));
-      height: $borderSize;
-
-      transform: translateX(-50%);
-
-      background-color: $borderColor;
-
-      pointer-events: none;
-    }
-  }
-
   .highlightable {
     cursor: pointer;
 
@@ -132,29 +200,5 @@
         background-color: $textBrightColor;
       }
     }
-  }
-
-  .align-right {
-    text-align: right;
-  }
-
-  .align-center {
-    text-align: center;
-  }
-
-  .align-left {
-    text-align: left;
-  }
-
-  .valign-top {
-    vertical-align: top;
-  }
-
-  .valign-middle {
-    vertical-align: middle;
-  }
-
-  .valign-bottom {
-    vertical-align: bottom;
   }
 }
