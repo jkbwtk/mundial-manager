@@ -60,6 +60,111 @@ import type {
 import { normalizeTeamName } from '#shared/matchUtils';
 import type { Match } from '#shared/types/Sheets';
 
+function computePlayerStatDeltas(
+  endStats: Record<string, PlayerStats>,
+  startStats: Record<string, PlayerStats>,
+): Record<string, PlayerStats> {
+  const result: Record<string, PlayerStats> = {};
+
+  for (const [player, end] of Object.entries(endStats)) {
+    const start = startStats[player] ?? defaultPlayerStats(player);
+
+    const delta: PlayerStats = {
+      name: end.name,
+
+      playtime: end.playtime - start.playtime,
+      playtimeFormatted: formatDuration(end.playtime - start.playtime),
+      matches: end.matches - start.matches,
+
+      averageMatchDuration:
+        end.averageMatchDuration - start.averageMatchDuration,
+      averageMatchDurationFormatted: formatDuration(
+        end.averageMatchDuration - start.averageMatchDuration,
+      ),
+
+      wins: end.wins - start.wins,
+      losses: end.losses - start.losses,
+      winRatio: end.winRatio - start.winRatio,
+
+      goalsFor: end.goalsFor - start.goalsFor,
+      goalsAgainst: end.goalsAgainst - start.goalsAgainst,
+
+      goalDifference: end.goalDifference - start.goalDifference,
+      goalRatio: end.goalRatio - start.goalRatio,
+
+      ownGoals: end.ownGoals - start.ownGoals,
+
+      currentWinStreak: end.currentWinStreak - start.currentWinStreak,
+      longestWinStreak: end.longestWinStreak - start.longestWinStreak,
+
+      currentLossStreak: end.currentLossStreak - start.currentLossStreak,
+      longestLossStreak: end.longestLossStreak - start.longestLossStreak,
+
+      lastMatchDate: end.lastMatchDate,
+
+      matchesInDay: end.matchesInDay - start.matchesInDay,
+      mostMatchesInDay: end.mostMatchesInDay - start.mostMatchesInDay,
+
+      matchesInSeason: end.matchesInSeason - start.matchesInSeason,
+      mostMatchesInSeason: end.mostMatchesInSeason - start.mostMatchesInSeason,
+
+      matchesWonAgainst: Object.fromEntries(
+        Object.entries(end.matchesWonAgainst).map(([opponent, count]) => [
+          opponent,
+          count - (start.matchesWonAgainst[opponent] ?? 0),
+        ]),
+      ),
+      matchesLostAgainst: Object.fromEntries(
+        Object.entries(end.matchesLostAgainst).map(([opponent, count]) => [
+          opponent,
+          count - (start.matchesLostAgainst[opponent] ?? 0),
+        ]),
+      ),
+
+      matchesWonAgainstSingles: Object.fromEntries(
+        Object.entries(end.matchesWonAgainstSingles).map(
+          ([opponent, count]) => [
+            opponent,
+            count - (start.matchesWonAgainstSingles[opponent] ?? 0),
+          ],
+        ),
+      ),
+      matchesLostAgainstSingles: Object.fromEntries(
+        Object.entries(end.matchesLostAgainstSingles).map(
+          ([opponent, count]) => [
+            opponent,
+            count - (start.matchesLostAgainstSingles[opponent] ?? 0),
+          ],
+        ),
+      ),
+
+      matchesWonAgainstDoubles: Object.fromEntries(
+        Object.entries(end.matchesWonAgainstDoubles).map(
+          ([opponent, count]) => [
+            opponent,
+            count - (start.matchesWonAgainstDoubles[opponent] ?? 0),
+          ],
+        ),
+      ),
+      matchesLostAgainstDoubles: Object.fromEntries(
+        Object.entries(end.matchesLostAgainstDoubles).map(
+          ([opponent, count]) => [
+            opponent,
+            count - (start.matchesLostAgainstDoubles[opponent] ?? 0),
+          ],
+        ),
+      ),
+
+      _matchesWithDuration:
+        end._matchesWithDuration - start._matchesWithDuration,
+    };
+
+    result[player] = delta;
+  }
+
+  return result;
+}
+
 function computeEloDeltas(
   endRatings: EloRatings,
   startRatings: EloRatings,
@@ -121,10 +226,12 @@ function computeGlicko2Deltas(
 export function createDeltaFrame(
   end: MatchDataFrame,
   start: MatchDataFrame | null,
+  respectSeasonChange = true,
 ): MatchDataDeltaFrame {
   const startFrame = start ?? defaultMatchDataFrame;
 
-  const seasonChange = end.season.number !== startFrame.season.number;
+  const seasonChange =
+    respectSeasonChange && end.season.number !== startFrame.season.number;
 
   return {
     match: end.match,
@@ -136,7 +243,10 @@ export function createDeltaFrame(
     monthStats: end.monthStats,
     seasonStats: end.seasonStats,
     generalStats: end.generalStats,
-    playerStats: end.playerStats,
+    playerStats: computePlayerStatDeltas(
+      end.playerStats,
+      startFrame.playerStats,
+    ),
     eloRatings: computeEloDeltas(
       end.eloRatings,
       seasonChange ? defaultEloRatings : startFrame.eloRatings,
