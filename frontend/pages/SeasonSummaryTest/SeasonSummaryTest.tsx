@@ -1,7 +1,7 @@
 import { onCleanup, onMount } from 'solid-js';
 import { Break } from '#components/Break';
 import { Button } from '#components/Button';
-import { SeasonSummary } from '#components/SeasonSummaryModal';
+import { SeasonSummaryModal } from '#components/SeasonSummaryModal';
 import { Widget } from '#components/Widget';
 import { useModal } from '#providers/ModalProvider';
 import style from './SeasonSummaryTest.module.scss';
@@ -12,7 +12,7 @@ export const SeasonSummaryTest: Component = () => {
   const openSummary = () => {
     return open({
       props: {
-        component: SeasonSummary,
+        component: SeasonSummaryModal,
       },
     });
   };

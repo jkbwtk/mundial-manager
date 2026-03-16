@@ -7,13 +7,19 @@ import { StatPaginatorWidget } from '#components/StatPaginatorWidget';
 import { Divider } from '#components/Widget';
 import style from './SeasonSummaryModal.module.scss';
 
-export const SeasonSummary: Component = () => {
+export interface SeasonSummaryModalProps {
+  page?: number;
+}
+
+export const SeasonSummaryModal: Component<SeasonSummaryModalProps> = (
+  props,
+) => {
   return (
     <StatPaginatorWidget
       topLeftLabels="Season Summary"
       statType="season"
       component={Modal}
-      // page={-1}
+      page={props.page ?? -1}
       class={style.container}
     >
       <SummaryHeader />

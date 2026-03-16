@@ -1,0 +1,26 @@
+@use 'app' as *;
+
+.widget {
+  --widget-border-color: #{$gold};
+  border-radius: $borderRadius;
+
+  background: linear-gradient(135deg, color-mix(in srgb, $primaryColor 20%, transparent), color-mix(in srgb, $blue 20%, transparent));
+}
+
+.button {
+  color: $backgroundColor;
+  background-color: $gold;
+
+  box-shadow: 0 0 0.5rem $gold;
+
+  transition: background-color 0.2s ease-in-out;
+}
+
+.content {
+  text-align: center;
+  width: 100%;
+
+  strong {
+    color: $textBrightColor;
+  }
+}
