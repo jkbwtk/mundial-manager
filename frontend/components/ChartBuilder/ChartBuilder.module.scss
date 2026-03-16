@@ -1,0 +1,14 @@
+@use 'app' as *;
+
+.chart-builder {
+  display: flex;
+
+  height: 100%;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+
+  overflow-y: auto;
+}

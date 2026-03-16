@@ -34,6 +34,9 @@ const SeasonSummaryTest = lazy(
 const MaterialSymbolTest = lazy(
   () => import('#pages/MaterialSymbolTest/MaterialSymbolTest'),
 );
+const ChartBuilderTest = lazy(
+  () => import('#pages/ChartBuilderTest/ChartBuilderTest'),
+);
 
 export const routes: RouteDefinition[] = [
   {
@@ -134,6 +137,11 @@ export const routes: RouteDefinition[] = [
         path: '/material-symbol-test',
         info: { title: 'Mundial Manager - Material Symbol Test' },
         component: MaterialSymbolTest,
+      },
+      {
+        path: '/chart-builder-test',
+        info: { title: 'Mundial Manager - Chart Builder Test' },
+        component: ChartBuilderTest,
       },
     ],
   },
