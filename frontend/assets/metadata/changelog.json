@@ -1,6 +1,260 @@
 {
   "versions": [
     {
+      "version": "0.8.0",
+      "releaseType": "minor",
+      "date": "2026-03-16",
+      "name": "Season summaries, new charts and lots of other changes",
+      "changes": [
+        {
+          "type": "feature",
+          "change": "Added SeasonSummary modal with season awards and leaderboards",
+          "description": "Season stats, player performance summaries and awards are now available in a dedicated modal. Modal activator is displayed on the homepage for 7 days after the end of each season."
+        },
+        {
+          "type": "feature",
+          "change": "Added SeasonProgress widget with live updates and granularity controls"
+        },
+        {
+          "type": "feature",
+          "change": "Added support for session stat tracking",
+          "description": "Matches played within 15 minutes of each other are now grouped into sessions."
+        },
+        {
+          "type": "improvement",
+          "change": "Migrated general and rating charts to the ECharts",
+          "description": "Chart rendering now uses ECharts based wrapper with improved defaults and zoom configuration."
+        },
+        {
+          "type": "bugfix",
+          "change": "Fixed multiple UI issues",
+          "description": "Addressed button width behavior, popup positioning when zoomed and AcrylicBackground scaling edge cases."
+        },
+        {
+          "type": "bugfix",
+          "change": "Disabled InlineAction keyboard inputs when a modal is active"
+        }
+      ],
+      "commits": [
+        {
+          "hash": "a95206f4a4",
+          "message": "Add SeasonSummary activator"
+        },
+        {
+          "hash": "d7b4667c52",
+          "message": "Expose more stats directly in SheetsProvider"
+        },
+        {
+          "hash": "dbd45595cf",
+          "message": "Add more columns and improve leaderboard styling"
+        },
+        {
+          "hash": "971ac1ab87",
+          "message": "Add compact Table style"
+        },
+        {
+          "hash": "7abe881a32",
+          "message": "Add leaderboard section to the SeasonSummary modal"
+        },
+        {
+          "hash": "1e9379c29a",
+          "message": "Implement player stat delta calculation"
+        },
+        {
+          "hash": "8c0b81ffc3",
+          "message": "Add awards section to the SeasonSummary modal"
+        },
+        {
+          "hash": "6f53823509",
+          "message": "Add MaterialSymbol test page"
+        },
+        {
+          "hash": "241a2ac788",
+          "message": "Create basic SeasonSummary modal and related test page"
+        },
+        {
+          "hash": "42a8b7f074",
+          "message": "Add Identicon component"
+        },
+        {
+          "hash": "0252d201ba",
+          "message": "Move value hashing logic to shared utils"
+        },
+        {
+          "hash": "2410da4b45",
+          "message": "Disable InlineAction keyboard inputs when (other) modal is active"
+        },
+        {
+          "hash": "7d03973783",
+          "message": "Add pagination to MatchTimelineModal"
+        },
+        {
+          "hash": "b1f8782b15",
+          "message": "Add external page controls to StatPaginatorWidget"
+        },
+        {
+          "hash": "845e4d630a",
+          "message": "Simplify paginated aggregate stats accessor"
+        },
+        {
+          "hash": "6883a85e01",
+          "message": "Add ability to override base StatPaginator component"
+        },
+        {
+          "hash": "8355ce7de7",
+          "message": "Expose session stats in SheetsProvider"
+        },
+        {
+          "hash": "5e22640dab",
+          "message": "Move echart defaults to separate file, simplify and tweak echart configs"
+        },
+        {
+          "hash": "5286373189",
+          "message": "Track unique floors and team colors"
+        },
+        {
+          "hash": "c40ef70cce",
+          "message": "Normalize team names in general aggregate"
+        },
+        {
+          "hash": "499677b908",
+          "message": "Remove dropdown value type restrictions"
+        },
+        {
+          "hash": "19fde23bab",
+          "message": "Implement basic session stat tracking"
+        },
+        {
+          "hash": "1c37332fd1",
+          "message": "Add basic element generator CLI command"
+        },
+        {
+          "hash": "b9d3e82e5b",
+          "message": "Update packages"
+        },
+        {
+          "hash": "65c1eb294a",
+          "message": "Fix axis label font size on mobile when using canvas renderer"
+        },
+        {
+          "hash": "4ab591623f",
+          "message": "Add granularity controls and real time updates to SeasonProgress widget"
+        },
+        {
+          "hash": "938c9c3070",
+          "message": "Add basic SeasonProgress widget"
+        },
+        {
+          "hash": "5e3e84ebcf",
+          "message": "Add multiselect support to Dropdown component"
+        },
+        {
+          "hash": "8b1ac90de2",
+          "message": "Fix Button width styling"
+        },
+        {
+          "hash": "acecf8592f",
+          "message": "Fix chart text size issues"
+        },
+        {
+          "hash": "8580285321",
+          "message": "Add autogenerated files to .gitignore"
+        },
+        {
+          "hash": "855e3985aa",
+          "message": "Remove autogenerated files"
+        },
+        {
+          "hash": "ded925850e",
+          "message": "Tweak rating chart labels"
+        },
+        {
+          "hash": "4954eb7810",
+          "message": "Scale y axis in rating charts"
+        },
+        {
+          "hash": "2a07e9f348",
+          "message": "Configure chart zooming"
+        },
+        {
+          "hash": "ceb674c3ba",
+          "message": "Fix typescript error"
+        },
+        {
+          "hash": "6ed37d5e09",
+          "message": "Tweak x axis label style"
+        },
+        {
+          "hash": "49c5f9f62b",
+          "message": "Port general and rating charts to ECharts wrapper"
+        },
+        {
+          "hash": "1cdd5924a7",
+          "message": "Port test charts to ECharts wrapper"
+        },
+        {
+          "hash": "db7eb7aba4",
+          "message": "Create ECharts based chart wrapper component"
+        },
+        {
+          "hash": "151c5fd5c9",
+          "message": "Fix the AcrylicBackground scaling edge case"
+        },
+        {
+          "hash": "6572c3b144",
+          "message": "Fix input font family on mobile"
+        },
+        {
+          "hash": "e1d2b0008b",
+          "message": "Add file input styles"
+        },
+        {
+          "hash": "3699bdf67c",
+          "message": "Add range input styles"
+        },
+        {
+          "hash": "fec2e6671e",
+          "message": "Add basic number type styles"
+        },
+        {
+          "hash": "bf1ef2695e",
+          "message": "Add text input styles"
+        },
+        {
+          "hash": "2935d2a038",
+          "message": "Fix placeholder color when in invalid state"
+        },
+        {
+          "hash": "bf595f8099",
+          "message": "Try to fix AnchoredPopup positioning when zoomed on mobile"
+        },
+        {
+          "hash": "49eaaf5faf",
+          "message": "Fix hover effect on mobile"
+        },
+        {
+          "hash": "2dfbd4d68a",
+          "message": "Fix default signal value"
+        },
+        {
+          "hash": "7c43ff822e",
+          "message": "Create a DateInput component"
+        },
+        {
+          "hash": "ef41a0916b",
+          "message": "Fix cursor appearance in disabled buttons"
+        },
+        {
+          "hash": "73fa732b72",
+          "message": "Extract popup logic to a dedicated AnchoredPopup component"
+        },
+        {
+          "hash": "7f47fccef0",
+          "message": "Update copilot instructions"
+        }
+      ]
+    },
+    {
       "version": "0.7.0",
       "releaseType": "minor",
       "date": "2026-02-17",
