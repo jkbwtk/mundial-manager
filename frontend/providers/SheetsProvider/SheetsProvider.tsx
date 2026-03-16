@@ -21,7 +21,10 @@ import type {
   MatchData,
   MatchDataFrame,
   MatchStats,
+  MonthStats,
+  SeasonStats,
   SessionStats,
+  WeekStats,
 } from '#frontend/types';
 import { useTRPC } from '#providers/TRPCProvider';
 import { getMatchHash } from '#shared/matchUtils';
@@ -39,6 +42,9 @@ export interface SheetsContextActions {
   matchStats: () => Record<number, MatchStats>;
   sessionStats: () => Record<string, SessionStats>;
   dayStats: () => Record<number, DayStats>;
+  weekStats: () => Record<string, WeekStats>;
+  monthStats: () => Record<string, MonthStats>;
+  seasonStats: () => Record<string, SeasonStats>;
   matchData: () => MatchData;
   latest: () => MatchDataFrame;
   matchHashMap: () => Record<string, Match>;
@@ -88,6 +94,15 @@ const SheetsContext = createContext<SheetsContextValue>([
     },
     dayStats: () => {
       throw new Error('SheetsContext: dayStats() called before provider');
+    },
+    weekStats: () => {
+      throw new Error('SheetsContext: weekStats() called before provider');
+    },
+    monthStats: () => {
+      throw new Error('SheetsContext: monthStats() called before provider');
+    },
+    seasonStats: () => {
+      throw new Error('SheetsContext: seasonStats() called before provider');
     },
     matchData: () => {
       throw new Error('SheetsContext: matchData() called before provider');
@@ -219,6 +234,36 @@ export const SheetsProvider: ParentComponent = (props) => {
     );
   });
 
+  const weekStats = createMemo(() => {
+    return Object.fromEntries(
+      Array.from(Object.entries(matchData().weekStats)).map(
+        ([week, aggregate]) => {
+          return [week, aggregate.frame.weekStats];
+        },
+      ),
+    );
+  });
+
+  const monthStats = createMemo(() => {
+    return Object.fromEntries(
+      Array.from(Object.entries(matchData().monthStats)).map(
+        ([month, aggregate]) => {
+          return [month, aggregate.frame.monthStats];
+        },
+      ),
+    );
+  });
+
+  const seasonStats = createMemo(() => {
+    return Object.fromEntries(
+      Array.from(Object.entries(matchData().seasonStats)).map(
+        ([season, aggregate]) => {
+          return [season, aggregate.frame.seasonStats];
+        },
+      ),
+    );
+  });
+
   const latest = createMemo<MatchDataFrame>(() => {
     return matchData().latest;
   });
@@ -290,6 +335,9 @@ export const SheetsProvider: ParentComponent = (props) => {
     latest,
     sessionStats,
     dayStats,
+    weekStats,
+    monthStats,
+    seasonStats,
     matchData,
     matchHashMap,
 
