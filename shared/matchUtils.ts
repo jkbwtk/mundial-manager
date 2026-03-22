@@ -45,3 +45,30 @@ export function getPauseDuration(events: MatchEvent[]): number {
 
   return pauseDuration;
 }
+
+export function hasBeenCancelled(events?: MatchEvent[]): boolean {
+  if (Array.isArray(events) === false) {
+    return false;
+  }
+
+  return events.at(-1)?.type === 'CANCEL';
+}
+
+export function hasWon(
+  match: Match,
+  team: keyof Pick<Match, 'team1' | 'team2'>,
+): boolean {
+  if (hasBeenCancelled(match.replayMetadata?.events)) {
+    return false;
+  }
+
+  if (match.score1 === match.score2) {
+    return false;
+  }
+
+  if (team === 'team1') {
+    return match.score1 > match.score2;
+  }
+
+  return match.score2 > match.score1;
+}

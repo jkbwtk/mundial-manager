@@ -18,6 +18,7 @@ import { Divider } from '#components/Widget';
 import { formatDate, formatDuration } from '#flib/sheetUtils';
 import { getTeamColorClass } from '#flib/teamColors';
 import { useModal } from '#providers/ModalProvider';
+import { hasBeenCancelled, hasWon } from '#shared/matchUtils';
 import style from './MatchStats.module.scss';
 
 export interface MatchStatsBaseProps {
@@ -63,7 +64,7 @@ export const MatchStatsBase: Component<MatchStatsBaseProps> = (props) => {
         <strong>
           <AnimatedText
             classList={{
-              [style.highlight]: match().score1 > match().score2,
+              [style.highlight]: hasWon(match(), 'team1'),
             }}
           >
             {match().team1}
@@ -74,7 +75,7 @@ export const MatchStatsBase: Component<MatchStatsBaseProps> = (props) => {
         <strong>
           <AnimatedText
             classList={{
-              [style.highlight]: match().score1 < match().score2,
+              [style.highlight]: hasWon(match(), 'team2'),
             }}
           >
             {match().team2}
@@ -85,7 +86,7 @@ export const MatchStatsBase: Component<MatchStatsBaseProps> = (props) => {
         <strong>
           <span
             classList={{
-              [style.highlight]: match().score1 > match().score2,
+              [style.highlight]: hasWon(match(), 'team1'),
             }}
           >
             {match().score1}
@@ -93,7 +94,7 @@ export const MatchStatsBase: Component<MatchStatsBaseProps> = (props) => {
           :
           <span
             classList={{
-              [style.highlight]: match().score1 < match().score2,
+              [style.highlight]: hasWon(match(), 'team2'),
             }}
           >
             {match().score2}
@@ -134,12 +135,17 @@ export const MatchStatsBase: Component<MatchStatsBaseProps> = (props) => {
         </strong>
 
         <span>Winning Color:</span>
-        <span
-          classList={{
-            [getTeamColorClass(match().winningColor)]: true,
-            [style.teamColor]: true,
-          }}
-        />
+        <Show
+          when={hasBeenCancelled(match().replayMetadata?.events) === false}
+          fallback={<strong class={style.cancelledLabel}>CANCELLED</strong>}
+        >
+          <span
+            classList={{
+              [getTeamColorClass(match().winningColor)]: true,
+              [style.teamColor]: true,
+            }}
+          />
+        </Show>
       </div>
 
       <Show when={stats().matchStats.goalsPerMinute !== null}>

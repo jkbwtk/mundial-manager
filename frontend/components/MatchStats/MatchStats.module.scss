@@ -33,3 +33,10 @@
 
   mask: url('/frontend/assets/images/braille.svg') 0 0 / cw(1) ch(1);
 }
+
+.cancelled-label {
+  text-transform: uppercase;
+  font-weight: bold;
+
+  color: $redBright;
+}
