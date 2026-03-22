@@ -14,7 +14,7 @@ import type {
 import { AsyncCached, bypassCache } from '#blib/cache';
 import { TypedEventEmitter } from '#blib/utils';
 import { logger } from '#shared/logger';
-import { getMatchHash } from '#shared/matchUtils';
+import { getMatchHash, getPauseDuration } from '#shared/matchUtils';
 import {
   type Match,
   MatchCreate,
@@ -165,6 +165,9 @@ export class SheetStore extends Store {
       return {
         id: row,
         hash: getMatchHash(match.data),
+        pauseDuration: getPauseDuration(
+          match.data.replayMetadata?.events ?? [],
+        ),
         ...match.data,
       };
     }

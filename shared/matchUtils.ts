@@ -2,6 +2,7 @@ import { prettifyError } from 'zod';
 import {
   type Match,
   MatchCreate,
+  type MatchEvent,
   type MatchWithoutMetadata,
   NormalizedTeamName,
 } from '#shared/types/Sheets';
@@ -25,4 +26,22 @@ export function getMatchHash(
 
 export function normalizeTeamName(team: string): NormalizedTeamName {
   return NormalizedTeamName.parse(team);
+}
+
+export function getPauseDuration(events: MatchEvent[]): number {
+  let paused: number | null = null;
+  let pauseDuration = 0;
+
+  for (const event of events) {
+    if (event.type === 'PAUSE' && paused === null) {
+      paused = event.time;
+    }
+
+    if (event.type === 'RESUME' && paused !== null) {
+      pauseDuration += event.time - paused;
+      paused = null;
+    }
+  }
+
+  return pauseDuration;
 }

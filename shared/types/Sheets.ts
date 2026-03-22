@@ -54,11 +54,34 @@ export type MatchEventEquipmentFailure = z.infer<
   typeof MatchEventEquipmentFailure
 >;
 
+export const MatchEventPause = MatchEventBase.extend({
+  type: z.literal('PAUSE'),
+  reason: z.string().nullable().catch(null),
+});
+
+export type MatchEventPause = z.infer<typeof MatchEventPause>;
+
+export const MatchEventResume = MatchEventBase.extend({
+  type: z.literal('RESUME'),
+});
+
+export type MatchEventResume = z.infer<typeof MatchEventResume>;
+
+export const MatchEventCancel = MatchEventBase.extend({
+  type: z.literal('CANCEL'),
+  reason: z.string().nullable().catch(null),
+});
+
+export type MatchEventCancel = z.infer<typeof MatchEventCancel>;
+
 export const MatchEvent = z.discriminatedUnion('type', [
   MatchEventGoal,
   MatchEventPositionChange,
   MatchEventBallOut,
   MatchEventEquipmentFailure,
+  MatchEventPause,
+  MatchEventResume,
+  MatchEventCancel,
 ]);
 
 export type MatchEvent = z.infer<typeof MatchEvent>;
@@ -100,6 +123,7 @@ export const Match = z.object({
       encode: (val) => (val ? Math.fround(val / (24 * 60)) : null),
     },
   ),
+  pauseDuration: z.number(),
   date: z.codec(
     z.number().int().optional().nullable().default(null).catch(null),
     z.number().int().optional().nullable().default(null),
@@ -124,6 +148,7 @@ export type Match = z.infer<typeof Match>;
 export const MatchWithoutMetadata = Match.omit({
   id: true,
   hash: true,
+  pauseDuration: true,
 });
 
 export type MatchWithoutMetadata = z.infer<typeof MatchWithoutMetadata>;
@@ -132,6 +157,7 @@ export const MatchCreate = Match.omit({
   id: true,
   floor: true,
   hash: true,
+  pauseDuration: true,
 });
 
 export type MatchCreate = z.infer<typeof MatchCreate>;
