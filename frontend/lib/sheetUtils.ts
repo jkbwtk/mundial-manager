@@ -13,6 +13,7 @@ import type {
 import {
   getMatchHash,
   getPauseDuration,
+  hasBeenCancelled,
   normalizeTeamName,
 } from '#shared/matchUtils';
 import type { CalculatorFinishEvent } from '#shared/types/MundialCalculator';
@@ -253,6 +254,10 @@ export function calculateElos(
 
   const elos = { ...previousElos };
 
+  if (hasBeenCancelled(match.replayMetadata?.events)) {
+    return previousElos;
+  }
+
   if (mode === 'player') {
     if (getPlayersFromMatch(match).length !== 2) {
       return previousElos;
@@ -491,6 +496,10 @@ export function calculateGlicko2Ratings(
 
   const getPreviousRating = (team: string): Glicko2Rating =>
     previousRatings[team] ?? defaultRating;
+
+  if (hasBeenCancelled(match.replayMetadata?.events)) {
+    return ratings;
+  }
 
   if (mode === 'player') {
     if (getPlayersFromMatch(match).length !== 2) {
