@@ -33,6 +33,7 @@ export const defaultMatch: Match = {
   score1: 0,
   score2: 0,
   duration: null,
+  pauseDuration: 0,
   winningColor: '',
   date: null,
   floor: null,
