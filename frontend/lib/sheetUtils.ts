@@ -751,10 +751,10 @@ export function convertCalculatorFinishEventToMatch(
 }
 
 export function getMatchDuration(event: CalculatorFinishEvent): number {
-  const lastGoal = getLastGoalEvent(event.events);
+  const lastEvent = event.events?.at(-1);
 
-  const duration = lastGoal
-    ? lastGoal.time - event.startedAt
+  const duration = lastEvent
+    ? lastEvent.time - event.startedAt
     : Math.floor(Date.now() / 1000) - event.startedAt;
 
   return duration;
