@@ -312,6 +312,17 @@ register({
 });
 
 register({
+  id: 'match-pause-duration',
+  label: 'Match Pause Duration',
+
+  type: 'bar',
+  unit: 'duration',
+
+  dataSources: ['match'],
+  extractor: (ext) => ext.chain((data) => data.pauseDuration),
+});
+
+register({
   id: 'ball-out-count',
   label: 'Ball Outs',
 

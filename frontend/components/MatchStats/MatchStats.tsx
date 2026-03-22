@@ -107,6 +107,13 @@ export const MatchStatsBase: Component<MatchStatsBaseProps> = (props) => {
           </strong>
         </Show>
 
+        <Show when={match().pauseDuration > 0}>
+          <span>Pause Duration:</span>
+          <strong>
+            <AnimatedText>{formatDuration(match().pauseDuration)}</AnimatedText>
+          </strong>
+        </Show>
+
         <Show when={match().date}>
           <span>Date:</span>
           <strong>
