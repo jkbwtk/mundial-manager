@@ -718,10 +718,13 @@ export function getLastGoalEvent(
 export function convertCalculatorFinishEventToMatch(
   event: CalculatorFinishEvent,
 ): MatchCreate {
+  const cancelled = hasBeenCancelled(event.events);
   const lastGoal = getLastGoalEvent(event.events);
   const lastHistoryGoal = event.history?.at(-1);
 
-  const winningColor = lastGoal?.for ?? lastHistoryGoal ?? 'unknown';
+  const winningColor = cancelled
+    ? 'unknown'
+    : (lastGoal?.for ?? lastHistoryGoal ?? 'unknown');
 
   const duration =
     getMatchDuration(event) - getPauseDuration(event.events ?? []);

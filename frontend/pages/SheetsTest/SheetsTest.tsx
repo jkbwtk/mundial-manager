@@ -17,6 +17,7 @@ import {
   useStatPaginatedFrame,
 } from '#components/StatPaginatorWidget';
 import { getTeamColorClass } from '#flib/teamColors';
+import { hasWon } from '#shared/matchUtils';
 import style from './SheetsTest.module.scss';
 
 dayjs.extend(duration);
@@ -48,7 +49,7 @@ export const SheetsTest: Component = () => {
         <>
           <span
             classList={{
-              [style.highlightedScore]: row.score1 > row.score2,
+              [style.highlightedScore]: hasWon(row, 'team1'),
             }}
           >
             {row.score1}
@@ -56,7 +57,7 @@ export const SheetsTest: Component = () => {
           :
           <span
             classList={{
-              [style.highlightedScore]: row.score1 < row.score2,
+              [style.highlightedScore]: hasWon(row, 'team2'),
             }}
           >
             {row.score2}

@@ -57,7 +57,11 @@ import type {
   SessionStats,
   WeekStats,
 } from '#frontend/types';
-import { normalizeTeamName } from '#shared/matchUtils';
+import {
+  hasBeenCancelled,
+  hasWon,
+  normalizeTeamName,
+} from '#shared/matchUtils';
 import type { Match } from '#shared/types/Sheets';
 
 function computePlayerStatDeltas(
@@ -677,15 +681,16 @@ export function calculatePlayerStats(
     ? match.score2
     : match.score1;
 
-  const hasWon = playerTeamGoals > playerOponentGoals;
+  const won = hasWon(match, match.team1.includes(name) ? 'team1' : 'team2');
+  const cancelled = hasBeenCancelled(match.replayMetadata?.events);
 
   const playtime = previousStats.playtime + (match.duration ?? 0);
   const matches = previousStats.matches + 1;
 
   const averageMatchDuration = playtime / (_matchesWithDuration || 1);
 
-  const wins = previousStats.wins + (hasWon ? 1 : 0);
-  const losses = previousStats.losses + (hasWon ? 0 : 1);
+  const wins = previousStats.wins + (won ? 1 : 0);
+  const losses = previousStats.losses + (won || cancelled ? 0 : 1);
   const winRatio = losses ? wins / losses : 0;
 
   const goalsFor = previousStats.goalsFor + playerTeamGoals;
@@ -698,14 +703,21 @@ export function calculatePlayerStats(
   const ownGoals =
     previousStats.ownGoals + (getOwnGoalEvents(match, name)?.length ?? 0);
 
-  const currentWinStreak = hasWon ? previousStats.currentWinStreak + 1 : 0;
+  const currentWinStreak = cancelled
+    ? previousStats.currentWinStreak
+    : won
+      ? previousStats.currentWinStreak + 1
+      : 0;
   const longestWinStreak = Math.max(
     currentWinStreak,
     previousStats.longestWinStreak,
   );
 
-  const currentLossStreak =
-    hasWon === false ? previousStats.currentLossStreak + 1 : 0;
+  const currentLossStreak = cancelled
+    ? previousStats.currentLossStreak
+    : won === false
+      ? previousStats.currentLossStreak + 1
+      : 0;
   const longestLossStreak = Math.max(
     currentLossStreak,
     previousStats.longestLossStreak,
@@ -749,30 +761,32 @@ export function calculatePlayerStats(
     ...previousStats.matchesLostAgainstDoubles,
   };
 
-  for (const opponent of getPlayersFromTeam(opponentTeamName)) {
-    if (hasWon) {
-      matchesWonAgainst[opponent] = (matchesWonAgainst[opponent] ?? 0) + 1;
-    } else {
-      matchesLostAgainst[opponent] = (matchesLostAgainst[opponent] ?? 0) + 1;
-    }
-
-    const isSingles = getPlayersFromTeam(opponentTeamName).length === 1;
-
-    if (isSingles) {
-      if (hasWon) {
-        matchesWonAgainstSingles[opponent] =
-          (matchesWonAgainstSingles[opponent] ?? 0) + 1;
-      } else {
-        matchesLostAgainstSingles[opponent] =
-          (matchesLostAgainstSingles[opponent] ?? 0) + 1;
+  if (cancelled === false) {
+    for (const opponent of getPlayersFromTeam(opponentTeamName)) {
+      if (won && !cancelled) {
+        matchesWonAgainst[opponent] = (matchesWonAgainst[opponent] ?? 0) + 1;
+      } else if (!cancelled) {
+        matchesLostAgainst[opponent] = (matchesLostAgainst[opponent] ?? 0) + 1;
       }
-    } else {
-      if (hasWon) {
-        matchesWonAgainstDoubles[opponent] =
-          (matchesWonAgainstDoubles[opponent] ?? 0) + 1;
+
+      const isSingles = getPlayersFromTeam(opponentTeamName).length === 1;
+
+      if (isSingles) {
+        if (won) {
+          matchesWonAgainstSingles[opponent] =
+            (matchesWonAgainstSingles[opponent] ?? 0) + 1;
+        } else {
+          matchesLostAgainstSingles[opponent] =
+            (matchesLostAgainstSingles[opponent] ?? 0) + 1;
+        }
       } else {
-        matchesLostAgainstDoubles[opponent] =
-          (matchesLostAgainstDoubles[opponent] ?? 0) + 1;
+        if (won) {
+          matchesWonAgainstDoubles[opponent] =
+            (matchesWonAgainstDoubles[opponent] ?? 0) + 1;
+        } else {
+          matchesLostAgainstDoubles[opponent] =
+            (matchesLostAgainstDoubles[opponent] ?? 0) + 1;
+        }
       }
     }
   }

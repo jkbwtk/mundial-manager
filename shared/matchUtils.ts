@@ -46,7 +46,7 @@ export function getPauseDuration(events: MatchEvent[]): number {
   return pauseDuration;
 }
 
-export function hasBeenCancelled(events?: MatchEvent[]): boolean {
+export function hasBeenCancelled(events?: MatchEvent[] | null): boolean {
   if (Array.isArray(events) === false) {
     return false;
   }
