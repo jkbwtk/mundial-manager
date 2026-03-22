@@ -10,7 +10,11 @@ import type {
   Glicko2Rating,
   MatchDataFrame,
 } from '#frontend/types';
-import { getMatchHash, normalizeTeamName } from '#shared/matchUtils';
+import {
+  getMatchHash,
+  getPauseDuration,
+  normalizeTeamName,
+} from '#shared/matchUtils';
 import type { CalculatorFinishEvent } from '#shared/types/MundialCalculator';
 import type {
   Match,
@@ -710,9 +714,8 @@ export function convertCalculatorFinishEventToMatch(
 
   const winningColor = lastGoal?.for ?? lastHistoryGoal ?? 'unknown';
 
-  const duration = lastGoal
-    ? lastGoal.time - event.startedAt
-    : Math.floor(Date.now() / 1000) - event.startedAt;
+  const duration =
+    getMatchDuration(event) - getPauseDuration(event.events ?? []);
 
   return {
     team1: event.teams[0].join(' '),
@@ -733,6 +736,16 @@ export function convertCalculatorFinishEventToMatch(
         }
       : null,
   };
+}
+
+export function getMatchDuration(event: CalculatorFinishEvent): number {
+  const lastGoal = getLastGoalEvent(event.events);
+
+  const duration = lastGoal
+    ? lastGoal.time - event.startedAt
+    : Math.floor(Date.now() / 1000) - event.startedAt;
+
+  return duration;
 }
 
 export const COLOR_PAIRS: [string, string][] = [
