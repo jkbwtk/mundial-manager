@@ -75,9 +75,24 @@ export interface MonthStats extends AggregateStats {
   humanMonth: string;
 }
 
+export interface SeasonConfig {
+  resetRatings: boolean;
+
+  defaultEloRating: number;
+  defaultGlicko2Rating: number;
+  defaultGlicko2RD: number;
+  defaultGlicko2Volatility: number;
+
+  eloKFactorRanges: Record<number, number> & {default: number};
+  eloScoreMultipliers: Record<number, number> & {default: number};
+}
+
+
 export interface Season {
   number: number;
   label: string;
+
+  config: SeasonConfig;
 
   startDate: Dayjs;
   endDate: Dayjs;

@@ -5,7 +5,6 @@ import { MaterialSymbol } from '#components/MaterialSymbol';
 import { useStatPaginator } from '#components/StatPaginatorWidget';
 import { type Column, Table } from '#components/Table';
 import { createDeltaFrame } from '#flib/matchDataUtils';
-import { DEFAULT_ELO } from '#flib/sheetUtils';
 import style from './SeasonSummaryModal.module.scss';
 
 const columns: Column[] = [
@@ -68,7 +67,9 @@ export const SeasonLeaderboard: Component = () => {
     Object.entries(curr().eloRatings.hybridElos)
       .map(([name]) => ({
         player: name,
-        elo: curr().eloRatings.hybridElos[name]?.rating ?? DEFAULT_ELO,
+        elo:
+          curr().eloRatings.hybridElos[name]?.rating ??
+          curr().season.config.defaultEloRating,
         deltaElo: delta().eloRatings.hybridElos[name]?.ratingChange ?? 0,
         wonLost: `${delta().playerStats[name]?.wins ?? 0}-${delta().playerStats[name]?.losses ?? 0}`,
         winRate: delta().playerStats[name]

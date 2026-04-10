@@ -14,6 +14,7 @@ import style from './Leaderboard.module.scss';
 
 export const Glicko2LeaderboardBase: Component = () => {
   const aggregateFrame = useStatPaginatedDeltaFrame();
+  const season = () => aggregateFrame().season;
 
   const sortedGlicko2 = createMemo(() => ({
     playerGlicko2: Object.entries(
@@ -50,7 +51,7 @@ export const Glicko2LeaderboardBase: Component = () => {
                 </td>
                 <td class={style.minWidth}>{rating.rating.toFixed(2)}</td>
                 <td class={style.minWidth}>
-                  ({getGlicko2Confidence(rating).toFixed(0)}%)
+                  ({getGlicko2Confidence(season(), rating).toFixed(0)}%)
                 </td>
 
                 <td
@@ -96,7 +97,7 @@ export const Glicko2LeaderboardBase: Component = () => {
                 </td>
                 <td class={style.minWidth}>{rating.rating.toFixed(2)}</td>
                 <td class={style.minWidth}>
-                  ({getGlicko2Confidence(rating).toFixed(0)}%)
+                  ({getGlicko2Confidence(season(), rating).toFixed(0)}%)
                 </td>
 
                 <td
@@ -142,7 +143,7 @@ export const Glicko2LeaderboardBase: Component = () => {
                 </td>
                 <td class={style.minWidth}>{rating.rating.toFixed(2)}</td>
                 <td class={style.minWidth}>
-                  ({getGlicko2Confidence(rating).toFixed(0)}%)
+                  ({getGlicko2Confidence(season(), rating).toFixed(0)}%)
                 </td>
 
                 <td
@@ -188,7 +189,7 @@ export const Glicko2LeaderboardBase: Component = () => {
                 </td>
                 <td class={style.minWidth}>{rating.rating.toFixed(2)}</td>
                 <td class={style.minWidth}>
-                  ({getGlicko2Confidence(rating).toFixed(0)}%)
+                  ({getGlicko2Confidence(season(), rating).toFixed(0)}%)
                 </td>
 
                 <td

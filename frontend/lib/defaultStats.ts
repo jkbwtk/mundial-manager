@@ -1,11 +1,5 @@
 import { defaultSeason } from '#flib/seasons';
-import {
-  DEFAULT_ELO,
-  DEFAULT_GLICKO2_RATING,
-  DEFAULT_GLICKO2_RD,
-  DEFAULT_GLICKO2_VOLATILITY,
-  formatDuration,
-} from '#flib/sheetUtils';
+import { formatDuration } from '#flib/sheetUtils';
 import type {
   AggregateFrame,
   AggregateStats,
@@ -149,7 +143,7 @@ export const defaultGeneralStats: GeneralStats = {
 export function defaultEloRating(matchId: number): EloRating {
   return {
     id: matchId,
-    rating: DEFAULT_ELO,
+    rating: defaultSeason.config.defaultEloRating,
   };
 }
 
@@ -163,11 +157,11 @@ export const defaultEloRatings: EloRatings = {
 export function defaultGlicko2Rating(matchId: number): Glicko2Rating {
   return {
     id: matchId,
-    rating: DEFAULT_GLICKO2_RATING,
+    rating: defaultSeason.config.defaultGlicko2Rating,
 
-    rd: DEFAULT_GLICKO2_RD,
+    rd: defaultSeason.config.defaultGlicko2RD,
 
-    volatility: DEFAULT_GLICKO2_VOLATILITY,
+    volatility: defaultSeason.config.defaultGlicko2Volatility,
   };
 }
 

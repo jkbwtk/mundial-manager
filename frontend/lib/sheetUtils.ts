@@ -9,6 +9,7 @@ import type {
   EloRating,
   Glicko2Rating,
   MatchDataFrame,
+  Season,
 } from '#frontend/types';
 import {
   getMatchHash,
@@ -31,11 +32,6 @@ import { quickSwitch } from '#shared/utils';
 dayjs.extend(duration);
 dayjs.extend(weekOfYear);
 
-export const DEFAULT_ELO = 1500;
-
-export const DEFAULT_GLICKO2_RATING = 1500;
-export const DEFAULT_GLICKO2_RD = 350;
-export const DEFAULT_GLICKO2_VOLATILITY = 0.06;
 const GLICKO2_TAU = 0.5;
 const GLICKO2_EPSILON = 0.000001;
 
@@ -272,7 +268,7 @@ export function calculateElos(
 
   const defaultRating: EloRating = {
     id: match.id,
-    rating: DEFAULT_ELO,
+    rating: season.config.defaultEloRating,
   };
 
   const playersToCalculate =
@@ -487,11 +483,11 @@ export function calculateGlicko2Ratings(
 
   const defaultRating: Glicko2Rating = {
     id: match.id,
-    rating: DEFAULT_GLICKO2_RATING,
+    rating: season.config.defaultGlicko2Rating,
 
-    rd: DEFAULT_GLICKO2_RD,
+    rd: season.config.defaultGlicko2RD,
 
-    volatility: DEFAULT_GLICKO2_VOLATILITY,
+    volatility: season.config.defaultGlicko2Volatility,
   };
 
   const getPreviousRating = (team: string): Glicko2Rating =>
@@ -583,8 +579,11 @@ export function calculateGlicko2Ratings(
   return ratings;
 }
 
-export function getGlicko2Confidence(rating: Glicko2Rating): number {
-  const maxRd = DEFAULT_GLICKO2_RD;
+export function getGlicko2Confidence(
+  season: Season,
+  rating: Glicko2Rating,
+): number {
+  const maxRd = season.config.defaultGlicko2RD;
   const minRd = 30;
 
   const normalizedRd = Math.max(
