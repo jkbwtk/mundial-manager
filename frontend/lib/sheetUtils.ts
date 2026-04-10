@@ -27,7 +27,7 @@ import type {
   MatchEventPositionChange,
   MatchEventType,
 } from '#shared/types/Sheets';
-import { quickSwitch } from '#shared/utils';
+import { quickRangeSwitch, quickSwitch } from '#shared/utils';
 
 dayjs.extend(duration);
 dayjs.extend(weekOfYear);
@@ -179,40 +179,22 @@ export function getPlayersFromMatch(match: Match): string[] {
   ];
 }
 
-function getKFactor(rating: number): number {
-  if (rating < 2100) {
-    return 32;
-  }
-  if (rating < 2400) {
-    return 24;
-  }
-  return 16;
+function getKFactor(season: Season, rating: number): number {
+  return quickRangeSwitch<number>(rating, season.config.eloKFactorRanges);
 }
 
-function getScoreMultiplier(scoreDiff: number): number {
-  return quickSwitch<number>(scoreDiff, {
-    0: 1.0,
-    1: 1.0,
-    2: 1.1,
-    3: 1.2,
-    4: 1.3,
-    5: 1.4,
-    6: 1.5,
-    7: 1.6,
-    8: 1.7,
-    9: 1.8,
-    10: 2.0,
-    default: 1,
-  });
+function getScoreMultiplier(season: Season, scoreDiff: number): number {
+  return quickSwitch<number>(scoreDiff, season.config.eloScoreMultipliers);
 }
 
 export function calculateEloDiff(
+  season: Season,
   playerElo: number,
   opponentElo: number,
   playerScore: number,
   opponentScore: number,
 ): number {
-  let playerFactor = getKFactor(playerElo);
+  let playerFactor = getKFactor(season, playerElo);
 
   const expectedPlayer = 1.0 / (1.0 + 10 ** ((opponentElo - playerElo) / 400));
 
@@ -221,7 +203,7 @@ export function calculateEloDiff(
 
   if (playerScore > opponentScore) {
     playerActual = 1.0;
-    playerFactor *= getScoreMultiplier(scoreDiff);
+    playerFactor *= getScoreMultiplier(season, scoreDiff);
   } else if (playerScore === opponentScore) {
     playerActual = 0.5;
   }
@@ -321,6 +303,7 @@ export function calculateElos(
     const playerElo: EloRating = getPreviousRating(normalizedPlayer);
 
     const ratingChange = calculateEloDiff(
+      season,
       playerTeam.elo,
       opponentTeam.elo,
       playerTeam.score,

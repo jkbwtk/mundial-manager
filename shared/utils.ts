@@ -116,6 +116,22 @@ export const quickSwitch = <T, K extends QuickSwitchKeyTypes = string>(
   return cases.default;
 };
 
+export const quickRangeSwitch = <T>(
+  value: number,
+  cases: QuickSwitchCases<T, number>,
+  inclusive = false,
+): T => {
+  const keys = Object.keys(cases) as unknown as number[];
+
+  for (const key of keys.sort()) {
+    if (value < key || (inclusive && value === key)) {
+      return cases[key]!;
+    }
+  }
+
+  return cases.default;
+};
+
 type Defined = string | number | boolean | symbol | object | bigint | null;
 
 export const mergeOptions = <T extends Record<string, Defined>>(

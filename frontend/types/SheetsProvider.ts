@@ -1,5 +1,6 @@
 import type { Dayjs } from 'dayjs';
 import type { Match } from '#shared/types/Sheets';
+import type { QuickSwitchCases } from '#shared/utils';
 
 export interface BaseStats {
   ballOutCount: number | null;
@@ -83,10 +84,9 @@ export interface SeasonConfig {
   defaultGlicko2RD: number;
   defaultGlicko2Volatility: number;
 
-  eloKFactorRanges: Record<number, number> & {default: number};
-  eloScoreMultipliers: Record<number, number> & {default: number};
+  eloKFactorRanges: QuickSwitchCases<number, number>;
+  eloScoreMultipliers: QuickSwitchCases<number, number>;
 }
-
 
 export interface Season {
   number: number;
