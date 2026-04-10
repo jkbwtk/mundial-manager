@@ -91,6 +91,7 @@ const StatMappings = {
       return {
         frame: current,
         previousFrame: previous,
+        frames: [current],
       };
     },
     aggregateStats: () => {
@@ -238,6 +239,11 @@ export const StatPaginatorWidget: Component<StatPaginatorWidgetProps> = (
 };
 
 export const useStatPaginator = () => useContext(StatPaginatorContext);
+
+export const useStatPaginatedAggregateFrame = () => {
+  const [state] = useStatPaginator();
+  return () => state.aggregateFrame;
+};
 
 export const useStatPaginatedFrame = () => {
   const [state] = useStatPaginator();

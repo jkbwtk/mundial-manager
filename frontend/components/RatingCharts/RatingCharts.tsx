@@ -1,5 +1,5 @@
-import { createMemo, For } from 'solid-js';
-
+import { createMemo, createSignal, For } from 'solid-js';
+import { Dropdown } from '#components/Dropdown';
 import {
   axisTooltipDefaults,
   type ChartOptions,
@@ -11,16 +11,23 @@ import {
   legendDefaults,
   valueAxisDefaults,
 } from '#components/EChartWrapper';
+import {
+  type AggregateType,
+  AggregateTypeOptions,
+  StatPaginatorWidget,
+  useStatPaginatedAggregateFrame,
+  useStatPaginatedAggregateStats,
+} from '#components/StatPaginatorWidget';
 import { Widget } from '#components/Widget';
 import { generateTeamColor } from '#flib/sheetUtils';
-import { useSheets } from '#providers/SheetsProvider';
 import style from './RatingChats.module.scss';
 
-export const RatingCharts: Component = () => {
-  const [, { matchStats, matchData, latest }] = useSheets();
+export const RatingChartsBase: Component = () => {
+  const aggregate = useStatPaginatedAggregateFrame();
+  const stats = useStatPaginatedAggregateStats();
 
   const matchLabels = createMemo(() =>
-    Object.values(matchStats()).map((s) => s.label),
+    aggregate().frames.map((f) => f.matchStats.label),
   );
 
   const makeLineConfig = (
@@ -49,9 +56,10 @@ export const RatingCharts: Component = () => {
   });
 
   const ratingConfigs = createMemo(() => {
-    const players = latest().generalStats.players;
-    const teams = latest().generalStats.teams;
-    const frames = matchData().frames;
+    const players = stats().players;
+    const teams = stats().teams;
+
+    const frames = aggregate().frames;
 
     const playerSeries = (
       getRating: (f: (typeof frames)[number], key: string) => number | null,
@@ -129,5 +137,25 @@ export const RatingCharts: Component = () => {
         )}
       </For>
     </div>
+  );
+};
+
+export const RatingCharts: Component = () => {
+  const [type, setType] = createSignal<AggregateType>('season');
+
+  return (
+    <StatPaginatorWidget
+      topLeftLabels="Period Rating Charts"
+      topRightLabels={
+        <Dropdown
+          options={AggregateTypeOptions}
+          value={type()}
+          onChange={setType}
+        />
+      }
+      statType={type()}
+    >
+      <RatingChartsBase />
+    </StatPaginatorWidget>
   );
 };
