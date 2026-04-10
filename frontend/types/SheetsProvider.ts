@@ -239,6 +239,8 @@ export type MatchDataDeltaFrame = Omit<
 export interface AggregateFrame {
   frame: MatchDataFrame;
   previousFrame: MatchDataFrame;
+
+  frames: MatchDataFrame[];
 }
 
 export interface MatchData {

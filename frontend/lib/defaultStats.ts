@@ -245,4 +245,5 @@ export function defaultPlayerStats(name: string): PlayerStats {
 export const defaultAggregateFrame: AggregateFrame = {
   previousFrame: defaultMatchDataFrame,
   frame: defaultMatchDataFrame,
+  frames: [defaultMatchDataFrame],
 };

@@ -959,10 +959,12 @@ export function calculateMatchData(matches: Match[]): MatchData {
 
     if (aggregateSessionFrame) {
       aggregateSessionFrame.frame = currentFrame;
+      aggregateSessionFrame.frames.push(currentFrame);
     } else {
       sessionStatsMap.set(session, {
         previousFrame: previousSessionFrame ?? defaultMatchDataFrame,
         frame: currentFrame,
+        frames: [],
       });
     }
 
@@ -976,10 +978,12 @@ export function calculateMatchData(matches: Match[]): MatchData {
 
       if (aggregateDayFrame) {
         aggregateDayFrame.frame = currentFrame;
+        aggregateDayFrame.frames.push(currentFrame);
       } else {
         dayStatsMap.set(day, {
           previousFrame: previousDayFrame ?? defaultMatchDataFrame,
           frame: currentFrame,
+          frames: [],
         });
       }
     }
@@ -994,10 +998,12 @@ export function calculateMatchData(matches: Match[]): MatchData {
 
       if (aggregateWeekFrame) {
         aggregateWeekFrame.frame = currentFrame;
+        aggregateWeekFrame.frames.push(currentFrame);
       } else {
         weekStatsMap.set(week, {
           previousFrame: previousWeekFrame ?? defaultMatchDataFrame,
           frame: currentFrame,
+          frames: [],
         });
       }
     }
@@ -1012,10 +1018,12 @@ export function calculateMatchData(matches: Match[]): MatchData {
 
       if (aggregateMonthFrame) {
         aggregateMonthFrame.frame = currentFrame;
+        aggregateMonthFrame.frames.push(currentFrame);
       } else {
         monthStatsMap.set(month, {
           previousFrame: previousMonthFrame ?? defaultMatchDataFrame,
           frame: currentFrame,
+          frames: [],
         });
       }
     }
@@ -1030,10 +1038,12 @@ export function calculateMatchData(matches: Match[]): MatchData {
 
     if (aggregateSeasonFrame) {
       aggregateSeasonFrame.frame = currentFrame;
+      aggregateSeasonFrame.frames.push(currentFrame);
     } else {
       seasonStatsMap.set(seasonNumber, {
         previousFrame: previousSeasonFrame ?? defaultMatchDataFrame,
         frame: currentFrame,
+        frames: [],
       });
     }
 
