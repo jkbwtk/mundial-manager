@@ -68,6 +68,7 @@ export const defaultAggregateStats: AggregateStats = {
   ...structuredClone(defaultBaseStats),
 
   players: [],
+  teams: [],
 
   matches: 0,
   goals: 0,
@@ -136,8 +137,6 @@ export const defaultGeneralStats: GeneralStats = {
 
   totalIndividualPlaytimeExtrapolated: 0,
   totalIndividualPlaytimeExtrapolatedFormatted: formatDuration(0),
-
-  teams: [],
 };
 
 export function defaultEloRating(matchId: number): EloRating {

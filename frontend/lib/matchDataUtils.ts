@@ -404,6 +404,15 @@ export function calculateAggregateStats(
     ? ownGoalCount / _matchesWithTimeline
     : null;
 
+  const matchTeams =
+    getPlayersFromMatch(match).length === 4
+      ? [normalizeTeamName(match.team1), normalizeTeamName(match.team2)]
+      : [];
+
+  const teams = Array.from(
+    new Set<string>([...previousStats.teams, ...matchTeams]),
+  ).sort();
+
   const floorMatchCount = structuredClone(previousStats.floorMatchCount);
   if (match.floor !== null) {
     floorMatchCount[match.floor] = (floorMatchCount[match.floor] ?? 0) + 1;
@@ -444,6 +453,7 @@ export function calculateAggregateStats(
     goalsPerMinute,
 
     players,
+    teams,
 
     matches,
     goals,
@@ -632,15 +642,6 @@ export function calculateGeneralStats(
       (aggregateStats.matches - previousStats._matchesWithDuration) *
       2.5;
 
-  const matchTeams =
-    getPlayersFromMatch(match).length === 4
-      ? [normalizeTeamName(match.team1), normalizeTeamName(match.team2)]
-      : [];
-
-  const teams = Array.from(
-    new Set<string>([...previousStats.teams, ...matchTeams]),
-  ).sort();
-
   return {
     ...aggregateStats,
 
@@ -653,8 +654,6 @@ export function calculateGeneralStats(
     totalIndividualPlaytimeExtrapolatedFormatted: formatDuration(
       totalIndividualPlaytimeExtrapolated,
     ),
-
-    teams,
   };
 }
 

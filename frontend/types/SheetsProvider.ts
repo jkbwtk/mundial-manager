@@ -30,6 +30,7 @@ export interface MatchStats extends BaseStats {
 
 export interface AggregateStats extends BaseStats {
   players: string[];
+  teams: string[];
 
   matches: number;
   goals: number;
@@ -108,8 +109,6 @@ export interface GeneralStats extends AggregateStats {
 
   totalIndividualPlaytimeExtrapolated: number;
   totalIndividualPlaytimeExtrapolatedFormatted: string;
-
-  teams: string[];
 }
 
 export interface PlayerStats {
