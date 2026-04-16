@@ -10,7 +10,7 @@
     }
   },
   "scripts": {
-    "dev": "tsx --env-file-if-exists=.env ./tools/devServer",
+    "dev": "tsx watch --env-file-if-exists=.env ./tools/devServer",
     "build": "pnpm build:server && pnpm build:client && pnpm build:backend",
     "build:client": "cross-env NODE_ENV=production vite build --ssrManifest --outDir dist/client",
     "build:server": "cross-env NODE_ENV=production vite build --ssr frontend/entryServer.tsx --outDir dist/server",
