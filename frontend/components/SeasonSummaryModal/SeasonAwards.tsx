@@ -3,9 +3,9 @@ import { Identicon } from '#components/Identicon';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import { useStatPaginator } from '#components/StatPaginatorWidget';
 import { createDeltaFrame } from '#flib/matchDataUtils';
-import { formatDuration } from '#flib/sheetUtils';
 import type { SupportedMaterialSymbol } from '#flib/supportedMaterialSymbols';
 import type { MatchDataDeltaFrame, MatchDataFrame } from '#frontend/types';
+import { formatDuration } from '#shared/timeUtils';
 import style from './SeasonSummaryModal.module.scss';
 
 interface Winner {

@@ -39,6 +39,7 @@
     "croner": "^10.0.1",
     "crypto-js": "^4.2.0",
     "dayjs": "^1.11.19",
+    "discord.js": "^14.26.3",
     "echarts": "^6.0.0",
     "figlet": "^1.10.0",
     "google-spreadsheet": "^5.2.0",

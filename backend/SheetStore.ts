@@ -11,6 +11,7 @@ import type {
   MatchesEmitterEvents,
   SheetStoreOptions,
 } from '#backend/types/SheetStore';
+import { sendMatchSummaryWebhook } from '#backend/webhookUtils';
 import { AsyncCached, bypassCache } from '#blib/cache';
 import { TypedEventEmitter } from '#blib/utils';
 import { logger } from '#shared/logger';
@@ -122,6 +123,10 @@ export class SheetStore extends Store {
     this.sheet = sheet;
 
     super.initialize();
+
+    this.matchesEmitter.on('matchCreated', (match) => {
+      sendMatchSummaryWebhook(match);
+    });
 
     logger.time('Sheet initialization', t1);
     logger.debug('SheetStore initialized', {

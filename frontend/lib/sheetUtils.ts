@@ -14,18 +14,17 @@ import type {
 import {
   getMatchHash,
   getPauseDuration,
+  getTeamColors,
   hasBeenCancelled,
   normalizeTeamName,
 } from '#shared/matchUtils';
+import { formatDate } from '#shared/timeUtils';
 import type { CalculatorFinishEvent } from '#shared/types/MundialCalculator';
 import type {
   Match,
   MatchCreate,
   MatchEvent,
-  MatchEventBallOut,
   MatchEventGoal,
-  MatchEventPositionChange,
-  MatchEventType,
 } from '#shared/types/Sheets';
 import { quickRangeSwitch, quickSwitch } from '#shared/utils';
 
@@ -34,33 +33,6 @@ dayjs.extend(weekOfYear);
 
 const GLICKO2_TAU = 0.5;
 const GLICKO2_EPSILON = 0.000001;
-
-export function formatDuration(seconds: number | null): string {
-  if (seconds === null || seconds < 0) {
-    return '--:--';
-  }
-
-  if (seconds < 3600) {
-    return dayjs.duration(seconds, 'seconds').format('mm:ss');
-  }
-
-  if (seconds < 86400) {
-    return dayjs.duration(seconds, 'seconds').format('HH:mm:ss');
-  }
-
-  const durationObj = dayjs.duration(seconds, 'seconds');
-  const hours = durationObj.asHours();
-
-  return `${Math.floor(hours)}:${durationObj.format('mm:ss')}`;
-}
-
-export function formatDate(timestamp: number | null): string {
-  if (timestamp === null) {
-    return '----/--/--';
-  }
-
-  return dayjs.unix(timestamp).format('YYYY-MM-DD');
-}
 
 function decodeSession(
   session = defaultSessionStats.session,
@@ -742,26 +714,6 @@ export function getMatchDuration(event: CalculatorFinishEvent): number {
   return duration;
 }
 
-export const COLOR_PAIRS: [string, string][] = [
-  ['Niebieski', 'Czerwony2'],
-  ['Zielony', 'Czerwony3'],
-];
-
-export function getTeamColors(match: MatchCreate | Match): [string, string] {
-  for (const colors of COLOR_PAIRS) {
-    if (colors.includes(match.winningColor)) {
-      const team1Won = match.score1 > match.score2;
-      const winningColorIsFirst = match.winningColor === colors[0];
-
-      return team1Won === winningColorIsFirst
-        ? [colors[0], colors[1]]
-        : [colors[1], colors[0]];
-    }
-  }
-
-  return ['unknown', 'unknown'];
-}
-
 export const FLOOR_MAP: Record<string, number> = {
   Czerwony2: 2,
   Czerwony3: 3,
@@ -864,50 +816,4 @@ export function loadCreatedMatches(): Record<string, MatchCreate> | null {
   }
 
   return null;
-}
-
-function filterEventsByType(
-  match: Match,
-  type: MatchEventType,
-): MatchEvent[] | null {
-  if (!match.replayMetadata?.events) {
-    return null;
-  }
-
-  return match.replayMetadata.events.filter((ev) => ev.type === type);
-}
-
-export function getGoalEvents(match: Match): MatchEventGoal[] | null {
-  return filterEventsByType(match, 'GOAL') as MatchEventGoal[] | null;
-}
-
-export function getBallOutEvents(match: Match): MatchEventBallOut[] | null {
-  return filterEventsByType(match, 'BALL_OUT') as MatchEventBallOut[] | null;
-}
-
-export function getPositionChangeEvents(
-  match: Match,
-): MatchEventPositionChange[] | null {
-  return filterEventsByType(match, 'POSITION_CHANGE') as
-    | MatchEventPositionChange[]
-    | null;
-}
-
-export function getOwnGoalEvents(
-  match: Match,
-  player?: string,
-): MatchEventGoal[] | null {
-  const goals = filterEventsByType(match, 'GOAL') as MatchEventGoal[] | null;
-
-  if (goals === null) {
-    return null;
-  }
-
-  const ownGoals = goals.filter((ev) => ev.for !== ev.by);
-
-  if (player) {
-    return ownGoals.filter((ev) => ev.player === player);
-  }
-
-  return ownGoals;
 }

@@ -5,9 +5,9 @@ import { Modal } from '#components/Modal';
 import { PlayerLink } from '#components/PlayerLink';
 import { PlayerPickerModal } from '#components/PlayerPickerModal';
 import { Divider } from '#components/Widget';
-import { formatDate, formatDuration } from '#flib/sheetUtils';
 import { useModal } from '#providers/ModalProvider';
 import { useSheets } from '#providers/SheetsProvider';
+import { formatDate, formatDuration } from '#shared/timeUtils';
 import style from './PlayerProfileModal.module.scss';
 
 export interface PlayerProfileModalProps {

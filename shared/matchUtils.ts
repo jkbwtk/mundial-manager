@@ -3,6 +3,10 @@ import {
   type Match,
   MatchCreate,
   type MatchEvent,
+  type MatchEventBallOut,
+  type MatchEventGoal,
+  type MatchEventPositionChange,
+  type MatchEventType,
   type MatchWithoutMetadata,
   NormalizedTeamName,
 } from '#shared/types/Sheets';
@@ -71,4 +75,70 @@ export function hasWon(
   }
 
   return match.score2 > match.score1;
+}
+
+function filterEventsByType(
+  match: Match,
+  type: MatchEventType,
+): MatchEvent[] | null {
+  if (!match.replayMetadata?.events) {
+    return null;
+  }
+
+  return match.replayMetadata.events.filter((ev) => ev.type === type);
+}
+
+export function getGoalEvents(match: Match): MatchEventGoal[] | null {
+  return filterEventsByType(match, 'GOAL') as MatchEventGoal[] | null;
+}
+
+export function getBallOutEvents(match: Match): MatchEventBallOut[] | null {
+  return filterEventsByType(match, 'BALL_OUT') as MatchEventBallOut[] | null;
+}
+
+export function getPositionChangeEvents(
+  match: Match,
+): MatchEventPositionChange[] | null {
+  return filterEventsByType(match, 'POSITION_CHANGE') as
+    | MatchEventPositionChange[]
+    | null;
+}
+
+export function getOwnGoalEvents(
+  match: Match,
+  player?: string,
+): MatchEventGoal[] | null {
+  const goals = filterEventsByType(match, 'GOAL') as MatchEventGoal[] | null;
+
+  if (goals === null) {
+    return null;
+  }
+
+  const ownGoals = goals.filter((ev) => ev.for !== ev.by);
+
+  if (player) {
+    return ownGoals.filter((ev) => ev.player === player);
+  }
+
+  return ownGoals;
+}
+
+export const COLOR_PAIRS: [string, string][] = [
+  ['Niebieski', 'Czerwony2'],
+  ['Zielony', 'Czerwony3'],
+];
+
+export function getTeamColors(match: MatchCreate | Match): [string, string] {
+  for (const colors of COLOR_PAIRS) {
+    if (colors.includes(match.winningColor)) {
+      const team1Won = match.score1 > match.score2;
+      const winningColorIsFirst = match.winningColor === colors[0];
+
+      return team1Won === winningColorIsFirst
+        ? [colors[0], colors[1]]
+        : [colors[1], colors[0]];
+    }
+  }
+
+  return ['unknown', 'unknown'];
 }

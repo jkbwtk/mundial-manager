@@ -7,9 +7,9 @@ import { AnimatedText } from '#components/AnimatedText';
 import { HighlightedCode } from '#components/HighlightedCode';
 import { type Column, Table } from '#components/Table';
 import { Widget } from '#components/Widget';
-import { formatDate, formatDuration } from '#flib/sheetUtils';
 import { toJson } from '#flib/utils';
 import { useSheets } from '#providers/SheetsProvider';
+import { formatDate, formatDuration } from '#shared/timeUtils';
 import type { Match } from '#shared/types/Sheets';
 import 'highlight.js/styles/gml.min.css';
 import {

@@ -15,10 +15,10 @@ import {
   useStatPaginator,
 } from '#components/StatPaginatorWidget';
 import { Divider } from '#components/Widget';
-import { formatDate, formatDuration } from '#flib/sheetUtils';
 import { getTeamColorClass } from '#flib/teamColors';
 import { useModal } from '#providers/ModalProvider';
 import { hasBeenCancelled, hasWon } from '#shared/matchUtils';
+import { formatDate, formatDuration } from '#shared/timeUtils';
 import style from './MatchStats.module.scss';
 
 export interface MatchStatsBaseProps {

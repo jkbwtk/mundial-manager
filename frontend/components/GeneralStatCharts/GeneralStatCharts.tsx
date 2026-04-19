@@ -13,9 +13,9 @@ import {
   valueAxisDefaults,
 } from '#components/EChartWrapper';
 import { Widget } from '#components/Widget';
-import { formatDuration } from '#flib/sheetUtils';
 import { getTeamColor } from '#flib/teamColors';
 import { useSheets } from '#providers/SheetsProvider';
+import { formatDuration } from '#shared/timeUtils';
 import variables from '#styles/variables.module.scss';
 import style from './GeneralStatCharts.module.scss';
 

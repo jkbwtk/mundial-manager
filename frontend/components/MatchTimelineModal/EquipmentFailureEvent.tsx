@@ -1,6 +1,6 @@
 import { MaterialSymbol } from '#components/MaterialSymbol';
-import { formatDuration } from '#flib/sheetUtils';
 import type { SupportedMaterialSymbol } from '#flib/supportedMaterialSymbols';
+import { formatDuration } from '#shared/timeUtils';
 import type { Match, MatchEventEquipmentFailure } from '#shared/types/Sheets';
 import style from './MatchTimelineModal.module.scss';
 

@@ -12,8 +12,9 @@ import {
   useStatPaginatedFrame,
 } from '#components/StatPaginatorWidget';
 import { Divider } from '#components/Widget';
-import { formatDate, formatDuration, getTeamColors } from '#flib/sheetUtils';
 import { getTeamColorClass } from '#flib/teamColors';
+import { getTeamColors } from '#shared/matchUtils';
+import { formatDate, formatDuration } from '#shared/timeUtils';
 import type { Match, MatchEvent, MatchEventType } from '#shared/types/Sheets';
 import style from './MatchTimelineModal.module.scss';
 

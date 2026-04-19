@@ -1,11 +1,9 @@
 import { Show } from 'solid-js';
 import { MaterialSymbol } from '#components/MaterialSymbol';
-import {
-  formatDuration,
-  getScoreAfterEvent,
-  getTeamColors,
-} from '#flib/sheetUtils';
+import { getScoreAfterEvent } from '#flib/sheetUtils';
 import type { SupportedMaterialSymbol } from '#flib/supportedMaterialSymbols';
+import { getTeamColors } from '#shared/matchUtils';
+import { formatDuration } from '#shared/timeUtils';
 import type { Match, MatchEventGoal } from '#shared/types/Sheets';
 import style from './MatchTimelineModal.module.scss';
 

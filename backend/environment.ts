@@ -9,6 +9,9 @@ export const Environment = z.object({
     .min(1)
     .transform((val) => val.replace(/\\n/g, '\n')),
   GOOGLE_DOCS_SPREADSHEET_ID: z.string().min(1),
+  DISCORD_WEBHOOK_ID: z.string().min(1).nullable().default(null),
+  DISCORD_WEBHOOK_TOKEN: z.string().min(1).nullable().default(null),
+  MANAGER_ICON_URL: z.string().url().nullable().default(null),
 });
 
 export type Environment = z.infer<typeof Environment>;

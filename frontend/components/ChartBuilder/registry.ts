@@ -1,7 +1,7 @@
 import { Extractor } from '#components/ChartBuilder/Extractor';
 import type { DropdownOption } from '#components/Dropdown';
 import type { StatType } from '#components/StatPaginatorWidget';
-import { formatDuration, generateTeamColor } from '#flib/sheetUtils';
+import { generateTeamColor } from '#flib/sheetUtils';
 import { getTeamColor } from '#flib/teamColors';
 import type {
   AggregateStats,
@@ -14,6 +14,7 @@ import type {
   PlayerStats,
 } from '#frontend/types';
 import { useSheets } from '#providers/SheetsProvider';
+import { formatDuration } from '#shared/timeUtils';
 import type { Match } from '#shared/types/Sheets';
 import { quickSwitch } from '#shared/utils';
 import variables from '#styles/variables.module.scss';

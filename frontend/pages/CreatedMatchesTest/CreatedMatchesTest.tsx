@@ -5,9 +5,9 @@ import { InlineAction } from '#components/InlineAction';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import { type Column, Table } from '#components/Table';
 import { Divider, Widget } from '#components/Widget';
-import { formatDate, formatDuration } from '#flib/sheetUtils';
 import { getTeamColorClass } from '#flib/teamColors';
 import { useSheets } from '#providers/SheetsProvider';
+import { formatDate, formatDuration } from '#shared/timeUtils';
 import type { MatchCreate } from '#shared/types/Sheets';
 import style from './CreatedMatchesTest.module.scss';
 

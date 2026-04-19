@@ -1,5 +1,4 @@
 import { defaultSeason } from '#flib/seasons';
-import { formatDuration } from '#flib/sheetUtils';
 import type {
   AggregateFrame,
   AggregateStats,
@@ -18,6 +17,7 @@ import type {
   SessionStats,
   WeekStats,
 } from '#frontend/types';
+import { formatDuration } from '#shared/timeUtils';
 import type { Match } from '#shared/types/Sheets';
 
 export const defaultMatch: Match = {

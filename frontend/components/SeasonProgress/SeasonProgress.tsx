@@ -7,7 +7,7 @@ import { MaterialSymbol } from '#components/MaterialSymbol';
 import { ProgressBar } from '#components/ProgresBar';
 import { Divider, Widget } from '#components/Widget';
 import { getSeason } from '#flib/seasons';
-import { formatDate } from '#flib/sheetUtils';
+import { formatDate } from '#shared/timeUtils';
 import weekDayPlugin from '#shared/weekDayPlugin';
 import style from './SeasonProgress.module.scss';
 
