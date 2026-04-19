@@ -15,7 +15,11 @@ import { sendMatchSummaryWebhook } from '#backend/webhookUtils';
 import { AsyncCached, bypassCache } from '#blib/cache';
 import { TypedEventEmitter } from '#blib/utils';
 import { logger } from '#shared/logger';
-import { getMatchHash, getPauseDuration } from '#shared/matchUtils';
+import {
+  getMatchFloor,
+  getMatchHash,
+  getPauseDuration,
+} from '#shared/matchUtils';
 import {
   type Match,
   MatchCreate,
@@ -174,6 +178,7 @@ export class SheetStore extends Store {
           match.data.replayMetadata?.events ?? [],
         ),
         ...match.data,
+        floor: match.data.floor ?? getMatchFloor(match.data),
       };
     }
 

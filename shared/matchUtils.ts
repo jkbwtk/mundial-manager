@@ -142,3 +142,20 @@ export function getTeamColors(match: MatchCreate | Match): [string, string] {
 
   return ['unknown', 'unknown'];
 }
+
+export const FLOOR_MAP: Record<string, number> = {
+  Czerwony2: 2,
+  Czerwony3: 3,
+};
+
+export function getMatchFloor(match: MatchCreate): number | null {
+  const colors = getTeamColors(match);
+
+  for (const [color, floor] of Object.entries(FLOOR_MAP)) {
+    if (colors.includes(color)) {
+      return floor;
+    }
+  }
+
+  return null;
+}
