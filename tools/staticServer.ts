@@ -26,7 +26,7 @@ app.use('/assets', sirv('./dist/client/assets', { extensions: [], maxAge }));
 app.use('/', sirv('./dist/static'));
 app.use('/', sirv('./dist/client'));
 
-app.get('*', (_req, res) => {
+app.get('*splat', (_req, res) => {
   res.status(404).send(pageNotFoundHtml);
 });
 

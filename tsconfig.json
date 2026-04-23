@@ -33,43 +33,42 @@
     "noUncheckedIndexedAccess": true,
     /* Paths */
     "rootDir": "./",
-    "baseUrl": "./",
     "paths": {
       "#components/*": [
-        "frontend/components/*"
+        "./frontend/components/*"
       ],
       "#pages/*": [
-        "frontend/pages/*"
+        "./frontend/pages/*"
       ],
       "#styles/*": [
-        "frontend/styles/*"
+        "./frontend/styles/*"
       ],
       "#assets/*": [
-        "frontend/assets/*"
+        "./frontend/assets/*"
       ],
       "#providers/*": [
-        "frontend/providers/*"
+        "./frontend/providers/*"
       ],
       "#flib/*": [
-        "frontend/lib/*"
+        "./frontend/lib/*"
       ],
       "#frontend/*": [
-        "frontend/*"
+        "./frontend/*"
       ],
       "#blib/*": [
-        "backend/lib/*"
+        "./backend/lib/*"
       ],
       "#backend/*": [
-        "backend/*"
+        "./backend/*"
       ],
       "#shared/*": [
-        "shared/*"
+        "./shared/*"
       ],
       "#tools/*": [
-        "tools/*"
+        "./tools/*"
       ],
       "#dist/*": [
-        "dist/*"
+        "./dist/*"
       ]
     }
   },
