@@ -10,6 +10,9 @@ services:
     environment:
       - NGINX_PARAM_KEY=${NGINX_PARAM_KEY:-key}
       - NGINX_SECRET=${NGINX_SECRET:-secret}
+      - DISCORD_WEBHOOK_ID=${DISCORD_WEBHOOK_ID:-}
+      - DISCORD_WEBHOOK_TOKEN=${DISCORD_WEBHOOK_TOKEN:-}
+      - MANAGER_ICON_URL=${MANAGER_ICON_URL:-}
     volumes:
       - ./static/public:/app/public:ro
       - ./static/auth:/app/auth:ro
