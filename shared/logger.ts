@@ -145,7 +145,7 @@ const instance = new Logger({
         return;
       }
 
-      const message = chalk.gray`Timer ${name} took %o ${chalk.gray`ms`}`;
+      const message = chalk.gray(`Timer ${name} took %o ms`);
 
       callback({
         level,
