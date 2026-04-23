@@ -49,13 +49,18 @@ const pretyCall = (requestLevel: string, entry: TransformableEntry) => {
 
   let message = '';
 
-  message += `${chalk.bold.yellow(request.type.toUpperCase())} ${colorPath(request.path)}`;
-  message += `${chalk.gray(' - ')}`;
-  message += `${chalk.blue.bold(request.ok ? 'OK' : 'ERR')}`;
-  message += `${chalk.gray(' - ')}`;
-  message += chalk.magenta`total: ${chalk.bold.italic`${request.responseTime.toFixed(3)}ms`}`;
-  message += `${chalk.gray(' - ')}`;
-  message += chalk.cyan`${chalk.bold.italic(request.contentLength)} bytes`;
+  message += chalk.bold.yellow(request.type.toUpperCase());
+  message += ` ${colorPath(request.path)}`;
+  message += chalk.gray(' - ');
+  message += chalk.blue.bold(request.ok ? 'OK' : 'ERR');
+  message += chalk.gray(' - ');
+  message += chalk.magenta(
+    'total:',
+    chalk.bold.italic(request.responseTime.toFixed(3)),
+    'ms',
+  );
+  message += chalk.gray(' - ');
+  message += chalk.cyan(chalk.bold.italic(request.contentLength), 'bytes');
 
   entry.message = message;
 
