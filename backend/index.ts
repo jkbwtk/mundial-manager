@@ -1,10 +1,12 @@
 import { createHTTPServer } from '@trpc/server/adapters/standalone';
 import { environment } from '#backend/environment';
 import { appRouter } from '#backend/routes/app';
+import { createBaseContext } from '#backend/trpc';
 import { logger } from '#shared/logger';
 
 const server = createHTTPServer({
   router: appRouter,
+  createContext: createBaseContext,
 });
 
 logger.info('Starting tRPC server on port %o...', environment.SERVER_PORT, {

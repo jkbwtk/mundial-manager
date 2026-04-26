@@ -4,6 +4,7 @@ import compression from 'compression';
 import express from 'express';
 import sirv from 'sirv';
 import { appRouter } from '#backend/routes/app';
+import { createBaseContext } from '#backend/trpc';
 import { logger } from '#shared/logger';
 import { environment } from '#tools/constants';
 
@@ -17,7 +18,7 @@ app.use(
   '/trpc',
   createExpressMiddleware({
     router: appRouter,
-    createContext: () => ({}),
+    createContext: createBaseContext,
   }),
 );
 

@@ -1,7 +1,17 @@
 import { initTRPC } from '@trpc/server';
+import type { CreateHTTPContextOptions } from '@trpc/server/adapters/standalone';
+import Cookies from 'cookies';
 import { logger } from '#shared/logger';
 
-const t = initTRPC.create({
+export function createBaseContext(opts: CreateHTTPContextOptions) {
+  const cookies = new Cookies(opts.req, opts.res);
+
+  return {};
+}
+
+export type BaseContext = ReturnType<typeof createBaseContext>;
+
+const t = initTRPC.context<BaseContext>().create({
   jsonl: {
     pingMs: 1000,
   },
@@ -33,4 +43,8 @@ export const procedure = baseProcedure.use(async (opts) => {
   });
 
   return result;
+});
+
+export const restrictedProcedure = procedure.use(async (opts) => {
+  return opts.next();
 });
