@@ -1,24 +1,16 @@
 import type { DB } from '#backend/db/database';
 import { Model } from '#backend/db/models/Model';
 import { seasonsTable } from '#backend/db/schema';
-import {
-  SeasonInsertSchema,
-  SeasonPublicSchema,
-  type SeasonSelectSchema,
-} from '#backend/types/db/season';
+import type { SeasonSelectSchema } from '#backend/types/db/season';
+import { Season } from '#shared/types/api/season';
 
-export class SeasonModel extends Model<
-  SeasonSelectSchema,
-  typeof SeasonPublicSchema
-> {
-  protected publicSchema = SeasonPublicSchema;
+export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
+  protected publicSchema = Season;
 
-  public static async create(db: DB, data: SeasonInsertSchema) {
-    const parsedData = SeasonInsertSchema.parse(data);
-
+  public static async create(db: DB, leagueUuid: string, data: Season) {
     const [season] = await db
       .insert(seasonsTable)
-      .values(parsedData)
+      .values({ ...data, leagueUuid })
       .returning();
 
     if (!season) {

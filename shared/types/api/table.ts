@@ -8,8 +8,8 @@ export const Table = z.object({
   alias: z.string().max(16),
   description: z.string().nullable().default(null),
 
-  size1Color: hexColor,
-  size2Color: hexColor,
+  side1Color: hexColor,
+  side2Color: hexColor,
   location: z.string().nullable().default(null),
 
   labels: z.array(z.string()).default([]),

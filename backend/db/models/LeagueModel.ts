@@ -1,25 +1,14 @@
 import type { DB } from '#backend/db/database';
 import { Model } from '#backend/db/models/Model';
 import { leaguesTable } from '#backend/db/schema';
-import {
-  LeagueInsertSchema,
-  LeaguePublicSchema,
-  type LeagueSelectSchema,
-} from '#backend/types/db/league';
+import type { LeagueSelectSchema } from '#backend/types/db/league';
+import { League, type LeagueCreate } from '#shared/types/api/league';
 
-export class LeagueModel extends Model<
-  LeagueSelectSchema,
-  typeof LeaguePublicSchema
-> {
-  protected publicSchema = LeaguePublicSchema;
+export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
+  protected publicSchema = League;
 
-  public static async create(db: DB, data: LeagueInsertSchema) {
-    const parsedData = LeagueInsertSchema.parse(data);
-
-    const [league] = await db
-      .insert(leaguesTable)
-      .values(parsedData)
-      .returning();
+  public static async create(db: DB, data: LeagueCreate) {
+    const [league] = await db.insert(leaguesTable).values(data).returning();
 
     if (!league) {
       throw new Error('Failed to create league');
