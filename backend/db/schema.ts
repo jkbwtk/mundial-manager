@@ -241,7 +241,9 @@ export const matchEventsTable = pgTable(
       .notNull(),
 
     type: matchEventTypeEnum().notNull(),
-    time: t.integer().notNull(),
+    time: t
+      .timestamp({ mode: 'date', withTimezone: true, precision: 6 })
+      .notNull(),
     payload: t.jsonb(),
 
     labels: t.text().array().notNull().default(sql`ARRAY[]::varchar[]`),
