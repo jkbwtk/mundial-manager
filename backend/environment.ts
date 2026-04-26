@@ -12,6 +12,12 @@ export const Environment = z.object({
   DISCORD_WEBHOOK_ID: z.string().min(1).nullable().default(null),
   DISCORD_WEBHOOK_TOKEN: z.string().min(1).nullable().default(null),
   MANAGER_ICON_URL: z.string().url().nullable().default(null),
+
+  POSTGRES_HOST: z.string().min(1),
+  POSTGRES_PORT: z.coerce.number().int().positive().max(65535),
+  POSTGRES_USER: z.string().min(1),
+  POSTGRES_PASSWORD: z.string().min(1),
+  POSTGRES_DB: z.string().min(1),
 });
 
 export type Environment = z.infer<typeof Environment>;
