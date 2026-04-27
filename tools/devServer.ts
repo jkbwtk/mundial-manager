@@ -24,7 +24,7 @@ app.use(
   }),
 );
 
-app.use('*splat', async (req, res) => {
+app.use('*splat', async (req, res, next) => {
   try {
     const url = req.originalUrl.replace('/', '');
 
@@ -44,10 +44,15 @@ app.use('*splat', async (req, res) => {
     res.status(200).set({ 'Content-Type': 'text/html' }).send(html);
   } catch (e) {
     if (e instanceof Error) {
-      // vite.ssrFixStacktrace(e);
-      // console.log(e.stack);
-      // res.status(500).end(e.stack);
+      vite.ssrFixStacktrace(e);
     }
+
+    logger.error('Error during SSR', {
+      label: ['dev-server'],
+      error: e,
+    });
+
+    next(e);
   }
 });
 
