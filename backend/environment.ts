@@ -18,6 +18,12 @@ export const Environment = z.object({
   POSTGRES_USER: z.string().min(1),
   POSTGRES_PASSWORD: z.string().min(1),
   POSTGRES_DB: z.string().min(1),
+
+  JWT_COOKIE_NAME: z.string().min(1),
+
+  KEY_PASSPHRASE: z.string().min(1).optional(),
+  PUB_KEY_PATH: z.string().min(1),
+  PRIV_KEY_PATH: z.string().min(1),
 });
 
 export type Environment = z.infer<typeof Environment>;
