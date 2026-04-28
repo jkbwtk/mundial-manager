@@ -87,6 +87,26 @@ export const tablesTable = pgTable(
   (r) => [index().on(r.leagueUuid), uniqueIndex().on(r.leagueUuid, r.name)],
 );
 
+export const ballsTable = pgTable('balls', (t) => ({
+  uuid: t.uuid().primaryKey().defaultRandom(),
+  leagueUuid: t
+    .uuid()
+    .references(() => leaguesTable.uuid, { onDelete: 'cascade' })
+    .notNull(),
+
+  name: t.text().notNull(),
+  alias: t.text().notNull(),
+  description: t.text(),
+
+  color: t.text(), // #RRGGBBAA
+  diameter: t.real(), // millimeters
+  weight: t.real(), // grams
+
+  labels: t.text().array().notNull().default(sql`ARRAY[]::varchar[]`),
+
+  ...commonFields,
+}));
+
 export const playersTable = pgTable(
   'players',
   (t) => ({
@@ -124,6 +144,9 @@ export const matchesTable = pgTable(
     tableUuid: t
       .uuid()
       .references(() => tablesTable.uuid, { onDelete: 'restrict' }),
+    ballUuid: t
+      .uuid()
+      .references(() => ballsTable.uuid, { onDelete: 'set null' }),
 
     startDate: t
       .timestamp({ mode: 'date', withTimezone: true, precision: 6 })
@@ -141,6 +164,7 @@ export const matchesTable = pgTable(
   (r) => [
     index().on(r.leagueUuid),
     index().on(r.tableUuid),
+    index().on(r.ballUuid),
     index().on(r.startDate),
     index().on(r.status),
     uniqueIndex().on(r.leagueUuid, r.hash),

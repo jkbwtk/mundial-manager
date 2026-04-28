@@ -50,6 +50,19 @@ export const relations = defineRelations(schema, (r) => ({
       alias: 'matches',
     }),
   },
+  ballsTable: {
+    league: r.one.leaguesTable({
+      from: r.ballsTable.leagueUuid,
+      to: r.leaguesTable.uuid,
+      alias: 'league',
+      optional: false,
+    }),
+    matches: r.many.matchesTable({
+      from: r.ballsTable.uuid,
+      to: r.matchesTable.ballUuid,
+      alias: 'matches',
+    }),
+  },
   playersTable: {
     league: r.one.leaguesTable({
       from: r.playersTable.leagueUuid,
@@ -112,6 +125,12 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.matchesTable.tableUuid,
       to: r.tablesTable.uuid,
       alias: 'table',
+      optional: true,
+    }),
+    ball: r.one.ballsTable({
+      from: r.matchesTable.ballUuid,
+      to: r.ballsTable.uuid,
+      alias: 'ball',
       optional: true,
     }),
     sides: r.many.matchSidesTable({
