@@ -28,6 +28,11 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.matchesTable.leagueUuid,
       alias: 'matches',
     }),
+    matchSpectators: r.many.matchSpectatorsTable({
+      from: r.leaguesTable.uuid,
+      to: r.matchSpectatorsTable.leagueUuid,
+      alias: 'matchSpectators',
+    }),
   },
   seasonsTable: {
     league: r.one.leaguesTable({
@@ -74,6 +79,11 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.playersTable.uuid,
       to: r.teamConfigurationMembersTable.playerUuid,
       alias: 'teamConfigurationMemberships',
+    }),
+    matchSpectators: r.many.matchSpectatorsTable({
+      from: r.playersTable.uuid,
+      to: r.matchSpectatorsTable.playerUuid,
+      alias: 'matchSpectators',
     }),
   },
   teamConfigurationsTable: {
@@ -143,6 +153,11 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.matchEventsTable.matchUuid,
       alias: 'events',
     }),
+    spectators: r.many.matchSpectatorsTable({
+      from: r.matchesTable.uuid,
+      to: r.matchSpectatorsTable.matchUuid,
+      alias: 'spectators',
+    }),
   },
   matchSidesTable: {
     league: r.one.leaguesTable({
@@ -161,6 +176,26 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.matchSidesTable.teamConfigurationUuid,
       to: r.teamConfigurationsTable.uuid,
       alias: 'teamConfiguration',
+      optional: false,
+    }),
+  },
+  matchSpectatorsTable: {
+    league: r.one.leaguesTable({
+      from: r.matchSpectatorsTable.leagueUuid,
+      to: r.leaguesTable.uuid,
+      alias: 'league',
+      optional: false,
+    }),
+    match: r.one.matchesTable({
+      from: r.matchSpectatorsTable.matchUuid,
+      to: r.matchesTable.uuid,
+      alias: 'match',
+      optional: false,
+    }),
+    player: r.one.playersTable({
+      from: r.matchSpectatorsTable.playerUuid,
+      to: r.playersTable.uuid,
+      alias: 'player',
       optional: false,
     }),
   },

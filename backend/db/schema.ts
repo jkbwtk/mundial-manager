@@ -249,6 +249,33 @@ export const matchSidesTable = pgTable(
   ],
 );
 
+export const matchSpectatorsTable = pgTable(
+  'matchSpectators',
+  (t) => ({
+    uuid: t.uuid().primaryKey().defaultRandom(),
+    leagueUuid: t
+      .uuid()
+      .references(() => leaguesTable.uuid, { onDelete: 'cascade' })
+      .notNull(),
+    matchUuid: t
+      .uuid()
+      .references(() => matchesTable.uuid, { onDelete: 'cascade' })
+      .notNull(),
+    playerUuid: t
+      .uuid()
+      .references(() => playersTable.uuid, { onDelete: 'restrict' })
+      .notNull(),
+
+    ...commonFields,
+  }),
+  (r) => [
+    index().on(r.leagueUuid),
+    index().on(r.matchUuid),
+    index().on(r.playerUuid),
+    uniqueIndex().on(r.matchUuid, r.playerUuid),
+  ],
+);
+
 export const matchEventTypeEnum = pgEnum('matchEventType', MatchEventTypeEnum);
 
 export const matchEventsTable = pgTable(
