@@ -33,4 +33,6 @@ COPY --from=build /build/dist/backend /app/backend
 COPY nginx.conf /etc/nginx/templates/nginx.conf.template
 COPY supervisord.conf /etc/supervisord.conf
 
+ENV NODE_ENV=production
+
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
