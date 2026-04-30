@@ -8,11 +8,11 @@ const app = express();
 app.use(await createRouter());
 
 logger.info('Starting server on port %o...', environment.SERVER_PORT, {
-  label: ['backend'],
+  label: ['prod-server'],
 });
 
 app.listen(environment.SERVER_PORT).on('listening', () => {
   logger.info('Server listening on port %o', environment.SERVER_PORT, {
-    label: ['backend'],
+    label: ['prod-server'],
   });
 });

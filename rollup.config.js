@@ -25,7 +25,7 @@ export default defineConfig({
     terser(),
   ],
 
-  input: 'backend/index.ts',
+  input: 'backend/server.ts',
   output: {
     dir: 'dist/backend',
     format: 'esm',
