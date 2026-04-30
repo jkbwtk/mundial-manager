@@ -2,15 +2,15 @@ import { tracked } from '@trpc/server';
 import z from 'zod';
 import { zodEncode } from '#backend/lib/utils';
 import { SheetStore } from '#backend/SheetStore';
-import { procedure, router } from '#backend/trpc';
+import { restrictedProcedure, router } from '#backend/trpc';
 import { MatchCreate, type SheetMetadata } from '#shared/types/Sheets';
 
 const sheetStore = new SheetStore();
 sheetStore.initialize();
 
-export const sheetProcedure = procedure.use((opts) => {
+export const sheetProcedure = restrictedProcedure.use((opts) => {
   return opts.next({
-    ctx: { sheetStore },
+    ctx: { sheetStore, ...opts.ctx },
   });
 });
 

@@ -1,46 +1,15 @@
-import { initTRPC } from '@trpc/server';
+import { initTRPC, TRPCError } from '@trpc/server';
 import type { CreateHTTPContextOptions } from '@trpc/server/adapters/standalone';
 import Cookies from 'cookies';
-import { environment } from '#backend/environment';
-import { sign, verify } from '#backend/jwt';
+import { getJWTContext } from '#backend/jwt';
 import { logger } from '#shared/logger';
 
 export function createBaseContext(opts: CreateHTTPContextOptions) {
   const cookies = new Cookies(opts.req, opts.res);
 
-  const cookieName = environment.JWT_COOKIE_NAME;
-
-  try {
-    const oldCookie = cookies.get(cookieName);
-    logger.debug('Old cookie value: %s', oldCookie);
-
-    if (oldCookie) {
-      const validated = verify(oldCookie ?? '');
-      logger.debug('Validated cookie value: %s', validated);
-    }
-
-    const newValue = {
-      timestamp: Date.now(),
-      data: 'test',
-    };
-    logger.debug('Setting new cookie value: %s', newValue);
-
-    const signed = sign(newValue);
-
-    cookies.set(cookieName, signed, {
-      httpOnly: true,
-      sameSite: 'lax',
-    });
-  } catch (err) {
-    logger.error('Failed to process JWT cookie', {
-      error: err,
-      label: ['createBaseContext'],
-    });
-
-    cookies.set(cookieName, null);
-  }
-
-  return {};
+  return {
+    jwt: getJWTContext(cookies),
+  };
 }
 
 export type BaseContext = ReturnType<typeof createBaseContext>;
@@ -80,5 +49,16 @@ export const procedure = baseProcedure.use(async (opts) => {
 });
 
 export const restrictedProcedure = procedure.use(async (opts) => {
-  return opts.next();
+  if (opts.ctx.jwt === null) {
+    throw new TRPCError({
+      code: 'UNAUTHORIZED',
+      message: 'Missing or invalid auth credentials',
+    });
+  }
+
+  return opts.next({
+    ctx: {
+      jwt: opts.ctx.jwt,
+    },
+  });
 });
