@@ -18,6 +18,7 @@
     "build:backend": "cross-env NODE_ENV=production rollup -c",
     "prerender": "pnpm build && cross-env NODE_ENV=production tsx --env-file-if-exists=.env ./tools/prerenderPages.ts",
     "preview": "pnpm prerender && cross-env NODE_ENV=production tsx --env-file-if-exists=.env ./tools/staticServer",
+    "static": "cross-env NODE_ENV=production tsx --env-file-if-exists=.env ./tools/staticServer",
     "lint": "biome check --write",
     "test": "vitest",
     "visualize": "vite-bundle-visualizer -o bundle.html",
