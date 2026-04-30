@@ -2,6 +2,8 @@ import { z } from 'zod';
 import { logger } from '#shared/logger';
 
 export const Environment = z.object({
+  PRODUCTION: z.boolean().default(true),
+
   SERVER_PORT: z.coerce.number().int().positive().max(65535).default(5020),
   GOOGLE_DOCS_API_EMAIL: z.email(),
   GOOGLE_DOCS_API_KEY: z
@@ -28,7 +30,10 @@ export const Environment = z.object({
 
 export type Environment = z.infer<typeof Environment>;
 
-const parsedEnvironment = Environment.safeParse(process.env);
+const parsedEnvironment = Environment.safeParse({
+  ...process.env,
+  PRODUCTION: String(process.env.NODE_ENV).toLowerCase() === 'production',
+});
 
 if (!parsedEnvironment.success) {
   logger.error(

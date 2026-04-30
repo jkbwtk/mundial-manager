@@ -3,7 +3,7 @@ import { createExpressMiddleware } from '@trpc/server/adapters/express';
 import compression from 'compression';
 import express from 'express';
 import sirv from 'sirv';
-import { appRouter } from '#backend/routes/app';
+import { appRouter } from '#backend/routers/trpc/app';
 import { createBaseContext } from '#backend/trpc';
 import { logger } from '#shared/logger';
 import { environment } from '#tools/constants';

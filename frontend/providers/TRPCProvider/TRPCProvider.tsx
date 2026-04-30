@@ -8,7 +8,7 @@ import {
 } from '@trpc/client';
 import { createContext, useContext } from 'solid-js';
 import { createStore } from 'solid-js/store';
-import type { AppRouter } from '#backend/routes/app';
+import type { AppRouter } from '#backend/routers/trpc/app';
 import { isDev } from '#flib/utils';
 
 export interface TRPCContextState {

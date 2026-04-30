@@ -1,19 +1,11 @@
-import { createExpressMiddleware } from '@trpc/server/adapters/express';
 import express from 'express';
 import { environment } from '#backend/environment';
-import { appRouter } from '#backend/routes/app';
-import { createBaseContext } from '#backend/trpc';
+import { createRouter } from '#backend/routers/router';
 import { logger } from '#shared/logger';
 
 const app = express();
 
-app.use(
-  '/trpc',
-  createExpressMiddleware({
-    router: appRouter,
-    createContext: createBaseContext,
-  }),
-);
+app.use(await createRouter());
 
 logger.info('Starting server on port %o...', environment.SERVER_PORT, {
   label: ['backend'],
