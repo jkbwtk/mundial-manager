@@ -4,11 +4,7 @@ export const Environment = z.object({
   WEB_PORT: z.coerce.number().int().positive().default(4200),
   HMR_PORT: z.coerce.number().int().positive().default(5555),
   BUILD_MINIFY: z
-    .union([
-      z.literal('terser'),
-      z.literal('esbuild'),
-      z.stringbool().pipe(z.literal(false)),
-    ])
+    .union([z.literal('terser'), z.stringbool().pipe(z.literal(false))])
     .default('terser'),
   BUILD_SOURCEMAP: z.stringbool().default(false),
 });
