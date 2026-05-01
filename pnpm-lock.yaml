@@ -71,6 +71,9 @@ importers:
       google-spreadsheet:
         specifier: ^5.2.0
         version: 5.2.0(google-auth-library@10.6.2)
+      helmet:
+        specifier: ^8.1.0
+        version: 8.1.0
       highlight.js:
         specifier: ^11.11.1
         version: 11.11.1
@@ -3100,6 +3103,10 @@ packages:
 
   header-case@2.0.4:
     resolution: {integrity: sha512-H/vuk5TEEVZwrR0lp2zed9OCo1uAILMlx0JEMgC26rzyJJ3N1v6XkwHHXJQdR2doSjcGPM6OKPYoJgf0plJ11Q==}
+
+  helmet@8.1.0:
+    resolution: {integrity: sha512-jOiHyAZsmnr8LqoPGmCjYAaiuWwjAPLgY8ZX2XrmHawt99/u1y6RgrZMTeoPfpUbV96HOalYgz1qzkRbw54Pmg==}
+    engines: {node: '>=18.0.0'}
 
   highlight.js@11.11.1:
     resolution: {integrity: sha512-Xwwo44whKBVCYoliBQwaPvtd/2tYFkRQtXDWj1nackaV2JPXx3L0+Jvd8/qCJ2p+ML0/XVkJ2q+Mr+UVdpJK5w==}
@@ -8017,6 +8024,8 @@ snapshots:
     dependencies:
       capital-case: 1.0.4
       tslib: 2.8.1
+
+  helmet@8.1.0: {}
 
   highlight.js@11.11.1: {}
 

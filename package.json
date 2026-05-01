@@ -48,6 +48,7 @@
     "echarts": "^6.0.0",
     "figlet": "^1.11.0",
     "google-spreadsheet": "^5.2.0",
+    "helmet": "^8.1.0",
     "highlight.js": "^11.11.1",
     "jdenticon": "^3.3.0",
     "jsonwebtoken": "^9.0.3",

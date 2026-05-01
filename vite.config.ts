@@ -32,7 +32,7 @@ export default defineConfig({
     }),
     VitePWA({
       registerType: 'prompt',
-      includeAssets: ['resources/favicon.ico', 'resources/favicon.png'],
+      includeAssets: ['favicon.ico', 'favicon.png'],
       injectRegister: null,
       strategies: 'generateSW',
       workbox: {
@@ -49,13 +49,13 @@ export default defineConfig({
         start_url: '/',
         icons: [
           {
-            src: '/resources/favicon.png',
+            src: '/favicon.png',
             sizes: '256x256',
             type: 'image/png',
             purpose: 'any',
           },
           {
-            src: '/resources/favicon.png',
+            src: '/favicon.png',
             sizes: '256x256',
             type: 'image/png',
             purpose: 'maskable',
@@ -77,12 +77,14 @@ export default defineConfig({
 
   server: {
     port: environment.WEB_PORT,
-    allowedHosts: ['localhost', 'pi.lan'],
+    allowedHosts: ['localhost'],
     host: true,
     hmr: {
       port: environment.HMR_PORT,
     },
   },
+
+  publicDir: 'resources',
 
   build: {
     minify: environment.BUILD_MINIFY,

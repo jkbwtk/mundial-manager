@@ -150,7 +150,7 @@ export const routes: RouteDefinition[] = [
     component: () => <PageNotFound />,
   },
   {
-    path: '*',
+    path: '*404',
     component: () => <PageNotFound />,
   },
 ];

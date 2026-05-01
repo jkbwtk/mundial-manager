@@ -17,6 +17,6 @@ export default defineConfig({
 
     format: 'esm',
 
-    minify: false,
+    minify: true,
   },
 });
