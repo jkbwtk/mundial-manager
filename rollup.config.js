@@ -20,7 +20,11 @@ export default defineConfig({
       ],
     }),
     commonjs(),
-    resolve(),
+    resolve({
+      browser: false,
+      preferBuiltins: true,
+      exportConditions: ['node', 'import', 'default'],
+    }),
     json(),
     terser(),
   ],
