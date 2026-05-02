@@ -22,8 +22,17 @@ export const AnchorButton: ParentComponent<AnchorButtonProps> = (userProps) => {
         'no-style': true,
         ...(props.classList ?? {}),
       }}
+      style={{
+        '--padding': props.padding + 1,
+      }}
     >
-      {props.children}
+      <span
+        classList={{
+          [style.content]: true,
+        }}
+      >
+        {props.children}
+      </span>
     </A>
   );
 };
