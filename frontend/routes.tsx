@@ -1,7 +1,7 @@
 import type { RouteDefinition } from '@solidjs/router';
 import { lazy } from 'solid-js';
+import { errors, GenericErrorPage } from '#pages/GenericErrorPage';
 import Homepage from '#pages/Homepage/Homepage';
-import PageNotFound from '#pages/PageNotFound/PageNotFound';
 
 const MundialCalculator = lazy(
   () => import('#pages/MundialCalculator/MundialCalculator'),
@@ -147,10 +147,10 @@ export const routes: RouteDefinition[] = [
   },
   {
     path: '/404',
-    component: () => <PageNotFound />,
+    component: () => <GenericErrorPage config={errors.pageNotFound} />,
   },
   {
     path: '*404',
-    component: () => <PageNotFound />,
+    component: () => <GenericErrorPage config={errors.pageNotFound} />,
   },
 ];
