@@ -26,13 +26,15 @@ COPY --from=build /usr/local/bin/node /usr/local/bin/node
 RUN apk add --no-cache supervisor
 
 COPY --from=build /build/static /app
-COPY --from=build /build/dist/client /app/private
-COPY --from=build /build/dist/static /app/private
-COPY --from=build /build/dist/backend /app/backend
+COPY --from=build /build/dist/client /app/private/client
+COPY --from=build /build/dist/server /app/private/server
+COPY --from=build /build/dist/backend /app/private/backend
 
 COPY nginx.conf /etc/nginx/templates/nginx.conf.template
 COPY supervisord.conf /etc/supervisord.conf
 
 ENV NODE_ENV=production
+ENV DIST_DIR=.
+
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
