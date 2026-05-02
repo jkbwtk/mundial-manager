@@ -50,8 +50,6 @@ export async function createRouter() {
     '/',
     sirv('./dist/client', {
       extensions: allowedRootExtensions,
-      immutable: true,
-      maxAge,
     }),
     (req, res, next) => {
       if (allowedWithDots.some((ext) => req.path.endsWith(ext))) {
@@ -71,7 +69,9 @@ export async function createRouter() {
       .replace('<!--app-head-->', head)
       .replace('<!--app-html-->', rendered.html);
 
-    res.status(200).set({ 'Content-Type': 'text/html' }).send(html);
+    const status = rendered.status ?? 200;
+
+    res.status(status).set({ 'Content-Type': 'text/html' }).send(html);
   });
 
   return router;

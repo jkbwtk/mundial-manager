@@ -35,7 +35,9 @@ export async function createDevRouter() {
         .replace('<!--app-head-->', head)
         .replace('<!--app-html-->', rendered.html ?? '');
 
-      res.status(200).set({ 'Content-Type': 'text/html' }).send(html);
+      const status = rendered.status ?? 200;
+
+      res.status(status).set({ 'Content-Type': 'text/html' }).send(html);
     } catch (err) {
       if (err instanceof Error) {
         vite.ssrFixStacktrace(err);
