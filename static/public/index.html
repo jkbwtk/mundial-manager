@@ -4,7 +4,7 @@
 <head>
   <meta charset='utf-8'>
   <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-  <title>Test</title>
+  <title>Mundial Manager</title>
   <meta name='viewport' content='width=device-width, initial-scale=1'>
 
   <style>
@@ -61,10 +61,6 @@
         max-width: round(down, 100%, 8px);
         max-height: round(down, 100%, 8px);
       }
-
-      #text {
-        text-align: center;
-      }
     }
   </style>
 </head>
@@ -72,41 +68,33 @@
 <body>
   <div id="container">
     <image src='/assets/spin.gif' class="animation" alt='Loading...' />
-    <span id="text">Loading</span>
   </div>
 </body>
 
 <script>
   if (container !== null) {
-  var rotation = Math.random() * 3.1415 * 2;
-  var vector = [Math.sin(rotation), Math.cos(rotation)];
-  var x = 0;
-  var y = 0;
-  var _animate = function animate() {
-    var actualLeft = window.innerWidth / 2 + x - container.offsetWidth / 2;
-    var actualTop = window.innerHeight / 2 + y - container.offsetHeight / 2;
-    var actualRight = actualLeft + container.offsetWidth;
-    var actualBottom = actualTop + container.offsetHeight;
-    if (actualLeft <= 0 || actualRight >= window.innerWidth) {
-      vector[0] = -vector[0];
-    }
-    if (actualTop <= 0 || actualBottom >= window.innerHeight) {
-      vector[1] = -vector[1];
-    }
-    x += vector[0];
-    y += vector[1];
-    container.style.transform = "translate(calc(-50% + ".concat(x, "px), calc(-50% + ").concat(y, "px))");
+    var rotation = Math.random() * 3.1415 * 2;
+    var vector = [ Math.sin(rotation), Math.cos(rotation) ];
+    var x = 0;
+    var y = 0;
+    var _animate = function animate() {
+      var actualLeft = window.innerWidth / 2 + x - container.offsetWidth / 2;
+      var actualTop = window.innerHeight / 2 + y - container.offsetHeight / 2;
+      var actualRight = actualLeft + container.offsetWidth;
+      var actualBottom = actualTop + container.offsetHeight;
+      if (actualLeft <= 0 || actualRight >= window.innerWidth) {
+        vector[ 0 ] = -vector[ 0 ];
+      }
+      if (actualTop <= 0 || actualBottom >= window.innerHeight) {
+        vector[ 1 ] = -vector[ 1 ];
+      }
+      x += vector[ 0 ];
+      y += vector[ 1 ];
+      container.style.transform = "translate(calc(-50% + ".concat(x, "px), calc(-50% + ").concat(y, "px))");
+      requestAnimationFrame(_animate);
+    };
     requestAnimationFrame(_animate);
-  };
-  requestAnimationFrame(_animate);
-}
-if (text !== null) {
-  setInterval(function () {
-    var dots = (text.textContent.match(/\./g) || []).length;
-    var newDots = (dots + 1) % 4;
-    text.textContent = text.textContent.replace(/\.*$/, '.'.repeat(newDots));
-  }, 500);
-}
+  }
 </script>
 
 </html>
