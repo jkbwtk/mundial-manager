@@ -26,6 +26,8 @@ export const Environment = z.object({
   KEY_PASSPHRASE: z.string().min(1).optional(),
   PUB_KEY_PATH: z.string().min(1),
   PRIV_KEY_PATH: z.string().min(1),
+
+  DIST_DIR: z.string().min(1).default('./dist'),
 });
 
 export type Environment = z.infer<typeof Environment>;

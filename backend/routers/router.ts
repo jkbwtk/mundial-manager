@@ -1,9 +1,11 @@
 import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import compression from 'compression';
 import { Router } from 'express';
 import helmet from 'helmet';
 import sirv from 'sirv';
 import { generateHydrationScript } from 'solid-js/web';
+import { environment } from '#backend/environment';
 import { notFoundMiddleware } from '#backend/middlewares';
 import { createTRPCRouter } from '#backend/routers/trpc/trpcRouter';
 import { render } from '#dist/server/entryServer';
@@ -13,7 +15,10 @@ const maxAge = 365 * 24 * 60 * 60; // 7 days
 export async function createRouter() {
   const router = Router();
 
-  const template = await readFile('./dist/client/index.html', 'utf-8');
+  const template = await readFile(
+    join(environment.DIST_DIR, 'client/index.html'),
+    'utf-8',
+  );
   const head = generateHydrationScript();
 
   const allowedRootExtensions = ['webmanifest', 'js', 'ico', 'png'];
@@ -38,7 +43,7 @@ export async function createRouter() {
 
   router.use(
     '/assets',
-    sirv('./dist/client/assets', {
+    sirv(join(environment.DIST_DIR, 'client/assets'), {
       extensions: [],
       immutable: true,
       maxAge,
@@ -48,7 +53,7 @@ export async function createRouter() {
 
   router.use(
     '/',
-    sirv('./dist/client', {
+    sirv(join(environment.DIST_DIR, 'client'), {
       extensions: allowedRootExtensions,
     }),
     (req, res, next) => {
