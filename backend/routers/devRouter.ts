@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { Router } from 'express';
 import { generateHydrationScript } from 'solid-js/web';
 import { createServer } from 'vite';
+import { requestLogger } from '#backend/middlewares';
 import { createTRPCRouter } from '#backend/routers/trpc/trpcRouter';
 import { logger } from '#shared/logger';
 
@@ -18,6 +19,8 @@ export async function createDevRouter() {
   devRouter.use(vite.middlewares);
 
   devRouter.use('/trpc', createTRPCRouter());
+
+  devRouter.use(requestLogger);
 
   devRouter.use('*splat', async (req, res, next) => {
     const url = req.originalUrl.replace('/', '');

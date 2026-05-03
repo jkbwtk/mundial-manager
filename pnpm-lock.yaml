@@ -86,6 +86,12 @@ importers:
       music-metadata:
         specifier: ^11.12.3
         version: 11.12.3
+      on-finished:
+        specifier: ^2.4.1
+        version: 2.4.1
+      on-headers:
+        specifier: ^1.1.0
+        version: 1.1.0
       pg:
         specifier: ^8.20.0
         version: 8.20.0
@@ -147,6 +153,12 @@ importers:
       '@types/nunjucks':
         specifier: ^3.2.6
         version: 3.2.6
+      '@types/on-finished':
+        specifier: ^2.3.5
+        version: 2.3.5
+      '@types/on-headers':
+        specifier: ^1.0.4
+        version: 1.0.4
       '@types/pg':
         specifier: ^8.20.0
         version: 8.20.0
@@ -2038,6 +2050,12 @@ packages:
 
   '@types/nunjucks@3.2.6':
     resolution: {integrity: sha512-pHiGtf83na1nCzliuAdq8GowYiXvH5l931xZ0YEHaLMNFgynpEqx+IPStlu7UaDkehfvl01e4x/9Tpwhy7Ue3w==}
+
+  '@types/on-finished@2.3.5':
+    resolution: {integrity: sha512-XUaCx9tVIC577KsOZxKbnvGlyPt2ogNXQEq/bOQpAfPwH9sH0FbzrRsK1961jpjKlK5V+Owmw55dVjukWhwH0w==}
+
+  '@types/on-headers@1.0.4':
+    resolution: {integrity: sha512-D8Dy7oiM4fFQPA1TtHVTGPFNgCCYY132dTFLezhvlPiiiyKkuW6tVipPXpUOiuTUu8Kzd+ASKjULvZld197Dhw==}
 
   '@types/pg@8.20.0':
     resolution: {integrity: sha512-bEPFOaMAHTEP1EzpvHTbmwR8UsFyHSKsRisLIHVMXnpNefSbGA1bD6CVy+qKjGSqmZqNqBDV2azOBo8TgkcVow==}
@@ -6845,6 +6863,14 @@ snapshots:
       undici-types: 7.19.2
 
   '@types/nunjucks@3.2.6': {}
+
+  '@types/on-finished@2.3.5':
+    dependencies:
+      '@types/node': 25.6.0
+
+  '@types/on-headers@1.0.4':
+    dependencies:
+      '@types/node': 25.6.0
 
   '@types/pg@8.20.0':
     dependencies:

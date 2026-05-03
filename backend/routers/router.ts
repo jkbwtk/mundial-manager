@@ -6,7 +6,7 @@ import helmet from 'helmet';
 import sirv from 'sirv';
 import { generateHydrationScript } from 'solid-js/web';
 import { environment } from '#backend/environment';
-import { notFoundMiddleware } from '#backend/middlewares';
+import { notFoundMiddleware, requestLogger } from '#backend/middlewares';
 import { createTRPCRouter } from '#backend/routers/trpc/trpcRouter';
 import { render } from '#dist/server/entryServer';
 
@@ -40,6 +40,8 @@ export async function createRouter() {
   router.use('/trpc', createTRPCRouter());
 
   router.use(compression({ level: 9 }));
+
+  router.use(requestLogger);
 
   router.use(
     '/assets',

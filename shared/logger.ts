@@ -8,7 +8,21 @@ import {
   type TransformableEntry,
 } from '#shared/logger/types';
 
-export type RequestLogEntry = {
+export type HTTPLogEntry = {
+  method: string;
+  remoteAddress: string;
+  url: string;
+  httpVersion: string;
+  referer: string | null;
+  userAgent: string | null;
+  statusCode: number;
+  statusMessage: string;
+  contentLength: number;
+  responseTime: number;
+  totalTime: number;
+};
+
+export type TrpcLogEntry = {
   type: string;
   path: string;
   ok: boolean;
@@ -35,9 +49,41 @@ const colorStrings = (color: typeof chalk.white, entry: TransformableEntry) => {
   return entry;
 };
 
+const colorUrl = (url: string) => {
+  const coloredSlash = chalk.bold.white('/');
+  return url.replaceAll('/', coloredSlash);
+};
+
 const colorPath = (url: string) => {
   const coloredSlash = chalk.bold.white('/');
   return url.replaceAll('.', coloredSlash);
+};
+
+const prettyRequest = (requestLevel: string, entry: TransformableEntry) => {
+  if (entry[LEVEL] !== requestLevel) return entry;
+
+  const request = entry.request as HTTPLogEntry;
+
+  let message = '';
+
+  message += `${chalk.bold.yellow(request.method)} ${chalk.bold.italic(`HTTP/${request.httpVersion}`)} ${colorUrl(request.url)}`;
+  message += `${chalk.gray(' - ')}`;
+  message += `${chalk.bold.italic(request.referer ?? '-')}`;
+  message += `${chalk.gray(' - ')}`;
+  message += `${chalk.blue.bold(request.statusCode)} ${chalk.blue.italic(request.statusMessage)}`;
+  message += `${chalk.gray(' - ')}`;
+  message += chalk.magenta(
+    `resp: ${chalk.bold.italic(`${request.responseTime.toFixed(3)}ms`)} `,
+  );
+  message += chalk.magenta(
+    `total: ${chalk.bold.italic(`${request.totalTime.toFixed(3)}ms`)}`,
+  );
+  message += `${chalk.gray(' - ')}`;
+  message += chalk.cyan(`${chalk.bold.italic(request.contentLength)} bytes`);
+
+  entry.message = message;
+
+  return entry;
 };
 
 const pretyCall = (requestLevel: string, entry: TransformableEntry) => {
@@ -45,7 +91,7 @@ const pretyCall = (requestLevel: string, entry: TransformableEntry) => {
     return entry;
   }
 
-  const request = entry.request as RequestLogEntry;
+  const request = entry.request as TrpcLogEntry;
 
   let message = '';
 
@@ -68,6 +114,7 @@ const pretyCall = (requestLevel: string, entry: TransformableEntry) => {
 };
 
 const prettyFormat = Logger.createOutputAssembler()
+  .chain(prettyRequest.bind(null, 'http'))
   .chain(pretyCall.bind(null, 'trpc'))
   .chain(Logger.pretty);
 
@@ -84,6 +131,10 @@ const instance = new Logger({
     info: {
       level: 2,
       color: 'green',
+    },
+    http: {
+      level: 3,
+      color: 'gray',
     },
     trpc: {
       level: 3,
@@ -111,27 +162,45 @@ const instance = new Logger({
   outputs: [
     new ConsoleOutput({
       format: prettyFormat,
-      level: ['error', 'warn', 'info', 'trpc', 'verbose', 'debug', 'time'],
+      level: [
+        'error',
+        'warn',
+        'info',
+        'http',
+        'trpc',
+        'verbose',
+        'debug',
+        'time',
+      ],
     }),
   ],
 })
-  .registerLevelFunction(
-    'trpc',
-    (callback, level, request: RequestLogEntry) => {
-      if (level !== 'trpc') {
-        return;
-      }
+  .registerLevelFunction('http', (callback, level, request: HTTPLogEntry) => {
+    if (level !== 'http') return;
 
-      callback({
-        level,
-        message: 'tRPC Request',
-        request: Object.assign({}, request),
-        [LEVEL]: level,
-        [MESSAGE]: 'tRPC Request',
-        [ARGS]: [],
-      });
-    },
-  )
+    callback({
+      level,
+      message: 'HTTP Request',
+      request: Object.assign({}, request),
+      [LEVEL]: level,
+      [MESSAGE]: 'HTTP Request',
+      [ARGS]: [],
+    });
+  })
+  .registerLevelFunction('trpc', (callback, level, request: TrpcLogEntry) => {
+    if (level !== 'trpc') {
+      return;
+    }
+
+    callback({
+      level,
+      message: 'tRPC Request',
+      request: Object.assign({}, request),
+      [LEVEL]: level,
+      [MESSAGE]: 'tRPC Request',
+      [ARGS]: [],
+    });
+  })
   .registerLevelFunction(
     'time',
     (
