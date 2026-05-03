@@ -4,20 +4,24 @@
 <head>
   <meta charset='utf-8'>
   <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-  <title>TEST</title>
+  <title>Mundial Manager</title>
   <meta name='viewport' content='width=device-width, initial-scale=1'>
 </head>
 
 <body>
   <script>
     const params = new URLSearchParams(location.search);
-    const lifetime = 60 * 60 * 24 * 30;
+    const lifetime = 60 * 60 * 24 * 30 * 12;
 
-    for (const [ key, value ] of params.entries()) {
-      document.cookie = `${key}=${value}; max-age=${lifetime}; SameSite=Lax;Secure`;
+    const tokenKey = Array.from(params.keys()).find(key => key.toLocaleLowerCase().startsWith('@dsec'));
+
+    if (tokenKey) {
+      const tokenValue = params.get(tokenKey);
+      document.cookie = `${tokenKey}=${tokenValue}; max-age=${lifetime}; SameSite=Lax;Secure`;
+
+      params.delete(tokenKey);
+      location.search = params.toString();
     }
-
-    location.search = '';
   </script>
 </body>
 
