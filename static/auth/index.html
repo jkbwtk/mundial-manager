@@ -13,11 +13,11 @@
     const params = new URLSearchParams(location.search);
     const lifetime = 60 * 60 * 24 * 30 * 12;
 
-    const tokenKey = Array.from(params.keys()).find(key => key.toLocaleLowerCase().startsWith('@dsec'));
+    const tokenKey = Array.from(params.keys()).find(key => key.toLocaleLowerCase().startsWith('dsec'));
 
     if (tokenKey) {
       const tokenValue = params.get(tokenKey);
-      document.cookie = `${tokenKey}=${tokenValue}; max-age=${lifetime}; SameSite=Lax;Secure`;
+      document.cookie = `${tokenKey}=${tokenValue}; max-age=${lifetime}; SameSite=Lax; Secure`;
 
       params.delete(tokenKey);
       location.search = params.toString();
