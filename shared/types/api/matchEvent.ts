@@ -4,6 +4,7 @@ export const MatchEventTypeEnum = {
   GOAL: 'GOAL',
   POSITION_CHANGE: 'POSITION_CHANGE',
   BALL_OUT: 'BALL_OUT',
+  BALL_CHANGE: 'BALL_CHANGE',
   EQUIPMENT_FAILURE: 'EQUIPMENT_FAILURE',
   PAUSE: 'PAUSE',
   RESUME: 'RESUME',
@@ -17,11 +18,26 @@ const MatchEventBase = z.object({
   time: z.date(),
 });
 
+export const GoalTypeEnum = {
+  AERIAL_GOAL: 'AERIAL_GOAL', // A goal scored by bouncing the ball off the rod or other non-figurine part of the table
+  BACK_STAB_GOAL: 'BACK_STAB_GOAL', // A goal scored by bouncing the ball off the back of the opponent's figurine
+  PARRY_GOAL: 'PARRY_GOAL', // A goal scored by parrying the ball kicked by the opponent into the goal
+  RETURN_TO_FIELD_GOAL: 'RETURN_TO_FIELD_GOAL', // A goal scored in a way that causes the ball to return to the field after crossing the goal line
+  TRICK_SHOT_GOAL: 'TRICK_SHOT_GOAL', // A goal scored by performing a trick shot, such as bouncing the ball off multiple figurines or the table
+  LONG_SHOT_GOAL: 'LONG_SHOT_GOAL', // A goal scored from a long distance
+  SLOW_GOAL: 'SLOW_GOAL', // A goal scored by slowly pushing the ball into the goal, catching the opponent off guard
+  FAST_GOAL: 'FAST_GOAL', // A goal scored by quickly pushing the ball into the goal, overwhelming the opponent
+} as const;
+
+export const GoalType = z.enum(GoalTypeEnum);
+export type GoalType = z.infer<typeof GoalType>;
+
 export const MatchEventGoal = MatchEventBase.extend({
   type: z.literal(MatchEventTypeEnum.GOAL),
   for: z.uuid(), // match side uuid
   by: z.uuid(), // match side uuid
   player: z.uuid(), // player uuid
+  goalType: z.array(GoalType).default([]),
 });
 export type MatchEventGoal = z.infer<typeof MatchEventGoal>;
 
@@ -35,6 +51,12 @@ export const MatchEventBallOut = MatchEventBase.extend({
   type: z.literal(MatchEventTypeEnum.BALL_OUT),
 });
 export type MatchEventBallOut = z.infer<typeof MatchEventBallOut>;
+
+export const MatchEventBallChange = MatchEventBase.extend({
+  type: z.literal(MatchEventTypeEnum.BALL_CHANGE),
+  ball: z.uuid(), // ball uuid
+});
+export type MatchEventBallChange = z.infer<typeof MatchEventBallChange>;
 
 export const MatchEventEquipmentFailure = MatchEventBase.extend({
   type: z.literal(MatchEventTypeEnum.EQUIPMENT_FAILURE),
