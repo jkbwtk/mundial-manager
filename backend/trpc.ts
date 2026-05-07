@@ -1,14 +1,14 @@
 import { initTRPC, TRPCError } from '@trpc/server';
 import type { CreateHTTPContextOptions } from '@trpc/server/adapters/standalone';
 import Cookies from 'cookies';
-import { getJWTContext } from '#backend/jwt';
+import { getJWTContextFromCookies } from '#backend/jwt';
 import { logger } from '#shared/logger';
 
 export function createBaseContext(opts: CreateHTTPContextOptions) {
   const cookies = new Cookies(opts.req, opts.res);
 
   return {
-    jwt: getJWTContext(cookies),
+    jwt: getJWTContextFromCookies(cookies),
   };
 }
 
@@ -49,7 +49,9 @@ export const procedure = baseProcedure.use(async (opts) => {
 });
 
 export const restrictedProcedure = procedure.use(async (opts) => {
-  if (opts.ctx.jwt === null) {
+  const jwt = await opts.ctx.jwt;
+
+  if (jwt === null) {
     throw new TRPCError({
       code: 'UNAUTHORIZED',
       message: 'Missing or invalid auth credentials',
@@ -58,7 +60,7 @@ export const restrictedProcedure = procedure.use(async (opts) => {
 
   return opts.next({
     ctx: {
-      jwt: opts.ctx.jwt,
+      jwt,
     },
   });
 });

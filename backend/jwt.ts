@@ -2,7 +2,8 @@ import { createPrivateKey, createPublicKey } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type Cookies from 'cookies';
-import jwt, { type SignOptions, type VerifyOptions } from 'jsonwebtoken';
+import type { DecryptOptions, EncryptOptions, JWTPayload } from 'jose';
+import * as jose from 'jose';
 import { environment } from '#backend/environment';
 import { JWTContext } from '#backend/types/auth';
 import { memoized } from '#blib/memoized';
@@ -33,31 +34,35 @@ const loadRSAKeys = memoized(() => {
   }
 });
 
-export function sign(payload: string | object, options?: SignOptions) {
-  const { privKey } = loadRSAKeys();
-
-  return jwt.sign(payload, privKey, {
-    algorithm: 'RS256',
-    expiresIn: '4 weeks',
-    ...options,
-  });
-}
-
-export function verify(token: string, options?: VerifyOptions) {
+export function sign<T extends JWTPayload>(
+  payload: T,
+  options?: EncryptOptions,
+) {
   const { pubKey } = loadRSAKeys();
 
-  return jwt.verify(token, pubKey, { algorithms: ['RS256'], ...options });
+  return new jose.EncryptJWT(payload)
+    .setProtectedHeader({
+      alg: 'RSA-OAEP-256',
+      enc: 'A256GCM',
+    })
+    .setIssuedAt()
+    .setExpirationTime('4 weeks')
+    .encrypt(pubKey, options);
 }
 
-export function getJWTContext(cookies: Cookies): JWTContext | null {
+export function verify(token: string, options?: DecryptOptions) {
+  const { privKey } = loadRSAKeys();
+
+  return jose
+    .jwtDecrypt(token, privKey, {
+      ...options,
+    })
+    .then((result) => result.payload);
+}
+
+export async function getJWTContext(jwt: string): Promise<JWTContext | null> {
   try {
-    const cookie = cookies.get(environment.JWT_COOKIE_NAME);
-
-    if (!cookie) {
-      return null;
-    }
-
-    const rawData = verify(cookie);
+    const rawData = await verify(jwt);
 
     return JWTContext.parse(rawData);
   } catch (err) {
@@ -65,9 +70,25 @@ export function getJWTContext(cookies: Cookies): JWTContext | null {
       label: ['jwt', 'getJWTContext'],
       error: err,
     });
-
-    cookies.set(environment.JWT_COOKIE_NAME, null);
   }
 
   return null;
+}
+
+export async function getJWTContextFromCookies(
+  cookies: Cookies,
+): Promise<JWTContext | null> {
+  const cookie = cookies.get(environment.JWT_COOKIE_NAME);
+
+  if (!cookie) {
+    return null;
+  }
+
+  const context = await getJWTContext(cookie);
+
+  if (!context) {
+    cookies.set(environment.JWT_COOKIE_NAME, null);
+  }
+
+  return context;
 }
