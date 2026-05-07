@@ -7,6 +7,7 @@ import sirv from 'sirv';
 import { generateHydrationScript } from 'solid-js/web';
 import { environment } from '#backend/environment';
 import { notFoundMiddleware, requestLogger } from '#backend/middlewares';
+import { createMagicRouter } from '#backend/routers/magic/magicRouter';
 import { createTRPCRouter } from '#backend/routers/trpc/trpcRouter';
 import { render } from '#dist/server/entryServer';
 
@@ -42,6 +43,8 @@ export async function createRouter() {
   router.use(compression({ level: 9 }));
 
   router.use(requestLogger);
+
+  router.use('/magic', await createMagicRouter());
 
   router.use(
     '/assets',

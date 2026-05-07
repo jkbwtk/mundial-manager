@@ -8,7 +8,7 @@ export const JWTContext = z.object({
   admin: z.boolean().default(false),
   leagueUuid: z.uuid().nullable().default(null),
 
-  redirectTo: z.url().nullable().default(null),
+  redirectTo: z.string().nullable().default(null),
 
   iat: z.coerce.number().int().positive(),
   exp: z.coerce.number().int().positive(),

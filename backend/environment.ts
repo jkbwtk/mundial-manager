@@ -28,6 +28,11 @@ export const Environment = z.object({
   PRIV_KEY_PATH: z.string().min(1),
 
   DIST_DIR: z.string().min(1).default('./dist'),
+
+  NGINX_PARAM_KEY: z.string().min(1).optional(),
+  NGINX_SECRET: z.string().min(1).optional(),
+
+  BASE_SITE_URL: z.url().transform((url) => new URL('/', url).toString()),
 });
 
 export type Environment = z.infer<typeof Environment>;

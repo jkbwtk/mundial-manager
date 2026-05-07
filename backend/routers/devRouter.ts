@@ -3,6 +3,7 @@ import { Router } from 'express';
 import { generateHydrationScript } from 'solid-js/web';
 import { createServer } from 'vite';
 import { requestLogger } from '#backend/middlewares';
+import { createMagicRouter } from '#backend/routers/magic/magicRouter';
 import { createTRPCRouter } from '#backend/routers/trpc/trpcRouter';
 import { logger } from '#shared/logger';
 
@@ -21,6 +22,8 @@ export async function createDevRouter() {
   devRouter.use('/trpc', createTRPCRouter());
 
   devRouter.use(requestLogger);
+
+  devRouter.use('/magic', await createMagicRouter());
 
   devRouter.use('*splat', async (req, res, next) => {
     const url = req.originalUrl.replace('/', '');

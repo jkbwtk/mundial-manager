@@ -1,6 +1,10 @@
+import Cookies from 'cookies';
 import type { RequestHandler } from 'express-serve-static-core';
 import onFinished from 'on-finished';
 import onHeaders from 'on-headers';
+import { getJWTContextFromCookies } from '#backend/jwt';
+import type { JWTContext } from '#backend/types/auth';
+import type { Middleware } from '#blib/ExpressStack';
 import { logger } from '#shared/logger';
 
 declare global {
@@ -59,4 +63,18 @@ export const requestLogger: RequestHandler = (req, res, next) => {
   });
 
   next();
+};
+
+export const jwtMiddleware: Middleware<
+  never,
+  object,
+  object,
+  { jwt: JWTContext | null }
+> = async (req, res) => {
+  const cookies = new Cookies(req, res);
+  const jwt = await getJWTContextFromCookies(cookies);
+
+  const jwtReq = Object.assign(req, { jwt });
+
+  return [jwtReq, res];
 };
