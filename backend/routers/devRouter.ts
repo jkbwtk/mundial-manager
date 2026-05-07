@@ -5,6 +5,7 @@ import { createServer } from 'vite';
 import { requestLogger } from '#backend/middlewares';
 import { createMagicRouter } from '#backend/routers/magic/magicRouter';
 import { createTRPCRouter } from '#backend/routers/trpc/trpcRouter';
+import { ExpressStack } from '#blib/ExpressStack';
 import { logger } from '#shared/logger';
 
 export async function createDevRouter() {
@@ -25,38 +26,44 @@ export async function createDevRouter() {
 
   devRouter.use('/magic', await createMagicRouter());
 
-  devRouter.use('*splat', async (req, res, next) => {
-    const url = req.originalUrl.replace('/', '');
+  devRouter.use(
+    '*splat',
+    new ExpressStack()
+      .use(async (req, res) => {
+        const url = req.originalUrl.replace('/', '');
 
-    try {
-      const transformedTemplate = await vite.transformIndexHtml(url, template);
-      const render = (await vite.ssrLoadModule('/frontend/entryServer.tsx'))
-        .render;
+        try {
+          const transformedTemplate = await vite.transformIndexHtml(
+            url,
+            template,
+          );
+          const render = (await vite.ssrLoadModule('/frontend/entryServer.tsx'))
+            .render;
 
-      const rendered = await render(url);
+          const rendered = await render(url);
 
-      const head = (rendered.head ?? '') + generateHydrationScript();
+          const head = (rendered.head ?? '') + generateHydrationScript();
 
-      const html = transformedTemplate
-        .replace('<!--app-head-->', head)
-        .replace('<!--app-html-->', rendered.html ?? '');
+          const html = transformedTemplate
+            .replace('<!--app-head-->', head)
+            .replace('<!--app-html-->', rendered.html ?? '');
 
-      const status = rendered.status ?? 200;
+          const status = rendered.status ?? 200;
 
-      res.status(status).set({ 'Content-Type': 'text/html' }).send(html);
-    } catch (err) {
-      if (err instanceof Error) {
-        vite.ssrFixStacktrace(err);
-      }
+          res.status(status).set({ 'Content-Type': 'text/html' }).send(html);
+        } catch (err) {
+          if (err instanceof Error) {
+            vite.ssrFixStacktrace(err);
+          }
 
-      logger.error('Error during SSR', {
-        label: ['dev-server'],
-        error: err,
-      });
-
-      next(err);
-    }
-  });
+          logger.error('Error during SSR', {
+            label: ['dev-server'],
+            error: err,
+          });
+        }
+      })
+      .unwrap(),
+  );
 
   return devRouter;
 }

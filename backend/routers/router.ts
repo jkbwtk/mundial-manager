@@ -9,6 +9,7 @@ import { environment } from '#backend/environment';
 import { notFoundMiddleware, requestLogger } from '#backend/middlewares';
 import { createMagicRouter } from '#backend/routers/magic/magicRouter';
 import { createTRPCRouter } from '#backend/routers/trpc/trpcRouter';
+import { ExpressStack } from '#blib/ExpressStack';
 import { render } from '#dist/server/entryServer';
 
 const maxAge = 365 * 24 * 60 * 60; // 7 days
@@ -70,19 +71,24 @@ export async function createRouter() {
     },
   );
 
-  router.get('*splat', async (req, res) => {
-    const url = req.originalUrl.replace('/', '');
+  router.get(
+    '*splat',
+    new ExpressStack()
+      .use(async (req, res) => {
+        const url = req.originalUrl.replace('/', '');
 
-    const rendered = await render(url);
+        const rendered = await render(url);
 
-    const html = template
-      .replace('<!--app-head-->', head)
-      .replace('<!--app-html-->', rendered.html);
+        const html = template
+          .replace('<!--app-head-->', head)
+          .replace('<!--app-html-->', rendered.html);
 
-    const status = rendered.status ?? 200;
+        const status = rendered.status ?? 200;
 
-    res.status(status).set({ 'Content-Type': 'text/html' }).send(html);
-  });
+        res.status(status).set({ 'Content-Type': 'text/html' }).send(html);
+      })
+      .unwrap(),
+  );
 
   return router;
 }
