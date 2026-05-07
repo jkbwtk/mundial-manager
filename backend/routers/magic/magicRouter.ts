@@ -59,7 +59,13 @@ export async function createMagicRouter() {
 
           res.redirect(environment.BASE_SITE_URL);
         } else {
-          cookies.set(environment.JWT_COOKIE_NAME, String(rawData), {
+          const newJwt = await sign({
+            ...jwt,
+            origin: 'magic-router',
+            redirectTo: null,
+          });
+
+          cookies.set(environment.JWT_COOKIE_NAME, newJwt, {
             httpOnly: true,
             secure: environment.PRODUCTION,
             sameSite: 'lax',
@@ -67,11 +73,7 @@ export async function createMagicRouter() {
             expires: new Date(jwt.exp * 1000),
           });
 
-          if (jwt.redirectTo) {
-            res.redirect(jwt.redirectTo);
-          } else {
-            res.redirect(environment.BASE_SITE_URL);
-          }
+          res.redirect(jwt.redirectTo ?? environment.BASE_SITE_URL);
         }
       })
       .unwrap(),
