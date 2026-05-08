@@ -2,8 +2,9 @@ import { readFile } from 'node:fs/promises';
 import { Router } from 'express';
 import { generateHydrationScript } from 'solid-js/web';
 import { createServer } from 'vite';
-import { requestLogger } from '#backend/middlewares';
+import { jwtMiddleware, requestLogger } from '#backend/middlewares';
 import { createMagicRouter } from '#backend/routers/magic/magicRouter';
+import { appRouter } from '#backend/routers/trpc/app';
 import { createTRPCRouter } from '#backend/routers/trpc/trpcRouter';
 import { ExpressStack } from '#blib/ExpressStack';
 import { logger } from '#shared/logger';
@@ -29,8 +30,23 @@ export async function createDevRouter() {
   devRouter.use(
     '*splat',
     new ExpressStack()
+      .use(jwtMiddleware)
       .use(async (req, res) => {
         const url = req.originalUrl.replace('/', '');
+
+        const trpcCaller = appRouter.createCaller(
+          {
+            jwt: Promise.resolve(req.jwt ?? null),
+          },
+          {
+            onError: (err) => {
+              logger.error('Error during TRPC call', {
+                label: ['ssr'],
+                error: err,
+              });
+            },
+          },
+        );
 
         try {
           const transformedTemplate = await vite.transformIndexHtml(
@@ -40,7 +56,7 @@ export async function createDevRouter() {
           const render = (await vite.ssrLoadModule('/frontend/entryServer.tsx'))
             .render;
 
-          const rendered = await render(url);
+          const rendered = await render(url, trpcCaller);
 
           const head = (rendered.head ?? '') + generateHydrationScript();
 

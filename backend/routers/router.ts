@@ -6,11 +6,17 @@ import helmet from 'helmet';
 import sirv from 'sirv';
 import { generateHydrationScript } from 'solid-js/web';
 import { environment } from '#backend/environment';
-import { notFoundMiddleware, requestLogger } from '#backend/middlewares';
+import {
+  jwtMiddleware,
+  notFoundMiddleware,
+  requestLogger,
+} from '#backend/middlewares';
 import { createMagicRouter } from '#backend/routers/magic/magicRouter';
+import { appRouter } from '#backend/routers/trpc/app';
 import { createTRPCRouter } from '#backend/routers/trpc/trpcRouter';
 import { ExpressStack } from '#blib/ExpressStack';
 import { render } from '#dist/server/entryServer';
+import { logger } from '#shared/logger';
 
 const maxAge = 365 * 24 * 60 * 60; // 7 days
 
@@ -74,10 +80,25 @@ export async function createRouter() {
   router.get(
     '*splat',
     new ExpressStack()
+      .use(jwtMiddleware)
       .use(async (req, res) => {
         const url = req.originalUrl.replace('/', '');
 
-        const rendered = await render(url);
+        const trpcCaller = appRouter.createCaller(
+          {
+            jwt: Promise.resolve(req.jwt ?? null),
+          },
+          {
+            onError: (err) => {
+              logger.error('Error during TRPC call', {
+                label: ['ssr'],
+                error: err,
+              });
+            },
+          },
+        );
+
+        const rendered = await render(url, trpcCaller);
 
         const html = template
           .replace('<!--app-head-->', head)

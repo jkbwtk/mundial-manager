@@ -1,7 +1,7 @@
 import spin from '#assets/images/spin.gif';
 import { VanillaAnchorButton } from '#components/Button';
 import { Divider } from '#components/Widget';
-import { useResponseStatus } from '#providers/ResponseStatusProvider';
+import { useSSRUtils } from '#providers/SSRUtilsProvider';
 import style from './GenericErrorPage.module.scss';
 
 export interface ErrorConfig {
@@ -15,10 +15,10 @@ export interface GenericErrorPageProps {
 }
 
 export const GenericErrorPage: Component<GenericErrorPageProps> = (props) => {
-  const { setStatus } = useResponseStatus();
+  const [, { setResponseStatus }] = useSSRUtils();
 
   if (props.config.status) {
-    setStatus(props.config.status);
+    setResponseStatus(props.config.status);
   }
 
   return (

@@ -11,33 +11,35 @@ import { errors, GenericErrorPage } from '#pages/GenericErrorPage';
 import { ChangelogProvider } from '#providers/ChangelogProvider';
 import { ConsoleUnitPrototypeProvider } from '#providers/ConsoleUnitPrototypeProvider';
 import { ModalDispatcher, ModalProvider } from '#providers/ModalProvider';
-import { ResponseStatusProvider } from '#providers/ResponseStatusProvider/ResponseStatusProvider';
 import { SheetsProvider } from '#providers/SheetsProvider';
+import {
+  SSRUtilsProvider,
+  type SSRUtilsProviderProps,
+} from '#providers/SSRUtilsProvider/SSRUtilsProvider';
 import { ToastProvider } from '#providers/ToastProvider';
 import { TRPCProvider } from '#providers/TRPCProvider';
 import { routes } from './routes';
 
 export interface AppProps {
   url?: string;
-  setStatus?: (status: number) => void;
+  ssrProps?: SSRUtilsProviderProps;
 }
 
 const App: Component<AppProps> = (props) => {
   return (
-    <ResponseStatusProvider setStatus={props.setStatus}>
+    <SSRUtilsProvider {...props.ssrProps}>
       <ErrorBoundary
         fallback={<GenericErrorPage config={errors.internalError} />}
       >
-        <MetaProvider>
-          <ConsoleUnitPrototypeProvider>
-            <ToastProvider>
-              <TRPCProvider>
-                <SheetsProvider>
-                  <ModalProvider>
-                    <ChangelogProvider>
-                      <ModalDispatcher>
-                        {/* Pre rendering fails without <Suspense>, dev server works fine without it */}
-                        <Suspense>
+        <Suspense>
+          <MetaProvider>
+            <ConsoleUnitPrototypeProvider>
+              <ToastProvider>
+                <TRPCProvider>
+                  <SheetsProvider>
+                    <ModalProvider>
+                      <ChangelogProvider>
+                        <ModalDispatcher>
                           <AcrylicBackground />
                           <Show when={isDev()}>
                             <DevGrid />
@@ -48,17 +50,17 @@ const App: Component<AppProps> = (props) => {
                           <Router url={isServer ? props.url : ''}>
                             {routes}
                           </Router>
-                        </Suspense>
-                      </ModalDispatcher>
-                    </ChangelogProvider>
-                  </ModalProvider>
-                </SheetsProvider>
-              </TRPCProvider>
-            </ToastProvider>
-          </ConsoleUnitPrototypeProvider>
-        </MetaProvider>
+                        </ModalDispatcher>
+                      </ChangelogProvider>
+                    </ModalProvider>
+                  </SheetsProvider>
+                </TRPCProvider>
+              </ToastProvider>
+            </ConsoleUnitPrototypeProvider>
+          </MetaProvider>
+        </Suspense>
       </ErrorBoundary>
-    </ResponseStatusProvider>
+    </SSRUtilsProvider>
   );
 };
 
