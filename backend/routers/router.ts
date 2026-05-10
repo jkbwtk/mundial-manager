@@ -1,10 +1,12 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import compression from 'compression';
+import Cookies from 'cookies';
 import { Router } from 'express';
 import helmet from 'helmet';
 import sirv from 'sirv';
 import { generateHydrationScript } from 'solid-js/web';
+import { db } from '#backend/db/database';
 import { environment } from '#backend/environment';
 import {
   jwtMiddleware,
@@ -86,7 +88,9 @@ export async function createRouter() {
 
         const trpcCaller = appRouter.createCaller(
           {
+            cookies: new Cookies(req, res),
             jwt: Promise.resolve(req.jwt ?? null),
+            db,
           },
           {
             onError: (err) => {

@@ -1,7 +1,9 @@
 import { readFile } from 'node:fs/promises';
+import Cookies from 'cookies';
 import { Router } from 'express';
 import { generateHydrationScript } from 'solid-js/web';
 import { createServer } from 'vite';
+import { db } from '#backend/db/database';
 import { jwtMiddleware, requestLogger } from '#backend/middlewares';
 import { createMagicRouter } from '#backend/routers/magic/magicRouter';
 import { appRouter } from '#backend/routers/trpc/app';
@@ -36,7 +38,9 @@ export async function createDevRouter() {
 
         const trpcCaller = appRouter.createCaller(
           {
+            cookies: new Cookies(req, res),
             jwt: Promise.resolve(req.jwt ?? null),
+            db,
           },
           {
             onError: (err) => {

@@ -1,6 +1,7 @@
 import { initTRPC, TRPCError } from '@trpc/server';
 import type { CreateHTTPContextOptions } from '@trpc/server/adapters/standalone';
 import Cookies from 'cookies';
+import { db } from '#backend/db/database';
 import { getJWTContextFromCookies } from '#backend/jwt';
 import { logger } from '#shared/logger';
 
@@ -8,7 +9,9 @@ export function createBaseContext(opts: CreateHTTPContextOptions) {
   const cookies = new Cookies(opts.req, opts.res);
 
   return {
+    cookies,
     jwt: getJWTContextFromCookies(cookies),
+    db,
   };
 }
 
@@ -63,4 +66,17 @@ export const restrictedProcedure = procedure.use(async (opts) => {
       jwt,
     },
   });
+});
+
+export const adminProcedure = restrictedProcedure.use(async (opts) => {
+  const { jwt } = opts.ctx;
+
+  if (!jwt.admin) {
+    throw new TRPCError({
+      code: 'FORBIDDEN',
+      message: 'You do not have permission to perform this action',
+    });
+  }
+
+  return opts.next();
 });
