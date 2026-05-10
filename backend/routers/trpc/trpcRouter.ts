@@ -1,20 +1,14 @@
 import { createExpressMiddleware } from '@trpc/server/adapters/express';
 import { Router } from 'express';
-import { sheetsRouter } from '#backend/routers/trpc/sheets';
-import { systemRouter } from '#backend/routers/trpc/system';
-import { createBaseContext, router } from '#backend/trpc';
+import { appRouter } from '#backend/routers/trpc/app';
+import { createBaseContext } from '#backend/trpc';
 
 export function createTRPCRouter() {
   const trpcRouter = Router();
 
-  const baseRouter = router({
-    system: systemRouter,
-    sheets: sheetsRouter,
-  });
-
   trpcRouter.use(
     createExpressMiddleware({
-      router: baseRouter,
+      router: appRouter,
       createContext: createBaseContext,
     }),
   );
