@@ -1,0 +1,11 @@
+@use 'app' as *;
+
+.league {
+  display: flex;
+  gap: cw(1);
+}
+
+.no-description {
+  color: $textDimColor;
+  font-style: italic;
+}
