@@ -1,3 +1,4 @@
+import { count, isNull } from 'drizzle-orm';
 import type { DB } from '#backend/db/database';
 import { Model } from '#backend/db/models/Model';
 import { leaguesTable } from '#backend/db/schema';
@@ -49,5 +50,16 @@ export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
     });
 
     return leagues.map((league) => new LeagueModel(db, league));
+  }
+
+  public static async count(db: DB) {
+    const result = await db
+      .select({
+        count: count(),
+      })
+      .from(leaguesTable)
+      .where(isNull(leaguesTable.$deletedAt));
+
+    return result.at(0)?.count ?? 0;
   }
 }
