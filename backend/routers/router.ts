@@ -19,6 +19,7 @@ import { createTRPCRouter } from '#backend/routers/trpc/trpcRouter';
 import { ExpressStack } from '#blib/ExpressStack';
 import { render } from '#dist/server/entryServer';
 import { logger } from '#shared/logger';
+import { createFetchEvent } from '#shared/solidSSR';
 
 const maxAge = 365 * 24 * 60 * 60; // 7 days
 
@@ -84,7 +85,7 @@ export async function createRouter() {
     new ExpressStack()
       .use(jwtMiddleware)
       .use(async (req, res) => {
-        const url = req.originalUrl.replace('/', '');
+        const url = req.originalUrl;
 
         const trpcCaller = appRouter.createCaller(
           {
@@ -102,7 +103,9 @@ export async function createRouter() {
           },
         );
 
-        const rendered = await render(url, trpcCaller);
+        const fetchEvent = createFetchEvent(req, res);
+
+        const rendered = await render(url, trpcCaller, fetchEvent);
 
         const html = template
           .replace('<!--app-head-->', head)

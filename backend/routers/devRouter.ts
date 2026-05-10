@@ -10,6 +10,7 @@ import { appRouter } from '#backend/routers/trpc/app';
 import { createTRPCRouter } from '#backend/routers/trpc/trpcRouter';
 import { ExpressStack } from '#blib/ExpressStack';
 import { logger } from '#shared/logger';
+import { createFetchEvent } from '#shared/solidSSR';
 
 export async function createDevRouter() {
   const devRouter = Router();
@@ -34,7 +35,7 @@ export async function createDevRouter() {
     new ExpressStack()
       .use(jwtMiddleware)
       .use(async (req, res) => {
-        const url = req.originalUrl.replace('/', '');
+        const url = req.originalUrl;
 
         const trpcCaller = appRouter.createCaller(
           {
@@ -60,7 +61,9 @@ export async function createDevRouter() {
           const render = (await vite.ssrLoadModule('/frontend/entryServer.tsx'))
             .render;
 
-          const rendered = await render(url, trpcCaller);
+          const fetchEvent = createFetchEvent(req, res);
+
+          const rendered = await render(url, trpcCaller, fetchEvent);
 
           const head = (rendered.head ?? '') + generateHydrationScript();
 
