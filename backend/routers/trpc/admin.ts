@@ -81,7 +81,7 @@ export const adminRouter = router({
       } satisfies JWTContextCreate);
 
       const params = new URLSearchParams();
-      params.set(environment.JWT_COOKIE_NAME, jwt);
+      params.set('token', jwt);
 
       if (environment.NGINX_PARAM_KEY && environment.NGINX_SECRET) {
         params.set(environment.NGINX_PARAM_KEY, environment.NGINX_SECRET);
