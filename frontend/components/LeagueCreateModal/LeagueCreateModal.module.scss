@@ -1,0 +1,45 @@
+@use 'app' as *;
+
+.modal {
+  --modal-width: #{cw(40)};
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  padding: 0 cw(1);
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: cw(10) 1fr;
+  gap: cw(1);
+  align-items: center;
+}
+
+.field-label {
+  text-align: right;
+}
+
+.field-input {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+
+  input {
+    width: 100%;
+  }
+}
+
+.divider {
+  --divider-border-style: dashed;
+}
+
+.hint-row {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.hint {
+  color: $textDimColor;
+}

@@ -1,12 +1,14 @@
 import { action, createAsync, json, query, useAction } from '@solidjs/router';
 import { Show } from 'solid-js';
 import { Button } from '#components/Button';
+import { LeagueCreatorModal } from '#components/LeagueCreateModal';
 import { type Column, Table } from '#components/Table';
 import { Divider, Widget } from '#components/Widget';
 import { useHandleButtonAction } from '#flib/solidHelpers';
+import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
 import { useTRPC } from '#providers/TRPCProvider';
-import type { League } from '#shared/types/api/league';
+import type { League, LeagueCreate } from '#shared/types/api/league';
 import { shortUUID } from '#shared/utils';
 import style from './AdminDashboard.module.scss';
 
@@ -44,12 +46,45 @@ const getLeagueLink = async (uuid: string) => {
   return resp.link;
 };
 
+const createLeague = action(async (league: LeagueCreate) => {
+  const [{ client }] = useTRPC();
+
+  const newLeague = await client.admin.createLeague.mutate(league);
+
+  return json(newLeague, {
+    revalidate: ['adminLeagues'],
+  });
+}, 'adminCreateLeague');
+
 export const AdminDashboard: Component = () => {
   const [, actions] = useToast();
+  const [, { open }] = useModal();
   const leagues = createAsync(() => getLeagues());
   const activeLeague = createAsync(() => getActiveLeague());
 
   const changeLeagueAction = useAction(changeLeague);
+  const createLeagueAction = useAction(createLeague);
+
+  const handleCreateLeagueSubmit = async (league: LeagueCreate) => {
+    try {
+      const result = await createLeagueAction(league);
+      actions.success(`Created league: ${result.name}`);
+      return { ok: true as const };
+    } catch {
+      actions.error('Failed to create league');
+      return { ok: false as const, message: 'Failed to create league' };
+    }
+  };
+
+  const handleCreateLeague = () => {
+    open({
+      props: {
+        component: LeagueCreatorModal,
+        onCreate: handleCreateLeagueSubmit,
+      },
+      closeOnBackgroundClick: false,
+    });
+  };
 
   const column: Column[] = [
     {
@@ -145,6 +180,9 @@ export const AdminDashboard: Component = () => {
           'None'
         )}
       </div>
+
+      <Button onPointerUp={handleCreateLeague}>Create League</Button>
+
       <Divider />
 
       <div class={style.leaguesTableContainer}>
