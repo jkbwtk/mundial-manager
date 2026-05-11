@@ -1,5 +1,6 @@
 import {
   createTRPCClient,
+  httpBatchLink,
   httpBatchStreamLink,
   httpSubscriptionLink,
   loggerLink,
@@ -85,8 +86,14 @@ function createDefaultState(): TRPCContextState {
                 },
                 retryDelayMs: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
               }),
-              httpBatchStreamLink({
-                url: '/trpc',
+              splitLink({
+                condition: (op) => op.path.endsWith('$'),
+                true: httpBatchLink({
+                  url: '/trpc',
+                }),
+                false: httpBatchStreamLink({
+                  url: '/trpc',
+                }),
               }),
             ],
           }),

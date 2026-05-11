@@ -29,7 +29,7 @@ export const adminRouter = router({
       return league.serialize();
     }),
 
-  changeLeague: adminProcedure
+  changeLeague$: adminProcedure
     .input(League.pick({ uuid: true }))
     .mutation(async ({ ctx, input }) => {
       const league = await LeagueModel.getById(ctx.db, input.uuid);
