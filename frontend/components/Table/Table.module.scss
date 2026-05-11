@@ -47,10 +47,6 @@
     &:nth-child(odd):not(.header) {
       background-color: $backgroundColor;
     }
-
-    &:nth-child(even) {
-      background-color: $modalColor;
-    }
   }
 
   .vertical-border {
