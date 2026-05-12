@@ -57,7 +57,7 @@ export const adminRouter = router({
       return league.serialize();
     }),
 
-  getLeagueLink: adminProcedure
+  leagueLink: adminProcedure
     .input(League.pick({ uuid: true }))
     .query(async ({ ctx, input }) => {
       const league = await LeagueModel.getById(ctx.db, input.uuid);

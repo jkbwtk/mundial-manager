@@ -41,7 +41,7 @@ const changeLeague = action(async (uuid: string) => {
 const getLeagueLink = async (uuid: string) => {
   const [{ client }] = useTRPC();
 
-  const resp = await client.admin.getLeagueLink.query({ uuid });
+  const resp = await client.admin.leagueLink.query({ uuid });
 
   return resp.link;
 };
