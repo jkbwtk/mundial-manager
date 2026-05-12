@@ -32,6 +32,8 @@ export const leaguesTable = pgTable(
     alias: t.text().notNull(),
     description: t.text(),
 
+    rules: t.text(),
+
     ...commonFields,
   }),
   (r) => [uniqueIndex().on(r.name), uniqueIndex().on(r.alias)],
