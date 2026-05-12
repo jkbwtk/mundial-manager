@@ -1,63 +1,35 @@
-import { action, createAsync, json, query, useAction } from '@solidjs/router';
+import { createAsync, useAction } from '@solidjs/router';
 import { Show } from 'solid-js';
 import { Button } from '#components/Button';
 import { LeagueCreatorModal } from '#components/LeagueCreateModal';
 import { type Column, Table } from '#components/Table';
 import { Divider, Widget } from '#components/Widget';
 import { useHandleButtonAction } from '#flib/solidHelpers';
-import { trpcClient } from '#flib/trpcClient';
+import {
+  actionChangeLeague,
+  actionCreateLeague,
+  queryActiveLeague,
+  queryLeagueLink,
+  queryLeagues,
+} from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
 import type { League, LeagueCreate } from '#shared/types/api/league';
 import { shortUUID } from '#shared/utils';
 import style from './AdminDashboard.module.scss';
 
-const getLeagues = query(async () => {
-  return await trpcClient.admin.leagues.query();
-}, 'adminLeagues');
-
-const getActiveLeague = query(async () => {
-  return await trpcClient.leagues.activeLeague.query();
-}, 'adminActiveLeague');
-
-const changeLeague = action(async (uuid: string) => {
-  const league = await trpcClient.admin.changeLeague$.mutate({ uuid });
-
-  if (league === null) {
-    return json({ ok: false, message: 'League not found' } as const);
-  }
-
-  return json({ ok: true, data: league } as const, {
-    revalidate: ['adminActiveLeague'],
-  });
-}, 'adminChangeLeague');
-
-const getLeagueLink = async (uuid: string) => {
-  const resp = await trpcClient.admin.leagueLink.query({ uuid });
-
-  return resp.link;
-};
-
-const createLeague = action(async (league: LeagueCreate) => {
-  const newLeague = await trpcClient.admin.createLeague.mutate(league);
-
-  return json(newLeague, {
-    revalidate: ['adminLeagues'],
-  });
-}, 'adminCreateLeague');
-
 export const AdminDashboard: Component = () => {
   const [, actions] = useToast();
   const [, { open }] = useModal();
-  const leagues = createAsync(() => getLeagues());
-  const activeLeague = createAsync(() => getActiveLeague());
+  const leagues = createAsync(() => queryLeagues());
+  const activeLeague = createAsync(() => queryActiveLeague());
 
-  const changeLeagueAction = useAction(changeLeague);
-  const createLeagueAction = useAction(createLeague);
+  const changeLeague = useAction(actionChangeLeague);
+  const createLeague = useAction(actionCreateLeague);
 
   const handleCreateLeagueSubmit = async (league: LeagueCreate) => {
     try {
-      const result = await createLeagueAction(league);
+      const result = await createLeague(league);
       actions.success(`Created league: ${result.name}`);
       return { ok: true as const };
     } catch {
@@ -106,7 +78,7 @@ export const AdminDashboard: Component = () => {
       width: 13,
       transform: (_, item) => {
         const handleGetLink = useHandleButtonAction(async (league: League) => {
-          const link = await getLeagueLink(league.uuid);
+          const link = await queryLeagueLink(item.uuid);
 
           await navigator.clipboard.writeText(link);
           actions.success(
@@ -133,7 +105,7 @@ export const AdminDashboard: Component = () => {
       transform: (_, item) => {
         const handleChangeLeague = useHandleButtonAction(
           async (league: League) => {
-            const result = await changeLeagueAction(league.uuid);
+            const result = await changeLeague(league.uuid);
 
             if (result.ok === false) {
               actions.error(result.message ?? 'Failed to change league');
