@@ -21,7 +21,7 @@ const getLeagues = query(async () => {
 const getActiveLeague = query(async () => {
   const [{ client }] = useTRPC();
 
-  return await client.league.activeLeague.query();
+  return await client.leagues.activeLeague.query();
 }, 'adminActiveLeague');
 
 const changeLeague = action(async (uuid: string) => {

@@ -2,7 +2,7 @@ import { TRPCError } from '@trpc/server';
 import { LeagueModel } from '#backend/db/models/LeagueModel';
 import { restrictedProcedure, router } from '#backend/trpc';
 
-export const leagueRouter = router({
+export const leaguesRouter = router({
   activeLeague: restrictedProcedure.query(async ({ ctx }) => {
     if (ctx.jwt.leagueUuid === null) {
       return null;
