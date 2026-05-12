@@ -5,29 +5,23 @@ import { LeagueCreatorModal } from '#components/LeagueCreateModal';
 import { type Column, Table } from '#components/Table';
 import { Divider, Widget } from '#components/Widget';
 import { useHandleButtonAction } from '#flib/solidHelpers';
+import { trpcClient } from '#flib/trpcClient';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
-import { useTRPC } from '#providers/TRPCProvider';
 import type { League, LeagueCreate } from '#shared/types/api/league';
 import { shortUUID } from '#shared/utils';
 import style from './AdminDashboard.module.scss';
 
 const getLeagues = query(async () => {
-  const [{ client }] = useTRPC();
-
-  return await client.admin.leagues.query();
+  return await trpcClient.admin.leagues.query();
 }, 'adminLeagues');
 
 const getActiveLeague = query(async () => {
-  const [{ client }] = useTRPC();
-
-  return await client.leagues.activeLeague.query();
+  return await trpcClient.leagues.activeLeague.query();
 }, 'adminActiveLeague');
 
 const changeLeague = action(async (uuid: string) => {
-  const [{ client }] = useTRPC();
-
-  const league = await client.admin.changeLeague$.mutate({ uuid });
+  const league = await trpcClient.admin.changeLeague$.mutate({ uuid });
 
   if (league === null) {
     return json({ ok: false, message: 'League not found' } as const);
@@ -39,17 +33,13 @@ const changeLeague = action(async (uuid: string) => {
 }, 'adminChangeLeague');
 
 const getLeagueLink = async (uuid: string) => {
-  const [{ client }] = useTRPC();
-
-  const resp = await client.admin.leagueLink.query({ uuid });
+  const resp = await trpcClient.admin.leagueLink.query({ uuid });
 
   return resp.link;
 };
 
 const createLeague = action(async (league: LeagueCreate) => {
-  const [{ client }] = useTRPC();
-
-  const newLeague = await client.admin.createLeague.mutate(league);
+  const newLeague = await trpcClient.admin.createLeague.mutate(league);
 
   return json(newLeague, {
     revalidate: ['adminLeagues'],

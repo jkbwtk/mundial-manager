@@ -17,7 +17,6 @@ import {
   type SSRUtilsProviderProps,
 } from '#providers/SSRUtilsProvider/SSRUtilsProvider';
 import { ToastProvider } from '#providers/ToastProvider';
-import { TRPCProvider } from '#providers/TRPCProvider';
 import { routes } from './routes';
 
 export interface AppProps {
@@ -35,26 +34,24 @@ const App: Component<AppProps> = (props) => {
           <MetaProvider>
             <ConsoleUnitPrototypeProvider>
               <ToastProvider>
-                <TRPCProvider>
-                  <SheetsProvider>
-                    <ModalProvider>
-                      <ChangelogProvider>
-                        <ModalDispatcher>
-                          <AcrylicBackground />
-                          <Show when={isDev()}>
-                            <DevGrid />
-                          </Show>
+                <SheetsProvider>
+                  <ModalProvider>
+                    <ChangelogProvider>
+                      <ModalDispatcher>
+                        <AcrylicBackground />
+                        <Show when={isDev()}>
+                          <DevGrid />
+                        </Show>
 
-                          <PWAInitializer />
+                        <PWAInitializer />
 
-                          <Router url={isServer ? props.url : ''}>
-                            {routes}
-                          </Router>
-                        </ModalDispatcher>
-                      </ChangelogProvider>
-                    </ModalProvider>
-                  </SheetsProvider>
-                </TRPCProvider>
+                        <Router url={isServer ? props.url : ''}>
+                          {routes}
+                        </Router>
+                      </ModalDispatcher>
+                    </ChangelogProvider>
+                  </ModalProvider>
+                </SheetsProvider>
               </ToastProvider>
             </ConsoleUnitPrototypeProvider>
           </MetaProvider>

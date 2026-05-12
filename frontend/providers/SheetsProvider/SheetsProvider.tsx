@@ -16,6 +16,7 @@ import {
   loadCreatedMatches,
   saveCreatedMatches,
 } from '#flib/sheetUtils';
+import { trpcClient } from '#flib/trpcClient';
 import type {
   DayStats,
   MatchData,
@@ -26,7 +27,6 @@ import type {
   SessionStats,
   WeekStats,
 } from '#frontend/types';
-import { useTRPC } from '#providers/TRPCProvider';
 import { getMatchHash } from '#shared/matchUtils';
 import type { Match, MatchCreate, SheetMetadata } from '#shared/types/Sheets';
 
@@ -141,8 +141,6 @@ const SheetsContext = createContext<SheetsContextValue>([
 ]);
 
 export const SheetsProvider: ParentComponent = (props) => {
-  const [{ client }] = useTRPC();
-
   const [state, setState] = createStore<SheetsContextState>(getDefaultState());
 
   let onMatchAddedSubscription: Unsubscribable | null = null;
@@ -154,8 +152,8 @@ export const SheetsProvider: ParentComponent = (props) => {
     });
 
     const [metadata, matches] = await Promise.all([
-      client.sheets.metadata.query(),
-      client.sheets.matches.query(),
+      trpcClient.sheets.metadata.query(),
+      trpcClient.sheets.matches.query(),
     ]);
 
     cacheMatches(matches);
@@ -175,7 +173,7 @@ export const SheetsProvider: ParentComponent = (props) => {
     }
 
     if (onMatchAddedSubscription === null) {
-      onMatchAddedSubscription = client.sheets.onMatchAdded.subscribe(
+      onMatchAddedSubscription = trpcClient.sheets.onMatchAdded.subscribe(
         {
           lastEventId: latest().match.id,
         },
@@ -286,7 +284,7 @@ export const SheetsProvider: ParentComponent = (props) => {
   async function createMatch(match: MatchCreate): Promise<Match> {
     createLocalMatch(match);
 
-    const createdMatch = await client.sheets.createMatch.mutate(match);
+    const createdMatch = await trpcClient.sheets.createMatch.mutate(match);
 
     return createdMatch;
   }
@@ -300,7 +298,7 @@ export const SheetsProvider: ParentComponent = (props) => {
       throw new Error(`No created match found with hash: ${hash}`);
     }
 
-    return await client.sheets.createMatch.mutate(match);
+    return await trpcClient.sheets.createMatch.mutate(match);
   }
 
   async function syncCreatedMatches(hashes: string[]): Promise<Match[]> {
@@ -316,7 +314,7 @@ export const SheetsProvider: ParentComponent = (props) => {
       return match;
     });
 
-    return client.sheets.createMatches.mutate(matchesToCreate);
+    return trpcClient.sheets.createMatches.mutate(matchesToCreate);
   }
 
   function removeCreatedMatch(hash: string) {
