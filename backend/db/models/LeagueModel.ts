@@ -8,6 +8,10 @@ import { League, type LeagueCreate } from '#shared/types/api/league';
 export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
   protected publicSchema = League;
 
+  public get uuid() {
+    return this.instance.uuid;
+  }
+
   public static async create(db: DB, data: LeagueCreate) {
     const [league] = await db.insert(leaguesTable).values(data).returning();
 

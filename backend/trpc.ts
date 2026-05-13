@@ -2,6 +2,7 @@ import { initTRPC, TRPCError } from '@trpc/server';
 import type { CreateHTTPContextOptions } from '@trpc/server/adapters/standalone';
 import Cookies from 'cookies';
 import { db } from '#backend/db/database';
+import { LeagueModel } from '#backend/db/models/LeagueModel';
 import { getJWTContextFromCookies } from '#backend/jwt';
 import { logger } from '#shared/logger';
 
@@ -79,4 +80,30 @@ export const adminProcedure = restrictedProcedure.use(async (opts) => {
   }
 
   return opts.next();
+});
+
+export const leagueScopedProcedure = restrictedProcedure.use(async (opts) => {
+  const { jwt } = opts.ctx;
+
+  if (!jwt.leagueUuid) {
+    throw new TRPCError({
+      code: 'FORBIDDEN',
+      message: 'No league associated with the request credentials',
+    });
+  }
+
+  const league = await LeagueModel.getById(opts.ctx.db, jwt.leagueUuid);
+
+  if (!league) {
+    throw new TRPCError({
+      code: 'BAD_REQUEST',
+      message: 'League associated with the request credentials does not exist',
+    });
+  }
+
+  return opts.next({
+    ctx: {
+      league,
+    },
+  });
 });
