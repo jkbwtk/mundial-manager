@@ -16,3 +16,10 @@ export abstract class Model<T, Public extends z.ZodType> {
     return this.publicSchema.parse(this.instance);
   }
 }
+
+export class StrategyValidationError extends Error {
+  public constructor(message: string) {
+    super(message);
+    this.name = 'StrategyValidationError';
+  }
+}
