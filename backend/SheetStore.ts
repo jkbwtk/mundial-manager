@@ -11,9 +11,9 @@ import type {
   MatchesEmitterEvents,
   SheetStoreOptions,
 } from '#backend/types/SheetStore';
-import { sendMatchSummaryWebhook } from '#backend/webhookUtils';
 import { AsyncCached, bypassCache } from '#blib/cache';
 import { TypedEventEmitter } from '#blib/utils';
+import { sendMatchSummaryWebhook } from '#blib/webhookUtils';
 import { logger } from '#shared/logger';
 import {
   getMatchFloor,

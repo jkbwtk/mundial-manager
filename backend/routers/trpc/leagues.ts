@@ -1,6 +1,6 @@
 import { TRPCError } from '@trpc/server';
 import { LeagueModel } from '#backend/db/models/LeagueModel';
-import { restrictedProcedure, router } from '#backend/trpc';
+import { restrictedProcedure, router } from '#blib/trpc';
 
 export const leaguesRouter = router({
   activeLeague: restrictedProcedure.query(async ({ ctx }) => {

@@ -2,7 +2,7 @@ import { tracked } from '@trpc/server';
 import z from 'zod';
 import { zodEncode } from '#backend/lib/utils';
 import { SheetStore } from '#backend/SheetStore';
-import { procedure, router } from '#backend/trpc';
+import { procedure, router } from '#blib/trpc';
 import { MatchCreate, type SheetMetadata } from '#shared/types/Sheets';
 
 const sheetStore = new SheetStore();

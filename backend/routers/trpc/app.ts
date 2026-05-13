@@ -3,7 +3,7 @@ import { leaguesRouter } from '#backend/routers/trpc/leagues';
 import { seasonsRouter } from '#backend/routers/trpc/seasons';
 import { sheetsRouter } from '#backend/routers/trpc/sheets';
 import { systemRouter } from '#backend/routers/trpc/system';
-import { router } from '#backend/trpc';
+import { router } from '#blib/trpc';
 
 export const appRouter = router({
   system: systemRouter,

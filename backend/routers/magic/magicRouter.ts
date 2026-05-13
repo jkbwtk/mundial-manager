@@ -3,9 +3,9 @@ import { URLSearchParams } from 'node:url';
 import Cookies from 'cookies';
 import { Router } from 'express';
 import { environment } from '#backend/environment';
-import { getJWTContext, sign } from '#backend/jwt';
 import type { JWTContextCreate } from '#backend/types/auth';
 import { ExpressStack } from '#blib/ExpressStack';
+import { getJWTContext, sign } from '#blib/jwt';
 import { logger } from '#shared/logger';
 
 const MAGIC_LINK_TOKEN_KEY = 'token';

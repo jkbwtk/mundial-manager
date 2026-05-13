@@ -8,15 +8,15 @@ import sirv from 'sirv';
 import { generateHydrationScript } from 'solid-js/web';
 import { db } from '#backend/db/database';
 import { environment } from '#backend/environment';
-import {
-  jwtMiddleware,
-  notFoundMiddleware,
-  requestLogger,
-} from '#backend/middlewares';
 import { createMagicRouter } from '#backend/routers/magic/magicRouter';
 import { appRouter } from '#backend/routers/trpc/app';
 import { createTRPCRouter } from '#backend/routers/trpc/trpcRouter';
 import { ExpressStack } from '#blib/ExpressStack';
+import {
+  jwtMiddleware,
+  notFoundMiddleware,
+  requestLogger,
+} from '#blib/middlewares';
 import { render } from '#dist/server/entryServer';
 import { logger } from '#shared/logger';
 import { createFetchEvent } from '#shared/solidSSR';

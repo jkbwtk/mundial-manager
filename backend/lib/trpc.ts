@@ -3,7 +3,7 @@ import type { CreateHTTPContextOptions } from '@trpc/server/adapters/standalone'
 import Cookies from 'cookies';
 import { db } from '#backend/db/database';
 import { LeagueModel } from '#backend/db/models/LeagueModel';
-import { getJWTContextFromCookies } from '#backend/jwt';
+import { getJWTContextFromCookies } from '#blib/jwt';
 import { logger } from '#shared/logger';
 
 export function createBaseContext(opts: CreateHTTPContextOptions) {

@@ -4,11 +4,11 @@ import { Router } from 'express';
 import { generateHydrationScript } from 'solid-js/web';
 import { createServer } from 'vite';
 import { db } from '#backend/db/database';
-import { jwtMiddleware, requestLogger } from '#backend/middlewares';
 import { createMagicRouter } from '#backend/routers/magic/magicRouter';
 import { appRouter } from '#backend/routers/trpc/app';
 import { createTRPCRouter } from '#backend/routers/trpc/trpcRouter';
 import { ExpressStack } from '#blib/ExpressStack';
+import { jwtMiddleware, requestLogger } from '#blib/middlewares';
 import { logger } from '#shared/logger';
 import { createFetchEvent } from '#shared/solidSSR';
 

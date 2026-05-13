@@ -2,10 +2,10 @@ import { randomUUID } from 'node:crypto';
 import { TRPCError } from '@trpc/server';
 import { LeagueModel } from '#backend/db/models/LeagueModel';
 import { environment } from '#backend/environment';
-import { sign } from '#backend/jwt';
-import { adminProcedure, router } from '#backend/trpc';
 import type { JWTContextCreate } from '#backend/types/auth';
 import { PaginationInput } from '#backend/types/trpc';
+import { sign } from '#blib/jwt';
+import { adminProcedure, router } from '#blib/trpc';
 import { League, LeagueCreate } from '#shared/types/api/league';
 
 export const adminRouter = router({

@@ -1,6 +1,6 @@
 import { TRPCError } from '@trpc/server';
 import { SeasonModel } from '#backend/db/models/SeasonModel';
-import { leagueScopedProcedure, router } from '#backend/trpc';
+import { leagueScopedProcedure, router } from '#blib/trpc';
 import { Season, SeasonCreate } from '#shared/types/api/season';
 
 export const seasonsRouter = router({
