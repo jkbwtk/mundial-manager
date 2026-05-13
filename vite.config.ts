@@ -93,6 +93,7 @@ export default defineConfig({
     cssTarget: 'esnext',
     emptyOutDir: true,
     sourcemap: environment.BUILD_SOURCEMAP,
+    cssCodeSplit: false,
   },
 
   resolve: {
