@@ -66,7 +66,9 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-decorators": "^7.29.0",
     "@biomejs/biome": "2.4.13",
+    "@rolldown/plugin-babel": "^0.2.3",
     "@solidjs/testing-library": "^0.8.10",
     "@testing-library/jest-dom": "^6.9.1",
     "@types/compression": "^1.8.1",
