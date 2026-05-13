@@ -9,11 +9,7 @@ export const queryLeagues = query(async () => {
 export const actionChangeLeague = action(async (uuid: string) => {
   const league = await trpcClient.admin.changeLeague$.mutate({ uuid });
 
-  if (league === null) {
-    return json({ ok: false, message: 'League not found' } as const);
-  }
-
-  return json({ ok: true, data: league } as const, {
+  return json(league, {
     revalidate: ['queryActiveLeague'],
   });
 }, 'actionChangeLeague');

@@ -107,11 +107,7 @@ export const AdminDashboard: Component = () => {
           async (league: League) => {
             const result = await changeLeague(league.uuid);
 
-            if (result.ok === false) {
-              actions.error(result.message ?? 'Failed to change league');
-            } else {
-              actions.success(`Switched to league: ${result.data.name}`);
-            }
+            actions.success(`Switched to league: ${result.name}`);
           },
         );
 
