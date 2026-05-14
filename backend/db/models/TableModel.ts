@@ -2,11 +2,13 @@ import type { DB } from '#backend/db/database';
 import { Model } from '#backend/db/models/Model';
 import { tablesTable } from '#backend/db/schema';
 import type { TableSelectSchema } from '#backend/types/db/table';
+import { ConvertDrizzleErrors } from '#blib/modelErrors';
 import { Table, type TableCreate } from '#shared/types/api/table';
 
 export class TableModel extends Model<TableSelectSchema, typeof Table> {
   protected publicSchema = Table;
 
+  @ConvertDrizzleErrors('TableModel')
   public static async create(db: DB, leagueUuid: string, data: TableCreate) {
     const [table] = await db
       .insert(tablesTable)
@@ -20,6 +22,7 @@ export class TableModel extends Model<TableSelectSchema, typeof Table> {
     return new TableModel(db, table);
   }
 
+  @ConvertDrizzleErrors('TableModel')
   public static async getById(db: DB, uuid: string) {
     const table = await db.query.tablesTable.findFirst({
       where: {
@@ -37,6 +40,7 @@ export class TableModel extends Model<TableSelectSchema, typeof Table> {
     return new TableModel(db, table);
   }
 
+  @ConvertDrizzleErrors('TableModel')
   public static async getAll(db: DB, leagueUuid: string) {
     const tables = await db.query.tablesTable.findMany({
       where: {

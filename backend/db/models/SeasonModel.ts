@@ -3,7 +3,10 @@ import type { DB } from '#backend/db/database';
 import { Model } from '#backend/db/models/Model';
 import { seasonsTable } from '#backend/db/schema';
 import type { SeasonSelectSchema } from '#backend/types/db/season';
-import { StrategyValidationError } from '#blib/modelErrors';
+import {
+  ConvertDrizzleErrors,
+  StrategyValidationError,
+} from '#blib/modelErrors';
 import { Season, type SeasonCreate } from '#shared/types/api/season';
 
 export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
@@ -13,6 +16,7 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
     return this.instance.uuid;
   }
 
+  @ConvertDrizzleErrors('SeasonModel')
   public static async create(db: DB, leagueUuid: string, data: SeasonCreate) {
     for (const strategy of Object.values(SeasonModel.validationStrategies)) {
       await strategy(db, leagueUuid, data);
@@ -30,6 +34,7 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
     return new SeasonModel(db, season);
   }
 
+  @ConvertDrizzleErrors('SeasonModel')
   public static async getById(db: DB, uuid: string) {
     const season = await db.query.seasonsTable.findFirst({
       where: {
@@ -47,6 +52,7 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
     return new SeasonModel(db, season);
   }
 
+  @ConvertDrizzleErrors('SeasonModel')
   public static async getAll(
     db: DB,
     leagueId: string,
@@ -67,6 +73,7 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
     return seasons.map((season) => new SeasonModel(db, season));
   }
 
+  @ConvertDrizzleErrors('SeasonModel')
   public static async count(db: DB, leagueId: string) {
     const result = await db
       .select({
@@ -83,6 +90,7 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
     return Number(result[0]?.count ?? 0);
   }
 
+  @ConvertDrizzleErrors('SeasonModel')
   public static async getCurrent(db: DB, leagueId: string) {
     const now = new Date();
 

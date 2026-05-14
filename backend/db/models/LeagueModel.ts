@@ -3,6 +3,7 @@ import type { DB } from '#backend/db/database';
 import { Model } from '#backend/db/models/Model';
 import { leaguesTable } from '#backend/db/schema';
 import type { LeagueSelectSchema } from '#backend/types/db/league';
+import { ConvertDrizzleErrors } from '#blib/modelErrors';
 import { League, type LeagueCreate } from '#shared/types/api/league';
 
 export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
@@ -12,6 +13,7 @@ export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
     return this.instance.uuid;
   }
 
+  @ConvertDrizzleErrors('LeagueModel')
   public static async create(db: DB, data: LeagueCreate) {
     const [league] = await db.insert(leaguesTable).values(data).returning();
 
@@ -22,6 +24,7 @@ export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
     return new LeagueModel(db, league);
   }
 
+  @ConvertDrizzleErrors('LeagueModel')
   public static async getById(db: DB, uuid: string) {
     const league = await db.query.leaguesTable.findFirst({
       where: {
@@ -39,6 +42,7 @@ export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
     return new LeagueModel(db, league);
   }
 
+  @ConvertDrizzleErrors('LeagueModel')
   public static async getAll(db: DB, limit?: number, offset?: number) {
     const leagues = await db.query.leaguesTable.findMany({
       limit,
@@ -56,6 +60,7 @@ export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
     return leagues.map((league) => new LeagueModel(db, league));
   }
 
+  @ConvertDrizzleErrors('LeagueModel')
   public static async count(db: DB) {
     const result = await db
       .select({

@@ -2,6 +2,7 @@ import type { DB } from '#backend/db/database';
 import { Model } from '#backend/db/models/Model';
 import { matchSpectatorsTable } from '#backend/db/schema';
 import type { MatchSpectatorSelectSchema } from '#backend/types/db/matchSpectator';
+import { ConvertDrizzleErrors } from '#blib/modelErrors';
 import {
   MatchSpectator,
   type MatchSpectatorCreate,
@@ -13,6 +14,7 @@ export class MatchSpectatorModel extends Model<
 > {
   protected publicSchema = MatchSpectator;
 
+  @ConvertDrizzleErrors('MatchSpectatorModel')
   public static async create(
     db: DB,
     leagueUuid: string,
@@ -30,6 +32,7 @@ export class MatchSpectatorModel extends Model<
     return new MatchSpectatorModel(db, spectator);
   }
 
+  @ConvertDrizzleErrors('MatchSpectatorModel')
   public static async getById(db: DB, uuid: string) {
     const spectator = await db.query.matchSpectatorsTable.findFirst({
       where: {
@@ -47,6 +50,7 @@ export class MatchSpectatorModel extends Model<
     return new MatchSpectatorModel(db, spectator);
   }
 
+  @ConvertDrizzleErrors('MatchSpectatorModel')
   public static async getForMatch(db: DB, matchUuid: string) {
     const spectators = await db.query.matchSpectatorsTable.findMany({
       where: {
@@ -60,9 +64,12 @@ export class MatchSpectatorModel extends Model<
       },
     });
 
-    return spectators.map((spectator) => new MatchSpectatorModel(db, spectator));
+    return spectators.map(
+      (spectator) => new MatchSpectatorModel(db, spectator),
+    );
   }
 
+  @ConvertDrizzleErrors('MatchSpectatorModel')
   public static async getForPlayer(db: DB, playerUuid: string) {
     const spectators = await db.query.matchSpectatorsTable.findMany({
       where: {
@@ -76,6 +83,8 @@ export class MatchSpectatorModel extends Model<
       },
     });
 
-    return spectators.map((spectator) => new MatchSpectatorModel(db, spectator));
+    return spectators.map(
+      (spectator) => new MatchSpectatorModel(db, spectator),
+    );
   }
 }
