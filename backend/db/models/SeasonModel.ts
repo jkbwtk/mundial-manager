@@ -1,8 +1,9 @@
 import { and, count, eq, isNull } from 'drizzle-orm';
 import type { DB } from '#backend/db/database';
-import { Model, StrategyValidationError } from '#backend/db/models/Model';
+import { Model } from '#backend/db/models/Model';
 import { seasonsTable } from '#backend/db/schema';
 import type { SeasonSelectSchema } from '#backend/types/db/season';
+import { StrategyValidationError } from '#blib/modelErrors';
 import { Season, type SeasonCreate } from '#shared/types/api/season';
 
 export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
@@ -110,7 +111,16 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
   public static validationStrategies = {
     correctSeasonDates: (_db: DB, _leagueUuid: string, data: SeasonCreate) => {
       if (data.startDate >= data.endDate) {
-        throw new StrategyValidationError('Invalid season dates');
+        throw new StrategyValidationError('Invalid season dates', {
+          startDate: {
+            value: data.startDate,
+            errorType: 'INVALID_DATE_RANGE',
+          },
+          endDate: {
+            value: data.endDate,
+            errorType: 'INVALID_DATE_RANGE',
+          },
+        });
       }
     },
     noSeasonOverlap: async (db: DB, leagueUuid: string, data: SeasonCreate) => {
@@ -152,6 +162,16 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
       if (overlappingSeason) {
         throw new StrategyValidationError(
           'Season dates overlap with an existing season',
+          {
+            startDate: {
+              value: data.startDate,
+              errorType: 'DATE_OVERLAP',
+            },
+            endDate: {
+              value: data.endDate,
+              errorType: 'DATE_OVERLAP',
+            },
+          },
         );
       }
     },
