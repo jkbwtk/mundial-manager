@@ -3,8 +3,9 @@ import { Button } from '#components/Button';
 import { Input } from '#components/Input';
 import { Modal } from '#components/Modal';
 import { Divider } from '#components/Widget';
+import { useFormValidation } from '#flib/formValidation';
 import { useModalActions } from '#providers/ModalProvider';
-import type { LeagueCreate } from '#shared/types/api/league';
+import { LeagueCreate } from '#shared/types/api/league';
 import style from './LeagueCreateModal.module.scss';
 
 export type LeagueCreatorResult =
@@ -22,6 +23,8 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
   const { closeModal } = useModalActions();
 
   const formId = createUniqueId();
+
+  const { validate } = useFormValidation(LeagueCreate, { errorClass: 'error' });
 
   const [name, setName] = createSignal(props.initialValues?.name ?? '');
   const [alias, setAlias] = createSignal(props.initialValues?.alias ?? '');
@@ -107,6 +110,7 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
             maxLength={255}
             required
             invalid={wasSubmitted() && nameInvalid()}
+            useDirectives={[(el) => validate(el, 'name')]}
           />
         </div>
 
@@ -120,6 +124,7 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
             maxLength={16}
             required
             invalid={wasSubmitted() && aliasInvalid()}
+            useDirectives={[(el) => validate(el, 'alias')]}
           />
         </div>
 
@@ -131,6 +136,7 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
             onInput={(e) => setDescription(e.currentTarget.value)}
             placeholder="Optional"
             maxLength={255}
+            useDirectives={[(el) => validate(el, 'description')]}
           />
         </div>
 
