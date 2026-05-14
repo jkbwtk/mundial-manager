@@ -21,3 +21,16 @@ export function useHandleButtonAction<
 
   return handleAction;
 }
+
+export type ComponentUseDirectiveHack<E extends HTMLElement> = (
+  element: E,
+) => void;
+
+export function applyDirectives<E extends HTMLElement>(
+  element: E,
+  directives: ComponentUseDirectiveHack<E>[],
+) {
+  for (const directive of directives) {
+    directive(element);
+  }
+}

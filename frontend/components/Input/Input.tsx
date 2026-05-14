@@ -7,6 +7,10 @@ import {
   onMount,
   splitProps,
 } from 'solid-js';
+import {
+  applyDirectives,
+  type ComponentUseDirectiveHack,
+} from '#flib/solidHelpers';
 import type { RequiredDefaults } from '#shared/utils';
 import style from './Input.module.scss';
 
@@ -21,6 +25,7 @@ export type CustomInputProps = {
     | 'radio'
     | 'file';
   invalid?: boolean;
+  useDirectives?: ComponentUseDirectiveHack<HTMLInputElement>[];
 };
 
 const TextOverflowTypes: CustomInputProps['type'][] = [
@@ -40,6 +45,7 @@ export type InputProps = Omit<
 export const inputDefaultProps: RequiredDefaults<CustomInputProps> = {
   type: 'text',
   invalid: false,
+  useDirectives: [],
 };
 
 export const Input: Component<InputProps> = (userProps) => {
@@ -102,7 +108,15 @@ export const Input: Component<InputProps> = (userProps) => {
         ...(labelProps.classList ?? {}),
       }}
     >
-      <input ref={inputRef} {...props} id={labelProps.id ?? id} />
+      <input
+        ref={(el) => {
+          inputRef = el;
+
+          applyDirectives(el, props.useDirectives);
+        }}
+        {...props}
+        id={labelProps.id ?? id}
+      />
 
       {labelProps.children}
     </label>
