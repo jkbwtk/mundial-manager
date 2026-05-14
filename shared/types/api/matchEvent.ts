@@ -25,8 +25,10 @@ export const GoalTypeEnum = {
   RETURN_TO_FIELD_GOAL: 'RETURN_TO_FIELD_GOAL', // A goal scored in a way that causes the ball to return to the field after crossing the goal line
   TRICK_SHOT_GOAL: 'TRICK_SHOT_GOAL', // A goal scored by performing a trick shot, such as bouncing the ball off multiple figurines or the table
   LONG_SHOT_GOAL: 'LONG_SHOT_GOAL', // A goal scored from a long distance
-  SLOW_GOAL: 'SLOW_GOAL', // A goal scored by slowly pushing the ball into the goal, catching the opponent off guard
-  FAST_GOAL: 'FAST_GOAL', // A goal scored by quickly pushing the ball into the goal, overwhelming the opponent
+  SLOW_GOAL: 'SLOW_GOAL', // A goal scored by slowly kicking the ball into the goal, catching the opponent off guard
+  FAST_GOAL: 'FAST_GOAL', // A goal scored by quickly kicking the ball into the goal, overwhelming the opponent
+  GUARD_PIERCE_GOAL: 'GUARD_PIERCE_GOAL', // A goal scored in a way that spun oponent's unheld or weakly held rod out of the way
+  PUSH_GOAL: 'PUSH_GOAL', // A goal scored by pushing the ball without making any audible sound or noticeable movement
 } as const;
 
 export const GoalType = z.enum(GoalTypeEnum);
