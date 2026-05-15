@@ -31,7 +31,7 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
 
   const formId = createUniqueId();
 
-  const { validate, errors } = useFormValidation(LeagueCreate, {});
+  const { validate, errors, canSubmit } = useFormValidation(LeagueCreate, {});
 
   const [name, setName] = createSignal(props.initialValues?.name ?? '');
   const [alias, setAlias] = createSignal(props.initialValues?.alias ?? '');
@@ -45,15 +45,6 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
   const trimmedName = createMemo(() => name().trim());
   const trimmedAlias = createMemo(() => alias().trim());
   const trimmedDescription = createMemo(() => description().trim());
-
-  const nameInvalid = createMemo(() => trimmedName().length === 0);
-  const aliasInvalid = createMemo(
-    () => trimmedAlias().length === 0 || trimmedAlias().length > 16,
-  );
-
-  const canSubmit = createMemo(
-    () => !isSubmitting() && !nameInvalid() && !aliasInvalid(),
-  );
 
   const handleCancel = (ev: PointerEvent) => {
     ev.preventDefault();

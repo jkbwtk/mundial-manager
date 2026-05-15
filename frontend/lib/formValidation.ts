@@ -1,3 +1,4 @@
+import { createSignal } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import type z from 'zod';
 import { treeifyError } from 'zod';
@@ -21,6 +22,8 @@ export const useFormValidation = <T extends z.ZodObject>(
     Partial<Record<keyof z.infer<T>, string[]>>
   >({});
 
+  const [canSubmit, setCanSubmit] = createSignal(false);
+
   const runValidation = async (fieldName: keyof z.infer<T>) => {
     const field = fields[fieldName];
 
@@ -43,7 +46,7 @@ export const useFormValidation = <T extends z.ZodObject>(
       field.ref.checkValidity();
     }
 
-    console.log(errors);
+    setCanSubmit(field.ref.form?.checkValidity() ?? false);
   };
 
   const validate = (ref: HTMLInputElement) => {
@@ -79,6 +82,7 @@ export const useFormValidation = <T extends z.ZodObject>(
 
     ref.oninput = () => {
       clearTimeout(timeoutRef);
+      setCanSubmit(false);
 
       timeoutRef = setTimeout(() => {
         runValidation(name);
@@ -89,5 +93,6 @@ export const useFormValidation = <T extends z.ZodObject>(
   return {
     validate,
     errors,
+    canSubmit,
   };
 };
