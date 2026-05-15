@@ -3,9 +3,9 @@ import z from 'zod';
 export const League = z.object({
   uuid: z.uuid(),
 
-  name: z.string().max(255),
-  alias: z.string().max(16),
-  description: z.string().nullable().default(null),
+  name: z.string().trim().min(3).max(64),
+  alias: z.string().trim().min(2).max(16),
+  description: z.string().trim().max(255).nullable().default(null),
 });
 
 export type League = z.infer<typeof League>;
