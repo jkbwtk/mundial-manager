@@ -36,10 +36,7 @@
 }
 
 .hint-row {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.hint {
-  color: $textDimColor;
+  pre {
+    white-space: break-spaces;
+  }
 }

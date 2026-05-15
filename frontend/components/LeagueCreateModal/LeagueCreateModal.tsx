@@ -1,12 +1,19 @@
+import hljs from 'highlight.js/lib/core';
+import json from 'highlight.js/lib/languages/json';
 import { createMemo, createSignal, createUniqueId } from 'solid-js';
 import { Button } from '#components/Button';
+import { HighlightedCode } from '#components/HighlightedCode';
 import { Input } from '#components/Input';
 import { Modal } from '#components/Modal';
 import { Divider } from '#components/Widget';
 import { useFormValidation } from '#flib/formValidation';
+import { toJson } from '#flib/utils';
 import { useModalActions } from '#providers/ModalProvider';
 import { LeagueCreate } from '#shared/types/api/league';
+import 'highlight.js/styles/gml.min.css';
 import style from './LeagueCreateModal.module.scss';
+
+hljs.registerLanguage('json', json);
 
 export type LeagueCreatorResult =
   | { ok: true }
@@ -24,7 +31,7 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
 
   const formId = createUniqueId();
 
-  const { validate } = useFormValidation(LeagueCreate, { errorClass: 'error' });
+  const { validate, errors } = useFormValidation(LeagueCreate, {});
 
   const [name, setName] = createSignal(props.initialValues?.name ?? '');
   const [alias, setAlias] = createSignal(props.initialValues?.alias ?? '');
@@ -105,12 +112,15 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
           <Input
             class={style.fieldInput}
             value={name()}
+            type="text"
             onInput={(e) => setName(e.currentTarget.value)}
             placeholder="League name"
-            maxLength={255}
+            minLength={3}
+            maxLength={64}
             required
-            invalid={wasSubmitted() && nameInvalid()}
-            useDirectives={[(el) => validate(el, 'name')]}
+            name="name"
+            useDirectives={[validate]}
+            invalid={!!errors.name}
           />
         </div>
 
@@ -119,12 +129,15 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
           <Input
             class={style.fieldInput}
             value={alias()}
+            type="text"
             onInput={(e) => setAlias(e.currentTarget.value)}
             placeholder="Short id"
+            minLength={2}
             maxLength={16}
             required
-            invalid={wasSubmitted() && aliasInvalid()}
-            useDirectives={[(el) => validate(el, 'alias')]}
+            name="alias"
+            useDirectives={[validate]}
+            invalid={!!errors.alias}
           />
         </div>
 
@@ -133,17 +146,20 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
           <Input
             class={style.fieldInput}
             value={description()}
+            type="text"
             onInput={(e) => setDescription(e.currentTarget.value)}
             placeholder="Optional"
             maxLength={255}
-            useDirectives={[(el) => validate(el, 'description')]}
+            name="description"
+            useDirectives={[validate]}
+            invalid={!!errors.description}
           />
         </div>
 
         <Divider class={style.divider} />
 
         <div class={style.hintRow}>
-          <span class={style.hint}>Alias is limited to 16 characters.</span>
+          <HighlightedCode language="json" code={toJson(errors)} />
         </div>
       </form>
     </Modal>
