@@ -1,6 +1,139 @@
 {
   "versions": [
     {
+      "version": "0.9.0",
+      "releaseType": "minor",
+      "date": "2026-05-15",
+      "name": "Match pausing and cancellation, webhook support and goal types backport",
+      "changes": [
+        {
+          "type": "feature",
+          "change": "Added match pause and cancellation events with pause duration stats",
+          "description": "Matches can now be paused and cancelled. Paused matches have their duration reduced by the total pause time. Cancelled matches are excluded from all statistics and rating calculations."
+        },
+        {
+          "type": "feature",
+          "change": "Added basic webhook support",
+          "description": "Notifications about new matches can now be sent to a configurable Discord webhook URL. Webhook payload includes basic match details and metadata."
+        },
+        {
+          "type": "feature",
+          "change": "Added support for goal types with emoji markers in MatchTimeline",
+          "description": "Each goal can be assigned a list of types that describe how it was scored."
+        },
+        {
+          "type": "feature",
+          "change": "Added per-season score and k-factor multipliers"
+        }
+      ],
+      "commits": [
+        {
+          "hash": "7d53d0857d",
+          "message": "Display goal type emojis in MatchTimeline"
+        },
+        {
+          "hash": "17d0f34957",
+          "message": "Backport support for goal types"
+        },
+        {
+          "hash": "3ce102328a",
+          "message": "Update dependencies stage #4"
+        },
+        {
+          "hash": "98843c458f",
+          "message": "More chalk formatting fixes"
+        },
+        {
+          "hash": "52cc903030",
+          "message": "Update dependencies stage #3"
+        },
+        {
+          "hash": "cb7c15c7c1",
+          "message": "Update dependencies stage #2"
+        },
+        {
+          "hash": "487efb2ac7",
+          "message": "Update dependencies stage #1"
+        },
+        {
+          "hash": "63e3fa7d0b",
+          "message": "Attempt to set floor field manually"
+        },
+        {
+          "hash": "e2fe786959",
+          "message": "Implement basic webhook support"
+        },
+        {
+          "hash": "4b67f2e328",
+          "message": "Enable tsx watch mode"
+        },
+        {
+          "hash": "f859608864",
+          "message": "Add logging to symbol fetching script"
+        },
+        {
+          "hash": "4161a0ee30",
+          "message": "Wrap RatingCharts in StatPaginatorWidget"
+        },
+        {
+          "hash": "12ac6dedec",
+          "message": "Move team list to aggregate stat container"
+        },
+        {
+          "hash": "081e388286",
+          "message": "Keep a list of related frames in aggregate frame"
+        },
+        {
+          "hash": "7058532116",
+          "message": "Add support for per season  score and k factor multipliers"
+        },
+        {
+          "hash": "429eac75be",
+          "message": "Initial per season config support"
+        },
+        {
+          "hash": "bacdd70740",
+          "message": "Use last event  time to calculate match duration"
+        },
+        {
+          "hash": "93d9f9c88b",
+          "message": "Handle cancelled matches properly during stat calculation"
+        },
+        {
+          "hash": "15de06bab2",
+          "message": "Skip Elo and Glicko2 calculation for cancelled matches"
+        },
+        {
+          "hash": "2d10837329",
+          "message": "Handle cancelled matches in MatchStats widget"
+        },
+        {
+          "hash": "a6e9d06f12",
+          "message": "Update match defaults"
+        },
+        {
+          "hash": "5ca0fbb97a",
+          "message": "Declare match event types as object literal"
+        },
+        {
+          "hash": "cbe2bab057",
+          "message": "Expose pause duration stats"
+        },
+        {
+          "hash": "a1119c22b1",
+          "message": "Subtract pause duration from final match time"
+        },
+        {
+          "hash": "75d75f95f5",
+          "message": "Add dedicated events for match pausing and cancellation"
+        },
+        {
+          "hash": "556b824654",
+          "message": "Initial work on the dynamic chart system"
+        }
+      ]
+    },
+    {
       "version": "0.8.0",
       "releaseType": "minor",
       "date": "2026-03-16",
