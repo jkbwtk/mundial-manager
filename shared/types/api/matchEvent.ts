@@ -27,8 +27,9 @@ export const GoalTypeEnum = {
   LONG_SHOT_GOAL: 'LONG_SHOT_GOAL', // A goal scored from a long distance
   SLOW_GOAL: 'SLOW_GOAL', // A goal scored by slowly kicking the ball into the goal, catching the opponent off guard
   FAST_GOAL: 'FAST_GOAL', // A goal scored by quickly kicking the ball into the goal, overwhelming the opponent
-  GUARD_PIERCE_GOAL: 'GUARD_PIERCE_GOAL', // A goal scored in a way that spun oponent's unheld or weakly held rod out of the way
+  GUARD_PIERCE_GOAL: 'GUARD_PIERCE_GOAL', // A goal scored in a way that spun opponent's unheld or weakly held rod out of the way
   PUSH_GOAL: 'PUSH_GOAL', // A goal scored by pushing the ball without making any audible sound or noticeable movement
+  BERMUDA_TRIANGLE_GOAL: 'BERMUDA_TRIANGLE_GOAL', // A goal scored directly after the ball hits one or both goalposts of the scoring side's goal
 } as const;
 
 export const GoalType = z.enum(GoalTypeEnum);
