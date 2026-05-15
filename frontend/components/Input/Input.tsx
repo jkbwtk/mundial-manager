@@ -80,7 +80,11 @@ export const Input: Component<InputProps> = (userProps) => {
   };
 
   onMount(() => {
-    if (!inputRef || !TextOverflowTypes.includes(props.type)) return;
+    if (!inputRef) return;
+
+    applyDirectives(inputRef, props.useDirectives);
+
+    if (!TextOverflowTypes.includes(props.type)) return;
 
     inputRef.addEventListener('scroll', checkOverflow);
     inputRef.addEventListener('input', checkOverflow);
@@ -108,15 +112,7 @@ export const Input: Component<InputProps> = (userProps) => {
         ...(labelProps.classList ?? {}),
       }}
     >
-      <input
-        ref={(el) => {
-          inputRef = el;
-
-          applyDirectives(el, props.useDirectives);
-        }}
-        {...props}
-        id={labelProps.id ?? id}
-      />
+      <input ref={inputRef} {...props} id={labelProps.id ?? id} />
 
       {labelProps.children}
     </label>
