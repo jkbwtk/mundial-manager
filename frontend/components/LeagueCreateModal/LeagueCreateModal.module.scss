@@ -40,3 +40,12 @@
     white-space: break-spaces;
   }
 }
+
+.no-errors {
+  text-align: center;
+  display: inline-block;
+  width: 100%;
+
+  font-style: italic;
+  color: $textDimColor;
+}

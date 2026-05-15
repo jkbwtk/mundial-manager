@@ -1,6 +1,6 @@
 import hljs from 'highlight.js/lib/core';
 import json from 'highlight.js/lib/languages/json';
-import { createMemo, createSignal, createUniqueId } from 'solid-js';
+import { createMemo, createSignal, createUniqueId, Show } from 'solid-js';
 import { Button } from '#components/Button';
 import { HighlightedCode } from '#components/HighlightedCode';
 import { Input } from '#components/Input';
@@ -45,6 +45,8 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
   const trimmedName = createMemo(() => name().trim());
   const trimmedAlias = createMemo(() => alias().trim());
   const trimmedDescription = createMemo(() => description().trim());
+
+  const hasValidationErrors = createMemo(() => Object.keys(errors).length > 0);
 
   const handleCancel = (ev: PointerEvent) => {
     ev.preventDefault();
@@ -150,7 +152,15 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
         <Divider class={style.divider} />
 
         <div class={style.hintRow}>
-          <HighlightedCode language="json" code={toJson(errors)} />
+          <Show
+            when={hasValidationErrors()}
+            fallback={<span class={style.noErrors}>No validation errors</span>}
+          >
+            <HighlightedCode
+              language="json"
+              code={'Errors: ' + toJson(errors)}
+            />
+          </Show>
         </div>
       </form>
     </Modal>
