@@ -1,16 +1,30 @@
-import { Show } from 'solid-js';
+import { For, Show } from 'solid-js';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import { getScoreAfterEvent } from '#flib/sheetUtils';
 import type { SupportedMaterialSymbol } from '#flib/supportedMaterialSymbols';
 import { getTeamColors } from '#shared/matchUtils';
 import { formatDuration } from '#shared/timeUtils';
-import type { Match, MatchEventGoal } from '#shared/types/Sheets';
+import type { GoalType, Match, MatchEventGoal } from '#shared/types/Sheets';
 import style from './MatchTimelineModal.module.scss';
 
 export interface GoalEventProps {
   match: Match;
   event: MatchEventGoal;
 }
+
+const goalTypeEmojiMap: Record<GoalType, string> = {
+  AERIAL_GOAL: '🚀',
+  BACK_STAB_GOAL: '🔪',
+  PARRY_GOAL: '🛡️',
+  RETURN_TO_FIELD_GOAL: '🔙',
+  TRICK_SHOT_GOAL: '✨',
+  LONG_SHOT_GOAL: '🎯',
+  SLOW_GOAL: '🐢',
+  FAST_GOAL: '⚡',
+  GUARD_PIERCE_GOAL: '🎳',
+  PUSH_GOAL: '🥷',
+  BERMUDA_TRIANGLE_GOAL: '📐',
+};
 
 export const GoalEvent: Component<GoalEventProps> = (props) => {
   const colors = getTeamColors(props.match);
@@ -55,6 +69,15 @@ export const GoalEvent: Component<GoalEventProps> = (props) => {
 
       <td class={style.description}>
         Goal by <strong>{props.event.player}</strong>
+        <Show when={props.event.goalType.length > 0}>
+          {' '}
+          / Types:{' '}
+          <For each={props.event.goalType}>
+            {(goalType) => (
+              <span title={goalType}>{goalTypeEmojiMap[goalType] ?? '❓'}</span>
+            )}
+          </For>
+        </Show>
       </td>
 
       <td class={style.score}>
