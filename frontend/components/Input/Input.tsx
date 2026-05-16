@@ -49,15 +49,16 @@ export const inputDefaultProps: RequiredDefaults<CustomInputProps> = {
 };
 
 export const Input: Component<InputProps> = (userProps) => {
-  const [labelProps, restProps] = splitProps(userProps, [
+  const mergedProps = mergeProps(inputDefaultProps, userProps);
+  const [utilProps, props] = splitProps(mergedProps, [
     'id',
     'class',
     'classList',
     'children',
     'invalid',
+    'useDirectives',
   ]);
 
-  const props = mergeProps(inputDefaultProps, restProps);
   const id = createUniqueId();
 
   const inputStyle = () => style[props.type as keyof typeof style];
@@ -82,7 +83,7 @@ export const Input: Component<InputProps> = (userProps) => {
   onMount(() => {
     if (!inputRef) return;
 
-    applyDirectives(inputRef, props.useDirectives);
+    applyDirectives(inputRef, utilProps.useDirectives);
 
     if (!TextOverflowTypes.includes(props.type)) return;
 
@@ -101,20 +102,20 @@ export const Input: Component<InputProps> = (userProps) => {
 
   return (
     <label
-      for={labelProps.id ?? id}
+      for={utilProps.id ?? id}
       classList={{
         [style.input]: true,
         [inputStyle()]: true,
-        [style.invalid]: labelProps.invalid,
+        [style.invalid]: utilProps.invalid,
         [style.overflowLeft]: overflowLeft(),
         [style.overflowRight]: overflowRight(),
-        [labelProps.class ?? '']: true,
-        ...(labelProps.classList ?? {}),
+        [utilProps.class ?? '']: true,
+        ...(utilProps.classList ?? {}),
       }}
     >
-      <input ref={inputRef} {...props} id={labelProps.id ?? id} />
+      <input ref={inputRef} {...props} id={utilProps.id ?? id} />
 
-      {labelProps.children}
+      {utilProps.children}
     </label>
   );
 };
