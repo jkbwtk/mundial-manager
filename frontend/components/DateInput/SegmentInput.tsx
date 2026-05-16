@@ -39,10 +39,9 @@ export const SegmentInput: Component<SegmentProps> = (userProps) => {
       onBlur={(e) => {
         if (!props.blurClamp) return;
         const clamped = props.blurClamp(e.currentTarget.value);
-        if (clamped) {
-          e.currentTarget.value = clamped;
-          props.onEmit();
-        }
+
+        e.currentTarget.value = clamped;
+        props.onEmit();
       }}
     />
   );

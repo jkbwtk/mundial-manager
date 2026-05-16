@@ -10,10 +10,16 @@ import {
   type JSX,
   mergeProps,
   on,
+  onMount,
+  splitProps,
 } from 'solid-js';
 import { AnchoredPopup } from '#components/AnchoredPopup';
 import { SegmentInput } from '#components/DateInput';
 import { MaterialSymbol } from '#components/MaterialSymbol';
+import {
+  applyDirectives,
+  type ComponentUseDirectiveHack,
+} from '#flib/solidHelpers';
 import { clamp, type RequiredDefaults } from '#shared/utils';
 import style from './DateInput.module.scss';
 
@@ -29,10 +35,12 @@ type CalCell = {
 export type DateInputProps = {
   invalid?: boolean;
   value?: Date | null;
-  onInput?: (value: Date) => void;
+  onInput?: (value: Date | null) => void;
   disabled?: boolean;
   class?: string;
   classList?: JSX.CustomAttributes<HTMLElement>['classList'];
+  useDirectives?: ComponentUseDirectiveHack<HTMLInputElement>[];
+  name?: string;
 };
 
 const MonthNames = [
@@ -58,6 +66,8 @@ export const dateInputDefaultProps: RequiredDefaults<DateInputProps> = {
   disabled: false,
   class: '',
   classList: {},
+  useDirectives: [],
+  name: undefined!,
 };
 
 const daysInMonth = (year: number, month: number) =>
@@ -95,7 +105,8 @@ const parseDate = (date: Date) => ({
 const TodayDate = new Date().toDateString();
 
 export const DateInput: Component<DateInputProps> = (userProps) => {
-  const props = mergeProps(dateInputDefaultProps, userProps);
+  const baseProps = mergeProps(dateInputDefaultProps, userProps);
+  const [containerProps, props] = splitProps(baseProps, ['name']);
 
   let yearRef!: HTMLInputElement;
   let monthRef!: HTMLInputElement;
@@ -119,21 +130,32 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
   const grid = createMemo(() => buildGrid(viewYear(), viewMonth()));
 
   const emitFromRefs = () => {
-    if (!yearRef.value || !monthRef.value || !dayRef.value) return;
+    if (!yearRef.value || !monthRef.value || !dayRef.value) {
+      batch(() => {
+        setSelectedDate(null);
+        props.onInput(null);
+
+        wrapRef.oninput?.(new InputEvent('input', { bubbles: true }));
+      });
+
+      return;
+    }
 
     const date = new Date(`${yearRef.value}-${monthRef.value}-${dayRef.value}`);
 
-    console.log(date);
-    if (!Number.isNaN(date.getTime())) {
-      batch(() => {
-        setSelectedDate(date);
-        props.onInput(date);
-      });
-    }
+    batch(() => {
+      setSelectedDate(date);
+      props.onInput(date);
+
+      wrapRef.oninput?.(new InputEvent('input', { bubbles: true }));
+    });
   };
 
   const syncFieldsFromValue = (date: Date | null) => {
     setSelectedDate(date);
+
+    props.onInput(date);
+    wrapRef.oninput?.(new InputEvent('input', { bubbles: true }));
 
     if (!date) {
       yearRef.value = '';
@@ -421,6 +443,16 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
     }),
   );
 
+  onMount(() => {
+    // @ts-expect-error
+    wrapRef.setCustomValidity = () => {};
+    // @ts-expect-error
+    wrapRef.checkValidity = () => true;
+
+    // @ts-expect-error
+    applyDirectives(wrapRef, props.useDirectives);
+  });
+
   return (
     <span
       ref={wrapRef}
@@ -430,6 +462,10 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
         [props.class ?? '']: !!props.class,
         ...(props.classList ?? {}),
       }}
+      // @ts-expect-error
+      prop:type="date"
+      prop:name={containerProps.name}
+      prop:value={selectedDate()}
     >
       <SegmentInput
         ref={(el) => {
