@@ -16,4 +16,10 @@
   grid-template-columns: min-content 1fr;
 
   white-space: nowrap;
+
+  .label {
+    text-align: right;
+  }
+
+  text-align: center;
 }

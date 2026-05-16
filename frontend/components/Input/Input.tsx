@@ -23,7 +23,8 @@ export type CustomInputProps = {
     | 'number'
     | 'range'
     | 'radio'
-    | 'file';
+    | 'file'
+    | 'checkbox';
   invalid?: boolean;
   useDirectives?: ComponentUseDirectiveHack<HTMLInputElement>[];
 };
@@ -114,7 +115,6 @@ export const Input: Component<InputProps> = (userProps) => {
       }}
     >
       <input ref={inputRef} {...props} id={utilProps.id ?? id} />
-
       {utilProps.children}
     </label>
   );

@@ -1,0 +1,9 @@
+@use 'app' as *;
+
+.required {
+  color: $redBright;
+  font-weight: bold;
+
+  position: relative;
+  top: ch(-0.25);
+}

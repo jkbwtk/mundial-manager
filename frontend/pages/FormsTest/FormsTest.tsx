@@ -10,6 +10,7 @@ import { useFormValidation } from '#flib/formValidation';
 import { toJson } from '#flib/index';
 import 'highlight.js/styles/gml.min.css';
 import { DateInput } from '#components/DateInput';
+import { Required } from '#components/Required/Required';
 import style from './FormsTest.module.scss';
 
 hljs.registerLanguage('json', json);
@@ -76,7 +77,10 @@ export const FormsTest: Component = () => {
         ]}
       >
         <form id={formId} class={style.form} onSubmit={handleSubmit}>
-          <span>String:</span>
+          <span class={style.label}>
+            String
+            <Required />:
+          </span>
           <Input
             name="string"
             minLength={3}
@@ -86,7 +90,7 @@ export const FormsTest: Component = () => {
             invalid={!!errors.string}
           />
 
-          <span>Optional String:</span>
+          <span class={style.label}>Optional String:</span>
           <Input
             name="optionalString"
             minLength={3}
@@ -104,7 +108,10 @@ export const FormsTest: Component = () => {
             invalid={!!errors.optionalStringWithDefault}
           />
 
-          <span>Integer:</span>
+          <span class={style.label}>
+            Integer
+            <Required />:
+          </span>
           <Input
             name="integer"
             type="number"
@@ -116,7 +123,10 @@ export const FormsTest: Component = () => {
             invalid={!!errors.integer}
           />
 
-          <span>Float:</span>
+          <span class={style.label}>
+            Float
+            <Required />:
+          </span>
           <Input
             name="float"
             type="number"
@@ -128,7 +138,7 @@ export const FormsTest: Component = () => {
             invalid={!!errors.float}
           />
 
-          <span>Boolean:</span>
+          <span class={style.label}>Boolean:</span>
           <Input
             name="boolean"
             type="checkbox"
@@ -136,14 +146,20 @@ export const FormsTest: Component = () => {
             invalid={!!errors.boolean}
           />
 
-          <span>Date:</span>
+          <span class={style.label}>
+            Date
+            <Required />:
+          </span>
           <DateInput
             name="date"
             useDirectives={[validate]}
             invalid={!!errors.date}
           />
 
-          <span>Password:</span>
+          <span class={style.label}>
+            Password
+            <Required />:
+          </span>
           <Input
             name="password"
             type="password"
@@ -153,7 +169,10 @@ export const FormsTest: Component = () => {
             invalid={!!errors.password}
           />
 
-          <span>Confirm Password:</span>
+          <span class={style.label}>
+            Confirm Password
+            <Required />:
+          </span>
           <Input
             name="confirmPassword"
             type="password"
