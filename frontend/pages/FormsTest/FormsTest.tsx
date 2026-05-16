@@ -106,7 +106,7 @@ export const FormsTest: Component = () => {
             name="float"
             type="number"
             min={0}
-            step="any"
+            step={0.1}
             required
             useDirectives={[validate]}
             invalid={!!errors.float}

@@ -2,6 +2,7 @@ import { batch, createSignal } from 'solid-js';
 import { createStore, unwrap } from 'solid-js/store';
 import type z from 'zod';
 import { treeifyError } from 'zod';
+import type { CustomInputProps } from '#components/Input';
 
 export type UseFormValidationOptions = {
   debounceTime?: number;
@@ -24,23 +25,37 @@ export const useFormValidation = <T extends z.ZodObject>(
 
   const [canSubmit, setCanSubmit] = createSignal(false);
 
-  const preprocessValue = (value: unknown) => {
-    switch (typeof value) {
-      case 'string':
-        if (value.trim() === '') return undefined;
-        return value;
+  const preprocessValue = (field: Field) => {
+    const { ref } = field;
+    const value = ref.value;
+
+    const inputType = field.ref.type as CustomInputProps['type'];
+
+    switch (inputType) {
+      case 'checkbox':
+        return field.ref.checked;
+
+      case 'number':
+      case 'range':
+        return value === '' ? undefined : Number(value);
 
       default:
+        if (typeof value === 'string') {
+          if (value.trim() === '') return undefined;
+          return value;
+        }
+
         return value;
     }
   };
 
-  const convertFormDataToObject = (
-    formData: FormData,
-  ): Record<string, unknown> => {
-    const entries = formData
-      .entries()
-      .filter(([, value]) => preprocessValue(value) !== undefined);
+  const getFormData = (): Record<string, unknown> => {
+    const entries = Object.entries(fields)
+      .map(
+        ([key, field]) =>
+          [key, field ? preprocessValue(field) : undefined] as const,
+      )
+      .filter(([, value]) => value !== undefined);
 
     return Object.fromEntries(entries);
   };
@@ -53,19 +68,9 @@ export const useFormValidation = <T extends z.ZodObject>(
   };
 
   const runValidation = async () => {
-    const form = Object.values(fields)[0]?.ref.form;
+    const data = getFormData();
 
-    if (!form) {
-      console.warn(
-        'No fields registered for validation, cannot run validation',
-      );
-      return;
-    }
-
-    const formData = new FormData(form);
-    const dataObject = convertFormDataToObject(formData);
-
-    const result = await schema.safeParseAsync(dataObject);
+    const result = await schema.safeParseAsync(data);
 
     if (result.success) {
       batch(() => {
@@ -75,7 +80,6 @@ export const useFormValidation = <T extends z.ZodObject>(
           setFieldErrors(field, undefined);
         }
 
-        form.checkValidity();
         setCanSubmit(true);
       });
     } else {
@@ -99,9 +103,6 @@ export const useFormValidation = <T extends z.ZodObject>(
 
         setCanSubmit(false);
       });
-
-      console.log(dataObject);
-      console.log(unwrap(errors));
     }
 
     return result;
