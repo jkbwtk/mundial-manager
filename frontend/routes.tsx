@@ -40,6 +40,7 @@ const MaterialSymbolTest = lazy(
 const ChartBuilderTest = lazy(
   () => import('#pages/ChartBuilderTest/ChartBuilderTest'),
 );
+const FormsTest = lazy(() => import('#pages/FormsTest/FormsTest'));
 
 export const routes: RouteDefinition[] = [
   {
@@ -150,6 +151,11 @@ export const routes: RouteDefinition[] = [
         path: '/chart-builder-test',
         info: { title: 'Mundial Manager - Chart Builder Test' },
         component: ChartBuilderTest,
+      },
+      {
+        path: '/forms-test',
+        info: { title: 'Mundial Manager - Forms Test' },
+        component: FormsTest,
       },
     ],
   },

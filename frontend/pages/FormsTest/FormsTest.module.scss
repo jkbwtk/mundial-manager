@@ -1,0 +1,19 @@
+@use 'app' as *;
+
+.outer-container {
+  width: round(down, 100vw, cw(1));
+  height: round(down, 100dvh, ch(1));
+}
+
+.form-container {
+  width: fit-content;
+}
+
+.form {
+  display: grid;
+
+  column-gap: cw(1);
+  grid-template-columns: min-content 1fr;
+
+  white-space: nowrap;
+}
