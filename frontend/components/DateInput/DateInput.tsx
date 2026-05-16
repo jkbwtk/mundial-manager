@@ -129,7 +129,14 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
     }
   };
 
-  const syncFieldsFromValue = (date: Date) => {
+  const syncFieldsFromValue = (date: Date | null) => {
+    if (!date) {
+      yearRef.value = '';
+      monthRef.value = '';
+      dayRef.value = '';
+      return;
+    }
+
     const { year, month, day } = parseDate(date);
     const active = document.activeElement;
 
@@ -391,7 +398,7 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
     on(
       () => props.value,
       (newDate) => {
-        if (newDate) syncFieldsFromValue(newDate);
+        syncFieldsFromValue(newDate);
         setSelectedDate(newDate);
       },
       { defer: true },
