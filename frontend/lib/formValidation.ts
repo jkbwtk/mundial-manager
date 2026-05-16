@@ -1,5 +1,5 @@
-import { createSignal } from 'solid-js';
-import { createStore } from 'solid-js/store';
+import { batch, createSignal } from 'solid-js';
+import { createStore, unwrap } from 'solid-js/store';
 import type z from 'zod';
 import { treeifyError } from 'zod';
 
@@ -7,16 +7,22 @@ export type UseFormValidationOptions = {
   debounceTime?: number;
 };
 
+export interface Field {
+  ref: HTMLInputElement;
+  schemaField: z.ZodTypeAny;
+  dirty: boolean;
+}
+
 export const useFormValidation = <T extends z.ZodObject>(
   schema: T,
   options: UseFormValidationOptions,
 ) => {
-  const fields: Partial<
-    Record<
-      keyof z.infer<T>,
-      { ref: HTMLInputElement; schemaField: z.ZodTypeAny }
-    >
-  > = {};
+  const fields: Partial<Record<keyof z.infer<T>, Field>> = {};
+  const [errors, setErrors] = createStore<
+    Partial<Record<keyof z.infer<T>, string[]>>
+  >({});
+
+  const [canSubmit, setCanSubmit] = createSignal(false);
 
   const preprocessValue = (value: unknown) => {
     switch (typeof value) {
@@ -39,37 +45,66 @@ export const useFormValidation = <T extends z.ZodObject>(
     return Object.fromEntries(entries);
   };
 
-  const [errors, setErrors] = createStore<
-    Partial<Record<keyof z.infer<T>, string[]>>
-  >({});
+  const setFieldErrors = (field: Field, errors: string[] | undefined) => {
+    // @ts-expect-error
+    setErrors(field.ref.name as keyof z.infer<T>, errors);
+    field.ref.setCustomValidity(errors?.join(', ') ?? '');
+    field.ref.checkValidity();
+  };
 
-  const [canSubmit, setCanSubmit] = createSignal(false);
+  const runValidation = async () => {
+    const form = Object.values(fields)[0]?.ref.form;
 
-  const runValidation = async (fieldName: keyof z.infer<T>) => {
-    const field = fields[fieldName];
-
-    if (!field) {
-      console.warn(`No field found for name ${String(fieldName)}`);
+    if (!form) {
+      console.warn(
+        'No fields registered for validation, cannot run validation',
+      );
       return;
     }
 
-    const value = preprocessValue(field.ref.value);
-    const result = await field.schemaField.safeParseAsync(value);
+    const formData = new FormData(form);
+    const dataObject = convertFormDataToObject(formData);
+
+    const result = await schema.safeParseAsync(dataObject);
 
     if (result.success) {
-      // @ts-expect-error
-      setErrors(fieldName, undefined);
-      field.ref.setCustomValidity('');
-      field.ref.checkValidity();
+      batch(() => {
+        for (const field of Object.values(fields)) {
+          if (!field) continue;
+
+          setFieldErrors(field, undefined);
+        }
+
+        form.checkValidity();
+        setCanSubmit(true);
+      });
     } else {
-      // @ts-expect-error
-      setErrors(fieldName, treeifyError(result.error).errors);
-      field.ref.setCustomValidity(errors[fieldName]?.join(', ') ?? '');
-      field.ref.checkValidity();
+      const fieldErrors = treeifyError(result.error).properties ?? {};
+
+      batch(() => {
+        for (const [key, field] of Object.entries(fields)) {
+          const errorField = fieldErrors[key];
+
+          if (!field) {
+            console.warn(`No field found for name ${key}`);
+            continue;
+          }
+
+          if (!field.dirty) {
+            continue;
+          }
+
+          setFieldErrors(field, errorField?.errors);
+        }
+
+        setCanSubmit(false);
+      });
+
+      console.log(dataObject);
+      console.log(unwrap(errors));
     }
 
-    const form = field.ref.form!;
-    setCanSubmit(form.checkValidity() ?? false);
+    return result;
   };
 
   const validate = (ref: HTMLInputElement) => {
@@ -93,22 +128,27 @@ export const useFormValidation = <T extends z.ZodObject>(
       return;
     }
 
-    fields[name as keyof z.infer<T>] = { ref, schemaField };
+    const field = { ref, schemaField, dirty: false };
+    fields[name as keyof z.infer<T>] = field;
 
     let timeoutRef: ReturnType<typeof setTimeout> | undefined;
 
     ref.onblur = () => {
       clearTimeout(timeoutRef);
-      runValidation(name);
+
+      field.dirty = true;
+      runValidation();
     };
 
     ref.oninput = () => {
       clearTimeout(timeoutRef);
       setCanSubmit(false);
 
+      field.dirty = true;
+
       timeoutRef = setTimeout(() => {
-        runValidation(name);
-      }, options.debounceTime ?? 3000);
+        runValidation();
+      }, options.debounceTime ?? 300);
     };
   };
 
@@ -118,36 +158,16 @@ export const useFormValidation = <T extends z.ZodObject>(
     const submitter = async (ev: SubmitEvent) => {
       ev.preventDefault();
 
-      const form = ev.currentTarget;
+      const result = await runValidation();
 
-      if (!(form instanceof HTMLFormElement)) {
-        console.warn('Event target is not a form element', form);
+      if (!result) {
         return;
       }
 
-      const formData = new FormData(form);
-      const dataObject = convertFormDataToObject(formData);
-
-      const result = await schema.safeParseAsync(dataObject);
-
       if (!result.success) {
-        const fieldErrors = treeifyError(result.error).properties ?? {};
-
-        for (const [key, errors] of Object.entries(fieldErrors)) {
-          const field = fields[key as keyof z.infer<T>];
-
-          if (!field || !errors) {
-            console.warn(`No field found for name ${key}`);
-            continue;
-          }
-
-          // @ts-expect-error
-          setErrors(key, errors.errors);
-          field.ref.setCustomValidity(errors.errors.join(', '));
-          field.ref.checkValidity();
-        }
-
-        setCanSubmit(false);
+        console.warn('Form submission blocked due to validation errors', {
+          errors: unwrap(errors),
+        });
         return;
       }
 
