@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import objectSupport from 'dayjs/plugin/objectSupport';
 import {
+  batch,
   createEffect,
   createMemo,
   createSignal,
@@ -114,13 +115,18 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
   );
 
   const grid = createMemo(() => buildGrid(viewYear(), viewMonth()));
-  const selectedDateStr = createMemo(() => props.value?.toDateString() ?? null);
+  const [selectedDate, setSelectedDate] = createSignal(props.value ?? null);
 
   const emitFromRefs = () => {
     if (!yearRef.value || !monthRef.value || !dayRef.value) return;
 
     const date = new Date(`${yearRef.value}-${monthRef.value}-${dayRef.value}`);
-    if (!Number.isNaN(date.getTime())) props.onInput(date);
+    if (!Number.isNaN(date.getTime())) {
+      batch(() => {
+        setSelectedDate(date);
+        props.onInput(date);
+      });
+    }
   };
 
   const syncFieldsFromValue = (date: Date) => {
@@ -386,6 +392,7 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
       () => props.value,
       (newDate) => {
         if (newDate) syncFieldsFromValue(newDate);
+        setSelectedDate(newDate);
       },
       { defer: true },
     ),
@@ -565,7 +572,7 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
                   [style.dayCell]: true,
                   [style.otherMonth]: !cell.isCurrentMonth,
                   [style.selected]:
-                    cell.date.toDateString() === selectedDateStr(),
+                    cell.date.toDateString() === selectedDate()?.toDateString(),
                   [style.today]: cell.date.toDateString() === TodayDate,
                   [style.focused]: idx() === focusIdx(),
                 }}
