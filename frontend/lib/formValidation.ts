@@ -18,6 +18,17 @@ export const useFormValidation = <T extends z.ZodObject>(
     >
   > = {};
 
+  const preprocessValue = (value: unknown) => {
+    switch (typeof value) {
+      case 'string':
+        if (value.trim() === '') return undefined;
+        return value;
+
+      default:
+        return value;
+    }
+  };
+
   const [errors, setErrors] = createStore<
     Partial<Record<keyof z.infer<T>, string[]>>
   >({});
@@ -32,7 +43,8 @@ export const useFormValidation = <T extends z.ZodObject>(
       return;
     }
 
-    const result = await field.schemaField.safeParseAsync(field.ref.value);
+    const value = preprocessValue(field.ref.value);
+    const result = await field.schemaField.safeParseAsync(value);
 
     if (result.success) {
       // @ts-expect-error
@@ -46,7 +58,8 @@ export const useFormValidation = <T extends z.ZodObject>(
       field.ref.checkValidity();
     }
 
-    setCanSubmit(field.ref.form?.checkValidity() ?? false);
+    const form = field.ref.form!;
+    setCanSubmit(form.checkValidity() ?? false);
   };
 
   const validate = (ref: HTMLInputElement) => {
@@ -70,8 +83,7 @@ export const useFormValidation = <T extends z.ZodObject>(
       return;
     }
 
-    // @ts-expect-error
-    fields[name] = { ref, schemaField };
+    fields[name as keyof z.infer<T>] = { ref, schemaField };
 
     let timeoutRef: ReturnType<typeof setTimeout> | undefined;
 
@@ -86,7 +98,7 @@ export const useFormValidation = <T extends z.ZodObject>(
 
       timeoutRef = setTimeout(() => {
         runValidation(name);
-      }, options.debounceTime ?? 500);
+      }, options.debounceTime ?? 3000);
     };
   };
 
