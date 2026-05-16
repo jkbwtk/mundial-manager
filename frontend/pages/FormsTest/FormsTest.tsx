@@ -14,21 +14,33 @@ import style from './FormsTest.module.scss';
 
 hljs.registerLanguage('json', json);
 
-const FormSchema = z.object({
-  string: z.string().trim().min(3).max(16),
-  optionalString: z.string().trim().min(3).max(16).nullish(),
-  optionalStringWithDefault: z
-    .string()
-    .trim()
-    .min(3)
-    .max(16)
-    .nullish()
-    .default('default value'),
-  integer: z.number().int().nonnegative(),
-  float: z.number().nonnegative(),
-  boolean: z.boolean(),
-  date: z.date(),
-});
+const FormSchema = z
+  .object({
+    string: z.string().trim().min(3).max(16),
+    optionalString: z.string().trim().min(3).max(16).nullish(),
+    optionalStringWithDefault: z
+      .string()
+      .trim()
+      .min(3)
+      .max(16)
+      .nullish()
+      .default('default value'),
+    integer: z.number().int().nonnegative(),
+    float: z.number().nonnegative(),
+    boolean: z.boolean(),
+    date: z.date(),
+    password: z.string().min(8),
+    confirmPassword: z.string().min(8),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    error: 'Passwords do not match',
+    path: ['confirmPassword'],
+    when: (payload) =>
+      payload.issues.every((issue) => {
+        const path = issue.path?.[0];
+        return path !== 'password' && path !== 'confirmPassword';
+      }),
+  });
 
 const fakeSubmit = (data: z.infer<typeof FormSchema>) => {
   return new Promise((resolve) => {
@@ -129,6 +141,26 @@ export const FormsTest: Component = () => {
             name="date"
             useDirectives={[validate]}
             invalid={!!errors.date}
+          />
+
+          <span>Password:</span>
+          <Input
+            name="password"
+            type="password"
+            minLength={8}
+            required
+            useDirectives={[validate]}
+            invalid={!!errors.password}
+          />
+
+          <span>Confirm Password:</span>
+          <Input
+            name="confirmPassword"
+            type="password"
+            minLength={8}
+            required
+            useDirectives={[validate]}
+            invalid={!!errors.confirmPassword}
           />
         </form>
         <br />
