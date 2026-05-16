@@ -1,6 +1,13 @@
 import hljs from 'highlight.js/lib/core';
 import json from 'highlight.js/lib/languages/json';
-import { createMemo, createSignal, createUniqueId, Show } from 'solid-js';
+import {
+  createMemo,
+  createSignal,
+  createUniqueId,
+  type getOwner,
+  runWithOwner,
+  Show,
+} from 'solid-js';
 import { Button } from '#components/Button';
 import { HighlightedCode } from '#components/HighlightedCode';
 import { Input } from '#components/Input';
@@ -11,6 +18,9 @@ import { toJson } from '#flib/utils';
 import { useModalActions } from '#providers/ModalProvider';
 import { LeagueCreate } from '#shared/types/api/league';
 import 'highlight.js/styles/gml.min.css';
+import { useAction } from '@solidjs/router';
+import { actionCreateLeague } from '#flib/trpcCalls';
+import { useToast } from '#providers/ToastProvider';
 import style from './LeagueCreateModal.module.scss';
 
 hljs.registerLanguage('json', json);
@@ -21,30 +31,27 @@ export type LeagueCreatorResult =
 
 export interface LeagueCreatorModalProps {
   initialValues?: Partial<LeagueCreate>;
-  onCreate: (league: LeagueCreate) => Promise<LeagueCreatorResult>;
+  owner: ReturnType<typeof getOwner>;
 }
 
 export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
   props,
 ) => {
   const { closeModal } = useModalActions();
+  const [, actions] = useToast();
 
   const formId = createUniqueId();
 
-  const { validate, errors, canSubmit } = useFormValidation(LeagueCreate, {});
+  const { validate, errors, canSubmit, formSubmit } = useFormValidation(
+    LeagueCreate,
+    {},
+  );
 
   const [name, setName] = createSignal(props.initialValues?.name ?? '');
   const [alias, setAlias] = createSignal(props.initialValues?.alias ?? '');
   const [description, setDescription] = createSignal(
     props.initialValues?.description ?? '',
   );
-
-  const [isSubmitting, setIsSubmitting] = createSignal(false);
-  const [wasSubmitted, setWasSubmitted] = createSignal(false);
-
-  const trimmedName = createMemo(() => name().trim());
-  const trimmedAlias = createMemo(() => alias().trim());
-  const trimmedDescription = createMemo(() => description().trim());
 
   const hasValidationErrors = createMemo(() => Object.keys(errors).length > 0);
 
@@ -53,31 +60,17 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
     closeModal(false);
   };
 
-  const handleSubmit = async (ev: SubmitEvent) => {
-    ev.preventDefault();
-    setWasSubmitted(true);
+  const createLeague = runWithOwner(props.owner, () =>
+    useAction(actionCreateLeague),
+  );
 
-    if (!canSubmit()) return;
+  if (!createLeague) {
+    actions.error('Failed to initialize League Creator modal');
+    closeModal(false);
+    return;
+  }
 
-    setIsSubmitting(true);
-
-    const payload: LeagueCreate = {
-      name: trimmedName(),
-      alias: trimmedAlias(),
-      description: trimmedDescription() ? trimmedDescription() : null,
-    };
-
-    try {
-      const result = await props.onCreate(payload);
-
-      if (result.ok) {
-        closeModal(true);
-        return;
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const handleSubmit = formSubmit(createLeague);
 
   return (
     <Modal
@@ -92,7 +85,7 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
         <Button
           type="submit"
           form={formId}
-          loading={isSubmitting()}
+          loading={handleSubmit.isSubmitting()}
           disabled={!canSubmit()}
         >
           Create
@@ -110,7 +103,7 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
             placeholder="League name"
             minLength={3}
             maxLength={64}
-            required
+            autofocus
             name="name"
             useDirectives={[validate]}
             invalid={!!errors.name}
@@ -158,7 +151,7 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
           >
             <HighlightedCode
               language="json"
-              code={'Errors: ' + toJson(errors)}
+              code={`Errors: ${toJson(errors)}`}
             />
           </Show>
         </div>

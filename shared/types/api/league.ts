@@ -5,13 +5,15 @@ export const League = z.object({
 
   name: z.string().trim().min(3).max(64),
   alias: z.string().trim().min(2).max(16),
-  description: z.string().trim().max(255).nullable().default(null),
+  description: z.string().trim().max(255).nullish().default(null),
 });
 
 export type League = z.infer<typeof League>;
 
 export const LeagueCreate = League.omit({ uuid: true });
 export type LeagueCreate = z.infer<typeof LeagueCreate>;
+export type LeagueCreateInput = z.input<typeof LeagueCreate>;
 
 export const LeagueUpdate = LeagueCreate.partial();
 export type LeagueUpdate = z.infer<typeof LeagueUpdate>;
+export type LeagueUpdateInput = z.input<typeof LeagueUpdate>;

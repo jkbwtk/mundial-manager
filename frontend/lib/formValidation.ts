@@ -29,6 +29,16 @@ export const useFormValidation = <T extends z.ZodObject>(
     }
   };
 
+  const convertFormDataToObject = (
+    formData: FormData,
+  ): Record<string, unknown> => {
+    const entries = formData
+      .entries()
+      .filter(([, value]) => preprocessValue(value) !== undefined);
+
+    return Object.fromEntries(entries);
+  };
+
   const [errors, setErrors] = createStore<
     Partial<Record<keyof z.infer<T>, string[]>>
   >({});
@@ -102,9 +112,63 @@ export const useFormValidation = <T extends z.ZodObject>(
     };
   };
 
+  const formSubmit = <R>(handler: (data: z.infer<T>) => Promise<R>) => {
+    const [isSubmitting, setIsSubmitting] = createSignal(false);
+
+    const submitter = async (ev: SubmitEvent) => {
+      ev.preventDefault();
+
+      const form = ev.currentTarget;
+
+      if (!(form instanceof HTMLFormElement)) {
+        console.warn('Event target is not a form element', form);
+        return;
+      }
+
+      const formData = new FormData(form);
+      const dataObject = convertFormDataToObject(formData);
+
+      const result = await schema.safeParseAsync(dataObject);
+
+      if (!result.success) {
+        const fieldErrors = treeifyError(result.error).properties ?? {};
+
+        for (const [key, errors] of Object.entries(fieldErrors)) {
+          const field = fields[key as keyof z.infer<T>];
+
+          if (!field || !errors) {
+            console.warn(`No field found for name ${key}`);
+            continue;
+          }
+
+          // @ts-expect-error
+          setErrors(key, errors.errors);
+          field.ref.setCustomValidity(errors.errors.join(', '));
+          field.ref.checkValidity();
+        }
+
+        setCanSubmit(false);
+        return;
+      }
+
+      setIsSubmitting(true);
+
+      try {
+        await handler(result.data);
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
+
+    submitter.isSubmitting = isSubmitting;
+
+    return submitter;
+  };
+
   return {
     validate,
     errors,
     canSubmit,
+    formSubmit,
   };
 };

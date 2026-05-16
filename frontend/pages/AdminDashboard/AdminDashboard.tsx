@@ -1,5 +1,5 @@
 import { createAsync, useAction } from '@solidjs/router';
-import { Show } from 'solid-js';
+import { getOwner, Show } from 'solid-js';
 import { Button } from '#components/Button';
 import { LeagueCreatorModal } from '#components/LeagueCreateModal';
 import { type Column, Table } from '#components/Table';
@@ -7,14 +7,13 @@ import { Divider, Widget } from '#components/Widget';
 import { useHandleButtonAction } from '#flib/solidHelpers';
 import {
   actionChangeLeague,
-  actionCreateLeague,
   queryActiveLeague,
   queryLeagueLink,
   queryLeagues,
 } from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
-import type { League, LeagueCreate } from '#shared/types/api/league';
+import type { League } from '#shared/types/api/league';
 import { shortUUID } from '#shared/utils';
 import style from './AdminDashboard.module.scss';
 
@@ -25,24 +24,13 @@ export const AdminDashboard: Component = () => {
   const activeLeague = createAsync(() => queryActiveLeague());
 
   const changeLeague = useAction(actionChangeLeague);
-  const createLeague = useAction(actionCreateLeague);
-
-  const handleCreateLeagueSubmit = async (league: LeagueCreate) => {
-    try {
-      const result = await createLeague(league);
-      actions.success(`Created league: ${result.name}`);
-      return { ok: true as const };
-    } catch {
-      actions.error('Failed to create league');
-      return { ok: false as const, message: 'Failed to create league' };
-    }
-  };
+  const owner = getOwner();
 
   const handleCreateLeague = () => {
     open({
       props: {
         component: LeagueCreatorModal,
-        onCreate: handleCreateLeagueSubmit,
+        owner,
       },
       closeOnBackgroundClick: false,
     });
