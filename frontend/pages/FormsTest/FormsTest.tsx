@@ -9,6 +9,7 @@ import { Widget } from '#components/Widget';
 import { useFormValidation } from '#flib/formValidation';
 import { toJson } from '#flib/index';
 import 'highlight.js/styles/gml.min.css';
+import { DateInput } from '#components/DateInput';
 import style from './FormsTest.module.scss';
 
 hljs.registerLanguage('json', json);
@@ -26,6 +27,7 @@ const FormSchema = z.object({
   integer: z.number().int().nonnegative(),
   float: z.number().nonnegative(),
   boolean: z.boolean(),
+  date: z.date(),
 });
 
 const fakeSubmit = (data: z.infer<typeof FormSchema>) => {
@@ -96,6 +98,7 @@ export const FormsTest: Component = () => {
             type="number"
             min={0}
             step={1}
+            inputMode="numeric"
             required
             useDirectives={[validate]}
             invalid={!!errors.integer}
@@ -107,6 +110,7 @@ export const FormsTest: Component = () => {
             type="number"
             min={0}
             step={0.1}
+            inputMode="decimal"
             required
             useDirectives={[validate]}
             invalid={!!errors.float}
@@ -118,6 +122,13 @@ export const FormsTest: Component = () => {
             type="checkbox"
             useDirectives={[validate]}
             invalid={!!errors.boolean}
+          />
+
+          <span>Date:</span>
+          <DateInput
+            name="date"
+            useDirectives={[validate]}
+            invalid={!!errors.date}
           />
         </form>
         <br />

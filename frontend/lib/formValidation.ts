@@ -1,8 +1,7 @@
-import { batch, createSignal } from 'solid-js';
+import { batch, createSignal, type JSX } from 'solid-js';
 import { createStore, unwrap } from 'solid-js/store';
 import type z from 'zod';
 import { treeifyError } from 'zod';
-import type { CustomInputProps } from '#components/Input';
 
 export type UseFormValidationOptions = {
   debounceTime?: number;
@@ -29,7 +28,8 @@ export const useFormValidation = <T extends z.ZodObject>(
     const { ref } = field;
     const value = ref.value;
 
-    const inputType = field.ref.type as CustomInputProps['type'];
+    const inputType = field.ref
+      .type as JSX.InputHTMLAttributes<HTMLInputElement>['type'];
 
     switch (inputType) {
       case 'checkbox':
@@ -38,6 +38,9 @@ export const useFormValidation = <T extends z.ZodObject>(
       case 'number':
       case 'range':
         return value === '' ? undefined : Number(value);
+
+      case 'date':
+        return value === '' || value === null ? undefined : new Date(value);
 
       default:
         if (typeof value === 'string') {
@@ -149,7 +152,7 @@ export const useFormValidation = <T extends z.ZodObject>(
 
       timeoutRef = setTimeout(() => {
         runValidation();
-      }, options.debounceTime ?? 300);
+      }, options.debounceTime ?? 1000);
     };
   };
 
