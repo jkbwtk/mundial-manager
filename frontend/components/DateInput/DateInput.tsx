@@ -107,20 +107,23 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
   const [open, setOpen] = createSignal(false);
   const [focusIdx, setFocusIdx] = createSignal(-1);
 
+  const [selectedDate, setSelectedDate] = createSignal(props.value ?? null);
+
   const [viewYear, setViewYear] = createSignal(
-    (props.value ?? new Date()).getFullYear(),
+    (selectedDate() ?? new Date()).getFullYear(),
   );
   const [viewMonth, setViewMonth] = createSignal(
-    (props.value ?? new Date()).getMonth() + 1,
+    (selectedDate() ?? new Date()).getMonth() + 1,
   );
 
   const grid = createMemo(() => buildGrid(viewYear(), viewMonth()));
-  const [selectedDate, setSelectedDate] = createSignal(props.value ?? null);
 
   const emitFromRefs = () => {
     if (!yearRef.value || !monthRef.value || !dayRef.value) return;
 
     const date = new Date(`${yearRef.value}-${monthRef.value}-${dayRef.value}`);
+
+    console.log(date);
     if (!Number.isNaN(date.getTime())) {
       batch(() => {
         setSelectedDate(date);
@@ -130,6 +133,8 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
   };
 
   const syncFieldsFromValue = (date: Date | null) => {
+    setSelectedDate(date);
+
     if (!date) {
       yearRef.value = '';
       monthRef.value = '';
@@ -308,10 +313,11 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
   };
 
   const openCal = () => {
-    if (props.value) {
-      setViewYear(props.value.getFullYear());
-      setViewMonth(props.value.getMonth() + 1);
-    }
+    const current = selectedDate() ?? new Date();
+
+    setViewYear(current.getFullYear());
+    setViewMonth(current.getMonth() + 1);
+
     setFocusIdx(-1);
     setOpen(true);
   };
@@ -399,7 +405,6 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
       () => props.value,
       (newDate) => {
         syncFieldsFromValue(newDate);
-        setSelectedDate(newDate);
       },
       { defer: true },
     ),
