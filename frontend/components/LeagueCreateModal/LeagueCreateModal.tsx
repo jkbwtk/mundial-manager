@@ -16,7 +16,7 @@ import { Divider } from '#components/Widget';
 import { useFormValidation } from '#flib/formValidation';
 import { toJson } from '#flib/utils';
 import { useModalActions } from '#providers/ModalProvider';
-import { LeagueCreate } from '#shared/types/api/league';
+import { type League, LeagueCreate } from '#shared/types/api/league';
 import 'highlight.js/styles/gml.min.css';
 import { useAction } from '@solidjs/router';
 import { actionCreateLeague } from '#flib/trpcCalls';
@@ -41,6 +41,16 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
   const [, actions] = useToast();
 
   const formId = createUniqueId();
+
+  const handleError = (err: unknown) => {
+    actions.error('Failed to create league. Please try again.');
+    console.error('League creation error:', err);
+  };
+
+  const handleSuccess = (league: League) => {
+    actions.success('League created successfully!');
+    closeModal(league);
+  };
 
   const { validate, errors, canSubmit, formSubmit } = useFormValidation(
     LeagueCreate,
@@ -70,7 +80,7 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
     return;
   }
 
-  const handleSubmit = formSubmit(createLeague);
+  const handleSubmit = formSubmit(createLeague, handleSuccess, handleError);
 
   return (
     <Modal

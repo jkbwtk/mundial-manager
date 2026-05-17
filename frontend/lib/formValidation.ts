@@ -158,7 +158,11 @@ export const useFormValidation = <T extends z.ZodObject>(
     };
   };
 
-  const formSubmit = <R>(handler: (data: z.infer<T>) => Promise<R>) => {
+  const formSubmit = <R>(
+    handler: (data: z.infer<T>) => Promise<R>,
+    onSuccess?: (response: R) => void,
+    onError?: (err: unknown) => void,
+  ) => {
     const [isSubmitting, setIsSubmitting] = createSignal(false);
 
     const submitter = async (ev: SubmitEvent) => {
@@ -180,7 +184,8 @@ export const useFormValidation = <T extends z.ZodObject>(
       setIsSubmitting(true);
 
       try {
-        await handler(result.data);
+        const response = await handler(result.data);
+        onSuccess?.(response);
       } catch (err) {
         if (err instanceof TRPCClientError) {
           const parsedServerError = ZodLikeError.safeParse(err.message);
@@ -200,8 +205,12 @@ export const useFormValidation = <T extends z.ZodObject>(
                 setFieldErrors(field, errors.errors);
               }
             });
+
+            return;
           }
         }
+
+        onError?.(err);
       } finally {
         setIsSubmitting(false);
       }
