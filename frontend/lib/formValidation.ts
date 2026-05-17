@@ -1,7 +1,9 @@
+import { TRPCClientError } from '@trpc/client';
 import { batch, createSignal, type JSX } from 'solid-js';
 import { createStore, unwrap } from 'solid-js/store';
 import type z from 'zod';
 import { treeifyError } from 'zod';
+import { ZodLikeError } from '#shared/zod';
 
 export type UseFormValidationOptions = {
   debounceTime?: number;
@@ -179,6 +181,27 @@ export const useFormValidation = <T extends z.ZodObject>(
 
       try {
         await handler(result.data);
+      } catch (err) {
+        if (err instanceof TRPCClientError) {
+          const parsedServerError = ZodLikeError.safeParse(err.message);
+
+          if (parsedServerError.success) {
+            const fieldErrors = parsedServerError.data.properties;
+
+            batch(() => {
+              for (const [key, errors] of Object.entries(fieldErrors)) {
+                const field = fields[key as keyof z.infer<T>];
+
+                if (!field) {
+                  console.warn(`No field found for name ${key}`);
+                  continue;
+                }
+
+                setFieldErrors(field, errors.errors);
+              }
+            });
+          }
+        }
       } finally {
         setIsSubmitting(false);
       }

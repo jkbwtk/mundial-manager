@@ -5,6 +5,7 @@ import { environment } from '#backend/environment';
 import type { JWTContextCreate } from '#backend/types/auth';
 import { PaginationInput } from '#backend/types/trpc';
 import { sign } from '#blib/jwt';
+import { runWithErrorConversion } from '#blib/modelErrors';
 import { adminProcedure, router } from '#blib/trpc';
 import { League, LeagueCreate } from '#shared/types/api/league';
 
@@ -24,7 +25,9 @@ export const adminRouter = router({
   createLeague: adminProcedure
     .input(LeagueCreate)
     .mutation(async ({ ctx, input }) => {
-      const league = await LeagueModel.create(ctx.db, input);
+      const league = await runWithErrorConversion(() =>
+        LeagueModel.create(ctx.db, input),
+      );
 
       return league.serialize();
     }),

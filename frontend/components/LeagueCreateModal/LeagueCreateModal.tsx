@@ -103,7 +103,6 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
             placeholder="League name"
             minLength={3}
             maxLength={64}
-            autofocus
             name="name"
             useDirectives={[validate]}
             invalid={!!errors.name}

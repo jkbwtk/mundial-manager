@@ -22,3 +22,18 @@ export const jsonCodec = <T extends z.core.$ZodType>(schema: T) =>
 export const hexColor = z
   .string()
   .regex(/^(#[0-9A-Fa-f]{6})|(0x[0-9A-Fa-f]{8})$/);
+
+export const ZodPropertyError = z.object({
+  errors: z.array(z.string()),
+});
+
+export type ZodPropertyError = z.infer<typeof ZodPropertyError>;
+
+export const ZodLikeError = jsonCodec(
+  z.object({
+    name: z.string(),
+    properties: z.record(z.string(), ZodPropertyError),
+  }),
+);
+
+export type ZodLikeError = z.infer<typeof ZodLikeError>;

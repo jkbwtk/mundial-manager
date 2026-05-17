@@ -1,6 +1,7 @@
 import { TRPCError } from '@trpc/server';
 import { DrizzleQueryError } from 'drizzle-orm';
 import { logger } from '#shared/logger';
+import { ZodLikeError } from '#shared/zod';
 
 export interface ModelErrorField {
   value: unknown;
@@ -29,8 +30,18 @@ export class ModelError extends Error {
   public toTRPCError() {
     return new TRPCError({
       code: this.trpcCode,
-      message: this.message,
-      cause: this.fields,
+      cause: this,
+      message: ZodLikeError.encode({
+        name: this.name,
+        properties: Object.fromEntries(
+          Object.entries(this.fields).map(([key, field]) => [
+            key,
+            {
+              errors: [field.errorType],
+            },
+          ]),
+        ),
+      }),
     });
   }
 }
@@ -83,6 +94,8 @@ export class StrategyValidationError extends ModelError {
   }
 }
 
+const DuplicateExtractRegex = /Key \((.+)\)=\((.+)\) already exists\./;
+
 export function ConvertDrizzleErrors(label = 'unknown') {
   // biome-ignore lint/suspicious/noExplicitAny: yeah
   return <T extends (...args: any[]) => any>(
@@ -101,6 +114,24 @@ export function ConvertDrizzleErrors(label = 'unknown') {
           switch (err.cause.code) {
             case '23505': {
               const fields: ModelErrorFields = {};
+
+              if (
+                'detail' in err.cause &&
+                typeof err.cause.detail === 'string'
+              ) {
+                const extracted = DuplicateExtractRegex.exec(err.cause.detail);
+
+                if (extracted) {
+                  const [, field, value] = extracted;
+
+                  if (typeof field === 'string' && typeof value === 'string') {
+                    fields[field] = {
+                      value,
+                      errorType: 'Duplicate value: entry already exists',
+                    };
+                  }
+                }
+              }
 
               throw new DuplicateValueError('Duplicate value error', fields);
             }
@@ -145,4 +176,18 @@ export function ConvertDrizzleErrors(label = 'unknown') {
 
     return wrappedMethod;
   };
+}
+
+export async function runWithErrorConversion<
+  // biome-ignore lint/suspicious/noExplicitAny: yeah
+  T extends (...args: unknown[]) => any,
+>(fn: T): Promise<ReturnType<T>> {
+  try {
+    return await fn();
+  } catch (err) {
+    if (err instanceof ModelError) {
+      throw err.toTRPCError();
+    }
+    throw err;
+  }
 }
