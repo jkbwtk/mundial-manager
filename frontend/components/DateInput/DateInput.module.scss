@@ -2,6 +2,10 @@
 @use 'sass:color';
 
 .date-input {
+  &:not(.invalid):focus-within {
+    color: $textBrightColor;
+  }
+
   &::before {
     content: '[';
 

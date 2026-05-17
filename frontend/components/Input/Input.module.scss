@@ -9,6 +9,10 @@
 }
 
 .input {
+  &:not(.invalid):focus-within {
+    color: $textBrightColor;
+  }
+
   input {
     background-color: transparent;
 
