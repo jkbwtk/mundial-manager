@@ -103,6 +103,7 @@
     grid-template-columns: repeat(7, cw(4));
 
     @mixin weekend-color($color: $red) {
+
       &:nth-child(7n),
       &:nth-child(7n - 1) {
         color: $color;
@@ -148,5 +149,12 @@
         border-radius: $borderRadius;
       }
     }
+  }
+}
+
+.trigger {
+  &:focus {
+    background-color: $textBrightColor;
+    border-radius: $borderRadius;
   }
 }

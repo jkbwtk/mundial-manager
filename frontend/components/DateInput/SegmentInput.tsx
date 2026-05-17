@@ -11,6 +11,7 @@ export interface SegmentProps {
   keys: (e: KeyboardEvent) => void;
   blurClamp?: (val: string) => string;
   onEmit: () => void;
+  onBlur?: (e: FocusEvent) => void;
 }
 
 export const SegmentInput: Component<SegmentProps> = (userProps) => {
@@ -20,6 +21,7 @@ export const SegmentInput: Component<SegmentProps> = (userProps) => {
     'blurClamp',
     'onEmit',
     'defaultValue',
+    'onBlur',
   ]);
 
   return (
@@ -42,6 +44,7 @@ export const SegmentInput: Component<SegmentProps> = (userProps) => {
 
         e.currentTarget.value = clamped;
         props.onEmit();
+        props.onBlur?.(e);
       }}
     />
   );

@@ -453,6 +453,18 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
     applyDirectives(wrapRef, props.useDirectives);
   });
 
+  const handleSegmentBlur = (ev: FocusEvent) => {
+    if (
+      ev.relatedTarget === yearRef ||
+      ev.relatedTarget === monthRef ||
+      ev.relatedTarget === dayRef
+    ) {
+      return;
+    }
+
+    wrapRef.onblur?.(ev);
+  };
+
   return (
     <span
       ref={wrapRef}
@@ -480,6 +492,7 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
         keys={yearKeys}
         blurClamp={(rawValue) => clampAndPad(rawValue, 1, 9999, 4)}
         onEmit={emitFromRefs}
+        onBlur={handleSegmentBlur}
       />
 
       <span aria-hidden="true">-</span>
@@ -497,6 +510,7 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
         keys={monthKeys}
         blurClamp={(rawValue) => clampAndPad(rawValue, 1, 12)}
         onEmit={emitFromRefs}
+        onBlur={handleSegmentBlur}
       />
 
       <span aria-hidden="true">-</span>
@@ -514,10 +528,12 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
         keys={dayKeys}
         blurClamp={(rawValue) => clampAndPad(rawValue, 1, currentDaysInMonth())}
         onEmit={emitFromRefs}
+        onBlur={handleSegmentBlur}
       />
 
       <button
         ref={triggerRef!}
+        class={style.trigger}
         type="button"
         aria-label="Open calendar"
         disabled={props.disabled}
