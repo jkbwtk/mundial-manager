@@ -13,6 +13,8 @@ export const InputTest: Component = () => {
   const [invalidValue, setInvalidValue] = createSignal('test');
   const [dateValue, setDateValue] = createSignal<Date | null>(null);
   const [rangeValue, setRangeValue] = createSignal('75');
+  const [checkboxValue, setCheckboxValue] = createSignal(false);
+  const [invalidCheckboxValue, setInvalidCheckboxValue] = createSignal(true);
 
   return (
     <Widget topLeftLabels="Input Component Test" class={style.outerContainer}>
@@ -89,6 +91,25 @@ export const InputTest: Component = () => {
           max="100"
         />{' '}
         Value: {rangeValue()}
+        <Divider />
+        Checkbox input:{' '}
+        <Input
+          type="checkbox"
+          checked={checkboxValue()}
+          onInput={(e) => setCheckboxValue(e.currentTarget.checked)}
+        />{' '}
+        Value: {checkboxValue() ? 'On' : 'Off'}
+        <Divider />
+        Invalid checkbox:{' '}
+        <Input
+          type="checkbox"
+          checked={invalidCheckboxValue()}
+          onInput={(e) => setInvalidCheckboxValue(e.currentTarget.checked)}
+          invalid
+        />{' '}
+        Value: {invalidCheckboxValue() ? 'On' : 'Off'}
+        <Divider />
+        Disabled checkbox: <Input type="checkbox" checked disabled />
         <Divider />
         Full width input:{' '}
         <Input placeholder="This spans the full width of the container..." />

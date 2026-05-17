@@ -36,7 +36,8 @@
 .search,
 .email,
 .number,
-.file {
+.file,
+.checkbox {
   &::before {
     content: '[';
 
@@ -153,6 +154,67 @@
     &:disabled:checked::before {
       content: '|*|';
       color: $textDimColor;
+    }
+  }
+}
+
+.checkbox {
+  @extend %label-disabled;
+
+  display: inline-flex;
+
+  width: fit-content;
+
+  input {
+    appearance: none;
+
+    width: cw(4);
+    height: ch(1);
+
+    margin: 0;
+
+    cursor: pointer;
+
+    &::after {
+      content: '';
+
+      display: block;
+      position: relative;
+      top: ch(0.125);
+      left: 0;
+
+      width: cw(2);
+      height: ch(0.75);
+
+      background-color: $textColor;
+      border-radius: $borderRadius;
+
+      transition:
+        left 0.2s ease-in-out,
+        background-color 0.1s ease-in-out;
+    }
+
+    &:checked {
+      &::after {
+        background-color: $textBrightColor;
+        left: cw(2);
+      }
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+
+      &::after {
+        background-color: $textDimColor;
+      }
+    }
+  }
+
+  &.invalid {
+    input {
+      &::after {
+        background-color: $red;
+      }
     }
   }
 }
