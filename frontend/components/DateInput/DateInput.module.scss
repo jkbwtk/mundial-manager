@@ -2,6 +2,8 @@
 @use 'sass:color';
 
 .date-input {
+  width: fit-content;
+
   &:not(.invalid):focus-within {
     color: $textBrightColor;
   }
@@ -107,7 +109,6 @@
     grid-template-columns: repeat(7, cw(4));
 
     @mixin weekend-color($color: $red) {
-
       &:nth-child(7n),
       &:nth-child(7n - 1) {
         color: $color;

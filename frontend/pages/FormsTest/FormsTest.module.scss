@@ -16,10 +16,10 @@
   grid-template-columns: min-content 1fr;
 
   white-space: nowrap;
+  justify-items: center;
 
   .label {
+    width: 100%;
     text-align: right;
   }
-
-  text-align: center;
 }
