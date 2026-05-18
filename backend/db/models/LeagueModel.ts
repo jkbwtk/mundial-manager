@@ -1,10 +1,14 @@
-import { count, isNull } from 'drizzle-orm';
+import { and, count, eq, isNull } from 'drizzle-orm';
 import type { DB } from '#backend/db/database';
 import { Model } from '#backend/db/models/Model';
 import { leaguesTable } from '#backend/db/schema';
 import type { LeagueSelectSchema } from '#backend/types/db/league';
 import { ConvertDrizzleErrors } from '#blib/modelErrors';
-import { League, type LeagueCreate } from '#shared/types/api/league';
+import {
+  League,
+  type LeagueCreate,
+  type LeagueUpdate,
+} from '#shared/types/api/league';
 
 export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
   protected publicSchema = League;
@@ -19,6 +23,38 @@ export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
 
     if (!league) {
       throw new Error('Failed to create league');
+    }
+
+    return new LeagueModel(db, league);
+  }
+
+  @ConvertDrizzleErrors('LeagueModel')
+  public static async update(db: DB, data: LeagueUpdate) {
+    const { uuid, ...updateData } = data;
+
+    const [league] = await db
+      .update(leaguesTable)
+      .set(updateData)
+      .where(and(eq(leaguesTable.uuid, uuid), isNull(leaguesTable.$deletedAt)))
+      .returning();
+
+    if (!league) {
+      throw new Error('Failed to update league');
+    }
+
+    return new LeagueModel(db, league);
+  }
+
+  @ConvertDrizzleErrors('LeagueModel')
+  public static async delete(db: DB, uuid: string) {
+    const [league] = await db
+      .update(leaguesTable)
+      .set({ $deletedAt: new Date() })
+      .where(and(eq(leaguesTable.uuid, uuid), isNull(leaguesTable.$deletedAt)))
+      .returning();
+
+    if (!league) {
+      throw new Error('Failed to delete league');
     }
 
     return new LeagueModel(db, league);

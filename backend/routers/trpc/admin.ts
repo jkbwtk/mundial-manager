@@ -7,7 +7,7 @@ import { PaginationInput } from '#backend/types/trpc';
 import { sign } from '#blib/jwt';
 import { runWithErrorConversion } from '#blib/modelErrors';
 import { adminProcedure, router } from '#blib/trpc';
-import { League, LeagueCreate } from '#shared/types/api/league';
+import { League, LeagueCreate, LeagueUpdate } from '#shared/types/api/league';
 
 export const adminRouter = router({
   leagues: adminProcedure
@@ -27,6 +27,26 @@ export const adminRouter = router({
     .mutation(async ({ ctx, input }) => {
       const league = await runWithErrorConversion(() =>
         LeagueModel.create(ctx.db, input),
+      );
+
+      return league.serialize();
+    }),
+
+  updateLeague: adminProcedure
+    .input(LeagueUpdate)
+    .mutation(async ({ ctx, input }) => {
+      const league = await runWithErrorConversion(() =>
+        LeagueModel.update(ctx.db, input),
+      );
+
+      return league.serialize();
+    }),
+
+  deleteLeague: adminProcedure
+    .input(League.pick({ uuid: true }))
+    .mutation(async ({ ctx, input }) => {
+      const league = await runWithErrorConversion(() =>
+        LeagueModel.delete(ctx.db, input.uuid),
       );
 
       return league.serialize();
