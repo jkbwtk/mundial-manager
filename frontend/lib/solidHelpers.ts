@@ -8,13 +8,19 @@ export type ButtonActionHandler<
 export function useHandleButtonAction<
   // biome-ignore lint/suspicious/noExplicitAny: yeah
   T extends (...args: any[]) => Promise<unknown>,
->(action: T): ButtonActionHandler<T> {
+>(action: T, onError?: (error: unknown) => void): ButtonActionHandler<T> {
   const [loading, setLoading] = createSignal(false);
 
   const handleAction = async (...args: Parameters<T>) => {
     setLoading(true);
 
-    action(...args).then(() => setLoading(false));
+    try {
+      await action(...args);
+    } catch (error) {
+      onError?.(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   handleAction.loading = loading;
