@@ -7,6 +7,7 @@ import { Divider, Widget } from '#components/Widget';
 import { useHandleButtonAction } from '#flib/solidHelpers';
 import {
   actionChangeLeague,
+  actionDeleteLeague,
   queryActiveLeague,
   queryLeagueLink,
   queryLeagues,
@@ -24,6 +25,8 @@ export const AdminDashboard: Component = () => {
   const activeLeague = createAsync(() => queryActiveLeague());
 
   const changeLeague = useAction(actionChangeLeague);
+  const deleteLeague = useAction(actionDeleteLeague);
+
   const owner = getOwner();
 
   const handleCreateLeague = () => {
@@ -97,6 +100,7 @@ export const AdminDashboard: Component = () => {
 
             actions.success(`Switched to league: ${result.name}`);
           },
+          () => actions.error('Failed to switch league'),
         );
 
         return (
@@ -109,6 +113,32 @@ export const AdminDashboard: Component = () => {
               Switch
             </Button>
           </Show>
+        );
+      },
+    },
+    {
+      key: 'delete',
+      header: 'Delete',
+      align: 'center',
+      width: 10,
+      transform: (_, item) => {
+        const handleDeleteLeague = useHandleButtonAction(
+          async (league: League) => {
+            await deleteLeague(league.uuid);
+
+            actions.success(`Deleted league: ${league.name}`);
+          },
+          () => actions.error('Failed to delete league'),
+        );
+
+        return (
+          <Button
+            severity="danger"
+            onPointerUp={() => handleDeleteLeague(item)}
+            loading={handleDeleteLeague.loading()}
+          >
+            Delete
+          </Button>
         );
       },
     },
