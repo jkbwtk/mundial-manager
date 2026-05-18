@@ -20,7 +20,7 @@ const commonFields = {
   }),
   $updateCounter: integer()
     .default(sql`1`)
-    .$onUpdateFn(() => sql`updateCounter + 1`)
+    .$onUpdateFn(() => sql`"$updateCounter" + 1`)
     .notNull(),
 };
 
