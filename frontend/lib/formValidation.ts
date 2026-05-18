@@ -7,6 +7,7 @@ import { ZodLikeError } from '#shared/zod';
 
 export type UseFormValidationOptions = {
   debounceTime?: number;
+  updateMode?: boolean;
 };
 
 export interface Field {
@@ -24,7 +25,7 @@ export const useFormValidation = <T extends z.ZodObject>(
     Partial<Record<keyof z.infer<T>, string[]>>
   >({});
 
-  const [canSubmit, setCanSubmit] = createSignal(false);
+  const [canSubmit, setCanSubmit] = createSignal(options.updateMode ?? false);
 
   const preprocessValue = (field: Field) => {
     const { ref } = field;
@@ -60,7 +61,10 @@ export const useFormValidation = <T extends z.ZodObject>(
         ([key, field]) =>
           [key, field ? preprocessValue(field) : undefined] as const,
       )
-      .filter(([, value]) => value !== undefined);
+      .map(
+        ([key, value]) =>
+          [key, options.updateMode ? (value ?? null) : value] as const,
+      );
 
     return Object.fromEntries(entries);
   };
@@ -134,7 +138,7 @@ export const useFormValidation = <T extends z.ZodObject>(
       return;
     }
 
-    const field = { ref, schemaField, dirty: false };
+    const field = { ref, schemaField, dirty: options.updateMode ?? false };
     fields[name as keyof z.infer<T>] = field;
 
     let timeoutRef: ReturnType<typeof setTimeout> | undefined;
@@ -221,10 +225,21 @@ export const useFormValidation = <T extends z.ZodObject>(
     return submitter;
   };
 
+  const forceValidate = () => {
+    for (const field of Object.values(fields)) {
+      if (!field) continue;
+
+      field.dirty = true;
+    }
+
+    return runValidation();
+  };
+
   return {
     validate,
     errors,
     canSubmit,
     formSubmit,
+    forceValidate,
   };
 };
