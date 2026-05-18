@@ -3,7 +3,11 @@ import type { DB } from '#backend/db/database';
 import { Model } from '#backend/db/models/Model';
 import { leaguesTable } from '#backend/db/schema';
 import type { LeagueSelectSchema } from '#backend/types/db/league';
-import { ConvertDrizzleErrors } from '#blib/modelErrors';
+import {
+  ConvertDrizzleErrors,
+  DatabaseError,
+  NotFoundError,
+} from '#blib/modelErrors';
 import {
   League,
   type LeagueCreate,
@@ -22,7 +26,7 @@ export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
     const [league] = await db.insert(leaguesTable).values(data).returning();
 
     if (!league) {
-      throw new Error('Failed to create league');
+      throw new DatabaseError('Failed to create league', {});
     }
 
     return new LeagueModel(db, league);
@@ -39,7 +43,9 @@ export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
       .returning();
 
     if (!league) {
-      throw new Error('Failed to update league');
+      throw new NotFoundError('League not found', {
+        uuid: { value: uuid, errorType: 'League not found' },
+      }).toTRPCError();
     }
 
     return new LeagueModel(db, league);
@@ -54,7 +60,9 @@ export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
       .returning();
 
     if (!league) {
-      throw new Error('Failed to delete league');
+      throw new NotFoundError('League not found', {
+        uuid: { value: uuid, errorType: 'League not found' },
+      }).toTRPCError();
     }
 
     return new LeagueModel(db, league);

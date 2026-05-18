@@ -94,6 +94,14 @@ export class StrategyValidationError extends ModelError {
   }
 }
 
+export class NotFoundError extends ModelError {
+  public constructor(message: string, fields: ModelErrorFields) {
+    super(message, fields, 'NOT_FOUND');
+
+    this.name = 'NotFoundError';
+  }
+}
+
 const DuplicateExtractRegex = /Key \((.+)\)=\((.+)\) already exists\./;
 
 export function ConvertDrizzleErrors(label = 'unknown') {
