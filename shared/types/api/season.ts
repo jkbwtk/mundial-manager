@@ -1,13 +1,13 @@
 import z from 'zod';
 
-export const SeasonConfig = z.object({});
+export const SeasonConfig = z.object({}).default({});
 export type SeasonConfig = z.infer<typeof SeasonConfig>;
 
 export const Season = z.object({
   uuid: z.uuid(),
   name: z.string().max(255),
-  startDate: z.date(),
-  endDate: z.date(),
+  startDate: z.coerce.date(),
+  endDate: z.coerce.date(),
   config: SeasonConfig,
   labels: z.array(z.string()).default([]),
 });

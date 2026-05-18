@@ -1,3 +1,4 @@
+import { useAction } from '@solidjs/router';
 import hljs from 'highlight.js/lib/core';
 import json from 'highlight.js/lib/languages/json';
 import {
@@ -8,24 +9,24 @@ import {
   Show,
 } from 'solid-js';
 import { Button } from '#components/Button';
+import { DateInput } from '#components/DateInput';
 import { HighlightedCode } from '#components/HighlightedCode';
 import { Input } from '#components/Input';
 import { Modal } from '#components/Modal';
 import { Divider } from '#components/Widget';
 import { useFormValidation } from '#flib/formValidation';
+import { actionCreateSeason, actionUpdateSeason } from '#flib/trpcCalls';
 import { toJson } from '#flib/utils';
 import { useModalActions } from '#providers/ModalProvider';
-import { type League, LeagueCreate } from '#shared/types/api/league';
-import 'highlight.js/styles/gml.min.css';
-import { useAction } from '@solidjs/router';
-import { actionCreateLeague, actionUpdateLeague } from '#flib/trpcCalls';
 import { useToast } from '#providers/ToastProvider';
-import style from './LeagueCreatorModal.module.scss';
+import { type Season, SeasonCreate } from '#shared/types/api/season';
+import 'highlight.js/styles/gml.min.css';
+import style from './SeasonCreatorModal.module.scss';
 
 hljs.registerLanguage('json', json);
 
-export interface LeagueCreatorModalProps {
-  league?: League;
+export interface SeasonCreatorModalProps {
+  season?: Season;
   owner: ReturnType<typeof getOwner>;
 }
 
@@ -37,7 +38,7 @@ interface CreatorState {
   logLabel: string;
 }
 
-export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
+export const SeasonCreatorModal: Component<SeasonCreatorModalProps> = (
   props,
 ) => {
   const { closeModal } = useModalActions();
@@ -45,26 +46,26 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
 
   const formId = createUniqueId();
 
-  const isCreating = props.league === undefined;
+  const isCreating = props.season === undefined;
 
   const config: CreatorState = isCreating
     ? {
-        title: 'League Creator',
+        title: 'Season Creator',
         submitButtonText: 'Create',
-        successMessage: 'League created successfully!',
-        errorMessage: 'Failed to create league. Please try again.',
-        logLabel: 'League creation error:',
+        successMessage: 'Season created successfully!',
+        errorMessage: 'Failed to create season. Please try again.',
+        logLabel: 'Season creation error:',
       }
     : {
-        title: 'League Editor',
+        title: 'Season Editor',
         submitButtonText: 'Update',
-        successMessage: 'League updated successfully!',
-        errorMessage: 'Failed to update league. Please try again.',
-        logLabel: 'League update error:',
+        successMessage: 'Season updated successfully!',
+        errorMessage: 'Failed to update season. Please try again.',
+        logLabel: 'Season update error:',
       };
 
   const { validate, errors, canSubmit, formSubmit } = useFormValidation(
-    LeagueCreate,
+    SeasonCreate,
     {
       updateMode: !isCreating,
     },
@@ -77,9 +78,9 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
     console.error(config.logLabel, err);
   };
 
-  const handleSuccess = (league: League) => {
+  const handleSuccess = (season: Season) => {
     actions.success(config.successMessage);
-    closeModal(league);
+    closeModal(season);
   };
 
   const handleCancel = (ev: PointerEvent) => {
@@ -88,27 +89,30 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
   };
 
   const createAction = runWithOwner(props.owner, () =>
-    useAction(actionCreateLeague),
+    useAction(actionCreateSeason),
   );
   const updateAction = runWithOwner(props.owner, () =>
-    useAction(actionUpdateLeague),
+    useAction(actionUpdateSeason),
   );
 
   if (!createAction || !updateAction) {
-    actions.error('Failed to initialize League Creator modal');
+    actions.error('Failed to initialize Season Creator modal');
     closeModal(false);
     return;
   }
 
-  const acton = (data: LeagueCreate) => {
+  const action = (data: SeasonCreate) => {
     if (isCreating) {
       return createAction(data);
     }
 
-    return updateAction({ ...data, uuid: props.league!.uuid });
+    return updateAction({
+      uuid: props.season!.uuid,
+      ...data,
+    });
   };
 
-  const handleSubmit = formSubmit(acton, handleSuccess, handleError);
+  const handleSubmit = formSubmit(action, handleSuccess, handleError);
 
   return (
     <Modal
@@ -132,48 +136,39 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
     >
       <form id={formId} class={style.form} onSubmit={handleSubmit}>
         <div class={style.fieldRow}>
-          <span class={style.fieldLabel}>Name</span>
+          <span class={style.fieldLabel}>Name:</span>
           <Input
             class={style.fieldInput}
             type="text"
-            placeholder="League name"
-            minLength={3}
-            maxLength={64}
+            placeholder="Season name"
+            maxLength={255}
             required
             name="name"
-            value={props.league?.name ?? ''}
+            value={props.season?.name ?? ''}
             useDirectives={[validate]}
             invalid={!!errors.name}
           />
         </div>
 
         <div class={style.fieldRow}>
-          <span class={style.fieldLabel}>Alias</span>
-          <Input
-            class={style.fieldInput}
-            type="text"
-            placeholder="Short id"
-            minLength={2}
-            maxLength={16}
-            required
-            name="alias"
-            value={props.league?.alias ?? ''}
+          <span class={style.fieldLabel}>Start Date:</span>
+          <DateInput
+            class={style.dateInput}
+            name="startDate"
+            value={props.season?.startDate ?? null}
             useDirectives={[validate]}
-            invalid={!!errors.alias}
+            invalid={!!errors.startDate}
           />
         </div>
 
         <div class={style.fieldRow}>
-          <span class={style.fieldLabel}>Description</span>
-          <Input
-            class={style.fieldInput}
-            type="text"
-            placeholder="Optional"
-            maxLength={255}
-            name="description"
-            value={props.league?.description ?? ''}
+          <span class={style.fieldLabel}>End Date:</span>
+          <DateInput
+            class={style.dateInput}
+            name="endDate"
+            value={props.season?.endDate ?? null}
             useDirectives={[validate]}
-            invalid={!!errors.description}
+            invalid={!!errors.endDate}
           />
         </div>
 

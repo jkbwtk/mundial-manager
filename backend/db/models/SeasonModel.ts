@@ -189,36 +189,42 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
     noSeasonOverlap: async (db: DB, leagueUuid: string, data: SeasonCreate) => {
       const overlappingSeason = await db.query.seasonsTable.findFirst({
         where: {
-          leagueUuid: leagueUuid,
-          $or: [
+          AND: [
             {
-              startDate: {
-                lte: data.startDate,
-              },
-              endDate: {
-                gt: data.startDate,
+              leagueUuid,
+              NOT: {
+                $deletedAt: { isNull: true },
               },
             },
             {
-              startDate: {
-                lt: data.endDate,
-              },
-              endDate: {
-                gte: data.endDate,
-              },
-            },
-            {
-              startDate: {
-                gte: data.startDate,
-              },
-              endDate: {
-                lte: data.endDate,
-              },
+              OR: [
+                {
+                  startDate: {
+                    lte: data.startDate,
+                  },
+                  endDate: {
+                    gt: data.startDate,
+                  },
+                },
+                {
+                  startDate: {
+                    lt: data.endDate,
+                  },
+                  endDate: {
+                    gte: data.endDate,
+                  },
+                },
+                {
+                  startDate: {
+                    gte: data.startDate,
+                  },
+                  endDate: {
+                    lte: data.endDate,
+                  },
+                },
+              ],
             },
           ],
-          $deletedAt: {
-            isNull: true,
-          },
         },
       });
 
