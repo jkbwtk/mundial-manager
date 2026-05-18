@@ -2,7 +2,6 @@ import hljs from 'highlight.js/lib/core';
 import json from 'highlight.js/lib/languages/json';
 import {
   createMemo,
-  createSignal,
   createUniqueId,
   type getOwner,
   runWithOwner,
@@ -19,19 +18,23 @@ import { useModalActions } from '#providers/ModalProvider';
 import { type League, LeagueCreate } from '#shared/types/api/league';
 import 'highlight.js/styles/gml.min.css';
 import { useAction } from '@solidjs/router';
-import { actionCreateLeague } from '#flib/trpcCalls';
+import { actionCreateLeague, actionUpdateLeague } from '#flib/trpcCalls';
 import { useToast } from '#providers/ToastProvider';
-import style from './LeagueCreateModal.module.scss';
+import style from './LeagueCreatorModal.module.scss';
 
 hljs.registerLanguage('json', json);
 
-export type LeagueCreatorResult =
-  | { ok: true }
-  | { ok: false; message?: string };
-
 export interface LeagueCreatorModalProps {
-  initialValues?: Partial<LeagueCreate>;
+  league?: League;
   owner: ReturnType<typeof getOwner>;
+}
+
+interface CreatorState {
+  title: string;
+  submitButtonText: string;
+  successMessage: string;
+  errorMessage: string;
+  logLabel: string;
 }
 
 export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
@@ -42,50 +45,75 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
 
   const formId = createUniqueId();
 
-  const handleError = (err: unknown) => {
-    actions.error('Failed to create league. Please try again.');
-    console.error('League creation error:', err);
-  };
+  const isCreating = props.league === undefined;
 
-  const handleSuccess = (league: League) => {
-    actions.success('League created successfully!');
-    closeModal(league);
-  };
+  const config: CreatorState = isCreating
+    ? {
+        title: 'League Creator',
+        submitButtonText: 'Create',
+        successMessage: 'League created successfully!',
+        errorMessage: 'Failed to create league. Please try again.',
+        logLabel: 'League creation error:',
+      }
+    : {
+        title: 'League Editor',
+        submitButtonText: 'Update',
+        successMessage: 'League updated successfully!',
+        errorMessage: 'Failed to update league. Please try again.',
+        logLabel: 'League update error:',
+      };
 
   const { validate, errors, canSubmit, formSubmit } = useFormValidation(
     LeagueCreate,
-    {},
-  );
-
-  const [name, setName] = createSignal(props.initialValues?.name ?? '');
-  const [alias, setAlias] = createSignal(props.initialValues?.alias ?? '');
-  const [description, setDescription] = createSignal(
-    props.initialValues?.description ?? '',
+    {
+      updateMode: !isCreating,
+    },
   );
 
   const hasValidationErrors = createMemo(() => Object.keys(errors).length > 0);
+
+  const handleError = (err: unknown) => {
+    actions.error(config.errorMessage);
+    console.error(config.logLabel, err);
+  };
+
+  const handleSuccess = (league: League) => {
+    actions.success(config.successMessage);
+    closeModal(league);
+  };
 
   const handleCancel = (ev: PointerEvent) => {
     ev.preventDefault();
     closeModal(false);
   };
 
-  const createLeague = runWithOwner(props.owner, () =>
+  const createAction = runWithOwner(props.owner, () =>
     useAction(actionCreateLeague),
   );
+  const updateAction = runWithOwner(props.owner, () =>
+    useAction(actionUpdateLeague),
+  );
 
-  if (!createLeague) {
+  if (!createAction || !updateAction) {
     actions.error('Failed to initialize League Creator modal');
     closeModal(false);
     return;
   }
 
-  const handleSubmit = formSubmit(createLeague, handleSuccess, handleError);
+  const acton = (data: LeagueCreate) => {
+    if (isCreating) {
+      return createAction(data);
+    }
+
+    return updateAction({ ...data, uuid: props.league!.uuid });
+  };
+
+  const handleSubmit = formSubmit(acton, handleSuccess, handleError);
 
   return (
     <Modal
       class={style.modal}
-      topLeftLabels="League Creator"
+      topLeftLabels={config.title}
       bottomLeftLabels={[
         <Button severity="secondary" onPointerUp={handleCancel}>
           Cancel
@@ -98,7 +126,7 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
           loading={handleSubmit.isSubmitting()}
           disabled={!canSubmit()}
         >
-          Create
+          {config.submitButtonText}
         </Button>,
       ]}
     >
@@ -107,13 +135,12 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
           <span class={style.fieldLabel}>Name</span>
           <Input
             class={style.fieldInput}
-            value={name()}
             type="text"
-            onInput={(e) => setName(e.currentTarget.value)}
             placeholder="League name"
             minLength={3}
             maxLength={64}
             name="name"
+            value={props.league?.name ?? ''}
             useDirectives={[validate]}
             invalid={!!errors.name}
           />
@@ -123,14 +150,13 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
           <span class={style.fieldLabel}>Alias</span>
           <Input
             class={style.fieldInput}
-            value={alias()}
             type="text"
-            onInput={(e) => setAlias(e.currentTarget.value)}
             placeholder="Short id"
             minLength={2}
             maxLength={16}
             required
             name="alias"
+            value={props.league?.alias ?? ''}
             useDirectives={[validate]}
             invalid={!!errors.alias}
           />
@@ -140,12 +166,11 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
           <span class={style.fieldLabel}>Description</span>
           <Input
             class={style.fieldInput}
-            value={description()}
             type="text"
-            onInput={(e) => setDescription(e.currentTarget.value)}
             placeholder="Optional"
             maxLength={255}
             name="description"
+            value={props.league?.description ?? ''}
             useDirectives={[validate]}
             invalid={!!errors.description}
           />

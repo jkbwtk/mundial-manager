@@ -1,7 +1,7 @@
 import { createAsync, useAction } from '@solidjs/router';
 import { getOwner, Show } from 'solid-js';
 import { Button } from '#components/Button';
-import { LeagueCreatorModal } from '#components/LeagueCreateModal';
+import { LeagueCreatorModal } from '#components/LeagueCreatorModal';
 import { type Column, Table } from '#components/Table';
 import { Divider, Widget } from '#components/Widget';
 import { useHandleButtonAction } from '#flib/solidHelpers';
@@ -113,6 +113,37 @@ export const AdminDashboard: Component = () => {
               Switch
             </Button>
           </Show>
+        );
+      },
+    },
+    {
+      key: 'edit',
+      header: 'Edit',
+      align: 'center',
+      width: 10,
+      transform: (_, item) => {
+        const handleEditLeague = useHandleButtonAction(
+          async (league: League) => {
+            open({
+              props: {
+                component: LeagueCreatorModal,
+                owner,
+                league,
+              },
+              closeOnBackgroundClick: false,
+            });
+          },
+          () => actions.error('Failed to open League Editor'),
+        );
+
+        return (
+          <Button
+            severity="secondary"
+            onPointerUp={() => handleEditLeague(item)}
+            loading={handleEditLeague.loading()}
+          >
+            Edit
+          </Button>
         );
       },
     },
