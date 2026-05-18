@@ -1,7 +1,8 @@
 import { TRPCError } from '@trpc/server';
 import { SeasonModel } from '#backend/db/models/SeasonModel';
+import { runWithErrorConversion } from '#blib/modelErrors';
 import { leagueScopedProcedure, router } from '#blib/trpc';
-import { Season, SeasonCreate } from '#shared/types/api/season';
+import { Season, SeasonCreate, SeasonUpdate } from '#shared/types/api/season';
 
 export const seasonsRouter = router({
   seasons: leagueScopedProcedure.query(async ({ ctx }) => {
@@ -17,7 +18,29 @@ export const seasonsRouter = router({
   createSeason: leagueScopedProcedure
     .input(SeasonCreate)
     .mutation(async ({ ctx, input }) => {
-      const season = await SeasonModel.create(ctx.db, ctx.league.uuid, input);
+      const season = await runWithErrorConversion(() =>
+        SeasonModel.create(ctx.db, ctx.league.uuid, input),
+      );
+
+      return season.serialize();
+    }),
+
+  updateSeason: leagueScopedProcedure
+    .input(SeasonUpdate)
+    .mutation(async ({ ctx, input }) => {
+      const season = await runWithErrorConversion(() =>
+        SeasonModel.update(ctx.db, ctx.league.uuid, input),
+      );
+
+      return season.serialize();
+    }),
+
+  deleteSeason: leagueScopedProcedure
+    .input(Season.pick({ uuid: true }))
+    .mutation(async ({ ctx, input }) => {
+      const season = await runWithErrorConversion(() =>
+        SeasonModel.delete(ctx.db, ctx.league.uuid, input.uuid),
+      );
 
       return season.serialize();
     }),

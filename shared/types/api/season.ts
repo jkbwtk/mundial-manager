@@ -16,5 +16,5 @@ export type Season = z.infer<typeof Season>;
 export const SeasonCreate = Season.omit({ uuid: true });
 export type SeasonCreate = z.infer<typeof SeasonCreate>;
 
-export const SeasonUpdate = SeasonCreate.partial();
+export const SeasonUpdate = SeasonCreate.partial().extend({ uuid: z.uuid() });
 export type SeasonUpdate = z.infer<typeof SeasonUpdate>;

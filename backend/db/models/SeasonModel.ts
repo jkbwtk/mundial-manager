@@ -5,9 +5,14 @@ import { seasonsTable } from '#backend/db/schema';
 import type { SeasonSelectSchema } from '#backend/types/db/season';
 import {
   ConvertDrizzleErrors,
+  DatabaseError,
   StrategyValidationError,
 } from '#blib/modelErrors';
-import { Season, type SeasonCreate } from '#shared/types/api/season';
+import {
+  Season,
+  type SeasonCreate,
+  type SeasonUpdate,
+} from '#shared/types/api/season';
 
 export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
   protected publicSchema = Season;
@@ -28,7 +33,57 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
       .returning();
 
     if (!season) {
-      throw new Error('Failed to create season');
+      throw new DatabaseError('Failed to create season', {});
+    }
+
+    return new SeasonModel(db, season);
+  }
+
+  @ConvertDrizzleErrors('SeasonModel')
+  public static async update(db: DB, leagueUuid: string, data: SeasonUpdate) {
+    const { uuid, ...updateData } = data;
+
+    // TODO: Run validation strategies for updates
+
+    const [season] = await db
+      .update(seasonsTable)
+      .set(updateData)
+      .where(
+        and(
+          eq(seasonsTable.leagueUuid, leagueUuid),
+          eq(seasonsTable.uuid, uuid),
+          isNull(seasonsTable.$deletedAt),
+        ),
+      )
+      .returning();
+
+    if (!season) {
+      throw new DatabaseError('Failed to update season', {
+        uuid: { value: uuid, errorType: 'Season not found' },
+      });
+    }
+
+    return new SeasonModel(db, season);
+  }
+
+  @ConvertDrizzleErrors('SeasonModel')
+  public static async delete(db: DB, leagueUuid: string, uuid: string) {
+    const [season] = await db
+      .update(seasonsTable)
+      .set({ $deletedAt: new Date() })
+      .where(
+        and(
+          eq(seasonsTable.leagueUuid, leagueUuid),
+          eq(seasonsTable.uuid, uuid),
+          isNull(seasonsTable.$deletedAt),
+        ),
+      )
+      .returning();
+
+    if (!season) {
+      throw new DatabaseError('Failed to delete season', {
+        uuid: { value: uuid, errorType: 'Season not found' },
+      });
     }
 
     return new SeasonModel(db, season);
