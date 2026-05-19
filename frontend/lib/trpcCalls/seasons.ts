@@ -1,15 +1,23 @@
 import { action, json, query } from '@solidjs/router';
 import { trpcClient } from '#flib/trpcClient';
-import type { SeasonCreate, SeasonUpdate } from '#shared/types/api/season';
+import {
+  Season,
+  type SeasonCreate,
+  SeasonNullable,
+  type SeasonUpdate,
+} from '#shared/types/api/season';
+import { PaginatedResponse } from '#shared/zod';
 
 export const querySeasons = query(async () => {
-  return await trpcClient.seasons.seasons.query();
+  const seasons = await trpcClient.seasons.seasons.query();
+
+  return PaginatedResponse(Season).parse(seasons);
 }, 'querySeasons');
 
 export const actionCreateSeason = action(async (season: SeasonCreate) => {
   const newSeason = await trpcClient.seasons.createSeason.mutate(season);
 
-  return json(newSeason, {
+  return json(Season.parse(newSeason), {
     revalidate: ['querySeasons'],
   });
 }, 'actionCreateSeason');
@@ -17,7 +25,7 @@ export const actionCreateSeason = action(async (season: SeasonCreate) => {
 export const actionUpdateSeason = action(async (season: SeasonUpdate) => {
   const updatedSeason = await trpcClient.seasons.updateSeason.mutate(season);
 
-  return json(updatedSeason, {
+  return json(Season.parse(updatedSeason), {
     revalidate: ['querySeasons'],
   });
 }, 'actionUpdateSeason');
@@ -25,15 +33,19 @@ export const actionUpdateSeason = action(async (season: SeasonUpdate) => {
 export const actionDeleteSeason = action(async (uuid: string) => {
   const deletedSeason = await trpcClient.seasons.deleteSeason.mutate({ uuid });
 
-  return json(deletedSeason, {
+  return json(Season.parse(deletedSeason), {
     revalidate: ['querySeasons'],
   });
 }, 'actionDeleteSeason');
 
 export const querySeasonById = query(async (uuid: string) => {
-  return await trpcClient.seasons.seasonById.query({ uuid });
+  const season = await trpcClient.seasons.seasonById.query({ uuid });
+
+  return Season.parse(season);
 }, 'querySeasonById');
 
 export const queryCurrentSeason = query(async () => {
-  return await trpcClient.seasons.currentSeason.query();
+  const currentSeason = await trpcClient.seasons.currentSeason.query();
+
+  return SeasonNullable.parse(currentSeason);
 }, 'queryCurrentSeason');

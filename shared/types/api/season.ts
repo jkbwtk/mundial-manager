@@ -1,6 +1,7 @@
 import z from 'zod';
+import { PaginatedResponse } from '#shared/zod';
 
-export const SeasonConfig = z.object({}).default({});
+export const SeasonConfig = z.object({});
 export type SeasonConfig = z.infer<typeof SeasonConfig>;
 
 export const Season = z.object({
@@ -9,9 +10,15 @@ export const Season = z.object({
   startDate: z.coerce.date(),
   endDate: z.coerce.date(),
   config: SeasonConfig,
-  labels: z.array(z.string()).default([]),
+  labels: z.array(z.string()),
 });
 export type Season = z.infer<typeof Season>;
+
+export const SeasonPaginated = PaginatedResponse(Season);
+export type SeasonPaginated = z.infer<typeof SeasonPaginated>;
+
+export const SeasonNullable = Season.nullable();
+export type SeasonNullable = z.infer<typeof SeasonNullable>;
 
 export const SeasonCreate = Season.omit({ uuid: true });
 export type SeasonCreate = z.infer<typeof SeasonCreate>;

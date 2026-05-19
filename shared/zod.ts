@@ -37,3 +37,10 @@ export const ZodLikeError = jsonCodec(
 );
 
 export type ZodLikeError = z.infer<typeof ZodLikeError>;
+
+export const PaginatedResponse = <T extends z.core.$ZodType>(schema: T) => {
+  return z.object({
+    data: z.array(schema),
+    total: z.number().nonnegative(),
+  });
+};
