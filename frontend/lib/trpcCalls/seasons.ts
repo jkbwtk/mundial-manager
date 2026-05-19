@@ -18,7 +18,7 @@ export const actionCreateSeason = action(async (season: SeasonCreate) => {
   const newSeason = await trpcClient.seasons.createSeason.mutate(season);
 
   return json(Season.parse(newSeason), {
-    revalidate: ['querySeasons'],
+    revalidate: ['querySeasons', 'queryCurrentSeason'],
   });
 }, 'actionCreateSeason');
 
@@ -26,7 +26,7 @@ export const actionUpdateSeason = action(async (season: SeasonUpdate) => {
   const updatedSeason = await trpcClient.seasons.updateSeason.mutate(season);
 
   return json(Season.parse(updatedSeason), {
-    revalidate: ['querySeasons'],
+    revalidate: ['querySeasons', 'querySeasonById', 'queryCurrentSeason'],
   });
 }, 'actionUpdateSeason');
 
@@ -34,7 +34,7 @@ export const actionDeleteSeason = action(async (uuid: string) => {
   const deletedSeason = await trpcClient.seasons.deleteSeason.mutate({ uuid });
 
   return json(Season.parse(deletedSeason), {
-    revalidate: ['querySeasons'],
+    revalidate: ['querySeasons', 'querySeasonById', 'queryCurrentSeason'],
   });
 }, 'actionDeleteSeason');
 
