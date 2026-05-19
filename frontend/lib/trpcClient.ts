@@ -27,7 +27,10 @@ export const trpcClient = createTRPCClient<AppRouter>({
             retry: (opts) => {
               const code = opts.error.data?.code;
 
-              if (code === 'INTERNAL_SERVER_ERROR') {
+              if (
+                code &&
+                ['TIMEOUT', 'GATEWAY_TIMEOUT'].includes(code) === false
+              ) {
                 return false;
               }
 
