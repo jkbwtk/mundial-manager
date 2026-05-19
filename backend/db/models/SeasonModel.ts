@@ -6,6 +6,7 @@ import type { SeasonSelectSchema } from '#backend/types/db/season';
 import {
   ConvertDrizzleErrors,
   DatabaseError,
+  NotFoundError,
   StrategyValidationError,
 } from '#blib/modelErrors';
 import {
@@ -43,7 +44,19 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
   public static async update(db: DB, leagueUuid: string, data: SeasonUpdate) {
     const { uuid, ...updateData } = data;
 
-    // TODO: Run validation strategies for updates
+    const existingSeason = await SeasonModel.getById(db, leagueUuid, uuid);
+    if (!existingSeason) {
+      throw new NotFoundError('Season not found for update', {
+        uuid: { value: uuid, errorType: 'Season not found' },
+      });
+    }
+
+    for (const strategy of Object.values(SeasonModel.validationStrategies)) {
+      await strategy(db, leagueUuid, {
+        ...existingSeason.serialize(),
+        ...updateData,
+      });
+    }
 
     const [season] = await db
       .update(seasonsTable)
@@ -58,7 +71,7 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
       .returning();
 
     if (!season) {
-      throw new DatabaseError('Failed to update season', {
+      throw new NotFoundError('Failed to update season', {
         uuid: { value: uuid, errorType: 'Season not found' },
       });
     }
@@ -90,10 +103,11 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
   }
 
   @ConvertDrizzleErrors('SeasonModel')
-  public static async getById(db: DB, uuid: string) {
+  public static async getById(db: DB, leagueUuid: string, uuid: string) {
     const season = await db.query.seasonsTable.findFirst({
       where: {
         uuid,
+        leagueUuid,
         $deletedAt: {
           isNull: true,
         },
@@ -192,9 +206,7 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
           AND: [
             {
               leagueUuid,
-              NOT: {
-                $deletedAt: { isNull: true },
-              },
+              $deletedAt: { isNull: true },
             },
             {
               OR: [

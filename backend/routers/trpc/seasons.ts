@@ -48,7 +48,11 @@ export const seasonsRouter = router({
   seasonById: leagueScopedProcedure
     .input(Season.pick({ uuid: true }))
     .query(async ({ ctx, input }) => {
-      const season = await SeasonModel.getById(ctx.db, input.uuid);
+      const season = await SeasonModel.getById(
+        ctx.db,
+        ctx.league.uuid,
+        input.uuid,
+      );
 
       if (!season) {
         throw new TRPCError({
