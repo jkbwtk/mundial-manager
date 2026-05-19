@@ -12,6 +12,7 @@ import {
 import {
   Season,
   type SeasonCreate,
+  type SeasonStrategy,
   type SeasonUpdate,
 } from '#shared/types/api/season';
 
@@ -52,11 +53,13 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
         });
       }
 
+      const mergedData: SeasonStrategy = {
+        ...existingSeason,
+        ...updateData,
+      };
+
       for (const strategy of Object.values(SeasonModel.validationStrategies)) {
-        await strategy(tx, leagueUuid, {
-          ...existingSeason,
-          ...updateData,
-        });
+        await strategy(tx, leagueUuid, mergedData);
       }
 
       const [season] = await db
@@ -197,7 +200,7 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
     correctSeasonDates: (
       _db: DB | TX,
       _leagueUuid: string,
-      data: SeasonCreate,
+      data: SeasonStrategy,
     ) => {
       if (data.startDate >= data.endDate) {
         throw new StrategyValidationError('Invalid season dates', {
@@ -215,7 +218,7 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
     noSeasonOverlap: async (
       db: DB | TX,
       leagueUuid: string,
-      data: SeasonCreate,
+      data: SeasonStrategy,
     ) => {
       const overlappingSeason = await db.query.seasonsTable.findFirst({
         where: {
@@ -226,10 +229,7 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
             },
             {
               NOT: {
-                uuid:
-                  'uuid' in data && typeof data.uuid === 'string'
-                    ? data.uuid
-                    : undefined,
+                uuid: data.uuid,
               },
             },
             {
