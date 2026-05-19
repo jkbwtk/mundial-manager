@@ -62,7 +62,7 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
         await strategy(tx, leagueUuid, mergedData);
       }
 
-      const [season] = await db
+      const [season] = await tx
         .update(seasonsTable)
         .set(updateData)
         .where(
@@ -75,7 +75,7 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
         .returning();
 
       if (!season) {
-        throw new NotFoundError('Failed to update season', {
+        throw new DatabaseError('Failed to update season', {
           uuid: { value: uuid, errorType: 'Season not found' },
         });
       }
