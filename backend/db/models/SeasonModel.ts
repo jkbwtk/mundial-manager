@@ -225,6 +225,14 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
               $deletedAt: { isNull: true },
             },
             {
+              NOT: {
+                uuid:
+                  'uuid' in data && typeof data.uuid === 'string'
+                    ? data.uuid
+                    : undefined,
+              },
+            },
+            {
               OR: [
                 {
                   startDate: {
