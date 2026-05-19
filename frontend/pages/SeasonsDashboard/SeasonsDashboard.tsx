@@ -13,6 +13,7 @@ import {
 } from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
+import { formatDate } from '#shared/timeUtils';
 import type { Season } from '#shared/types/api/season';
 import { shortUUID } from '#shared/utils';
 import style from './SeasonsDashboard.module.scss';
@@ -54,11 +55,13 @@ export const SeasonsDashboard: Component = () => {
       key: 'startDate',
       header: 'Start Date',
       align: 'center',
+      transform: (val: Date) => formatDate(val.getTime() / 1000),
     },
     {
       key: 'endDate',
       header: 'End Date',
       align: 'center',
+      transform: (val: Date) => formatDate(val.getTime() / 1000),
     },
     {
       key: 'edit',
