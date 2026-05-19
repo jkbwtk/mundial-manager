@@ -1,5 +1,5 @@
 import { and, count, eq, isNull } from 'drizzle-orm';
-import type { DB } from '#backend/db/database';
+import type { DB, TX } from '#backend/db/database';
 import { Model } from '#backend/db/models/Model';
 import { seasonsTable } from '#backend/db/schema';
 import type { SeasonSelectSchema } from '#backend/types/db/season';
@@ -44,37 +44,41 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
   public static async update(db: DB, leagueUuid: string, data: SeasonUpdate) {
     const { uuid, ...updateData } = data;
 
-    const existingSeason = await SeasonModel.getById(db, leagueUuid, uuid);
-    if (!existingSeason) {
-      throw new NotFoundError('Season not found for update', {
-        uuid: { value: uuid, errorType: 'Season not found' },
-      });
-    }
+    const season = await db.transaction(async (tx) => {
+      const existingSeason = await SeasonModel._getById(tx, leagueUuid, uuid);
+      if (!existingSeason) {
+        throw new NotFoundError('Season not found for update', {
+          uuid: { value: uuid, errorType: 'Season not found' },
+        });
+      }
 
-    for (const strategy of Object.values(SeasonModel.validationStrategies)) {
-      await strategy(db, leagueUuid, {
-        ...existingSeason.serialize(),
-        ...updateData,
-      });
-    }
+      for (const strategy of Object.values(SeasonModel.validationStrategies)) {
+        await strategy(tx, leagueUuid, {
+          ...existingSeason,
+          ...updateData,
+        });
+      }
 
-    const [season] = await db
-      .update(seasonsTable)
-      .set(updateData)
-      .where(
-        and(
-          eq(seasonsTable.leagueUuid, leagueUuid),
-          eq(seasonsTable.uuid, uuid),
-          isNull(seasonsTable.$deletedAt),
-        ),
-      )
-      .returning();
+      const [season] = await db
+        .update(seasonsTable)
+        .set(updateData)
+        .where(
+          and(
+            eq(seasonsTable.leagueUuid, leagueUuid),
+            eq(seasonsTable.uuid, uuid),
+            isNull(seasonsTable.$deletedAt),
+          ),
+        )
+        .returning();
 
-    if (!season) {
-      throw new NotFoundError('Failed to update season', {
-        uuid: { value: uuid, errorType: 'Season not found' },
-      });
-    }
+      if (!season) {
+        throw new NotFoundError('Failed to update season', {
+          uuid: { value: uuid, errorType: 'Season not found' },
+        });
+      }
+
+      return season;
+    });
 
     return new SeasonModel(db, season);
   }
@@ -102,8 +106,7 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
     return new SeasonModel(db, season);
   }
 
-  @ConvertDrizzleErrors('SeasonModel')
-  public static async getById(db: DB, leagueUuid: string, uuid: string) {
+  public static async _getById(db: DB | TX, leagueUuid: string, uuid: string) {
     const season = await db.query.seasonsTable.findFirst({
       where: {
         uuid,
@@ -113,6 +116,13 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
         },
       },
     });
+
+    return season ?? null;
+  }
+
+  @ConvertDrizzleErrors('SeasonModel')
+  public static async getById(db: DB, leagueUuid: string, uuid: string) {
+    const season = await SeasonModel._getById(db, leagueUuid, uuid);
 
     if (!season) {
       return null;
@@ -184,7 +194,11 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
   }
 
   public static validationStrategies = {
-    correctSeasonDates: (_db: DB, _leagueUuid: string, data: SeasonCreate) => {
+    correctSeasonDates: (
+      _db: DB | TX,
+      _leagueUuid: string,
+      data: SeasonCreate,
+    ) => {
       if (data.startDate >= data.endDate) {
         throw new StrategyValidationError('Invalid season dates', {
           startDate: {
@@ -198,7 +212,11 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
         });
       }
     },
-    noSeasonOverlap: async (db: DB, leagueUuid: string, data: SeasonCreate) => {
+    noSeasonOverlap: async (
+      db: DB | TX,
+      leagueUuid: string,
+      data: SeasonCreate,
+    ) => {
       const overlappingSeason = await db.query.seasonsTable.findFirst({
         where: {
           AND: [
