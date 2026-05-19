@@ -160,17 +160,15 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
   }
 
   @ConvertDrizzleErrors('SeasonModel')
-  public static async getCurrent(db: DB, leagueId: string) {
-    const now = new Date();
-
+  public static async getByDate(db: DB, leagueId: string, date: Date) {
     const season = await db.query.seasonsTable.findFirst({
       where: {
         leagueUuid: leagueId,
         startDate: {
-          lte: now,
+          lte: date,
         },
         endDate: {
-          gt: now,
+          gt: date,
         },
         $deletedAt: {
           isNull: true,

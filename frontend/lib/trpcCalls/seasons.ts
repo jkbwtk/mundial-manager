@@ -45,7 +45,9 @@ export const querySeasonById = query(async (uuid: string) => {
 }, 'querySeasonById');
 
 export const queryCurrentSeason = query(async () => {
-  const currentSeason = await trpcClient.seasons.currentSeason.query();
+  const currentSeason = await trpcClient.seasons.seasonByDate.query({
+    date: new Date(),
+  });
 
   return SeasonNullable.parse(currentSeason);
 }, 'queryCurrentSeason');

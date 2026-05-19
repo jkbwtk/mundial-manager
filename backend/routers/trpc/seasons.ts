@@ -1,4 +1,5 @@
 import { TRPCError } from '@trpc/server';
+import z from 'zod';
 import { SeasonModel } from '#backend/db/models/SeasonModel';
 import { runWithErrorConversion } from '#blib/modelErrors';
 import { leagueScopedProcedure, router } from '#blib/trpc';
@@ -64,9 +65,15 @@ export const seasonsRouter = router({
       return season.serialize();
     }),
 
-  currentSeason: leagueScopedProcedure.query(async ({ ctx }) => {
-    const season = await SeasonModel.getCurrent(ctx.db, ctx.league.uuid);
+  seasonByDate: leagueScopedProcedure
+    .input(z.object({ date: z.date() }))
+    .query(async ({ ctx, input }) => {
+      const season = await SeasonModel.getByDate(
+        ctx.db,
+        ctx.league.uuid,
+        input.date,
+      );
 
-    return season?.serialize() ?? null;
-  }),
+      return season?.serialize() ?? null;
+    }),
 });
