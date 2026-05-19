@@ -76,7 +76,7 @@ export const seasonsRouter = router({
     }),
 
   seasonByDate: leagueScopedProcedure
-    .input(z.object({ date: z.date() }))
+    .input(z.object({ date: z.coerce.date() }))
     .query(async ({ ctx, input }) => {
       const season = await runWithErrorConversion(() =>
         SeasonModel.getByDate(ctx.db, ctx.league.uuid, input.date),
