@@ -68,6 +68,10 @@ export const SeasonCreatorModal: Component<SeasonCreatorModalProps> = (
     SeasonCreate,
     {
       updateMode: !isCreating,
+      implicitDefaults: {
+        config: {},
+        labels: [],
+      },
     },
   );
 

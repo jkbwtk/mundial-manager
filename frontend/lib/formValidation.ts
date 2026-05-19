@@ -5,9 +5,15 @@ import type z from 'zod';
 import { treeifyError } from 'zod';
 import { ZodLikeError } from '#shared/zod';
 
-export type UseFormValidationOptions = {
+export type UseFormValidationOptions<T extends z.ZodObject> = {
   debounceTime?: number;
   updateMode?: boolean;
+
+  /**
+   * Values used for fields that are not included in the form,
+   * but are required by the schema.
+   */
+  implicitDefaults?: Partial<z.infer<T>>;
 };
 
 export interface Field {
@@ -18,7 +24,7 @@ export interface Field {
 
 export const useFormValidation = <T extends z.ZodObject>(
   schema: T,
-  options: UseFormValidationOptions,
+  options: UseFormValidationOptions<T> = {},
 ) => {
   const fields: Partial<Record<keyof z.infer<T>, Field>> = {};
   const [errors, setErrors] = createStore<
@@ -66,7 +72,7 @@ export const useFormValidation = <T extends z.ZodObject>(
           [key, options.updateMode ? (value ?? null) : value] as const,
       );
 
-    return Object.fromEntries(entries);
+    return { ...options.implicitDefaults, ...Object.fromEntries(entries) };
   };
 
   const setFieldErrors = (field: Field, errors: string[] | undefined) => {
