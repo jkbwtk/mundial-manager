@@ -4,11 +4,13 @@ import { createStore } from 'solid-js/store';
 
 export interface SSRUtilsContextState {
   responseStatus?: number;
+  title?: string;
   trpcCaller?: ReturnType<AnyRouter['createCaller']>;
 }
 
 export interface SSRUtilsContextActions {
   setResponseStatus: (status: number) => void;
+  setTitle: (title: string) => void;
 }
 
 export type SSRUtilsContextValue = [
@@ -19,6 +21,7 @@ export type SSRUtilsContextValue = [
 function createDefaultState(): SSRUtilsContextState {
   return {
     responseStatus: undefined,
+    title: undefined,
     trpcCaller: undefined,
   };
 }
@@ -31,11 +34,15 @@ const SSRUtilsContext = createContext<SSRUtilsContextValue>([
         'SSRUtilsContext: setResponseStatus() called before provider',
       );
     },
+    setTitle: () => {
+      throw new Error('SSRUtilsContext: setTitle() called before provider');
+    },
   },
 ]);
 
 export interface SSRUtilsProviderProps {
   setResponseStatus?: (status: number) => void;
+  setTitle?: (title: string) => void;
   trpcCaller?: ReturnType<AnyRouter['createCaller']>;
 }
 
@@ -54,12 +61,18 @@ export const SSRUtilsProvider: ParentComponent<SSRUtilsProviderProps> = (
     props.setResponseStatus?.(next);
   };
 
+  const setTitle: SSRUtilsContextActions['setTitle'] = (next) => {
+    setState('title', next);
+    props.setTitle?.(next);
+  };
+
   return (
     <SSRUtilsContext.Provider
       value={[
         state,
         {
           setResponseStatus,
+          setTitle,
         },
       ]}
     >

@@ -108,6 +108,7 @@ export async function createRouter() {
         const rendered = await render(url, trpcCaller, fetchEvent);
 
         const html = template
+          .replace('<!--app-title-->', rendered.title)
           .replace('<!--app-head-->', head)
           .replace('<!--app-html-->', rendered.html);
 

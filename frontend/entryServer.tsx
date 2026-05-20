@@ -12,15 +12,25 @@ const responseStatusSchema = z
   .optional()
   .catch(undefined);
 
+const titleSchema = z.string().regex(/^[a-zA-Z0-9\s\-_.]+$/);
+
 export async function render(
   url: string,
   trpcCaller: ReturnType<AnyRouter['createCaller']>,
   fetchEvent: FetchEvent,
 ) {
   let status: number | undefined;
+  let title = 'Mundial Manager';
 
   const setResponseStatus = (next: number) => {
     status = responseStatusSchema.safeParse(next).data;
+  };
+
+  const setTitle = (next: string) => {
+    const data = titleSchema.safeParse(next);
+    if (data.success) {
+      title = data.data;
+    }
   };
 
   const html = await provideRequestEvent(fetchEvent, () =>
@@ -29,13 +39,14 @@ export async function render(
         url={url}
         ssrProps={{
           setResponseStatus,
+          setTitle,
           trpcCaller,
         }}
       />
     )),
   );
 
-  return { html, status };
+  return { html, status, title };
 }
 
 export { routes };

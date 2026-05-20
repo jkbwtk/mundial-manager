@@ -68,6 +68,7 @@ export async function createDevRouter() {
           const head = (rendered.head ?? '') + generateHydrationScript();
 
           const html = transformedTemplate
+            .replace('<!--app-title-->', rendered.title)
             .replace('<!--app-head-->', head)
             .replace('<!--app-html-->', rendered.html ?? '');
 
