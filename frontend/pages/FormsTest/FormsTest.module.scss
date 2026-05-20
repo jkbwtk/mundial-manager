@@ -13,13 +13,12 @@
   display: grid;
 
   column-gap: cw(1);
-  grid-template-columns: min-content 1fr;
+  grid-template-columns: auto auto;
 
-  white-space: nowrap;
   justify-items: center;
+}
 
-  .label {
-    width: 100%;
-    text-align: right;
-  }
+.label {
+  width: 100%;
+  text-align: right;
 }

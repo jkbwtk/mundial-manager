@@ -15,6 +15,8 @@ export const InputTest: Component = () => {
   const [rangeValue, setRangeValue] = createSignal('75');
   const [checkboxValue, setCheckboxValue] = createSignal(false);
   const [invalidCheckboxValue, setInvalidCheckboxValue] = createSignal(true);
+  const [colorValue, setColorValue] = createSignal('#dcb543');
+  const [invalidColorValue, setInvalidColorValue] = createSignal('#70dad4');
 
   return (
     <Widget topLeftLabels="Input Component Test" class={style.outerContainer}>
@@ -115,6 +117,25 @@ export const InputTest: Component = () => {
         <Input placeholder="This spans the full width of the container..." />
         <Divider />
         File input: <Input type="file" accept=".txt,.json,.csv" />
+        <Divider />
+        Color input:{' '}
+        <Input
+          type="color"
+          value={colorValue()}
+          onInput={(e) => setColorValue(e.currentTarget.value)}
+        />{' '}
+        Value: {colorValue()}
+        <Divider />
+        Invalid color input:{' '}
+        <Input
+          type="color"
+          value={invalidColorValue()}
+          onInput={(e) => setInvalidColorValue(e.currentTarget.value)}
+          invalid
+        />{' '}
+        Value: {invalidColorValue()}
+        <Divider />
+        Disabled color input: <Input type="color" value="#136fac" disabled />
         <Divider />
         Radio input:{' '}
         <div>

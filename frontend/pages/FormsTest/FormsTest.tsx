@@ -11,6 +11,7 @@ import { toJson } from '#flib/index';
 import 'highlight.js/styles/gml.min.css';
 import { DateInput } from '#components/DateInput';
 import { Required } from '#components/Required/Required';
+import { hexColor } from '#shared/zod';
 import style from './FormsTest.module.scss';
 
 hljs.registerLanguage('json', json);
@@ -30,6 +31,7 @@ const FormSchema = z
     float: z.number().nonnegative(),
     boolean: z.boolean(),
     date: z.date(),
+    color: hexColor,
     password: z.string().min(8),
     confirmPassword: z.string().min(8),
   })
@@ -144,6 +146,18 @@ export const FormsTest: Component = () => {
             type="checkbox"
             useDirectives={[validate]}
             invalid={!!errors.boolean}
+          />
+
+          <span class={style.label}>
+            Color
+            <Required />:
+          </span>
+          <Input
+            name="color"
+            type="color"
+            required
+            useDirectives={[validate]}
+            invalid={!!errors.color}
           />
 
           <span class={style.label}>

@@ -37,7 +37,8 @@
 .email,
 .number,
 .file,
-.checkbox {
+.checkbox,
+.color {
   &::before {
     content: '[';
 
@@ -215,6 +216,35 @@
       &::after {
         background-color: $red;
       }
+    }
+  }
+}
+
+.color {
+  @extend %label-disabled;
+
+  cursor: pointer;
+
+  input {
+    appearance: none;
+
+    cursor: pointer;
+    min-width: cw(6);
+    height: ch(1);
+
+    display: inline-block;
+    vertical-align: bottom;
+
+    &::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+
+    &::-webkit-color-swatch {
+      mask: url('/frontend/assets/images/braille.svg') 0 0 / cw(1) ch(1);
+    }
+
+    &::-moz-color-swatch {
+      mask: url('/frontend/assets/images/braille.svg') 0 0 / cw(1) ch(1);
     }
   }
 }

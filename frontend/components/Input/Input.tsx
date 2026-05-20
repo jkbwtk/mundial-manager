@@ -24,7 +24,8 @@ export type CustomInputProps = {
     | 'range'
     | 'radio'
     | 'file'
-    | 'checkbox';
+    | 'checkbox'
+    | 'color';
   invalid?: boolean;
   useDirectives?: ComponentUseDirectiveHack<HTMLInputElement>[];
 };
