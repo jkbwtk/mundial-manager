@@ -1,4 +1,4 @@
-import { createInsertSchema } from 'drizzle-orm/zod';
+import { createInsertSchema, createSelectSchema } from 'drizzle-orm/zod';
 import { ballsTable } from '#backend/db/schema';
 
 export const BallInsertSchema = createInsertSchema(ballsTable).omit({
@@ -10,5 +10,5 @@ export const BallInsertSchema = createInsertSchema(ballsTable).omit({
 });
 export type BallInsertSchema = ReturnType<typeof BallInsertSchema.parse>;
 
-export const BallSelectSchema = createInsertSchema(ballsTable);
+export const BallSelectSchema = createSelectSchema(ballsTable);
 export type BallSelectSchema = ReturnType<typeof BallSelectSchema.parse>;

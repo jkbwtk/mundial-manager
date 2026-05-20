@@ -1,30 +1,30 @@
 import { createAsync, useAction } from '@solidjs/router';
 import { getOwner, Show } from 'solid-js';
+import { BallCreatorModal } from '#components/BallCreatorModal/BallCreatorModal';
 import { Button } from '#components/Button';
 import { ColorBlock } from '#components/ColorBlock';
 import { type Column, Table } from '#components/Table';
-import { TableCreatorModal } from '#components/TableCreatorModal/TableCreatorModal';
 import { Divider, Widget } from '#components/Widget';
 import { useHandleButtonAction } from '#flib/index';
-import { actionDeleteTable, queryTables } from '#flib/trpcCalls';
+import { actionDeleteBall, queryBalls } from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
-import type { Table as TableType } from '#shared/types/api/table';
+import type { Ball } from '#shared/types/api/ball';
 import { shortUUID } from '#shared/utils';
-import style from './TablesDashboard.module.scss';
+import style from './BallsDashboard.module.scss';
 
-export const TablesDashboard: Component = () => {
+export const BallsDashboard: Component = () => {
   const [, actions] = useToast();
   const [, { open }] = useModal();
-  const tables = createAsync(() => queryTables());
+  const balls = createAsync(() => queryBalls());
 
-  const deleteTable = useAction(actionDeleteTable);
+  const deleteBall = useAction(actionDeleteBall);
   const owner = getOwner();
 
-  const handleCreateTable = () => {
+  const handleCreateBall = () => {
     open({
       props: {
-        component: TableCreatorModal,
+        component: BallCreatorModal,
         owner,
       },
       closeOnBackgroundClick: false,
@@ -50,21 +50,22 @@ export const TablesDashboard: Component = () => {
       align: 'center',
     },
     {
-      key: 'side1Color',
-      header: 'Side 1 Color',
+      key: 'color',
+      header: 'Color',
       align: 'center',
       transform: (val) => <ColorBlock color={val} />,
     },
     {
-      key: 'side2Color',
-      header: 'Side 2 Color',
-      align: 'center',
-      transform: (val) => <ColorBlock color={val} />,
+      key: 'diameter',
+      header: 'Diameter',
+      align: 'right',
+      transform: (val) => `${val} mm`,
     },
     {
-      key: 'location',
-      header: 'Location',
-      align: 'center',
+      key: 'weight',
+      header: 'Weight',
+      align: 'right',
+      transform: (val) => `${val} g`,
     },
     {
       key: 'description',
@@ -77,23 +78,23 @@ export const TablesDashboard: Component = () => {
       align: 'center',
       width: 10,
       transform: (_, item) => {
-        const handleEditTable = useHandleButtonAction(
-          async (table: TableType) => {
+        const handleEditBall = useHandleButtonAction(
+          async (ball: Ball) => {
             open({
               props: {
-                component: TableCreatorModal,
+                component: BallCreatorModal,
                 owner,
-                table,
+                ball,
               },
               closeOnBackgroundClick: false,
             });
           },
-          () => actions.error('Failed to open Table Editor'),
+          () => actions.error('Failed to open Ball Editor'),
         );
 
         return (
           <Show when={item.uuid}>
-            <Button onPointerUp={() => handleEditTable(item)}>Edit</Button>
+            <Button onPointerUp={() => handleEditBall(item)}>Edit</Button>
           </Show>
         );
       },
@@ -104,20 +105,20 @@ export const TablesDashboard: Component = () => {
       align: 'center',
       width: 10,
       transform: (_, item) => {
-        const handleDeleteTable = useHandleButtonAction(
-          async (table: TableType) => {
-            await deleteTable(table.uuid);
+        const handleDeleteBall = useHandleButtonAction(
+          async (ball: Ball) => {
+            await deleteBall(ball.uuid);
 
-            actions.success(`Deleted table: ${table.name}`);
+            actions.success(`Deleted ball: ${ball.name}`);
           },
-          () => actions.error('Failed to delete table'),
+          () => actions.error('Failed to delete ball'),
         );
 
         return (
           <Button
             severity="danger"
-            onPointerUp={() => handleDeleteTable(item)}
-            loading={handleDeleteTable.loading()}
+            onPointerUp={() => handleDeleteBall(item)}
+            loading={handleDeleteBall.loading()}
           >
             Delete
           </Button>
@@ -127,9 +128,9 @@ export const TablesDashboard: Component = () => {
   ];
 
   return (
-    <Widget class={style.container} topLeftLabels="Tables Dashboard">
+    <Widget class={style.container} topLeftLabels="Balls Dashboard">
       <div class={style.league}>
-        <Button onPointerUp={handleCreateTable}>Create Table</Button>
+        <Button onPointerUp={handleCreateBall}>Create Ball</Button>
       </div>
 
       <Divider />
@@ -138,7 +139,7 @@ export const TablesDashboard: Component = () => {
         <Table
           class={style.leaguesTable}
           columns={column}
-          data={tables()?.data ?? []}
+          data={balls()?.data ?? []}
           classic={false}
         />
       </div>
@@ -146,4 +147,4 @@ export const TablesDashboard: Component = () => {
   );
 };
 
-export default TablesDashboard;
+export default BallsDashboard;

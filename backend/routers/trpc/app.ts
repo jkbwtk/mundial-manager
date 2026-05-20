@@ -1,4 +1,5 @@
 import { adminRouter } from '#backend/routers/trpc/admin';
+import { ballsRouter } from '#backend/routers/trpc/balls';
 import { leaguesRouter } from '#backend/routers/trpc/leagues';
 import { seasonsRouter } from '#backend/routers/trpc/seasons';
 import { sheetsRouter } from '#backend/routers/trpc/sheets';
@@ -12,6 +13,7 @@ export const appRouter = router({
   leagues: leaguesRouter,
   seasons: seasonsRouter,
   tables: tablesRouter,
+  balls: ballsRouter,
   admin: adminRouter,
 });
 
