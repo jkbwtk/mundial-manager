@@ -8,6 +8,7 @@ import { DevGrid } from '#components/DevGrid';
 import { PWAInitializer } from '#components/PWAInitializer';
 import { isDev } from '#flib/utils';
 import { errors, GenericErrorPage } from '#pages/GenericErrorPage';
+import { RootLayout } from '#pages/RootLayout';
 import { ChangelogProvider } from '#providers/ChangelogProvider';
 import { ConsoleUnitPrototypeProvider } from '#providers/ConsoleUnitPrototypeProvider';
 import { ModalDispatcher, ModalProvider } from '#providers/ModalProvider';
@@ -45,7 +46,10 @@ const App: Component<AppProps> = (props) => {
 
                         <PWAInitializer />
 
-                        <Router url={isServer ? props.url : ''}>
+                        <Router
+                          url={isServer ? props.url : ''}
+                          root={RootLayout}
+                        >
                           {routes}
                         </Router>
                       </ModalDispatcher>
