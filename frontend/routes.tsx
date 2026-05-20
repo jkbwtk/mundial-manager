@@ -12,6 +12,9 @@ const AdminDashboard = lazy(
 const SeasonsDashboard = lazy(
   () => import('#pages/SeasonsDashboard/SeasonsDashboard'),
 );
+const TablesDashboard = lazy(
+  () => import('#pages/TablesDashboard/TablesDashboard'),
+);
 
 const RouteMap = lazy(() => import('#pages/RouteMap/RouteMap'));
 const ChartTest = lazy(() => import('#pages/ChartTest'));
@@ -65,6 +68,11 @@ export const routes: RouteDefinition[] = [
     path: '/seasons',
     info: { title: 'Mundial Manager - Seasons Dashboard' },
     component: SeasonsDashboard,
+  },
+  {
+    path: '/tables',
+    info: { title: 'Mundial Manager - Tables Dashboard' },
+    component: TablesDashboard,
   },
   {
     path: '/tests',

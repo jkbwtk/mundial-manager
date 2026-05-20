@@ -11,7 +11,7 @@ export const appRouter = router({
   sheets: sheetsRouter,
   leagues: leaguesRouter,
   seasons: seasonsRouter,
-  tablesRouter: tablesRouter,
+  tables: tablesRouter,
   admin: adminRouter,
 });
 
