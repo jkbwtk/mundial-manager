@@ -8,7 +8,7 @@ import { Ball, type BallCreate } from '#shared/types/api/ball';
 export class BallModel extends Model<BallSelectSchema, typeof Ball> {
   protected publicSchema = Ball;
 
-  @ConvertDrizzleErrors('BallModel')
+  @ConvertDrizzleErrors()
   public static async create(db: DB, leagueUuid: string, data: BallCreate) {
     const [ball] = await db
       .insert(ballsTable)
@@ -22,7 +22,7 @@ export class BallModel extends Model<BallSelectSchema, typeof Ball> {
     return new BallModel(db, ball);
   }
 
-  @ConvertDrizzleErrors('BallModel')
+  @ConvertDrizzleErrors()
   public static async getById(db: DB, uuid: string) {
     const ball = await db.query.ballsTable.findFirst({
       where: {
@@ -40,7 +40,7 @@ export class BallModel extends Model<BallSelectSchema, typeof Ball> {
     return new BallModel(db, ball);
   }
 
-  @ConvertDrizzleErrors('BallModel')
+  @ConvertDrizzleErrors()
   public static async getAll(db: DB, leagueUuid: string) {
     const balls = await db.query.ballsTable.findMany({
       where: {

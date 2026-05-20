@@ -1,11 +1,21 @@
-import type z from 'zod';
+import z from 'zod';
 import type { DB } from '#backend/db/database';
 
-export abstract class Model<T, Public extends z.ZodType> {
+const BaseModelType = z.object({
+  uuid: z.uuid(),
+});
+
+type BaseModelType = z.infer<typeof BaseModelType>;
+
+export abstract class Model<T extends BaseModelType, Public extends z.ZodType> {
   public instance: T;
   protected db: DB;
 
   protected abstract publicSchema: Public;
+
+  public get uuid() {
+    return this.instance.uuid;
+  }
 
   public constructor(db: DB, instance: T) {
     this.db = db;

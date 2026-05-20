@@ -19,11 +19,7 @@ import {
 export class TableModel extends Model<TableSelectSchema, typeof Table> {
   protected publicSchema = Table;
 
-  public get uuid() {
-    return this.instance.uuid;
-  }
-
-  @ConvertDrizzleErrors('TableModel')
+  @ConvertDrizzleErrors()
   public static async create(db: DB, leagueUuid: string, data: TableCreate) {
     for (const strategy of Object.values(TableModel.validationStrategies)) {
       await strategy(db, leagueUuid, data);
@@ -41,7 +37,7 @@ export class TableModel extends Model<TableSelectSchema, typeof Table> {
     return new TableModel(db, table);
   }
 
-  @ConvertDrizzleErrors('TableModel')
+  @ConvertDrizzleErrors()
   public static async update(db: DB, leagueUuid: string, data: TableUpdate) {
     const { uuid, ...updateData } = data;
 
@@ -86,7 +82,7 @@ export class TableModel extends Model<TableSelectSchema, typeof Table> {
     return new TableModel(db, table);
   }
 
-  @ConvertDrizzleErrors('TableModel')
+  @ConvertDrizzleErrors()
   public static async delete(db: DB, leagueUuid: string, uuid: string) {
     const [table] = await db
       .update(tablesTable)
@@ -122,7 +118,7 @@ export class TableModel extends Model<TableSelectSchema, typeof Table> {
     return table ?? null;
   }
 
-  @ConvertDrizzleErrors('TableModel')
+  @ConvertDrizzleErrors()
   public static async getById(db: DB, uuid: string) {
     const table = await TableModel._getById(db, uuid);
 
@@ -133,7 +129,7 @@ export class TableModel extends Model<TableSelectSchema, typeof Table> {
     return new TableModel(db, table);
   }
 
-  @ConvertDrizzleErrors('TableModel')
+  @ConvertDrizzleErrors()
   public static async getAll(
     db: DB,
     leagueUuid: string,
@@ -154,7 +150,7 @@ export class TableModel extends Model<TableSelectSchema, typeof Table> {
     return tables.map((table) => new TableModel(db, table));
   }
 
-  @ConvertDrizzleErrors('TableModel')
+  @ConvertDrizzleErrors()
   public static async count(db: DB, leagueUuid: string) {
     const result = await db
       .select({

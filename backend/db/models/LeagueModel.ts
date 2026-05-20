@@ -17,11 +17,7 @@ import {
 export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
   protected publicSchema = League;
 
-  public get uuid() {
-    return this.instance.uuid;
-  }
-
-  @ConvertDrizzleErrors('LeagueModel')
+  @ConvertDrizzleErrors()
   public static async create(db: DB, data: LeagueCreate) {
     const [league] = await db.insert(leaguesTable).values(data).returning();
 
@@ -32,7 +28,7 @@ export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
     return new LeagueModel(db, league);
   }
 
-  @ConvertDrizzleErrors('LeagueModel')
+  @ConvertDrizzleErrors()
   public static async update(db: DB, data: LeagueUpdate) {
     const { uuid, ...updateData } = data;
 
@@ -51,7 +47,7 @@ export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
     return new LeagueModel(db, league);
   }
 
-  @ConvertDrizzleErrors('LeagueModel')
+  @ConvertDrizzleErrors()
   public static async delete(db: DB, uuid: string) {
     const [league] = await db
       .update(leaguesTable)
@@ -68,7 +64,7 @@ export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
     return new LeagueModel(db, league);
   }
 
-  @ConvertDrizzleErrors('LeagueModel')
+  @ConvertDrizzleErrors()
   public static async getById(db: DB, uuid: string) {
     const league = await db.query.leaguesTable.findFirst({
       where: {
@@ -86,7 +82,7 @@ export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
     return new LeagueModel(db, league);
   }
 
-  @ConvertDrizzleErrors('LeagueModel')
+  @ConvertDrizzleErrors()
   public static async getAll(db: DB, limit?: number, offset?: number) {
     const leagues = await db.query.leaguesTable.findMany({
       limit,
@@ -104,7 +100,7 @@ export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
     return leagues.map((league) => new LeagueModel(db, league));
   }
 
-  @ConvertDrizzleErrors('LeagueModel')
+  @ConvertDrizzleErrors()
   public static async count(db: DB) {
     const result = await db
       .select({

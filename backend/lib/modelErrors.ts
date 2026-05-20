@@ -1,5 +1,6 @@
 import { TRPCError } from '@trpc/server';
 import { DrizzleQueryError } from 'drizzle-orm';
+import type { Model } from '#backend/db/models/Model';
 import { logger } from '#shared/logger';
 import { ZodLikeError } from '#shared/zod';
 
@@ -104,13 +105,18 @@ export class NotFoundError extends ModelError {
 
 const DuplicateExtractRegex = /Key \((.+)\)=\((.+)\) already exists\./;
 
-export function ConvertDrizzleErrors(label = 'unknown') {
+export function ConvertDrizzleErrors() {
   // biome-ignore lint/suspicious/noExplicitAny: yeah
   return <T extends (...args: any[]) => any>(
     target: T,
     _ctx: ClassMemberDecoratorContext,
   ) => {
-    const wrappedMethod = async function (this: unknown, ...args: unknown[]) {
+    const wrappedMethod = async function (
+      this: typeof Model,
+      ...args: unknown[]
+    ) {
+      const label = this.name ?? 'unknown';
+
       try {
         return await target.call(this, ...args);
       } catch (err) {

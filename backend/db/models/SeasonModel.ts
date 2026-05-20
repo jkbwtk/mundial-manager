@@ -19,11 +19,7 @@ import {
 export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
   protected publicSchema = Season;
 
-  public get uuid() {
-    return this.instance.uuid;
-  }
-
-  @ConvertDrizzleErrors('SeasonModel')
+  @ConvertDrizzleErrors()
   public static async create(db: DB, leagueUuid: string, data: SeasonCreate) {
     for (const strategy of Object.values(SeasonModel.validationStrategies)) {
       await strategy(db, leagueUuid, data);
@@ -41,7 +37,7 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
     return new SeasonModel(db, season);
   }
 
-  @ConvertDrizzleErrors('SeasonModel')
+  @ConvertDrizzleErrors()
   public static async update(db: DB, leagueUuid: string, data: SeasonUpdate) {
     const { uuid, ...updateData } = data;
 
@@ -86,7 +82,7 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
     return new SeasonModel(db, season);
   }
 
-  @ConvertDrizzleErrors('SeasonModel')
+  @ConvertDrizzleErrors()
   public static async delete(db: DB, leagueUuid: string, uuid: string) {
     const [season] = await db
       .update(seasonsTable)
@@ -123,7 +119,7 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
     return season ?? null;
   }
 
-  @ConvertDrizzleErrors('SeasonModel')
+  @ConvertDrizzleErrors()
   public static async getById(db: DB, leagueUuid: string, uuid: string) {
     const season = await SeasonModel._getById(db, leagueUuid, uuid);
 
@@ -134,7 +130,7 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
     return new SeasonModel(db, season);
   }
 
-  @ConvertDrizzleErrors('SeasonModel')
+  @ConvertDrizzleErrors()
   public static async getAll(
     db: DB,
     leagueId: string,
@@ -155,7 +151,7 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
     return seasons.map((season) => new SeasonModel(db, season));
   }
 
-  @ConvertDrizzleErrors('SeasonModel')
+  @ConvertDrizzleErrors()
   public static async count(db: DB, leagueId: string) {
     const result = await db
       .select({
@@ -172,7 +168,7 @@ export class SeasonModel extends Model<SeasonSelectSchema, typeof Season> {
     return Number(result[0]?.count ?? 0);
   }
 
-  @ConvertDrizzleErrors('SeasonModel')
+  @ConvertDrizzleErrors()
   public static async getByDate(db: DB, leagueId: string, date: Date) {
     const season = await db.query.seasonsTable.findFirst({
       where: {

@@ -14,7 +14,7 @@ export class MatchSpectatorModel extends Model<
 > {
   protected publicSchema = MatchSpectator;
 
-  @ConvertDrizzleErrors('MatchSpectatorModel')
+  @ConvertDrizzleErrors()
   public static async create(
     db: DB,
     leagueUuid: string,
@@ -32,7 +32,7 @@ export class MatchSpectatorModel extends Model<
     return new MatchSpectatorModel(db, spectator);
   }
 
-  @ConvertDrizzleErrors('MatchSpectatorModel')
+  @ConvertDrizzleErrors()
   public static async getById(db: DB, uuid: string) {
     const spectator = await db.query.matchSpectatorsTable.findFirst({
       where: {
@@ -50,7 +50,7 @@ export class MatchSpectatorModel extends Model<
     return new MatchSpectatorModel(db, spectator);
   }
 
-  @ConvertDrizzleErrors('MatchSpectatorModel')
+  @ConvertDrizzleErrors()
   public static async getForMatch(db: DB, matchUuid: string) {
     const spectators = await db.query.matchSpectatorsTable.findMany({
       where: {
@@ -69,7 +69,7 @@ export class MatchSpectatorModel extends Model<
     );
   }
 
-  @ConvertDrizzleErrors('MatchSpectatorModel')
+  @ConvertDrizzleErrors()
   public static async getForPlayer(db: DB, playerUuid: string) {
     const spectators = await db.query.matchSpectatorsTable.findMany({
       where: {
