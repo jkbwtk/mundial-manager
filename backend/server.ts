@@ -5,6 +5,8 @@ import { logger } from '#shared/logger';
 
 const app = express();
 
+app.set('trust proxy', 'loopback');
+
 app.use(await createRouter());
 
 logger.info('Starting server on port %o...', environment.SERVER_PORT, {
