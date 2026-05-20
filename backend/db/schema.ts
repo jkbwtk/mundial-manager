@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { integer, pgEnum, timestamp } from 'drizzle-orm/pg-core/columns';
+import { integer, pgEnum, timestamp, uuid } from 'drizzle-orm/pg-core/columns';
 import { index, uniqueIndex } from 'drizzle-orm/pg-core/indexes';
 import { pgTable } from 'drizzle-orm/pg-core/table';
 import { MatchStatusEnum } from '#shared/types/api/match';
@@ -7,6 +7,7 @@ import { MatchEventTypeEnum } from '#shared/types/api/matchEvent';
 import type { SeasonConfig } from '#shared/types/api/season';
 
 const commonFields = {
+  uuid: uuid().primaryKey().defaultRandom(),
   $createdAt: timestamp({ mode: 'date', withTimezone: true, precision: 6 })
     .defaultNow()
     .notNull(),
@@ -27,7 +28,6 @@ const commonFields = {
 export const leaguesTable = pgTable(
   'leagues',
   (t) => ({
-    uuid: t.uuid().primaryKey().defaultRandom(),
     name: t.text().notNull(),
     alias: t.text().notNull(),
     description: t.text(),
@@ -42,7 +42,6 @@ export const leaguesTable = pgTable(
 export const seasonsTable = pgTable(
   'seasons',
   (t) => ({
-    uuid: t.uuid().primaryKey().defaultRandom(),
     leagueUuid: t
       .uuid()
       .references(() => leaguesTable.uuid, { onDelete: 'cascade' })
@@ -68,7 +67,6 @@ export const seasonsTable = pgTable(
 export const tablesTable = pgTable(
   'tables',
   (t) => ({
-    uuid: t.uuid().primaryKey().defaultRandom(),
     leagueUuid: t
       .uuid()
       .references(() => leaguesTable.uuid, { onDelete: 'cascade' })
@@ -90,7 +88,6 @@ export const tablesTable = pgTable(
 );
 
 export const ballsTable = pgTable('balls', (t) => ({
-  uuid: t.uuid().primaryKey().defaultRandom(),
   leagueUuid: t
     .uuid()
     .references(() => leaguesTable.uuid, { onDelete: 'cascade' })
@@ -112,7 +109,6 @@ export const ballsTable = pgTable('balls', (t) => ({
 export const playersTable = pgTable(
   'players',
   (t) => ({
-    uuid: t.uuid().primaryKey().defaultRandom(),
     leagueUuid: t
       .uuid()
       .references(() => leaguesTable.uuid, { onDelete: 'cascade' })
@@ -138,7 +134,6 @@ export const matchStatusEnum = pgEnum('matchStatus', MatchStatusEnum);
 export const matchesTable = pgTable(
   'matches',
   (t) => ({
-    uuid: t.uuid().primaryKey().defaultRandom(),
     leagueUuid: t
       .uuid()
       .references(() => leaguesTable.uuid, { onDelete: 'cascade' })
@@ -176,7 +171,6 @@ export const matchesTable = pgTable(
 export const teamConfigurationsTable = pgTable(
   'teamConfigurations',
   (t) => ({
-    uuid: t.uuid().primaryKey().defaultRandom(),
     leagueUuid: t
       .uuid()
       .references(() => leaguesTable.uuid, { onDelete: 'cascade' })
@@ -195,7 +189,6 @@ export const teamConfigurationsTable = pgTable(
 export const teamConfigurationMembersTable = pgTable(
   'teamConfigurationMembers',
   (t) => ({
-    uuid: t.uuid().primaryKey().defaultRandom(),
     leagueUuid: t
       .uuid()
       .references(() => leaguesTable.uuid, { onDelete: 'cascade' })
@@ -224,7 +217,6 @@ export const matchSideEnum = pgEnum('matchSide', ['SIDE_1', 'SIDE_2']);
 export const matchSidesTable = pgTable(
   'matchSides',
   (t) => ({
-    uuid: t.uuid().primaryKey().defaultRandom(),
     leagueUuid: t
       .uuid()
       .references(() => leaguesTable.uuid, { onDelete: 'cascade' })
@@ -254,7 +246,6 @@ export const matchSidesTable = pgTable(
 export const matchSpectatorsTable = pgTable(
   'matchSpectators',
   (t) => ({
-    uuid: t.uuid().primaryKey().defaultRandom(),
     leagueUuid: t
       .uuid()
       .references(() => leaguesTable.uuid, { onDelete: 'cascade' })
@@ -283,7 +274,6 @@ export const matchEventTypeEnum = pgEnum('matchEventType', MatchEventTypeEnum);
 export const matchEventsTable = pgTable(
   'matchEvents',
   (t) => ({
-    uuid: t.uuid().primaryKey().defaultRandom(),
     leagueUuid: t
       .uuid()
       .references(() => leaguesTable.uuid, { onDelete: 'cascade' })
