@@ -111,6 +111,7 @@ export const Input: Component<InputProps> = (userProps) => {
         [style.invalid]: utilProps.invalid,
         [style.overflowLeft]: overflowLeft(),
         [style.overflowRight]: overflowRight(),
+        [style.withChildren]: !!utilProps.children,
         [utilProps.class ?? '']: true,
         ...(utilProps.classList ?? {}),
       }}

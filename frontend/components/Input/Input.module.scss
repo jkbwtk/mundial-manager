@@ -61,6 +61,12 @@
     }
   }
 
+  &.with-children {
+    input {
+      padding-right: cw(1);
+    }
+  }
+
   &.invalid {
     &::before {
       color: $red;
