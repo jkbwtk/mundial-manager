@@ -105,20 +105,6 @@
   padding-right: cw(1);
 }
 
-.team-color {
-  // display: inline-block;
-
-  width: cw(2);
-  min-width: cw(2);
-  height: ch(1);
-
-  transition: background-color 0.2s ease-in-out;
-
-  background-color: var(--team-color);
-
-  mask: url('/frontend/assets/images/braille.svg') 0 0 / cw(1) ch(1);
-}
-
 .center-line-header {
   width: cw(2);
 }

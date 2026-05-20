@@ -1,5 +1,6 @@
 import { createMemo, For, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
+import { ColorBlock } from '#components/ColorBlock';
 import {
   BallOutEvent,
   EquipmentFailureEvent,
@@ -12,7 +13,7 @@ import {
   useStatPaginatedFrame,
 } from '#components/StatPaginatorWidget';
 import { Divider } from '#components/Widget';
-import { getTeamColorClass } from '#flib/teamColors';
+import { getTeamColor, getTeamColorClass } from '#flib/teamColors';
 import { getTeamColors } from '#shared/matchUtils';
 import { formatDate, formatDuration } from '#shared/timeUtils';
 import type { Match, MatchEvent, MatchEventType } from '#shared/types/Sheets';
@@ -127,18 +128,18 @@ const MatchTimelineModalBase: Component = () => {
               <th
                 classList={{
                   [style.minWidth]: true,
-                  [getTeamColorClass(teamColors()[0])]: true,
-                  [style.teamColor]: true,
                 }}
-              />
+              >
+                <ColorBlock color={getTeamColor(teamColors()[0])} width={2} />
+              </th>
               <th class={style.centerLineHeader} />
               <th
                 classList={{
                   [style.minWidth]: true,
-                  [getTeamColorClass(teamColors()[1])]: true,
-                  [style.teamColor]: true,
                 }}
-              />
+              >
+                <ColorBlock color={getTeamColor(teamColors()[1])} width={2} />
+              </th>
               <th class={style.description}>Description</th>
               <th class={style.minWidth}>Score</th>
             </tr>

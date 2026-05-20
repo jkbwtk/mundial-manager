@@ -1,11 +1,12 @@
 import { Show } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import { Button } from '#components/Button';
+import { ColorBlock } from '#components/ColorBlock';
 import { InlineAction } from '#components/InlineAction';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import { type Column, Table } from '#components/Table';
 import { Divider, Widget } from '#components/Widget';
-import { getTeamColorClass } from '#flib/teamColors';
+import { getTeamColor } from '#flib/teamColors';
 import { useSheets } from '#providers/SheetsProvider';
 import { formatDate, formatDuration } from '#shared/timeUtils';
 import type { MatchCreate } from '#shared/types/Sheets';
@@ -143,11 +144,9 @@ const CreatedMatchesTest: Component = () => {
       header: 'Color',
       align: 'center',
       width: 8,
-      transform: (value: string) => {
-        const colorClass = getTeamColorClass(value);
-
-        return <span class={`${style.teamColor} ${colorClass}`} />;
-      },
+      transform: (value: string) => (
+        <ColorBlock color={getTeamColor(value)} width={6} />
+      ),
     },
     {
       key: 'duration',

@@ -21,19 +21,6 @@
   color: $textBrightColor;
 }
 
-.team-color {
-  display: inline-block;
-
-  width: cw(10);
-  height: ch(1);
-
-  transition: background-color 0.2s ease-in-out;
-
-  background-color: var(--team-color);
-
-  mask: url('/frontend/assets/images/braille.svg') 0 0 / cw(1) ch(1);
-}
-
 .cancelled-label {
   text-transform: uppercase;
   font-weight: bold;

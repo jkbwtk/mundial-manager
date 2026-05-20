@@ -8,6 +8,7 @@ import {
 } from 'solid-js';
 import { AnimatedText } from '#components/AnimatedText';
 import { Button } from '#components/Button';
+import { ColorBlock } from '#components/ColorBlock';
 import { MatchTimelineModal } from '#components/MatchTimelineModal';
 import {
   StatPaginatorWidget,
@@ -15,7 +16,7 @@ import {
   useStatPaginator,
 } from '#components/StatPaginatorWidget';
 import { Divider } from '#components/Widget';
-import { getTeamColorClass } from '#flib/teamColors';
+import { getTeamColor } from '#flib/teamColors';
 import { useModal } from '#providers/ModalProvider';
 import { hasBeenCancelled, hasWon } from '#shared/matchUtils';
 import { formatDate, formatDuration } from '#shared/timeUtils';
@@ -139,12 +140,7 @@ export const MatchStatsBase: Component<MatchStatsBaseProps> = (props) => {
           when={hasBeenCancelled(match().replayMetadata?.events) === false}
           fallback={<strong class={style.cancelledLabel}>CANCELLED</strong>}
         >
-          <span
-            classList={{
-              [getTeamColorClass(match().winningColor)]: true,
-              [style.teamColor]: true,
-            }}
-          />
+          <ColorBlock color={getTeamColor(match().winningColor)} />
         </Show>
       </div>
 
