@@ -1,5 +1,6 @@
 import type { RouteDefinition } from '@solidjs/router';
 import { lazy } from 'solid-js';
+import { DashboardLayout } from '#pages/DashboardLayout';
 import { errors, GenericErrorPage } from '#pages/GenericErrorPage';
 import Homepage from '#pages/Homepage/Homepage';
 
@@ -53,34 +54,40 @@ const FormsTest = lazy(() => import('#pages/FormsTest/FormsTest'));
 
 export const routes: RouteDefinition[] = [
   {
-    path: '/',
-    info: { title: 'Mundial Manager - Home' },
-    component: Homepage,
-  },
-  {
-    path: '/mundial-calculator',
-    info: { title: 'Mundial Manager - Mundial Calculator' },
-    component: MundialCalculator,
-  },
-  {
-    path: '/admin',
-    info: { title: 'Mundial Manager - Admin Dashboard' },
-    component: AdminDashboard,
-  },
-  {
-    path: '/seasons',
-    info: { title: 'Mundial Manager - Seasons Dashboard' },
-    component: SeasonsDashboard,
-  },
-  {
-    path: '/tables',
-    info: { title: 'Mundial Manager - Tables Dashboard' },
-    component: TablesDashboard,
-  },
-  {
-    path: '/balls',
-    info: { title: 'Mundial Manager - Balls Dashboard' },
-    component: BallsDashboard,
+    path: '',
+    component: DashboardLayout,
+    children: [
+      {
+        path: '/',
+        info: { title: 'Mundial Manager - Home' },
+        component: Homepage,
+      },
+      {
+        path: '/mundial-calculator',
+        info: { title: 'Mundial Manager - Mundial Calculator' },
+        component: MundialCalculator,
+      },
+      {
+        path: '/admin',
+        info: { title: 'Mundial Manager - Admin Dashboard' },
+        component: AdminDashboard,
+      },
+      {
+        path: '/seasons',
+        info: { title: 'Mundial Manager - Seasons Dashboard' },
+        component: SeasonsDashboard,
+      },
+      {
+        path: '/tables',
+        info: { title: 'Mundial Manager - Tables Dashboard' },
+        component: TablesDashboard,
+      },
+      {
+        path: '/balls',
+        info: { title: 'Mundial Manager - Balls Dashboard' },
+        component: BallsDashboard,
+      },
+    ],
   },
   {
     path: '/tests',
