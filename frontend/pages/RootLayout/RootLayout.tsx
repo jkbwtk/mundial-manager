@@ -1,6 +1,7 @@
 import { useCurrentMatches } from '@solidjs/router';
 import { createEffect, createMemo } from 'solid-js';
 import { isServer } from 'solid-js/web';
+import { RouteLoadingBar } from '#components/RouteLoadingBar/RouteLoadingBar';
 import { useSSRUtils } from '#providers/SSRUtilsProvider';
 
 export const RootLayout: ParentComponent = (props) => {
@@ -19,5 +20,10 @@ export const RootLayout: ParentComponent = (props) => {
     document.title = title();
   });
 
-  return <>{props.children}</>;
+  return (
+    <>
+      <RouteLoadingBar />
+      {props.children}
+    </>
+  );
 };

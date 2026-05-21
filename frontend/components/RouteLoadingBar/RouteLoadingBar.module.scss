@@ -1,0 +1,27 @@
+@use 'app' as *;
+
+.container {
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: ch(0.1);
+
+  z-index: 9000;
+  pointer-events: none;
+
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.fading {
+  opacity: 0;
+}
+
+.bar {
+  height: 100%;
+  width: var(--progress, 0%);
+
+  background-color: $primaryBrightColor;
+}
