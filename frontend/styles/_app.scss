@@ -26,7 +26,7 @@ $primaryColor: $red;
 $primaryBrightColor: $redBright;
 
 $backgroundColor: #0d0d0d;
-$borderColor: $textColor;
+$borderColor: #353535;
 $dividerColor: #303030;
 $widgetColor: $backgroundColor;
 $modalColor: #090909;
@@ -44,7 +44,7 @@ $defaultFontSize: 1.4rem;
 $defaultIconSize: 1.4rem;
 
 $borderRadius: 0.3rem;
-$borderSize: 0.2rem;
+$borderSize: 0.1rem;
 
 :root {
   --console-unit-height: round(#{$defaultFontSize} * 1.32, 1px);
