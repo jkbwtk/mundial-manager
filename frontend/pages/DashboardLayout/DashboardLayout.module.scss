@@ -1,0 +1,41 @@
+@use 'app' as *;
+
+.container {
+  display: grid;
+  grid-template-columns: cw(24) cw(1) 1fr;
+  grid-template-rows: ch(3) ch(1) 1fr;
+
+  height: 100vh;
+  width: 100vw;
+
+  max-height: 100vh;
+  max-width: 100vw;
+
+  // Temporary fix
+  overflow: hidden;
+}
+
+.logo {
+  align-self: center;
+  justify-self: center;
+}
+
+.info {
+  display: flex;
+}
+
+.nav {
+  display: flex;
+
+  .in-development {
+    width: 100%;
+    height: fit-content;
+
+    text-align: center;
+    align-self: top;
+  }
+}
+
+.horizontal-divider {
+  grid-column: 1 / -1;
+}
