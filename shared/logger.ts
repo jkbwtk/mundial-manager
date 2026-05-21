@@ -152,6 +152,10 @@ const instance = new Logger({
       level: 6,
       color: 'gray',
     },
+    logQuery: {
+      level: 8,
+      color: 'gray',
+    },
   },
   format: Logger.createFormatAssembler()
     .chain(colorStrings.bind(null, chalk.cyan))
@@ -171,6 +175,7 @@ const instance = new Logger({
         'verbose',
         'debug',
         'time',
+        'logQuery',
       ],
     }),
   ],
@@ -222,6 +227,22 @@ const instance = new Logger({
         [LEVEL]: level,
         [MESSAGE]: message,
         [ARGS]: [Math.round((finish - start) * 1000) / 1000],
+      });
+    },
+  )
+  .registerLevelFunction(
+    'logQuery',
+    (callback, level, query: string, _params: unknown[]) => {
+      if (level !== 'logQuery') return;
+
+      const message = chalk.gray(`Query: ${query.trimEnd()}`);
+
+      callback({
+        level,
+        message,
+        [LEVEL]: level,
+        [MESSAGE]: message,
+        [ARGS]: [],
       });
     },
   );

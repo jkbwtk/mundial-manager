@@ -1,6 +1,7 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { relations } from '#backend/db/relations';
 import { environment } from '#backend/environment';
+import { logger } from '#shared/logger';
 
 export const db = drizzle({
   connection: {
@@ -11,6 +12,7 @@ export const db = drizzle({
     database: environment.POSTGRES_DB,
   },
   relations,
+  logger: environment.DATABASE_LOGGING ? logger : false,
 });
 
 export type DB = typeof db;

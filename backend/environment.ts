@@ -33,6 +33,8 @@ export const Environment = z.object({
   NGINX_SECRET: z.string().min(1).optional(),
 
   BASE_SITE_URL: z.url().transform((url) => new URL('/', url).toString()),
+
+  DATABASE_LOGGING: z.boolean().default(false),
 });
 
 export type Environment = z.infer<typeof Environment>;
