@@ -1,37 +1,24 @@
 @use 'app' as *;
 
 .container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  width: round(down, 100%, cw(1));
+  max-height: 100%;
 
-  width: round(down, 100vw, cw(1));
+  container-type: inline-size;
+  container-name: dashboard;
+
+  overflow-y: auto;
 }
 
-.centered {
-  align-self: flex-start;
-
-  margin-left: round(nearest, 50%, cw(1));
-  transform: translateX(-50%);
-}
-
-.logo {
-  color: $yellowBright;
-  font-weight: bold;
-
-  padding: ch(1) cw(1);
-  width: fit-content;
-}
-
-.dashboard-container {
+.dashboard {
   display: grid;
   grid-template-columns: cw(50) 1fr;
 
   width: 100%;
-  max-width: 100%;
+}
 
-  @media (max-width: 800px) {
+@container dashboard (max-width: 800px) {
+  .dashboard {
     grid-template-columns: 1fr;
   }
 }

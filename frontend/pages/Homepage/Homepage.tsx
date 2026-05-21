@@ -1,9 +1,5 @@
-import { A } from '@solidjs/router';
-import figlet from 'figlet';
-import smallSlant from 'figlet/fonts/Small Slant';
 import { createSignal, Match, Switch } from 'solid-js';
 import { AggregateStats } from '#components/AggregateStats';
-import { Break } from '#components/Break';
 import { Dropdown } from '#components/Dropdown';
 import { GeneralStatCharts } from '#components/GeneralStatCharts';
 import { GeneralStats } from '#components/GeneralStats';
@@ -22,44 +18,16 @@ import {
   type StatType,
   StatTypeOptions,
 } from '#components/StatPaginatorWidget';
-import { useConsoleUnitPrototype } from '#providers/ConsoleUnitPrototypeProvider';
 import style from './Homepage.module.scss';
 
-figlet.parseFont('Small Slant', smallSlant);
-
 const Homepage: Component = () => {
-  const [{ windowSize }] = useConsoleUnitPrototype();
-
   const [leaderboardStatType, setLeaderboardStatType] =
     createSignal<StatType>('match');
   const [statsPage, setStatsPage] = createSignal<'elo' | 'glicko2'>('elo');
 
-  const logo = () =>
-    figlet.textSync('Mundial Manager', {
-      font: 'Small Slant',
-      width: windowSize.width,
-      whitespaceBreak: true,
-    });
-
   return (
     <div class={style.container}>
-      <pre
-        classList={{
-          [style.logo]: true,
-          [style.centered]: true,
-        }}
-      >
-        {logo()}
-      </pre>
-
-      <div>Still in development</div>
-      <div>
-        Test pages are available <A href="/tests">here</A>
-      </div>
-
-      <Break />
-
-      <div class={style.dashboardContainer}>
+      <div class={style.dashboard}>
         <div>
           <SeasonSummaryActivator />
           <SeasonProgress />
