@@ -7,6 +7,9 @@
   width: 100%;
   max-width: 100%;
 
+  container-type: inline-size;
+  container-name: charts;
+
   .chart {
     height: ch(30);
     width: 100%;
@@ -27,7 +30,7 @@
     }
   }
 
-  @media (max-width: 1200px) {
+  @container charts (max-width: 800px) {
     .multi-chart-row {
       flex-direction: column;
     }
