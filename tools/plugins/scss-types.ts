@@ -1,8 +1,10 @@
 import { existsSync, statSync } from 'node:fs';
+import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { writeFile as writeTypes } from 'typed-scss-modules/dist/lib/core';
-import { setAlertsLogLevel } from 'typed-scss-modules/dist/lib/core/alerts';
-import { DEFAULT_OPTIONS } from 'typed-scss-modules/dist/lib/load';
+import { camelCase } from 'change-case';
+import postcss from 'postcss';
+import PostcssModulesPlugin from 'postcss-modules';
+import { compileStringAsync } from 'sass-embedded';
 import type { Plugin } from 'vite';
 
 interface ScssTypesPluginOptions {
@@ -33,13 +35,38 @@ export function scssTypesPlugin(options: ScssTypesPluginOptions = {}): Plugin {
   const processedFiles = new Set<string>();
   const fileTimestamps = new Map<string, number>();
 
-  setAlertsLogLevel('silent');
-
   const generateTypesForFile = async (filePath: string): Promise<void> => {
-    await writeTypes(filePath, {
-      ...DEFAULT_OPTIONS,
-      includePaths: [path.join(projectRoot, rootDir, 'styles')],
-    });
+    try {
+      const file = await readFile(filePath, 'utf-8');
+      const compiled = await compileStringAsync(file, {
+        loadPaths: [path.join(projectRoot, rootDir, 'styles')],
+      });
+
+      let classMap: Record<string, string> = {};
+
+      await postcss([
+        PostcssModulesPlugin({
+          getJSON: (_, json) => {
+            classMap = json;
+          },
+        }),
+      ]).process(compiled.css, { from: undefined });
+
+      const lines: string[] = [];
+
+      for (const [key] of Object.entries(classMap).sort(([a], [b]) =>
+        a.localeCompare(b),
+      )) {
+        const camelKey = camelCase(key);
+        lines.push(`export declare const ${camelKey}: string;`);
+      }
+
+      const typeFile = `${filePath}.d.ts`;
+      const content = lines.join('\n').concat('\n');
+      await writeFile(typeFile, content, 'utf-8');
+    } catch (err) {
+      console.warn(`Failed to generate types for ${filePath},`, err);
+    }
   };
 
   const shouldProcessFile = (filePath: string): boolean => {
