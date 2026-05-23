@@ -1,0 +1,76 @@
+@use 'app' as *;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+
+  max-height: 100%;
+
+  overflow-y: auto;
+}
+
+.nested {
+  width: 100%;
+}
+
+.nested-button {
+  width: 100%;
+
+  display: flex;
+
+  // transition: color 0.2s ease-in-out;
+
+  &:hover {
+    color: $textBrightColor;
+  }
+}
+
+.nested-open {
+  .nested-indicator {
+    transform: rotate(180deg);
+  }
+}
+
+.nested-active {
+  color: $textBrightColor;
+}
+
+.nested-indicator {
+  margin-left: auto;
+}
+
+.nested-container {
+  padding-left: cw(2);
+  width: 100%;
+}
+
+.route-link {
+  display: grid;
+
+  grid-template-columns: cw(2) auto;
+
+  align-items: center;
+}
+
+.route-link {
+  padding-right: cw(1);
+
+  color: $primaryColor;
+
+  // transition: color 0.2s ease-in-out;
+
+  &:hover {
+    color: $primaryBrightColor;
+    text-decoration: solid underline;
+  }
+}
+
+:global(.active).route-link {
+  background-color: $primaryColor;
+  border-radius: $borderRadius;
+
+  color: $backgroundColor;
+  --material-symbol-fill: 1;
+}

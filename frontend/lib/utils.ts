@@ -30,3 +30,21 @@ export function addNullable<T extends number | null>(
 
   return (a ?? 0) + (b ?? 0);
 }
+
+export function joinPaths(...paths: string[]): string {
+  if (paths.length === 0) return '';
+
+  const startingSlash = paths.at(0)!.startsWith('/') ? '/' : '';
+  const endingSlash = paths.at(-1)!.endsWith('/') ? '/' : '';
+
+  const joined = paths
+    .map((path) => path.replace(/^\/+|\/+$/g, ''))
+    .filter((path) => path.length > 0)
+    .join('/');
+
+  if (joined.length === 0) {
+    return startingSlash || endingSlash ? '/' : '';
+  }
+
+  return startingSlash + joined + endingSlash;
+}

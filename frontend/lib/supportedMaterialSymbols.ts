@@ -60,6 +60,7 @@ export const SupportedMaterialSymbol = [
   'table_restaurant',
   'date_range',
   'admin_panel_settings',
+  'dashboard',
 ] as const;
 
 export type SupportedMaterialSymbol = (typeof SupportedMaterialSymbol)[number];

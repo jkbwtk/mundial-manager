@@ -1,12 +1,10 @@
-import { A } from '@solidjs/router';
 import { LogoSmall } from '#components/LogoSmall/LogoSmall';
+import { Sidebar } from '#components/Sidebar/Sidebar';
 import { Divider } from '#components/Widget';
-import { isMobile } from '#flib/utils';
+import { routes } from '#frontend/routes';
 import style from './DashboardLayout.module.scss';
 
 export const DashboardLayout: ParentComponent = (props) => {
-  console.log(isMobile());
-
   return (
     <div class={style.container}>
       <div class={style.logo}>
@@ -20,9 +18,9 @@ export const DashboardLayout: ParentComponent = (props) => {
       <Divider class={style.horizontalDivider} />
 
       <div class={style.nav}>
+        <Sidebar routes={routes} />
         <div class={style.inDevelopment}>
           <div>Still in development</div>
-          Test pages -{'>'} <A href="/tests">link</A>
         </div>
       </div>
 

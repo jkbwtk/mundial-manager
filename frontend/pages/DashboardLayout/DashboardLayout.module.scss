@@ -26,13 +26,17 @@
 
 .nav {
   display: flex;
+  flex-direction: column;
+
+  height: 100%;
 
   .in-development {
     width: 100%;
     height: fit-content;
 
     text-align: center;
-    align-self: top;
+    margin-top: auto;
+    margin-bottom: cw(1);
   }
 }
 
