@@ -1,6 +1,5 @@
 import { lazy } from 'solid-js';
 import type { ExtendedRouteDefinition } from '#frontend/types';
-import { DashboardLayout } from '#pages/DashboardLayout';
 import { errors, GenericErrorPage } from '#pages/GenericErrorPage';
 import Homepage from '#pages/Homepage/Homepage';
 
@@ -187,7 +186,6 @@ export const testRoutes: ExtendedRouteDefinition[] = [
 export const routes: ExtendedRouteDefinition[] = [
   {
     path: '',
-    component: DashboardLayout,
     children: dashboardRoutes,
     info: { name: 'Dashboard', icon: 'dashboard' },
   },
