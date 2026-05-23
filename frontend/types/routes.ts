@@ -5,6 +5,7 @@ export interface RouteInfo {
   name: string;
   title?: string;
   icon?: SupportedMaterialSymbol;
+  public?: boolean;
 }
 
 export interface ExtendedRouteDefinition<
@@ -12,7 +13,7 @@ export interface ExtendedRouteDefinition<
   T = unknown,
 > extends Omit<RouteDefinition<S, T>, 'info' | 'children'> {
   info: RouteInfo;
-  children?: ExtendedRouteDefinition | ExtendedRouteDefinition[];
+  children?: ExtendedRouteDefinition[];
 }
 
 export interface ExtendedRouteMatch extends PathMatch {

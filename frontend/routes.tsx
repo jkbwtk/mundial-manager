@@ -85,123 +85,125 @@ export const dashboardRoutes: ExtendedRouteDefinition[] = [
   },
 ];
 
+export const testRoutes: ExtendedRouteDefinition[] = [
+  {
+    path: '/',
+    info: { name: 'Route Map' },
+    component: RouteMap,
+  },
+
+  {
+    path: '/chart-test',
+    info: { name: 'Chart Test' },
+    component: ChartTest,
+  },
+  {
+    path: '/button-test',
+    info: { name: 'Button Test' },
+    component: ButtonTest,
+  },
+  {
+    path: '/input-test',
+    info: { name: 'Input Test' },
+    component: InputTest,
+  },
+  {
+    path: '/sheets-test',
+    info: { name: 'Sheets Test' },
+    component: SheetsTest,
+  },
+  {
+    path: '/widget-test',
+    info: { name: 'Widget Test' },
+    component: WidgetTest,
+  },
+  {
+    path: '/iframe-test',
+    info: { name: 'Iframe Test' },
+    component: IframeTest,
+  },
+  {
+    path: '/modal-test',
+    info: { name: 'Modal Test' },
+    component: ModalTest,
+  },
+  {
+    path: '/changelog-test',
+    info: { name: 'Changelog Test' },
+    component: ChangelogTest,
+  },
+  {
+    path: '/user-profile-test',
+    info: { name: 'Player Profile Test' },
+    component: UserProfileTest,
+  },
+  {
+    path: '/match-timeline-test',
+    info: { name: 'Match Timeline Test' },
+    component: MatchTimelineTest,
+  },
+  {
+    path: '/created-matches-test',
+    info: { name: 'Created Matches Test' },
+    component: CreatedMatchesTest,
+  },
+  {
+    path: '/toast-test',
+    info: { name: 'Toast Test' },
+    component: ToastTest,
+  },
+  {
+    path: '/pwa-test',
+    info: { name: 'PWA Test' },
+    component: PWATest,
+  },
+  {
+    path: '/dropdown-test',
+    info: { name: 'Dropdown Test' },
+    component: DropdownTest,
+  },
+  {
+    path: '/season-summary-test',
+    info: { name: 'Season Summary Test' },
+    component: SeasonSummaryTest,
+  },
+  {
+    path: '/material-symbol-test',
+    info: { name: 'Material Symbol Test' },
+    component: MaterialSymbolTest,
+  },
+  {
+    path: '/chart-builder-test',
+    info: { name: 'Chart Builder Test' },
+    component: ChartBuilderTest,
+  },
+  {
+    path: '/forms-test',
+    info: { name: 'Forms Test' },
+    component: FormsTest,
+  },
+];
+
 export const routes: ExtendedRouteDefinition[] = [
   {
     path: '',
     component: DashboardLayout,
     children: dashboardRoutes,
-    info: { name: 'Dashboard' },
+    info: { name: 'Dashboard', icon: 'dashboard' },
   },
   {
     path: '/tests',
-    info: { name: 'Tests' },
-    children: [
-      {
-        path: '/',
-        info: { name: 'Route Map' },
-        component: RouteMap,
-      },
-
-      {
-        path: '/chart-test',
-        info: { name: 'Chart Test' },
-        component: ChartTest,
-      },
-      {
-        path: '/button-test',
-        info: { name: 'Button Test' },
-        component: ButtonTest,
-      },
-      {
-        path: '/input-test',
-        info: { name: 'Input Test' },
-        component: InputTest,
-      },
-      {
-        path: '/sheets-test',
-        info: { name: 'Sheets Test' },
-        component: SheetsTest,
-      },
-      {
-        path: '/widget-test',
-        info: { name: 'Widget Test' },
-        component: WidgetTest,
-      },
-      {
-        path: '/iframe-test',
-        info: { name: 'Iframe Test' },
-        component: IframeTest,
-      },
-      {
-        path: '/modal-test',
-        info: { name: 'Modal Test' },
-        component: ModalTest,
-      },
-      {
-        path: '/changelog-test',
-        info: { name: 'Changelog Test' },
-        component: ChangelogTest,
-      },
-      {
-        path: '/user-profile-test',
-        info: { name: 'Player Profile Test' },
-        component: UserProfileTest,
-      },
-      {
-        path: '/match-timeline-test',
-        info: { name: 'Match Timeline Test' },
-        component: MatchTimelineTest,
-      },
-      {
-        path: '/created-matches-test',
-        info: { name: 'Created Matches Test' },
-        component: CreatedMatchesTest,
-      },
-      {
-        path: '/toast-test',
-        info: { name: 'Toast Test' },
-        component: ToastTest,
-      },
-      {
-        path: '/pwa-test',
-        info: { name: 'PWA Test' },
-        component: PWATest,
-      },
-      {
-        path: '/dropdown-test',
-        info: { name: 'Dropdown Test' },
-        component: DropdownTest,
-      },
-      {
-        path: '/season-summary-test',
-        info: { name: 'Season Summary Test' },
-        component: SeasonSummaryTest,
-      },
-      {
-        path: '/material-symbol-test',
-        info: { name: 'Material Symbol Test' },
-        component: MaterialSymbolTest,
-      },
-      {
-        path: '/chart-builder-test',
-        info: { name: 'Chart Builder Test' },
-        component: ChartBuilderTest,
-      },
-      {
-        path: '/forms-test',
-        info: { name: 'Forms Test' },
-        component: FormsTest,
-      },
-    ],
+    info: { name: 'Tests', icon: 'science' },
+    children: testRoutes,
   },
   {
     path: '/404',
-    info: { name: 'Not Found' },
+    info: { name: 'Not Found', public: false },
     component: () => <GenericErrorPage config={errors.pageNotFound} />,
   },
   {
     path: '*404',
-    info: { name: 'Not Found' },
+    info: { name: 'Not Found', public: false },
     component: () => <GenericErrorPage config={errors.pageNotFound} />,
   },
 ];
