@@ -1,4 +1,6 @@
+import { useCurrentMatches } from '@solidjs/router';
 import { type Accessor, createSignal } from 'solid-js';
+import type { ExtendedRouteMatch } from '#frontend/types';
 
 export type ButtonActionHandler<
   // biome-ignore lint/suspicious/noExplicitAny: yeah
@@ -40,3 +42,6 @@ export function applyDirectives<E extends HTMLElement>(
     directive(element);
   }
 }
+
+export const useCurrentExtendedMatches =
+  useCurrentMatches as unknown as () => () => ExtendedRouteMatch[];

@@ -1,5 +1,5 @@
-import type { RouteDefinition } from '@solidjs/router';
 import { lazy } from 'solid-js';
+import type { ExtendedRouteDefinition } from '#frontend/types';
 import { DashboardLayout } from '#pages/DashboardLayout';
 import { errors, GenericErrorPage } from '#pages/GenericErrorPage';
 import Homepage from '#pages/Homepage/Homepage';
@@ -52,150 +52,156 @@ const ChartBuilderTest = lazy(
 );
 const FormsTest = lazy(() => import('#pages/FormsTest/FormsTest'));
 
-export const routes: RouteDefinition[] = [
+export const dashboardRoutes: ExtendedRouteDefinition[] = [
+  {
+    path: '/',
+    component: Homepage,
+    info: { name: 'Home', icon: 'home' },
+  },
+  {
+    path: '/mundial-calculator',
+    component: MundialCalculator,
+    info: { name: 'Mundial Calculator', icon: 'timer_play' },
+  },
+  {
+    path: '/admin',
+    component: AdminDashboard,
+    info: { name: 'Admin', icon: 'admin_panel_settings' },
+  },
+  {
+    path: '/seasons',
+    component: SeasonsDashboard,
+    info: { name: 'Seasons', icon: 'date_range' },
+  },
+  {
+    path: '/tables',
+    component: TablesDashboard,
+    info: { name: 'Tables', icon: 'table_restaurant' },
+  },
+  {
+    path: '/balls',
+    component: BallsDashboard,
+    info: { name: 'Balls', icon: 'sports_soccer' },
+  },
+];
+
+export const routes: ExtendedRouteDefinition[] = [
   {
     path: '',
     component: DashboardLayout,
-    children: [
-      {
-        path: '/',
-        info: { title: 'Mundial Manager - Home' },
-        component: Homepage,
-      },
-      {
-        path: '/mundial-calculator',
-        info: { title: 'Mundial Manager - Mundial Calculator' },
-        component: MundialCalculator,
-      },
-      {
-        path: '/admin',
-        info: { title: 'Mundial Manager - Admin Dashboard' },
-        component: AdminDashboard,
-      },
-      {
-        path: '/seasons',
-        info: { title: 'Mundial Manager - Seasons Dashboard' },
-        component: SeasonsDashboard,
-      },
-      {
-        path: '/tables',
-        info: { title: 'Mundial Manager - Tables Dashboard' },
-        component: TablesDashboard,
-      },
-      {
-        path: '/balls',
-        info: { title: 'Mundial Manager - Balls Dashboard' },
-        component: BallsDashboard,
-      },
-    ],
+    children: dashboardRoutes,
+    info: { name: 'Dashboard' },
   },
   {
     path: '/tests',
+    info: { name: 'Tests' },
     children: [
       {
         path: '/',
-        info: { title: 'Mundial Manager - Route Map' },
+        info: { name: 'Route Map' },
         component: RouteMap,
       },
 
       {
         path: '/chart-test',
-        info: { title: 'Mundial Manager - Chart Test' },
+        info: { name: 'Chart Test' },
         component: ChartTest,
       },
       {
         path: '/button-test',
-        info: { title: 'Mundial Manager - Button Test' },
+        info: { name: 'Button Test' },
         component: ButtonTest,
       },
       {
         path: '/input-test',
-        info: { title: 'Mundial Manager - Input Test' },
+        info: { name: 'Input Test' },
         component: InputTest,
       },
       {
         path: '/sheets-test',
-        info: { title: 'Mundial Manager - Sheets Test' },
+        info: { name: 'Sheets Test' },
         component: SheetsTest,
       },
       {
         path: '/widget-test',
-        info: { title: 'Mundial Manager - Widget Test' },
+        info: { name: 'Widget Test' },
         component: WidgetTest,
       },
       {
         path: '/iframe-test',
-        info: { title: 'Mundial Manager - Iframe Test' },
+        info: { name: 'Iframe Test' },
         component: IframeTest,
       },
       {
         path: '/modal-test',
-        info: { title: 'Mundial Manager - Modal Test' },
+        info: { name: 'Modal Test' },
         component: ModalTest,
       },
       {
         path: '/changelog-test',
-        info: { title: 'Mundial Manager - Changelog Test' },
+        info: { name: 'Changelog Test' },
         component: ChangelogTest,
       },
       {
         path: '/user-profile-test',
-        info: { title: 'Mundial Manager - Player Profile Test' },
+        info: { name: 'Player Profile Test' },
         component: UserProfileTest,
       },
       {
         path: '/match-timeline-test',
-        info: { title: 'Mundial Manager - Match Timeline Test' },
+        info: { name: 'Match Timeline Test' },
         component: MatchTimelineTest,
       },
       {
         path: '/created-matches-test',
-        info: { title: 'Mundial Manager - Created Matches Test' },
+        info: { name: 'Created Matches Test' },
         component: CreatedMatchesTest,
       },
       {
         path: '/toast-test',
-        info: { title: 'Mundial Manager - Toast Test' },
+        info: { name: 'Toast Test' },
         component: ToastTest,
       },
       {
         path: '/pwa-test',
-        info: { title: 'Mundial Manager - PWA Test' },
+        info: { name: 'PWA Test' },
         component: PWATest,
       },
       {
         path: '/dropdown-test',
-        info: { title: 'Mundial Manager - Dropdown Test' },
+        info: { name: 'Dropdown Test' },
         component: DropdownTest,
       },
       {
         path: '/season-summary-test',
-        info: { title: 'Mundial Manager - Season Summary Test' },
+        info: { name: 'Season Summary Test' },
         component: SeasonSummaryTest,
       },
       {
         path: '/material-symbol-test',
-        info: { title: 'Mundial Manager - Material Symbol Test' },
+        info: { name: 'Material Symbol Test' },
         component: MaterialSymbolTest,
       },
       {
         path: '/chart-builder-test',
-        info: { title: 'Mundial Manager - Chart Builder Test' },
+        info: { name: 'Chart Builder Test' },
         component: ChartBuilderTest,
       },
       {
         path: '/forms-test',
-        info: { title: 'Mundial Manager - Forms Test' },
+        info: { name: 'Forms Test' },
         component: FormsTest,
       },
     ],
   },
   {
     path: '/404',
+    info: { name: 'Not Found' },
     component: () => <GenericErrorPage config={errors.pageNotFound} />,
   },
   {
     path: '*404',
+    info: { name: 'Not Found' },
     component: () => <GenericErrorPage config={errors.pageNotFound} />,
   },
 ];

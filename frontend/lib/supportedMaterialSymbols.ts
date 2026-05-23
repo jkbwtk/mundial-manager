@@ -55,6 +55,11 @@ export const SupportedMaterialSymbol = [
   'gps_fixed',
   'local_fire_department',
   'sentiment_very_dissatisfied',
+  'science',
+  'timer_play',
+  'table_restaurant',
+  'date_range',
+  'admin_panel_settings',
 ] as const;
 
 export type SupportedMaterialSymbol = (typeof SupportedMaterialSymbol)[number];
