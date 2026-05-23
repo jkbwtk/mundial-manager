@@ -2,9 +2,9 @@
 
 @mixin symbolFont($fill: 0, $important: false) {
   @if $important {
-    font-variation-settings: 'FILL' $fill !important;
+    font-variation-settings: 'FILL' var(--material-symbol-fill, $fill) !important;
   } @else {
-    font-variation-settings: 'FILL' $fill;
+    font-variation-settings: 'FILL' var(--material-symbol-fill, $fill);
   }
 }
 
