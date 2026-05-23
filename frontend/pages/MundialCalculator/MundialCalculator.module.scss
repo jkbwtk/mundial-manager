@@ -1,13 +1,8 @@
 @use 'app' as *;
 
 .iframe {
-  position: fixed;
-  top: 0;
-  left: 0;
-
-  width: 100dvw;
-  height: 100dvh;
   border: none;
 
-  overflow: hidden;
+  height: 100%;
+  width: 100%;
 }
