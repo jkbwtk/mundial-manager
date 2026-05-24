@@ -61,6 +61,7 @@ export const SupportedMaterialSymbol = [
   'date_range',
   'admin_panel_settings',
   'dashboard',
+  'groups',
 ] as const;
 
 export type SupportedMaterialSymbol = (typeof SupportedMaterialSymbol)[number];
