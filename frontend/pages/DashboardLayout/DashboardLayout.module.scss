@@ -21,6 +21,10 @@
 
 .info {
   display: flex;
+
+  .breadcrumbs {
+    align-self: flex-end;
+  }
 }
 
 .nav {

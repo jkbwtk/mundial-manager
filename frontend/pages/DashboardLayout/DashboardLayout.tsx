@@ -1,3 +1,4 @@
+import { Breadcrumbs } from '#components/Breadcrumbs';
 import { LogoSmall } from '#components/LogoSmall/LogoSmall';
 import { Sidebar } from '#components/Sidebar/Sidebar';
 import { Divider } from '#components/Widget';
@@ -13,7 +14,9 @@ export const DashboardLayout: ParentComponent = (props) => {
 
       <Divider direction="vertical" connect={0b11} />
 
-      <div class={style.info} />
+      <div class={style.info}>
+        <Breadcrumbs class={style.breadcrumbs} />
+      </div>
 
       <Divider class={style.horizontalDivider} />
 

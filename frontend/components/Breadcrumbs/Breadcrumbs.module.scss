@@ -1,0 +1,10 @@
+@use 'app' as *;
+
+.container {
+  display: flex;
+  gap: cw(1);
+
+  a:last-of-type {
+    color: $primaryBrightColor;
+  }
+}
