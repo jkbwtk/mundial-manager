@@ -1,6 +1,8 @@
 @use 'app';
 @use 'fontFaces.scss';
 
+@use './materialSymbols.scss';
+
 :root {
   font-size: app.$baseFontSize;
   scrollbar-color: app.$borderColor app.$widgetColor;

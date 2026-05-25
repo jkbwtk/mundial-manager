@@ -1,5 +1,8 @@
 import { type JSX, mergeProps } from 'solid-js';
-import type { SupportedMaterialSymbol } from '#flib/supportedMaterialSymbols';
+import {
+  getMaterialSymbolGlyph,
+  type SupportedMaterialSymbol,
+} from '#flib/supportedMaterialSymbols';
 import { quickSwitch, type RequiredDefaults } from '#shared/utils';
 
 import style from './MaterialSymbol.module.scss';
@@ -37,6 +40,7 @@ export const defaultProps: RequiredDefaults<MaterialSymbolProps> = {
 
 export const MaterialSymbol: Component<MaterialSymbolProps> = (userProps) => {
   const props = mergeProps(defaultProps, userProps);
+  const symbolGlyph = getMaterialSymbolGlyph(props.symbol);
 
   const colorClass = quickSwitch<string, SymbolColorType>(props.color, {
     gray: style.gray,
@@ -82,7 +86,7 @@ export const MaterialSymbol: Component<MaterialSymbolProps> = (userProps) => {
         ...props.classList,
       }}
     >
-      {props.symbol}
+      {symbolGlyph}
     </span>
   );
 };
