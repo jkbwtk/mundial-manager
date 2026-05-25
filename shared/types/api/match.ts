@@ -1,4 +1,5 @@
 import z from 'zod';
+import { MatchEvent } from '#shared/types/Sheets';
 import { PaginatedResponse } from '#shared/zod';
 
 export const MatchStatusEnum = {
@@ -25,6 +26,13 @@ export const Match = z.object({
   pauseDuration: z.number().int().nonnegative().nullish(),
 
   status: MatchStatus,
+
+  playersSide1: z.array(z.uuid()),
+  playersSide2: z.array(z.uuid()),
+
+  spectators: z.array(z.uuid()),
+
+  events: z.array(MatchEvent),
 
   hash: z.string().readonly(),
 });
