@@ -149,7 +149,7 @@ export const matchesTable = pgTable(
       .timestamp({ mode: 'date', withTimezone: true, precision: 6 })
       .notNull(),
 
-    duration: t.integer(),
+    duration: t.integer().notNull(),
     pauseDuration: t.integer().default(0),
 
     status: matchStatusEnum().notNull(),
@@ -182,6 +182,7 @@ export const teamConfigurationsTable = pgTable(
   }),
   (r) => [
     index().on(r.leagueUuid),
+    index().on(r.compositionKey),
     uniqueIndex().on(r.leagueUuid, r.compositionKey),
   ],
 );
