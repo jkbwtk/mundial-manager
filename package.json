@@ -23,7 +23,6 @@
     "lint": "biome check --write",
     "test": "vitest",
     "visualize": "vite-bundle-visualizer -o bundle.html",
-    "fetch-symbols": "tsx --env-file-if-exists=.env ./tools/fetchMaterialSymbols",
     "cli": "tsx --env-file-if-exists=.env ./tools/cli"
   },
   "dependencies": {
