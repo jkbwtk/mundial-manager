@@ -5,14 +5,14 @@ WORKDIR /build
 ARG VITE_CALCULATOR_URL
 ENV VITE_CALCULATOR_URL=${VITE_CALCULATOR_URL}
 
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 RUN corepack enable && pnpm install --frozen-lockfile
 
 COPY . .
 
 RUN cp resources/fonts frontend/assets -r && \
-  pnpm fetch-symbols && \
+  pnpm cli fetch && \
   pnpm prerender
 
 FROM nginx:alpine-slim AS runtime
