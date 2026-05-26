@@ -114,9 +114,10 @@ export async function fetchIcons(): Promise<void> {
   font-family: 'Material Symbols Rounded';
   font-style: normal;
   font-weight: 100 700;
-  src: url(/frontend/assets/fonts/${getFontName(name, index)}.woff2) format('woff2');
-  unicode-range: ${codes.map((code) => `U+${code.toUpperCase()}`).join(', ')};
-}`,
+  src: url(/frontend/assets/fonts/${getFontName(name, index)}.woff2) format('woff2');\
+${fragments.length > 1 ? `\n  unicode-range: ${codes.map((code) => `U+${code.toUpperCase()}`).join(', ')}` : ''}
+}
+`,
     )
     .join('\n\n');
 
