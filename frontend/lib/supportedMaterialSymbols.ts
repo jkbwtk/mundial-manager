@@ -71,63 +71,7 @@ export const SupportedMaterialSymbols = Object.keys(
 ) as SupportedMaterialSymbol[];
 
 export const SegmentedMaterialSymbols = {
-  pageIcons: [
-    [
-      'question_mark',
-      'home',
-      'timer_play',
-      'admin_panel_settings',
-      'date_range',
-      'table_restaurant',
-      'sports_soccer',
-      'groups',
-      'dashboard',
-      'science',
-    ],
-  ],
-  status: [
-    ['info', 'warning', 'error'],
-    [
-      'nearby_error',
-      'check_circle',
-      'check_box',
-      'sentiment_very_dissatisfied',
-    ],
-  ],
-  files: [
-    ['folder', 'folder_open', 'draft', 'description'],
-    ['cloud_upload', 'broken_image', 'movie', 'music_note'],
-  ],
-  navigation: [
-    [
-      'arrow_upward',
-      'arrow_downward',
-      'arrow_forward',
-      'arrow_drop_down',
-      'arrow_drop_up',
-    ],
-    [
-      'keyboard_arrow_down',
-      'keyboard_arrow_up',
-      'keyboard_arrow_left',
-      'keyboard_arrow_right',
-      'keyboard_double_arrow_left',
-      'keyboard_double_arrow_right',
-    ],
-    ['swap_vert', 'swap_horiz'],
-  ],
-  controls: [['play_arrow', 'pause', 'refresh']],
-  time: [['calendar_month', 'timer']],
-  stats: [['leaderboard', 'trophy', 'editor_choice', 'stars_2', 'trending_up']],
-  system: [
-    ['bug_report', 'code', 'memory'],
-    ['shield', 'display_external_input'],
-  ],
-  activities: [
-    ['atr', 'deblur', 'handyman'],
-    ['moon_stars', 'cyclone', 'gps_fixed', 'local_fire_department'],
-  ],
-  actions: [['delete', 'select_all', 'remove_selection']],
+  all: [SupportedMaterialSymbols],
 } as const satisfies Record<string, SupportedMaterialSymbol[][]>;
 
 export function getMaterialSymbolGlyph(
