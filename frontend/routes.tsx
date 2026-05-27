@@ -21,6 +21,9 @@ const BallsDashboard = lazy(
 const PlayersDashboard = lazy(
   () => import('#pages/PlayersDashboard/PlayersDashboard'),
 );
+const MatchesDashboard = lazy(
+  () => import('#pages/MatchesDashboard/MatchesDashboard'),
+);
 
 const RouteMap = lazy(() => import('#pages/RouteMap/RouteMap'));
 const ChartTest = lazy(() => import('#pages/ChartTest'));
@@ -86,9 +89,14 @@ export const dashboardRoutes: ExtendedRouteDefinition[] = [
     info: { name: 'Balls', icon: 'sports_soccer' },
   },
   {
-    path: '/plaayers',
+    path: '/players',
     component: PlayersDashboard,
     info: { name: 'Players', icon: 'groups' },
+  },
+  {
+    path: '/matches',
+    component: MatchesDashboard,
+    info: { name: 'Matches', icon: 'gps_fixed' },
   },
 ];
 
