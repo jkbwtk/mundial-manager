@@ -20,7 +20,7 @@ export const Match = z.object({
   tableUuid: z.uuid().nullish(),
   ballUuid: z.uuid().nullish(),
 
-  startDate: z.date(),
+  startDate: z.coerce.date(),
 
   duration: z.number().int().nonnegative(),
   pauseDuration: z.number().int().nonnegative().nullish(),
@@ -32,7 +32,7 @@ export const Match = z.object({
 
   // spectators: z.array(z.uuid()),
 
-  events: z.array(MatchEvent),
+  events: z.array(MatchEvent).default([]),
 
   hash: z.string(),
 });
