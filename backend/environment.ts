@@ -34,7 +34,7 @@ export const Environment = z.object({
 
   BASE_SITE_URL: z.url().transform((url) => new URL('/', url).toString()),
 
-  DATABASE_LOGGING: z.boolean().default(false),
+  DATABASE_LOGGING: z.coerce.boolean().default(false),
 });
 
 export type Environment = z.infer<typeof Environment>;
