@@ -6,7 +6,6 @@ import { procedure, router } from '#blib/trpc';
 import { MatchCreate, type SheetMetadata } from '#shared/types/Sheets';
 
 const sheetStore = new SheetStore();
-sheetStore.initialize();
 
 export const sheetProcedure = procedure.use((opts) => {
   return opts.next({

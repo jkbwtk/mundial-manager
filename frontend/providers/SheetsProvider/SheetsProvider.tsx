@@ -348,10 +348,6 @@ export const SheetsProvider: ParentComponent = (props) => {
   };
 
   onMount(() => {
-    actions.initialize().catch((error) => {
-      console.error('Failed to load sheet metadata:', error);
-    });
-
     window.addEventListener('beforeunload', () => {
       unsubscribeFromEvents();
     });
