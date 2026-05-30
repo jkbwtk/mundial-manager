@@ -10,6 +10,7 @@ export type BaseModelType = z.infer<typeof BaseModelType>;
 
 export function Instance<T extends BaseModelType, Public extends z.ZodObject>(
   publicSchema: Public,
+  _selectSchema: z.ZodType<T>,
 ) {
   class Instance {
     protected db: DB;

@@ -1,7 +1,7 @@
 import { and, count, eq, isNull } from 'drizzle-orm';
 import type z from 'zod';
 import type { DB, TX } from '#backend/db/database';
-import type { BaseModelType } from '#backend/db/models/Instance';
+import type { BaseModelType, Instance } from '#backend/db/models/Instance';
 import type {
   ballsTable,
   matchesTable,
@@ -22,23 +22,20 @@ export interface ModelOpsMetadata<
   TableName extends keyof DB['query'],
   SelectSchema extends BaseModelType,
   PublicSchema extends z.ZodObject,
-  InstanceType,
+  InstanceType extends ReturnType<typeof Instance>,
 > {
   table: LeagueScopedTablesUnion;
   tableName: TableName;
   selectSchema: z.ZodType<SelectSchema>;
   publicSchema: PublicSchema;
-  InstanceConstructor: new (db: DB, instance: SelectSchema) => InstanceType;
+  InstanceConstructor: InstanceType;
 }
 
 export function ModelOps<
   TableName extends keyof DB['query'],
   SelectSchema extends BaseModelType,
   PublicSchema extends z.ZodObject,
-  InstanceType extends {
-    instance: SelectSchema;
-    serialize(): z.infer<PublicSchema>;
-  },
+  InstanceType extends ReturnType<typeof Instance<SelectSchema, PublicSchema>>,
 >(
   metadata: ModelOpsMetadata<
     TableName,
