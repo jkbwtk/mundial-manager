@@ -9,7 +9,11 @@ import type {
   seasonsTable,
   tablesTable,
 } from '#backend/db/schema';
-import { ConvertDrizzleErrors } from '#blib/modelErrors';
+import {
+  ConvertDrizzleErrors,
+  DatabaseError,
+  NotFoundError,
+} from '#blib/modelErrors';
 
 export type LeagueScopedTablesUnion =
   | typeof seasonsTable
@@ -32,6 +36,8 @@ export type ValidationStrategies<T extends z.ZodObject> = Record<
 export interface ModelOpsMetadata<
   TableName extends keyof DB['query'],
   SelectSchema extends BaseModelType,
+  CreateSchema extends z.ZodObject,
+  UpdateSchema extends z.ZodObject,
   PublicSchema extends z.ZodObject,
   StrategySchema extends z.ZodObject,
   InstanceType extends ReturnType<typeof Instance>,
@@ -39,6 +45,8 @@ export interface ModelOpsMetadata<
   table: LeagueScopedTablesUnion;
   tableName: TableName;
   selectSchema: z.ZodType<SelectSchema>;
+  createSchema: CreateSchema;
+  updateSchema: UpdateSchema;
   publicSchema: PublicSchema;
   strategySchema?: StrategySchema;
   InstanceConstructor: InstanceType;
@@ -47,6 +55,8 @@ export interface ModelOpsMetadata<
 export function ModelOps<
   TableName extends keyof DB['query'],
   SelectSchema extends BaseModelType,
+  CreateSchema extends z.ZodObject,
+  UpdateSchema extends z.ZodObject,
   PublicSchema extends z.ZodObject,
   ValidationSchema extends z.ZodObject,
   InstanceType extends ReturnType<typeof Instance<SelectSchema, PublicSchema>>,
@@ -54,6 +64,8 @@ export function ModelOps<
   metadata: ModelOpsMetadata<
     TableName,
     SelectSchema,
+    CreateSchema,
+    UpdateSchema,
     PublicSchema,
     ValidationSchema,
     InstanceType
@@ -64,6 +76,8 @@ export function ModelOps<
     protected static readonly table = metadata.table;
     protected static readonly tableName = metadata.tableName;
     protected static readonly selectSchema = metadata.selectSchema;
+    protected static readonly createSchema = metadata.createSchema;
+    protected static readonly updateSchema = metadata.updateSchema;
     protected static readonly publicSchema = metadata.publicSchema;
     protected static readonly strategySchema = metadata.strategySchema;
     protected static readonly InstanceConstructor =
@@ -114,6 +128,112 @@ export function ModelOps<
 
       // @ts-expect-error
       return instance ? new ModelOps.InstanceConstructor(db, instance) : null;
+    }
+
+    @ConvertDrizzleErrors()
+    public static async create(
+      db: DB,
+      leagueUuid: string,
+      data: z.infer<CreateSchema>,
+    ) {
+      for (const strategy of Object.values(ModelOps.validationStrategies)) {
+        // biome-ignore lint/suspicious/noExplicitAny: yeah
+        await strategy(db, leagueUuid, data as any);
+      }
+
+      const [created] = await db
+        .insert(ModelOps.table)
+        .values({
+          ...data,
+          leagueUuid,
+        })
+        .returning();
+
+      if (!created) {
+        throw new DatabaseError('Failed to create instance', {});
+      }
+
+      // @ts-expect-error
+      return new ModelOps.InstanceConstructor(db, created);
+    }
+
+    @ConvertDrizzleErrors()
+    public static async update(
+      db: DB,
+      leagueUuid: string,
+      data: z.infer<UpdateSchema>,
+    ) {
+      const { uuid, ...updateData } = data;
+
+      const instance = await db.transaction(async (tx) => {
+        const existingInstance = await ModelOps._getById(
+          tx,
+          leagueUuid,
+          uuid as string,
+        );
+        if (!existingInstance) {
+          throw new NotFoundError('Instance not found for update', {
+            uuid: { value: uuid, errorType: 'Instance not found' },
+          });
+        }
+
+        const mergedData = {
+          ...existingInstance,
+          ...updateData,
+        } as z.infer<ValidationSchema>;
+
+        for (const strategy of Object.values(ModelOps.validationStrategies)) {
+          // biome-ignore lint/suspicious/noExplicitAny: yeah
+          await strategy(tx, leagueUuid, mergedData as any);
+        }
+
+        const [updated] = await tx
+          .update(ModelOps.table)
+          .set(updateData)
+          .where(
+            and(
+              eq(ModelOps.table.leagueUuid, leagueUuid),
+              eq(ModelOps.table.uuid, uuid as string),
+              isNull(ModelOps.table.$deletedAt),
+            ),
+          )
+          .returning();
+
+        if (!updated) {
+          throw new DatabaseError('Failed to update instance', {
+            uuid: { value: uuid, errorType: 'Instance not found' },
+          });
+        }
+
+        return updated;
+      });
+
+      // @ts-expect-error
+      return new ModelOps.InstanceConstructor(db, instance);
+    }
+
+    @ConvertDrizzleErrors()
+    public static async delete(db: DB, leagueUuid: string, uuid: string) {
+      const [deleted] = await db
+        .update(ModelOps.table)
+        .set({ $deletedAt: new Date() })
+        .where(
+          and(
+            eq(ModelOps.table.leagueUuid, leagueUuid),
+            eq(ModelOps.table.uuid, uuid),
+            isNull(ModelOps.table.$deletedAt),
+          ),
+        )
+        .returning();
+
+      if (!deleted) {
+        throw new DatabaseError('Failed to delete instance', {
+          uuid: { value: uuid, errorType: 'Instance not found' },
+        });
+      }
+
+      // @ts-expect-error
+      return new ModelOps.InstanceConstructor(db, deleted);
     }
 
     public static validationStrategies: ValidationStrategies<ValidationSchema> =
