@@ -18,16 +18,29 @@ export type LeagueScopedTablesUnion =
   | typeof playersTable
   | typeof matchesTable;
 
+export type ValidationStrategy<T extends z.ZodObject> = (
+  db: DB | TX,
+  leagueUuid: string,
+  data: z.infer<T>,
+) => Promise<void> | void;
+
+export type ValidationStrategies<T extends z.ZodObject> = Record<
+  string,
+  ValidationStrategy<T>
+>;
+
 export interface ModelOpsMetadata<
   TableName extends keyof DB['query'],
   SelectSchema extends BaseModelType,
   PublicSchema extends z.ZodObject,
+  StrategySchema extends z.ZodObject,
   InstanceType extends ReturnType<typeof Instance>,
 > {
   table: LeagueScopedTablesUnion;
   tableName: TableName;
   selectSchema: z.ZodType<SelectSchema>;
   publicSchema: PublicSchema;
+  strategySchema?: StrategySchema;
   InstanceConstructor: InstanceType;
 }
 
@@ -35,12 +48,14 @@ export function ModelOps<
   TableName extends keyof DB['query'],
   SelectSchema extends BaseModelType,
   PublicSchema extends z.ZodObject,
+  ValidationSchema extends z.ZodObject,
   InstanceType extends ReturnType<typeof Instance<SelectSchema, PublicSchema>>,
 >(
   metadata: ModelOpsMetadata<
     TableName,
     SelectSchema,
     PublicSchema,
+    ValidationSchema,
     InstanceType
   >,
 ) {
@@ -50,6 +65,7 @@ export function ModelOps<
     protected static readonly tableName = metadata.tableName;
     protected static readonly selectSchema = metadata.selectSchema;
     protected static readonly publicSchema = metadata.publicSchema;
+    protected static readonly strategySchema = metadata.strategySchema;
     protected static readonly InstanceConstructor =
       metadata.InstanceConstructor;
 
@@ -99,6 +115,9 @@ export function ModelOps<
       // @ts-expect-error
       return instance ? new ModelOps.InstanceConstructor(db, instance) : null;
     }
+
+    public static validationStrategies: ValidationStrategies<ValidationSchema> =
+      {};
   }
 
   return ModelOps;
