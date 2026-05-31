@@ -14,7 +14,9 @@ export const SeasonInsertSchema = createInsertSchema(seasonsTable, {
 });
 export type SeasonInsertSchema = z.infer<typeof SeasonInsertSchema>;
 
-export const SeasonSelectSchema = createSelectSchema(seasonsTable);
+export const SeasonSelectSchema = createSelectSchema(seasonsTable, {
+  config: SeasonConfig,
+});
 export type SeasonSelectSchema = z.infer<typeof SeasonSelectSchema>;
 
 export const SeasonPublicSchema = SeasonSelectSchema.omit({

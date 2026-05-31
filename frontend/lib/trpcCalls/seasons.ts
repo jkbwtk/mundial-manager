@@ -9,13 +9,13 @@ import {
 import { PaginatedResponse } from '#shared/zod';
 
 export const querySeasons = query(async () => {
-  const seasons = await trpcClient.seasons.seasons.query();
+  const seasons = await trpcClient.seasons.getAll.query();
 
   return PaginatedResponse(Season).parse(seasons);
 }, 'querySeasons');
 
 export const actionCreateSeason = action(async (season: SeasonCreate) => {
-  const newSeason = await trpcClient.seasons.createSeason.mutate(season);
+  const newSeason = await trpcClient.seasons.create.mutate(season);
 
   return json(Season.parse(newSeason), {
     revalidate: ['querySeasons', 'queryCurrentSeason'],
@@ -23,7 +23,7 @@ export const actionCreateSeason = action(async (season: SeasonCreate) => {
 }, 'actionCreateSeason');
 
 export const actionUpdateSeason = action(async (season: SeasonUpdate) => {
-  const updatedSeason = await trpcClient.seasons.updateSeason.mutate(season);
+  const updatedSeason = await trpcClient.seasons.update.mutate(season);
 
   return json(Season.parse(updatedSeason), {
     revalidate: ['querySeasons', 'querySeasonById', 'queryCurrentSeason'],
@@ -31,7 +31,7 @@ export const actionUpdateSeason = action(async (season: SeasonUpdate) => {
 }, 'actionUpdateSeason');
 
 export const actionDeleteSeason = action(async (uuid: string) => {
-  const deletedSeason = await trpcClient.seasons.deleteSeason.mutate({ uuid });
+  const deletedSeason = await trpcClient.seasons.delete.mutate({ uuid });
 
   return json(Season.parse(deletedSeason), {
     revalidate: ['querySeasons', 'querySeasonById', 'queryCurrentSeason'],
@@ -39,7 +39,7 @@ export const actionDeleteSeason = action(async (uuid: string) => {
 }, 'actionDeleteSeason');
 
 export const querySeasonById = query(async (uuid: string) => {
-  const season = await trpcClient.seasons.seasonById.query({ uuid });
+  const season = await trpcClient.seasons.getById.query({ uuid });
 
   return Season.parse(season);
 }, 'querySeasonById');
