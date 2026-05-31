@@ -21,6 +21,7 @@ import { useModalActions } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
 import { type Season, SeasonCreate } from '#shared/types/api/season';
 import 'highlight.js/styles/gml.min.css';
+import dayjs from 'dayjs';
 import style from './SeasonCreatorModal.module.scss';
 
 hljs.registerLanguage('json', json);
@@ -71,6 +72,10 @@ export const SeasonCreatorModal: Component<SeasonCreatorModalProps> = (
       implicitDefaults: {
         config: {},
         labels: [],
+      },
+      fieldTransforms: {
+        startDate: (v) => dayjs(v).startOf('day').toDate(),
+        endDate: (v) => dayjs(v).endOf('day').toDate(),
       },
     },
   );
