@@ -61,7 +61,7 @@ export function ModelOps<
   UpdateSchema extends z.ZodObject,
   PublicSchema extends z.ZodObject,
   ValidationSchema extends z.ZodObject,
-  InstanceType extends ReturnType<typeof Instance<SelectSchema, PublicSchema>>,
+  InstanceType extends ReturnType<typeof Instance<SelectSchema>>,
 >(
   metadata: ModelOpsMetadata<
     Table,

@@ -8,23 +8,15 @@ export const BaseModelType = z.object({
 
 export type BaseModelType = z.infer<typeof BaseModelType>;
 
-export function Instance<T extends BaseModelType, Public extends z.ZodObject>(
-  publicSchema: Public,
-  _selectSchema: z.ZodType<T>,
-) {
+export function Instance<T extends BaseModelType>(_selectSchema: z.ZodType<T>) {
   class Instance {
     protected db: DB;
-    protected publicSchema = publicSchema;
 
     public instance: T;
 
     public constructor(db: DB, instance: T) {
       this.db = db;
       this.instance = instance;
-    }
-
-    public serialize(): z.infer<Public> {
-      return this.publicSchema.parse(this.instance);
     }
   }
 
