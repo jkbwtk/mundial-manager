@@ -34,6 +34,7 @@ export type ValidationStrategies<T extends z.ZodObject> = Record<
 >;
 
 export interface ModelOpsMetadata<
+  Table extends LeagueScopedTablesUnion,
   TableName extends keyof DB['query'],
   SelectSchema extends BaseModelType,
   CreateSchema extends z.ZodObject,
@@ -42,7 +43,7 @@ export interface ModelOpsMetadata<
   StrategySchema extends z.ZodObject,
   InstanceType extends ReturnType<typeof Instance>,
 > {
-  table: LeagueScopedTablesUnion;
+  table: Table;
   tableName: TableName;
   selectSchema: z.ZodType<SelectSchema>;
   createSchema: CreateSchema;
@@ -53,6 +54,7 @@ export interface ModelOpsMetadata<
 }
 
 export function ModelOps<
+  Table extends LeagueScopedTablesUnion,
   TableName extends keyof DB['query'],
   SelectSchema extends BaseModelType,
   CreateSchema extends z.ZodObject,
@@ -62,6 +64,7 @@ export function ModelOps<
   InstanceType extends ReturnType<typeof Instance<SelectSchema, PublicSchema>>,
 >(
   metadata: ModelOpsMetadata<
+    Table,
     TableName,
     SelectSchema,
     CreateSchema,
@@ -74,6 +77,8 @@ export function ModelOps<
   // biome-ignore lint/complexity/noStaticOnlyClass: yeah
   class ModelOps {
     protected static readonly table = metadata.table;
+    protected static readonly tableUnion: LeagueScopedTablesUnion =
+      metadata.table;
     protected static readonly tableName = metadata.tableName;
     protected static readonly selectSchema = metadata.selectSchema;
     protected static readonly createSchema = metadata.createSchema;
@@ -89,11 +94,11 @@ export function ModelOps<
         .select({
           count: count(),
         })
-        .from(ModelOps.table)
+        .from(ModelOps.tableUnion)
         .where(
           and(
-            eq(ModelOps.table.leagueUuid, leagueUuid),
-            isNull(ModelOps.table.$deletedAt),
+            eq(ModelOps.tableUnion.leagueUuid, leagueUuid),
+            isNull(ModelOps.tableUnion.$deletedAt),
           ),
         );
 
@@ -142,7 +147,7 @@ export function ModelOps<
       }
 
       const [created] = await db
-        .insert(ModelOps.table)
+        .insert(ModelOps.tableUnion)
         .values({
           ...data,
           leagueUuid,
@@ -188,13 +193,13 @@ export function ModelOps<
         }
 
         const [updated] = await tx
-          .update(ModelOps.table)
+          .update(ModelOps.tableUnion)
           .set(updateData)
           .where(
             and(
-              eq(ModelOps.table.leagueUuid, leagueUuid),
-              eq(ModelOps.table.uuid, uuid as string),
-              isNull(ModelOps.table.$deletedAt),
+              eq(ModelOps.tableUnion.leagueUuid, leagueUuid),
+              eq(ModelOps.tableUnion.uuid, uuid as string),
+              isNull(ModelOps.tableUnion.$deletedAt),
             ),
           )
           .returning();
@@ -215,13 +220,13 @@ export function ModelOps<
     @ConvertDrizzleErrors()
     public static async delete(db: DB, leagueUuid: string, uuid: string) {
       const [deleted] = await db
-        .update(ModelOps.table)
+        .update(ModelOps.tableUnion)
         .set({ $deletedAt: new Date() })
         .where(
           and(
-            eq(ModelOps.table.leagueUuid, leagueUuid),
-            eq(ModelOps.table.uuid, uuid),
-            isNull(ModelOps.table.$deletedAt),
+            eq(ModelOps.tableUnion.leagueUuid, leagueUuid),
+            eq(ModelOps.tableUnion.uuid, uuid),
+            isNull(ModelOps.tableUnion.$deletedAt),
           ),
         )
         .returning();
