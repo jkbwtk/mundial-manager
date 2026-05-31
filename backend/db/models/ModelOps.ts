@@ -39,7 +39,6 @@ export interface ModelOpsMetadata<
   SelectSchema extends BaseModelType,
   CreateSchema extends z.ZodObject,
   UpdateSchema extends z.ZodObject,
-  PublicSchema extends z.ZodObject,
   StrategySchema extends z.ZodObject,
 > {
   table: Table;
@@ -47,7 +46,6 @@ export interface ModelOpsMetadata<
   selectSchema: z.ZodType<SelectSchema>;
   createSchema: CreateSchema;
   updateSchema: UpdateSchema;
-  publicSchema: PublicSchema;
   strategySchema?: StrategySchema;
 }
 
@@ -57,7 +55,6 @@ export function ModelOps<
   SelectSchema extends BaseModelType,
   CreateSchema extends z.ZodObject,
   UpdateSchema extends z.ZodObject,
-  PublicSchema extends z.ZodObject,
   ValidationSchema extends z.ZodObject,
 >(
   metadata: ModelOpsMetadata<
@@ -66,7 +63,6 @@ export function ModelOps<
     SelectSchema,
     CreateSchema,
     UpdateSchema,
-    PublicSchema,
     ValidationSchema
   >,
 ) {
@@ -79,7 +75,6 @@ export function ModelOps<
     protected static readonly selectSchema = metadata.selectSchema;
     protected static readonly createSchema = metadata.createSchema;
     protected static readonly updateSchema = metadata.updateSchema;
-    protected static readonly publicSchema = metadata.publicSchema;
     protected static readonly strategySchema = metadata.strategySchema;
 
     @ConvertDrizzleErrors()
