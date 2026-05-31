@@ -1,7 +1,7 @@
 import { and, count, eq, isNull } from 'drizzle-orm';
 import type z from 'zod';
 import type { DB, TX } from '#backend/db/database';
-import type { BaseModelType, Instance } from '#backend/db/models/Instance';
+import type { BaseModelType } from '#backend/db/models/Instance';
 import type {
   ballsTable,
   matchesTable,
@@ -41,7 +41,6 @@ export interface ModelOpsMetadata<
   UpdateSchema extends z.ZodObject,
   PublicSchema extends z.ZodObject,
   StrategySchema extends z.ZodObject,
-  InstanceType extends ReturnType<typeof Instance>,
 > {
   table: Table;
   tableName: TableName;
@@ -50,7 +49,6 @@ export interface ModelOpsMetadata<
   updateSchema: UpdateSchema;
   publicSchema: PublicSchema;
   strategySchema?: StrategySchema;
-  InstanceConstructor: InstanceType;
 }
 
 export function ModelOps<
@@ -61,7 +59,6 @@ export function ModelOps<
   UpdateSchema extends z.ZodObject,
   PublicSchema extends z.ZodObject,
   ValidationSchema extends z.ZodObject,
-  InstanceType extends ReturnType<typeof Instance<SelectSchema>>,
 >(
   metadata: ModelOpsMetadata<
     Table,
@@ -70,8 +67,7 @@ export function ModelOps<
     CreateSchema,
     UpdateSchema,
     PublicSchema,
-    ValidationSchema,
-    InstanceType
+    ValidationSchema
   >,
 ) {
   // biome-ignore lint/complexity/noStaticOnlyClass: yeah
@@ -85,8 +81,6 @@ export function ModelOps<
     protected static readonly updateSchema = metadata.updateSchema;
     protected static readonly publicSchema = metadata.publicSchema;
     protected static readonly strategySchema = metadata.strategySchema;
-    protected static readonly InstanceConstructor =
-      metadata.InstanceConstructor;
 
     @ConvertDrizzleErrors()
     public static async count(db: DB | TX, leagueUuid: string) {
@@ -106,11 +100,7 @@ export function ModelOps<
     }
 
     @ConvertDrizzleErrors()
-    public static async _getById(
-      db: DB | TX,
-      leagueUuid: string,
-      uuid: string,
-    ) {
+    public static async getById(db: DB | TX, leagueUuid: string, uuid: string) {
       const instance = await db.query[ModelOps.tableName]
         // @ts-expect-error
         .findFirst({
@@ -125,14 +115,6 @@ export function ModelOps<
         });
 
       return instance ?? null;
-    }
-
-    @ConvertDrizzleErrors()
-    public static async getById(db: DB, leagueUuid: string, uuid: string) {
-      const instance = await ModelOps._getById(db, leagueUuid, uuid);
-
-      // @ts-expect-error
-      return instance ? new ModelOps.InstanceConstructor(db, instance) : null;
     }
 
     @ConvertDrizzleErrors()
@@ -158,8 +140,7 @@ export function ModelOps<
         throw new DatabaseError('Failed to create instance', {});
       }
 
-      // @ts-expect-error
-      return new ModelOps.InstanceConstructor(db, created);
+      return created;
     }
 
     @ConvertDrizzleErrors()
@@ -171,7 +152,7 @@ export function ModelOps<
       const { uuid, ...updateData } = data;
 
       const instance = await db.transaction(async (tx) => {
-        const existingInstance = await ModelOps._getById(
+        const existingInstance = await ModelOps.getById(
           tx,
           leagueUuid,
           uuid as string,
@@ -213,8 +194,7 @@ export function ModelOps<
         return updated;
       });
 
-      // @ts-expect-error
-      return new ModelOps.InstanceConstructor(db, instance);
+      return instance;
     }
 
     @ConvertDrizzleErrors()
@@ -237,8 +217,7 @@ export function ModelOps<
         });
       }
 
-      // @ts-expect-error
-      return new ModelOps.InstanceConstructor(db, deleted);
+      return deleted;
     }
 
     public static validationStrategies: ValidationStrategies<ValidationSchema> =
