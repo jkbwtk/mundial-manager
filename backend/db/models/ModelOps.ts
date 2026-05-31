@@ -141,7 +141,8 @@ export function ModelOps<
       leagueUuid: string,
       data: z.infer<CreateSchema>,
     ) {
-      for (const strategy of Object.values(ModelOps.validationStrategies)) {
+      // biome-ignore lint/complexity/noThisInStatic: yeah
+      for (const strategy of Object.values(this.validationStrategies)) {
         // biome-ignore lint/suspicious/noExplicitAny: yeah
         await strategy(db, leagueUuid, data as any);
       }
@@ -158,7 +159,7 @@ export function ModelOps<
         throw new DatabaseError('Failed to create instance', {});
       }
 
-      return created;
+      return created as unknown as SelectSchema;
     }
 
     @ConvertDrizzleErrors()
@@ -186,7 +187,8 @@ export function ModelOps<
           ...updateData,
         } as z.infer<ValidationSchema>;
 
-        for (const strategy of Object.values(ModelOps.validationStrategies)) {
+        // biome-ignore lint/complexity/noThisInStatic: yeah
+        for (const strategy of Object.values(this.validationStrategies)) {
           // biome-ignore lint/suspicious/noExplicitAny: yeah
           await strategy(tx, leagueUuid, mergedData as any);
         }
@@ -212,7 +214,7 @@ export function ModelOps<
         return updated;
       });
 
-      return instance;
+      return instance as unknown as SelectSchema;
     }
 
     @ConvertDrizzleErrors()
@@ -235,7 +237,7 @@ export function ModelOps<
         });
       }
 
-      return deleted;
+      return deleted as unknown as SelectSchema;
     }
 
     public static validationStrategies: ValidationStrategies<ValidationSchema> =
