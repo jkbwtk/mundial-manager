@@ -100,6 +100,29 @@ export function ModelOps<
     }
 
     @ConvertDrizzleErrors()
+    public static async getAll(
+      db: DB | TX,
+      leagueUuid: string,
+      limit?: number,
+      offset?: number,
+    ) {
+      const instances = await db.query[ModelOps.tableName]
+        // @ts-expect-error
+        .findMany({
+          where: {
+            leagueUuid,
+            $deletedAt: {
+              isNull: true,
+            },
+          },
+          limit,
+          offset,
+        });
+
+      return instances;
+    }
+
+    @ConvertDrizzleErrors()
     public static async getById(db: DB | TX, leagueUuid: string, uuid: string) {
       const instance = await db.query[ModelOps.tableName]
         // @ts-expect-error
