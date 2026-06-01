@@ -56,6 +56,7 @@ const ChartBuilderTest = lazy(
   () => import('#pages/ChartBuilderTest/ChartBuilderTest'),
 );
 const FormsTest = lazy(() => import('#pages/FormsTest/FormsTest'));
+const BlankTestPage = lazy(() => import('#pages/BlankTestPage/BlankTestPage'));
 
 export const dashboardRoutes: ExtendedRouteDefinition[] = [
   {
@@ -196,6 +197,11 @@ export const testRoutes: ExtendedRouteDefinition[] = [
     path: '/forms-test',
     info: { name: 'Forms Test' },
     component: FormsTest,
+  },
+  {
+    path: '/blank-test',
+    info: { name: 'Blank Test Page' },
+    component: BlankTestPage,
   },
 ];
 
