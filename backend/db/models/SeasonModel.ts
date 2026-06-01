@@ -14,6 +14,7 @@ import {
   SeasonStrategy,
   SeasonUpdate,
 } from '#shared/types/api/season';
+
 export class SeasonModel extends ModelOps({
   table: seasonsTable,
   tableName: 'seasonsTable',
