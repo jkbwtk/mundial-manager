@@ -2,6 +2,7 @@ import { Argument, type Command } from 'commander';
 import z from 'zod';
 import { logger } from '#shared/logger';
 import { createComponent } from '#tools/commands/create/component';
+import { createPage } from '#tools/commands/create/page';
 
 const ElementTypes = ['component', 'page'] as const; // 'provider', 'page', 'testPage'];
 
@@ -41,6 +42,9 @@ export function registerCreateCommand(program: Command) {
     switch (elementType) {
       case 'component':
         createComponent(name, validatedOptions);
+        break;
+      case 'page':
+        createPage(name, validatedOptions);
         break;
       default:
         logger.error('Unsupported element type: %s', elementType);
