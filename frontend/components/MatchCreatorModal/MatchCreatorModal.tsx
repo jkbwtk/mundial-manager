@@ -151,30 +151,34 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
             invalid={!!errors.startDate}
           />
 
-          <span class={style.fieldLabel}>Duration (seconds):</span>
+          <span class={style.fieldLabel}>Duration:</span>
           <Input
             class={style.fieldInput}
             type="number"
-            placeholder="Match duration in seconds"
+            placeholder="0"
             min={0}
             required
             name="duration"
-            value={props.match?.duration.toString() ?? '0'}
+            value={props.match?.duration.toString()}
             useDirectives={[validate]}
             invalid={!!errors.duration}
-          />
+          >
+            s
+          </Input>
 
-          <span class={style.fieldLabel}>Pause Duration (seconds):</span>
+          <span class={style.fieldLabel}>Pause Duration:</span>
           <Input
             class={style.fieldInput}
             type="number"
-            placeholder="Match pause duration in seconds"
+            placeholder="0"
             min={0}
             name="pauseDuration"
-            value={props.match?.pauseDuration?.toString() ?? '0'}
+            value={props.match?.pauseDuration?.toString()}
             useDirectives={[validate]}
             invalid={!!errors.pauseDuration}
-          />
+          >
+            s
+          </Input>
 
           <span class={style.fieldLabel}>Status:</span>
           <For each={Object.values(MatchStatusEnum)}>
