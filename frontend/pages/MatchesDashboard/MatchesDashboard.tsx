@@ -48,7 +48,7 @@ export const MatchesDashboard: Component = () => {
       key: 'startDate',
       header: 'Start Date',
       align: 'center',
-      transform: (val) => formatDate(val),
+      transform: (val: Date) => formatDate(val.getTime() / 1000),
     },
     {
       key: 'duration',
