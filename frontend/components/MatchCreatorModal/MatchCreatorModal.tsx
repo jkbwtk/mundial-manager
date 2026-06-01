@@ -4,7 +4,6 @@ import json from 'highlight.js/lib/languages/json';
 import {
   createMemo,
   createUniqueId,
-  For,
   type getOwner,
   runWithOwner,
   Show,
@@ -21,6 +20,7 @@ import { useModalActions } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
 import 'highlight.js/styles/gml.min.css';
 import { DateInput } from '#components/DateInput';
+import { Dropdown, type DropdownOption } from '#components/Dropdown';
 import {
   type Match,
   MatchCreate,
@@ -120,6 +120,13 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
 
   const handleSubmit = formSubmit(action, handleSuccess, handleError);
 
+  const statusMap: DropdownOption[] = Object.values(MatchStatusEnum).map(
+    (status) => ({
+      label: status,
+      value: status,
+    }),
+  );
+
   return (
     <Modal
       class={style.modal}
@@ -181,24 +188,13 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
           </Input>
 
           <span class={style.fieldLabel}>Status:</span>
-          <For each={Object.values(MatchStatusEnum)}>
-            {(status) => (
-              <div>
-                <Input
-                  id={status}
-                  type="radio"
-                  name="status"
-                  value={status}
-                  required
-                  checked={props.match?.status === status}
-                  useDirectives={[validate]}
-                  invalid={!!errors.status}
-                >
-                  {status}
-                </Input>
-              </div>
-            )}
-          </For>
+          <Dropdown
+            value={props.match?.status ?? ''}
+            options={statusMap}
+            name="status"
+            useDirectives={[validate]}
+            invalid={!!errors.status}
+          />
         </div>
 
         <Divider class={style.divider} />
