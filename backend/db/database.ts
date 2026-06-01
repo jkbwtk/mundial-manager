@@ -10,6 +10,9 @@ export const db = drizzle({
     user: environment.POSTGRES_USER,
     password: environment.POSTGRES_PASSWORD,
     database: environment.POSTGRES_DB,
+
+    allowExitOnIdle: false,
+    keepAlive: true,
   },
   relations,
   logger: environment.DATABASE_LOGGING ? logger : false,
