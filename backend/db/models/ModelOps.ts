@@ -141,7 +141,6 @@ export function ModelOps<
       leagueUuid: string,
       data: z.infer<CreateSchema>,
     ) {
-      // biome-ignore lint/complexity/noThisInStatic: yeah
       for (const strategy of Object.values(this.validationStrategies)) {
         // biome-ignore lint/suspicious/noExplicitAny: yeah
         await strategy(db, leagueUuid, data as any);
@@ -187,7 +186,6 @@ export function ModelOps<
           ...updateData,
         } as z.infer<ValidationSchema>;
 
-        // biome-ignore lint/complexity/noThisInStatic: yeah
         for (const strategy of Object.values(this.validationStrategies)) {
           // biome-ignore lint/suspicious/noExplicitAny: yeah
           await strategy(tx, leagueUuid, mergedData as any);
