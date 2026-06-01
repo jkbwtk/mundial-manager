@@ -7,6 +7,7 @@ import {
   type JSX,
   on,
   onCleanup,
+  onMount,
   Show,
   splitProps,
 } from 'solid-js';
@@ -14,6 +15,10 @@ import { AnchoredPopup } from '#components/AnchoredPopup';
 import { Button } from '#components/Button';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import { TextMarquee } from '#components/TextMarquee';
+import {
+  applyDirectives,
+  type ComponentUseDirectiveHack,
+} from '#flib/solidHelpers';
 import { useConsoleUnitPrototype } from '#providers/ConsoleUnitPrototypeProvider';
 import { arrayFrom } from '#shared/utils';
 import style from './Dropdown.module.scss';
@@ -29,9 +34,12 @@ type DropdownCommonProps<T> = {
   options: DropdownOption<T>[];
   disabled?: boolean;
   ariaLabel?: string;
+  invalid?: boolean;
+  name?: string;
   anchor?: DropdownAnchor;
   class?: string;
   classList?: JSX.CustomAttributes<HTMLElement>['classList'];
+  useDirectives?: ComponentUseDirectiveHack<HTMLInputElement>[];
 };
 
 export type DropdownPropsSingle<T = string> = DropdownCommonProps<T> & {
@@ -62,6 +70,8 @@ export const Dropdown: DropdownSignature = <T = string>(
   const [{ unit }] = useConsoleUnitPrototype();
   const [classProps, props] = splitProps(userProps, ['class', 'classList']);
 
+  const [values, setValues] = createSignal<T[]>(arrayFrom(props.value));
+
   const instanceId = createUniqueId();
   const menuId = `${instanceId}-menu`;
   const triggerId = `${instanceId}-trigger`;
@@ -69,15 +79,14 @@ export const Dropdown: DropdownSignature = <T = string>(
   const [activeIndex, setActiveIndex] = createSignal(-1);
   const [typeaheadQuery, setTypeaheadQuery] = createSignal('');
 
+  let ref!: HTMLDivElement;
   let triggerRef: HTMLButtonElement | undefined;
   let typeaheadTimeout: ReturnType<typeof setTimeout> | undefined;
   const optionRefs: Array<HTMLDivElement | undefined> = [];
   const typeaheadResetMs = 350;
 
-  const valueArray = createMemo(() => arrayFrom(props.value));
-
   const selectedIndices = createMemo(() =>
-    valueArray().map((v) =>
+    values().map((v) =>
       props.options.findIndex((option) => option.value === v),
     ),
   );
@@ -158,21 +167,21 @@ export const Dropdown: DropdownSignature = <T = string>(
     }
 
     resetTypeahead();
+
+    ref.onblur?.(new FocusEvent('blur', { relatedTarget: triggerRef }));
   };
 
   const selectOption = (value: T) => {
     if (props.multiple) {
-      const selectedOptions = valueArray();
+      const selectedOptions = values();
 
       if (selectedOptions.includes(value)) {
-        selectedOptions.splice(selectedOptions.indexOf(value), 1);
+        setValues((prev) => prev.filter((v) => v !== value));
       } else {
-        selectedOptions.push(value);
+        setValues((prev) => [...prev, value]);
       }
-
-      props.onChange?.(selectedOptions);
     } else {
-      props.onChange?.(value);
+      setValues([value]);
       closeMenu();
     }
   };
@@ -181,13 +190,12 @@ export const Dropdown: DropdownSignature = <T = string>(
     if (!props.multiple) return;
 
     const allValues = props.options.map((option) => option.value);
-
-    props.onChange?.(allValues);
+    setValues(allValues);
   };
 
   const deselectAll = () => {
     if (!props.multiple) return;
-    props.onChange?.([]);
+    setValues([]);
   };
 
   const handleClickOutside = () => {
@@ -286,15 +294,53 @@ export const Dropdown: DropdownSignature = <T = string>(
     }),
   );
 
+  // createEffect(
+  //   on(
+  //     () => props.value,
+  //     (newValue) => {
+  //       setValues(arrayFrom(newValue));
+  //     },
+  //     { defer: true },
+  //   ),
+  // );
+
+  createEffect(
+    on(
+      [values],
+      (values) => {
+        // @ts-expect-error
+        props.onChange?.(props.multiple ? values : values[0]);
+
+        ref.oninput?.(new InputEvent('input', { bubbles: true }));
+      },
+      { defer: true },
+    ),
+  );
+
+  onMount(() => {
+    // @ts-expect-error
+    ref.setCustomValidity = () => {};
+    // @ts-expect-error
+    ref.checkValidity = () => true;
+
+    // @ts-expect-error
+    applyDirectives(ref, props.useDirectives ?? []);
+  });
+
   onCleanup(resetTypeahead);
 
   return (
     <div
+      ref={ref}
       classList={{
         [style.dropdown]: true,
         [classProps.class ?? '']: !!classProps.class,
         ...(classProps.classList ?? {}),
       }}
+      // @ts-expect-error
+      prop:type="dropdown"
+      prop:name={props.name}
+      prop:value={props.multiple ? values() : values()[0]}
     >
       <button
         ref={triggerRef}
@@ -307,6 +353,7 @@ export const Dropdown: DropdownSignature = <T = string>(
         disabled={!canOpen()}
         classList={{
           [style.trigger]: true,
+          [style.invalid]: props.invalid,
           [style.triggerOpen]: open(),
         }}
         onPointerUp={toggleMenu}
@@ -366,10 +413,10 @@ export const Dropdown: DropdownSignature = <T = string>(
               id={getOptionId(index())}
               role="option"
               tabIndex={-1}
-              aria-selected={valueArray().includes(option.value)}
+              aria-selected={values().includes(option.value)}
               classList={{
                 [style.option]: true,
-                [style.optionSelected]: valueArray().includes(option.value),
+                [style.optionSelected]: values().includes(option.value),
                 [style.optionActive]: index() === activeIndex(),
               }}
               onPointerUp={() => selectOption(option.value)}
