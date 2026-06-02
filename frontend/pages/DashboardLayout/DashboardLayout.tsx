@@ -1,3 +1,4 @@
+import { Suspense } from 'solid-js';
 import { Breadcrumbs } from '#components/Breadcrumbs';
 import { LogoSmall } from '#components/LogoSmall/LogoSmall';
 import { Sidebar } from '#components/Sidebar/Sidebar';
@@ -29,7 +30,7 @@ export const DashboardLayout: ParentComponent = (props) => {
 
       <Divider direction="vertical" connect={0b11} />
 
-      {props.children}
+      <Suspense>{props.children}</Suspense>
     </div>
   );
 };
