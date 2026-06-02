@@ -40,7 +40,7 @@ export const defaultProps: RequiredDefaults<MaterialSymbolProps> = {
 
 export const MaterialSymbol: Component<MaterialSymbolProps> = (userProps) => {
   const props = mergeProps(defaultProps, userProps);
-  const symbolGlyph = getMaterialSymbolGlyph(props.symbol);
+  const symbolGlyph = () => getMaterialSymbolGlyph(props.symbol);
 
   const colorClass = quickSwitch<string, SymbolColorType>(props.color, {
     gray: style.gray,
@@ -86,7 +86,7 @@ export const MaterialSymbol: Component<MaterialSymbolProps> = (userProps) => {
         ...props.classList,
       }}
     >
-      {symbolGlyph}
+      {symbolGlyph()}
     </span>
   );
 };
