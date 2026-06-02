@@ -4,6 +4,13 @@
   display: flex;
   flex-direction: column;
 
+  max-height: 100%;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  scrollbar-gutter: stable;
+
   .matches {
     display: grid;
     grid-template-columns: max-content max-content 1fr;

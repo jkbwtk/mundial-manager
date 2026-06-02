@@ -2,6 +2,7 @@ import { createEffect, createSignal, onCleanup } from 'solid-js';
 import { BrailleChart } from '#components/BrailleChart';
 import { type ChartOptions, EChartWrapper } from '#components/EChartWrapper';
 import { Widget } from '#components/Widget';
+import style from './ChartTest.module.scss';
 
 const ChartTest: Component = () => {
   const [animatedData, setAnimatedData] = createSignal([
@@ -86,7 +87,7 @@ const ChartTest: Component = () => {
   });
 
   return (
-    <div style="display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 20px; height: 100vh; padding: 20px;">
+    <div class={style.container}>
       <Widget topLeftLabels="Animated Line Chart (Echarts)">
         <div style="height: 100%;">
           <EChartWrapper config={lineChartConfig()} />

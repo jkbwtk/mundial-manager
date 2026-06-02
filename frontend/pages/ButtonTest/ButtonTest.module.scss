@@ -1,6 +1,10 @@
 @use 'app' as *;
 
 .container {
-  width: round(down, 100vw, cw(1));
-  height: round(down, 100dvh, ch(1));
+  max-height: 100%;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  scrollbar-gutter: stable;
 }

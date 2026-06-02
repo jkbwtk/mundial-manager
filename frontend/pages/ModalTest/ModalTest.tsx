@@ -5,7 +5,7 @@ import { InlineAction } from '#components/InlineAction';
 import { Input } from '#components/Input';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import { Modal } from '#components/Modal';
-import { Divider, Widget } from '#components/Widget';
+import { Divider } from '#components/Widget';
 import { useModal, useModalActions } from '#providers/ModalProvider';
 import style from './ModalTest.module.scss';
 
@@ -78,8 +78,7 @@ const ModalTest: Component = () => {
   // });
 
   return (
-    <Widget topLeftLabels="Modal Test Page" class={style.container}>
-      <br />
+    <div class={style.container}>
       Basic modal:
       <br />
       <Button severity="danger" onClick={openModal}>
@@ -87,7 +86,7 @@ const ModalTest: Component = () => {
       </Button>
       <Break />
       {/* <M counter={0} /> */}
-    </Widget>
+    </div>
   );
 };
 

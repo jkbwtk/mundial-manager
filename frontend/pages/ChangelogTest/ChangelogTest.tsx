@@ -1,5 +1,5 @@
 import { Button } from '#components/Button';
-import { Divider, Widget } from '#components/Widget';
+import { Divider } from '#components/Widget';
 import { useChangelogContext } from '#providers/ChangelogProvider';
 import style from './ChangelogTest.module.scss';
 
@@ -7,8 +7,7 @@ const ChangelogTest: Component = () => {
   const [state, actions] = useChangelogContext();
 
   return (
-    <Widget topLeftLabels="Changelog Test Page" class={style.container}>
-      <br />
+    <div class={style.container}>
       <div>Valid: {state.valid ? 'Yes' : 'No'}</div>
       <div>Versions loaded: {state.changelog.versions.length}</div>
       <Divider />
@@ -37,7 +36,7 @@ const ChangelogTest: Component = () => {
       <Button severity="secondary" onClick={() => actions.resetOptions()}>
         Reset Options
       </Button>
-    </Widget>
+    </div>
   );
 };
 

@@ -1,7 +1,6 @@
 import { For, Show } from 'solid-js';
 import { Button } from '#components/Button';
 import { MatchTimelineModal } from '#components/MatchTimelineModal';
-import { Widget } from '#components/Widget';
 import { useModal } from '#providers/ModalProvider';
 import { useSheets } from '#providers/SheetsProvider';
 import style from './MatchTimelineTest.module.scss';
@@ -23,8 +22,7 @@ const MatchTimelineTest: Component = () => {
   };
 
   return (
-    <Widget topLeftLabels="Match Timeline Test Page" class={style.container}>
-      <br />
+    <div class={style.container}>
       <strong>Recent Matches:</strong>
       <Show
         when={sheets.matches.length > 0}
@@ -52,7 +50,7 @@ const MatchTimelineTest: Component = () => {
           </For>
         </div>
       </Show>
-    </Widget>
+    </div>
   );
 };
 

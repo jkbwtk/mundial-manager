@@ -26,7 +26,7 @@ const MatchesDashboard = lazy(
 );
 
 const RouteMap = lazy(() => import('#pages/RouteMap/RouteMap'));
-const ChartTest = lazy(() => import('#pages/ChartTest'));
+const ChartTest = lazy(() => import('#pages/ChartTest/ChartTest'));
 const ButtonTest = lazy(() => import('#pages/ButtonTest/ButtonTest'));
 const InputTest = lazy(() => import('#pages/InputTest/InputTest'));
 const SheetsTest = lazy(() => import('#pages/SheetsTest/SheetsTest'));
@@ -57,6 +57,9 @@ const ChartBuilderTest = lazy(
 );
 const FormsTest = lazy(() => import('#pages/FormsTest/FormsTest'));
 const BlankTestPage = lazy(() => import('#pages/BlankTestPage/BlankTestPage'));
+const ResourcePickerTest = lazy(
+  () => import('#pages/ResourcePickerTest/ResourcePickerTest'),
+);
 
 export const dashboardRoutes: ExtendedRouteDefinition[] = [
   {
@@ -202,6 +205,11 @@ export const testRoutes: ExtendedRouteDefinition[] = [
     path: '/blank-test',
     info: { name: 'Blank Test Page' },
     component: BlankTestPage,
+  },
+  {
+    path: '/resource-picker-test',
+    info: { name: 'Resource Picker Test' },
+    component: ResourcePickerTest,
   },
 ];
 

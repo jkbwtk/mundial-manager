@@ -40,8 +40,8 @@ const RouteMap: Component = () => {
     .filter((route) => route.component);
 
   return (
-    <div>
-      <Widget topLeftLabels="Route List" class={style.container}>
+    <div class={style.container}>
+      <Widget topLeftLabels="Route List">
         <For each={flatRoutes}>
           {(route, index) => (
             <div>
@@ -52,7 +52,7 @@ const RouteMap: Component = () => {
         </For>
       </Widget>
 
-      <Widget topLeftLabels="Route Map" class={style.container}>
+      <Widget topLeftLabels="Route Map">
         <Directory node={routeTree} levels={[]} parentNames={[]} last={true} />
       </Widget>
     </div>

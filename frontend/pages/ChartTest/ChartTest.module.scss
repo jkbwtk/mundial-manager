@@ -1,14 +1,14 @@
 @use 'app' as *;
 
 .container {
-  padding: ch(1) cw(1);
-
-  width: round(down, calc(100% + 1px), cw(1));
-
   max-height: 100%;
 
   overflow-x: hidden;
   overflow-y: auto;
 
   scrollbar-gutter: stable;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
 }

@@ -148,7 +148,7 @@ export const SheetsTest: Component = () => {
   }
 
   return (
-    <Widget topLeftLabels="Sheets Test Page" class={style.container}>
+    <div class={style.container}>
       <Widget topLeftLabels="Metadata" class={style.metadata}>
         Title:{' '}
         <strong>
@@ -215,7 +215,7 @@ export const SheetsTest: Component = () => {
         class={style.matches}
         onSort={onSort}
       />
-    </Widget>
+    </div>
   );
 };
 

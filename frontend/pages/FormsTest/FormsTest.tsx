@@ -64,7 +64,7 @@ export const FormsTest: Component = () => {
   const handleSubmit = formSubmit(fakeSubmit);
 
   return (
-    <Widget class={style.outerContainer} topLeftLabels="Form Component Tests">
+    <div class={style.outerContainer}>
       <Widget
         class={style.formContainer}
         bottomRightLabels={[
@@ -200,7 +200,7 @@ export const FormsTest: Component = () => {
       </Widget>
 
       <HighlightedCode language="json" code={`Errors: ${toJson(errors)}`} />
-    </Widget>
+    </div>
   );
 };
 

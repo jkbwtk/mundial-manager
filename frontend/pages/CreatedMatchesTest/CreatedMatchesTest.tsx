@@ -204,12 +204,14 @@ const CreatedMatchesTest: Component = () => {
 
       <Divider />
 
-      <Show
-        when={matchesCount() > 0}
-        fallback={<div>No created matches yet</div>}
-      >
-        <Table columns={columns} data={tableData()} class={style.table} />
-      </Show>
+      <div class={style.innerContainer}>
+        <Show
+          when={matchesCount() > 0}
+          fallback={<div>No created matches yet</div>}
+        >
+          <Table columns={columns} data={tableData()} class={style.table} />
+        </Show>
+      </div>
     </Widget>
   );
 };

@@ -2,7 +2,7 @@ import { For } from 'solid-js';
 import { Button } from '#components/Button';
 import { PlayerLink } from '#components/PlayerLink';
 import { PlayerProfileModal } from '#components/PlayerProfileModal';
-import { Divider, Widget } from '#components/Widget';
+import { Divider } from '#components/Widget';
 import { useModal } from '#providers/ModalProvider';
 import { useSheets } from '#providers/SheetsProvider';
 import style from './PlayerProfileTest.module.scss';
@@ -21,8 +21,7 @@ const PlayerProfileTest: Component = () => {
   };
 
   return (
-    <Widget topLeftLabels="User Profile Test Page" class={style.container}>
-      <br />
+    <div class={style.container}>
       <strong>Players: </strong>
       <For each={latest().generalStats.players}>
         {(player) => (
@@ -46,7 +45,7 @@ const PlayerProfileTest: Component = () => {
           </div>
         )}
       </For>
-    </Widget>
+    </div>
   );
 };
 

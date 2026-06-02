@@ -1,12 +1,11 @@
 import { Button } from '#components/Button';
 import { MaterialSymbol } from '#components/MaterialSymbol';
-import { Divider, Widget } from '#components/Widget';
+import { Divider } from '#components/Widget';
 import style from './ButtonTest.module.scss';
 
 const ButtonTest: Component = () => {
   return (
-    <Widget topLeftLabels="Button Test Page" class={style.container}>
-      <br />
+    <div class={style.container}>
       Primary button: <Button>Test</Button>
       <Divider />
       Secondary button: <Button severity="secondary">Test</Button>
@@ -30,7 +29,7 @@ const ButtonTest: Component = () => {
       </Button>
       <Divider />
       Loading button: <Button loading={true}>Test</Button>
-    </Widget>
+    </div>
   );
 };
 

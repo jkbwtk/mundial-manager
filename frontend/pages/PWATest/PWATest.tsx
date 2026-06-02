@@ -3,7 +3,7 @@ import { createStore } from 'solid-js/store';
 import { isServer } from 'solid-js/web';
 import { AnimatedText } from '#components/AnimatedText';
 import { Button } from '#components/Button';
-import { Divider, Widget } from '#components/Widget';
+import { Divider } from '#components/Widget';
 import { useToastActions } from '#providers/ToastProvider';
 import style from './PWATest.module.scss';
 
@@ -61,7 +61,7 @@ const PWATest: Component = () => {
   });
 
   return (
-    <Widget topLeftLabels="PWA Test Page" class={style.container}>
+    <div class={style.container}>
       <For each={state.workers}>
         {(worker) => (
           <>
@@ -79,7 +79,7 @@ const PWATest: Component = () => {
       <Button severity="danger" onClick={unregisterServiceWorkers}>
         Unregister All Service Workers
       </Button>
-    </Widget>
+    </div>
   );
 };
 

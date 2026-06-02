@@ -3,7 +3,7 @@ import { isServer } from 'solid-js/web';
 import { Break } from '#components/Break';
 import { Button } from '#components/Button';
 import { MatchSaveConfirmModal } from '#components/MatchSaveConfirmModal';
-import { Divider, Widget } from '#components/Widget';
+import { Divider } from '#components/Widget';
 import { convertCalculatorFinishEventToMatch } from '#flib/sheetUtils';
 import { useModal } from '#providers/ModalProvider';
 import { useSheets } from '#providers/SheetsProvider';
@@ -76,7 +76,7 @@ const IframeTest: Component = () => {
   });
 
   return (
-    <Widget topLeftLabels="Iframe Test Page" class={style.container}>
+    <div class={style.container}>
       <div class={style.controls}>
         <Button
           severity="secondary"
@@ -110,7 +110,7 @@ const IframeTest: Component = () => {
           sandbox="allow-scripts allow-same-origin allow-forms"
         />
       </div>
-    </Widget>
+    </div>
   );
 };
 

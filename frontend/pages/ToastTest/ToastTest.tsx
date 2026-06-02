@@ -1,7 +1,7 @@
 import { createSignal } from 'solid-js';
 import { Button } from '#components/Button';
 import { Input } from '#components/Input';
-import { Divider, Widget } from '#components/Widget';
+import { Divider } from '#components/Widget';
 import { useToast } from '#providers/ToastProvider';
 import style from './ToastTest.module.scss';
 
@@ -119,8 +119,7 @@ const ToastTest: Component = () => {
   };
 
   return (
-    <Widget topLeftLabels="Toast Test Page" class={style.container}>
-      <br />
+    <div class={style.container}>
       Basic toasts (hover to pause countdown):
       <br />
       <Button onClick={showInfo}>Info</Button>{' '}
@@ -164,7 +163,7 @@ const ToastTest: Component = () => {
         style={{ width: '4ch' }}
       />{' '}
       (current queue: {state.toasts.filter((t) => !t.isLeaving).length})
-    </Widget>
+    </div>
   );
 };
 
