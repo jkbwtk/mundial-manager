@@ -13,14 +13,16 @@ export const LogoSmall: Component<LogoSmallProps> = (props) => {
 ╩ ╩└─┘┘└┘─┴┘┴┴ ┴┴─┘`;
 
   return (
-    <pre
-      classList={{
-        [style.logo]: true,
-        [props.class!]: !!props.class,
-        ...(props.classList ?? {}),
-      }}
-    >
-      {logo}
-    </pre>
+    <a href="/" class="no-style">
+      <pre
+        classList={{
+          [style.logo]: true,
+          [props.class!]: !!props.class,
+          ...(props.classList ?? {}),
+        }}
+      >
+        {logo}
+      </pre>
+    </a>
   );
 };
