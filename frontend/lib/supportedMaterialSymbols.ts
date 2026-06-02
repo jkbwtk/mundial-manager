@@ -62,6 +62,7 @@ export const MaterialSymbolCodepoints = {
   admin_panel_settings: 'ef3d',
   dashboard: 'e871',
   groups: 'f233',
+  search: 'e8b6',
 } as const;
 
 export type SupportedMaterialSymbol = keyof typeof MaterialSymbolCodepoints;
