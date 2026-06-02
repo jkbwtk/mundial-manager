@@ -1,178 +1,28 @@
-import { and, count, eq, isNull } from 'drizzle-orm';
-import type { DB, TX } from '#backend/db/database';
-import { Model } from '#backend/db/models/Model';
+import {
+  ModelOps,
+  type ValidationStrategies,
+} from '#backend/db/models/ModelOps';
 import { tablesTable } from '#backend/db/schema';
-import type { TableSelectSchema } from '#backend/types/db/table';
+import { TableSelectSchema } from '#backend/types/db/table';
+import { StrategyValidationError } from '#blib/modelErrors';
 import {
-  ConvertDrizzleErrors,
-  DatabaseError,
-  NotFoundError,
-  StrategyValidationError,
-} from '#blib/modelErrors';
-import {
-  Table,
-  type TableCreate,
-  type TableStrategy,
-  type TableUpdate,
+  TableCreate,
+  TableStrategy,
+  TableUpdate,
 } from '#shared/types/api/table';
 
-export class TableModel extends Model<TableSelectSchema, typeof Table> {
-  protected publicSchema = Table;
-
-  @ConvertDrizzleErrors()
-  public static async create(db: DB, leagueUuid: string, data: TableCreate) {
-    for (const strategy of Object.values(TableModel.validationStrategies)) {
-      await strategy(db, leagueUuid, data);
-    }
-
-    const [table] = await db
-      .insert(tablesTable)
-      .values({ ...data, leagueUuid })
-      .returning();
-
-    if (!table) {
-      throw new DatabaseError('Failed to create table', {});
-    }
-
-    return new TableModel(db, table);
-  }
-
-  @ConvertDrizzleErrors()
-  public static async update(db: DB, leagueUuid: string, data: TableUpdate) {
-    const { uuid, ...updateData } = data;
-
-    const table = await db.transaction(async (tx) => {
-      const existingTable = await TableModel._getById(tx, uuid);
-      if (!existingTable) {
-        throw new NotFoundError('Table not found for update', {
-          uuid: { value: uuid, errorType: 'Table not found' },
-        });
-      }
-
-      const mergedData: TableStrategy = {
-        ...existingTable,
-        ...updateData,
-      };
-
-      for (const strategy of Object.values(TableModel.validationStrategies)) {
-        await strategy(tx, leagueUuid, mergedData);
-      }
-
-      const [table] = await tx
-        .update(tablesTable)
-        .set(updateData)
-        .where(
-          and(
-            eq(tablesTable.leagueUuid, leagueUuid),
-            eq(tablesTable.uuid, uuid),
-            isNull(tablesTable.$deletedAt),
-          ),
-        )
-        .returning();
-
-      if (!table) {
-        throw new DatabaseError('Failed to update table', {
-          uuid: { value: uuid, errorType: 'Table not found' },
-        });
-      }
-
-      return table;
-    });
-
-    return new TableModel(db, table);
-  }
-
-  @ConvertDrizzleErrors()
-  public static async delete(db: DB, leagueUuid: string, uuid: string) {
-    const [table] = await db
-      .update(tablesTable)
-      .set({ $deletedAt: new Date() })
-      .where(
-        and(
-          eq(tablesTable.leagueUuid, leagueUuid),
-          eq(tablesTable.uuid, uuid),
-          isNull(tablesTable.$deletedAt),
-        ),
-      )
-      .returning();
-
-    if (!table) {
-      throw new DatabaseError('Failed to delete table', {
-        uuid: { value: uuid, errorType: 'Table not found' },
-      });
-    }
-
-    return new TableModel(db, table);
-  }
-
-  public static async _getById(db: DB | TX, uuid: string) {
-    const table = await db.query.tablesTable.findFirst({
-      where: {
-        uuid,
-        $deletedAt: {
-          isNull: true,
-        },
-      },
-    });
-
-    return table ?? null;
-  }
-
-  @ConvertDrizzleErrors()
-  public static async getById(db: DB, uuid: string) {
-    const table = await TableModel._getById(db, uuid);
-
-    if (!table) {
-      return null;
-    }
-
-    return new TableModel(db, table);
-  }
-
-  @ConvertDrizzleErrors()
-  public static async getAll(
-    db: DB,
-    leagueUuid: string,
-    limit?: number,
-    offset?: number,
-  ) {
-    const tables = await db.query.tablesTable.findMany({
-      where: {
-        leagueUuid,
-        $deletedAt: {
-          isNull: true,
-        },
-      },
-      limit,
-      offset,
-    });
-
-    return tables.map((table) => new TableModel(db, table));
-  }
-
-  @ConvertDrizzleErrors()
-  public static async count(db: DB, leagueUuid: string) {
-    const result = await db
-      .select({
-        count: count(),
-      })
-      .from(tablesTable)
-      .where(
-        and(
-          eq(tablesTable.leagueUuid, leagueUuid),
-          isNull(tablesTable.$deletedAt),
-        ),
-      );
-
-    return Number(result[0]?.count ?? 0);
-  }
-
-  public static validationStrategies = {
-    differentSideColors: (
-      _db: DB | TX,
-      _leagueUuid: string,
-      data: TableStrategy,
-    ) => {
+export class TableModel extends ModelOps({
+  table: tablesTable,
+  tableName: 'tablesTable',
+  selectSchema: TableSelectSchema,
+  createSchema: TableCreate,
+  updateSchema: TableUpdate,
+  strategySchema: TableStrategy,
+}) {
+  public static validationStrategies: ValidationStrategies<
+    typeof TableStrategy
+  > = {
+    differentSideColors: (_db, _leagueUuid, data) => {
       if (data.side1Color === data.side2Color) {
         throw new StrategyValidationError('Side colors must be different', {
           side1Color: {
