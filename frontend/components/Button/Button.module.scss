@@ -48,6 +48,8 @@
 }
 
 .secondary {
+  color: $textColor;
+
   @media (hover: hover) {
     &:hover {
       background-color: $grayBright;
