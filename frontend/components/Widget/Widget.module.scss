@@ -133,18 +133,19 @@
 
   :where(&) {
     --divider-border-color: #{$dividerColor};
+    --divider-fallback-border-color: #{$dividerColor};
     --divider-border-style: solid;
   }
 
   &.color-start {
     &::before {
-      --divider-border-color: var(--widget-border-color, --divider-border-color);
+      --divider-border-color: var(--widget-border-color, var(--divider-fallback-border-color));
     }
   }
 
   &.color-end {
     &::after {
-      --divider-border-color: var(--widget-border-color, --divider-border-color);
+      --divider-border-color: var(--widget-border-color, var(--divider-fallback-border-color));
     }
   }
 
