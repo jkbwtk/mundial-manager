@@ -15,4 +15,6 @@
 .unfocus-background {
   filter: grayscale(100%) saturate(0%) brightness(30%);
   pointer-events: none;
+
+  transition: filter 0.15s ease-in;
 }
