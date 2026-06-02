@@ -29,7 +29,13 @@ const App: Component<AppProps> = (props) => {
   return (
     <SSRUtilsProvider {...props.ssrProps}>
       <ErrorBoundary
-        fallback={<GenericErrorPage config={errors.internalError} />}
+        fallback={(err, reset) => (
+          <GenericErrorPage
+            config={errors.internalError}
+            error={err}
+            reset={reset}
+          />
+        )}
       >
         <Suspense>
           <MetaProvider>

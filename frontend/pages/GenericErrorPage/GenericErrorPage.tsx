@@ -1,5 +1,6 @@
+import { Show } from 'solid-js';
 import spin from '#assets/images/spin.gif';
-import { VanillaAnchorButton } from '#components/Button';
+import { Button, VanillaAnchorButton } from '#components/Button';
 import { Divider } from '#components/Widget';
 import { useSSRUtils } from '#providers/SSRUtilsProvider';
 import style from './GenericErrorPage.module.scss';
@@ -12,6 +13,7 @@ export interface ErrorConfig {
 export interface GenericErrorPageProps {
   config: ErrorConfig;
   error?: Error;
+  reset?: () => void;
 }
 
 export const GenericErrorPage: Component<GenericErrorPageProps> = (props) => {
@@ -29,7 +31,30 @@ export const GenericErrorPage: Component<GenericErrorPageProps> = (props) => {
 
       <Divider />
 
-      <VanillaAnchorButton href="/">Back to homepage</VanillaAnchorButton>
+      <Show when={props.reset}>
+        <Button severity="danger" onClick={props.reset}>
+          Try again
+        </Button>
+      </Show>
+
+      <Divider />
+
+      <VanillaAnchorButton severity="secondary" href="/">
+        Back to homepage
+      </VanillaAnchorButton>
+
+      <Divider />
+
+      <Show when={props.error}>
+        {(error) => (
+          <details class={style.errorDetails}>
+            <summary>Details</summary>
+            <span>
+              <strong>{error().name}</strong>: {error().message}
+            </span>
+          </details>
+        )}
+      </Show>
     </div>
   );
 };

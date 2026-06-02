@@ -16,4 +16,25 @@
   .text {
     text-align: center;
   }
+
+  .error-details {
+    width: cw(50);
+    max-width: calc(100% - cw(2));
+
+    padding: ch(1) cw(1);
+
+    border-radius: $borderRadius;
+
+    background-image: repeating-linear-gradient(45deg, $stripeColor 0, $stripeColor 0.1rem, transparent 0, transparent 50%);
+    background-size: 1rem 1rem;
+
+    summary {
+      cursor: pointer;
+
+      color: $textBrightColor;
+      font-weight: bold;
+
+      user-select: none;
+    }
+  }
 }
