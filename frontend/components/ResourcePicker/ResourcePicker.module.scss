@@ -1,0 +1,28 @@
+@use 'app' as *;
+
+.picker {
+  white-space: nowrap;
+
+  &::before {
+    content: '[';
+  }
+
+  &::after {
+    content: ']';
+  }
+}
+
+.entry {
+  display: block;
+  width: 100%;
+  text-align: left;
+}
+
+.input {
+  display: inline-flex;
+  width: 100%;
+
+  input {
+    width: 100%;
+  }
+}
