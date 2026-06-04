@@ -1,11 +1,5 @@
-import {
-  createEffect,
-  createSignal,
-  type JSX,
-  mergeProps,
-  onCleanup,
-  Show,
-} from 'solid-js';
+import { type JSX, mergeProps, Show } from 'solid-js';
+import { Spinner } from '#components/Spinner';
 import type { RequiredDefaults } from '#shared/utils';
 import style from './Button.module.scss';
 
@@ -26,31 +20,8 @@ export const buttonDefaultProps: RequiredDefaults<CustomButtonProps> = {
   padding: 1,
 };
 
-const SPINNER_FRAMES = ['|', '/', '-', '\\'];
-const SPINNER_INTERVAL = 200; // milliseconds
-
 export const Button: ParentComponent<ButtonProps> = (userProps) => {
   const props = mergeProps(buttonDefaultProps, userProps);
-
-  const [spinnerIndex, setSpinnerIndex] = createSignal(0);
-
-  let interval: ReturnType<typeof setInterval> | undefined;
-
-  createEffect(() => {
-    clearInterval(interval);
-
-    if (props.loading) {
-      interval = setInterval(() => {
-        setSpinnerIndex((prev) => (prev + 1) % SPINNER_FRAMES.length);
-      }, SPINNER_INTERVAL);
-    } else {
-      setSpinnerIndex(0);
-    }
-  });
-
-  onCleanup(() => {
-    clearInterval(interval);
-  });
 
   return (
     <button
@@ -80,7 +51,7 @@ export const Button: ParentComponent<ButtonProps> = (userProps) => {
       </span>
 
       <Show when={props.loading}>
-        <span class={style.spinner}>{SPINNER_FRAMES[spinnerIndex()]}</span>
+        <Spinner />
       </Show>
     </button>
   );

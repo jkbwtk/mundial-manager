@@ -1,0 +1,15 @@
+@use 'app' as *;
+
+.spinner {
+  position: absolute;
+
+  height: ch(1);
+  width: cw(1);
+
+  top: 50%;
+  left: 50%;
+
+  transform: translate(-50%, -50%);
+
+  user-select: none;
+}
