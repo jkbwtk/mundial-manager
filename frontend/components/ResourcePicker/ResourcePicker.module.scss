@@ -1,21 +1,80 @@
 @use 'app' as *;
 
 .picker {
+  min-width: cw(20);
+
   white-space: nowrap;
+
+  display: inline-flex;
+
+  color: $textColor;
+  border-radius: $borderRadius;
+
+  transition:
+    background-color 0.1s,
+    color 0.1s;
 
   &::before {
     content: '[';
+    font-weight: bold;
   }
 
   &::after {
     content: ']';
+    font-weight: bold;
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: $gray;
+      color: $backgroundColor;
+    }
   }
 }
 
-.entry {
-  display: block;
-  width: 100%;
+.menu {
+  max-height: round(down, ch(12), ch(1));
+  overflow-y: auto;
+}
+
+.content {
+  display: inline-flex;
+  vertical-align: bottom;
+
   text-align: left;
+
+  width: 100%;
+}
+
+.option {
+  display: block;
+  text-align: left;
+
+  width: 100%;
+
+  cursor: pointer;
+  white-space: nowrap;
+
+  transition:
+    background-color 0.1s,
+    color 0.1s;
+
+  padding: 0 cw(2);
+
+  &:hover {
+    background-color: $gray;
+    color: $backgroundColor;
+  }
+}
+
+.selected {
+  color: $textBrightColor;
+  padding-left: 0;
+
+  &::before {
+    content: '> ';
+    color: $primaryBrightColor;
+  }
 }
 
 .input {

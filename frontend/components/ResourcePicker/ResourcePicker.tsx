@@ -1,3 +1,4 @@
+import { debounce } from '@solid-primitives/scheduled';
 import {
   batch,
   createResource,
@@ -12,14 +13,19 @@ import { Input } from '#components/Input';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import style from './ResourcePicker.module.scss';
 
-export interface ResourcePickerProps<T = unknown, TR = unknown> {
-  query: () => Promise<T>;
-  transform: (data: T) => Array<TR>;
-  toEntry: (data: TR) => { label: string; value: string };
+export interface PickerEntry<T> {
+  label: string;
+  value: T;
 }
 
-export const ResourcePicker = <T = unknown, TR = T>(
-  props: ResourcePickerProps<T, TR>,
+export interface ResourcePickerProps<T = unknown, TR = unknown, TE = string> {
+  query: (search: string) => Promise<T>;
+  transform: (data: T) => Array<TR>;
+  toEntry: (data: TR) => PickerEntry<TE>;
+}
+
+export const ResourcePicker = <T = unknown, TR = T, TE = string>(
+  props: ResourcePickerProps<T, TR, TE>,
 ) => {
   let triggerRef!: HTMLButtonElement;
   let inputRef!: HTMLInputElement;
@@ -29,35 +35,26 @@ export const ResourcePicker = <T = unknown, TR = T>(
   const triggerId = `${instanceId}-trigger`;
 
   const [open, setOpen] = createSignal(true);
-  const [data] = createResource(() => props.query());
-
   const [searchInput, setSearchInput] = createSignal('');
+  const searchInputDebounce = debounce((v: string) => setSearchInput(v), 300);
 
-  const filteredData = (data: TR[]) => {
-    const search = searchInput().toLowerCase();
+  const [data] = createResource(searchInput, props.query);
 
-    if (!search) {
-      return data;
-    }
+  const [picked, setPicked] = createSignal<PickerEntry<TE> | null>(null);
 
-    return data.filter((entry) => {
-      const { label } = props.toEntry(entry);
-      return label.toLowerCase().includes(search);
-    });
-  };
-
-  const toggleOpen = () => {
-    const prev = open();
-
-    if (prev) {
-      setOpen(false);
-      return;
-    }
-
+  const openMenu = () => {
     batch(() => {
       setOpen(true);
       setSearchInput('');
     });
+  };
+
+  const closeMenu = () => {
+    setOpen(false);
+  };
+
+  const toggleOpen = () => {
+    open() ? closeMenu() : openMenu();
   };
 
   return (
@@ -71,8 +68,9 @@ export const ResourcePicker = <T = unknown, TR = T>(
         aria-expanded={open()}
         aria-controls={menuId}
         onPointerUp={toggleOpen}
+        $ServerOnly={true}
       >
-        ResourcePicker component{' '}
+        <span class={style.content}>{picked()?.label}</span>
         <span aria-hidden="true">
           <MaterialSymbol
             color="primary"
@@ -84,29 +82,12 @@ export const ResourcePicker = <T = unknown, TR = T>(
       <AnchoredPopup
         id={menuId}
         open={open()}
-        aria-labelledby={triggerId}
+        class={style.menu}
+        // aria-labelledby={triggerId}
         triggerRef={() => triggerRef}
-        onClickOutside={() => setOpen(false)}
+        onClickOutside={closeMenu}
         matchTriggerWidth
       >
-        <Suspense>
-          <Show when={data()}>
-            {(d) => (
-              <For each={filteredData(props.transform(d()))}>
-                {(entry) => {
-                  const { label } = props.toEntry(entry);
-
-                  // return <div>{label}</div>;
-                  return (
-                    <button role="option" type="button" class={style.entry}>
-                      {label}
-                    </button>
-                  );
-                }}
-              </For>
-            )}
-          </Show>
-        </Suspense>
         <Input
           ref={inputRef}
           class={style.input}
@@ -114,11 +95,37 @@ export const ResourcePicker = <T = unknown, TR = T>(
           autocomplete="off"
           onInput={(ev) => {
             const target = ev.target as HTMLInputElement;
-            setSearchInput(target.value);
+            searchInputDebounce(target.value);
           }}
         >
           <MaterialSymbol symbol="search" />
         </Input>
+
+        <Suspense>
+          <Show when={data()}>
+            {(d) => (
+              <For each={props.transform(d())}>
+                {(instance) => {
+                  const entry = props.toEntry(instance);
+
+                  return (
+                    <button
+                      role="option"
+                      type="button"
+                      classList={{
+                        [style.option]: true,
+                        [style.selected]: entry.value === picked()?.value,
+                      }}
+                      onPointerUp={() => setPicked(entry)}
+                    >
+                      {entry.label}
+                    </button>
+                  );
+                }}
+              </For>
+            )}
+          </Show>
+        </Suspense>
       </AnchoredPopup>
     </>
   );
