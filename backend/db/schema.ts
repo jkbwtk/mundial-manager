@@ -1,7 +1,8 @@
-import { sql } from 'drizzle-orm';
+import { type SQL, sql } from 'drizzle-orm';
 import { integer, pgEnum, timestamp, uuid } from 'drizzle-orm/pg-core/columns';
 import { index, uniqueIndex } from 'drizzle-orm/pg-core/indexes';
 import { pgTable } from 'drizzle-orm/pg-core/table';
+import { tsvector } from '#backend/db/utils';
 import { MatchStatusEnum } from '#shared/types/api/match';
 import { MatchEventTypeEnum } from '#shared/types/api/matchEvent';
 import type { SeasonConfig } from '#shared/types/api/season';
@@ -76,6 +77,15 @@ export const tablesTable = pgTable(
     alias: t.text().notNull(),
     description: t.text(),
 
+    searchVectors: tsvector()
+      .notNull()
+      .generatedAlwaysAs(
+        (): SQL =>
+          sql`setweight(to_tsvector('english', ${tablesTable.name}), 'A') || \
+          setweight(to_tsvector('english', ${tablesTable.alias}), 'B') || \
+          setweight(to_tsvector('english', coalesce(${tablesTable.description}, '')), 'C')`,
+      ),
+
     side1Color: t.text().notNull(), // #RRGGBBAA
     side2Color: t.text().notNull(), // #RRGGBBAA
     location: t.text(),
@@ -84,7 +94,11 @@ export const tablesTable = pgTable(
 
     ...commonFields,
   }),
-  (r) => [index().on(r.leagueUuid), uniqueIndex().on(r.leagueUuid, r.name)],
+  (r) => [
+    index().on(r.leagueUuid),
+    uniqueIndex().on(r.leagueUuid, r.name),
+    index().using('gin', r.searchVectors),
+  ],
 );
 
 export const ballsTable = pgTable('balls', (t) => ({
