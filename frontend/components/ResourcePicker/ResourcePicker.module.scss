@@ -26,8 +26,10 @@
 
   @media (hover: hover) {
     &:hover {
-      background-color: $gray;
-      color: $backgroundColor;
+      &::before,
+      &::after {
+        color: $textBrightColor;
+      }
     }
   }
 }
@@ -44,6 +46,11 @@
   text-align: left;
 
   width: 100%;
+}
+
+.option-container {
+  position: relative;
+  min-height: ch(1);
 }
 
 .option {
@@ -67,7 +74,7 @@
   }
 }
 
-.selected {
+.picked {
   color: $textBrightColor;
   padding-left: 0;
 

@@ -5,12 +5,14 @@ import {
   createSignal,
   createUniqueId,
   For,
-  Show,
+  Match,
   Suspense,
+  Switch,
 } from 'solid-js';
 import { AnchoredPopup } from '#components/AnchoredPopup';
 import { Input } from '#components/Input';
 import { MaterialSymbol } from '#components/MaterialSymbol';
+import { Spinner } from '#components/Spinner';
 import style from './ResourcePicker.module.scss';
 
 export interface PickerEntry<T> {
@@ -38,7 +40,12 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
   const [searchInput, setSearchInput] = createSignal('');
   const searchInputDebounce = debounce((v: string) => setSearchInput(v), 300);
 
-  const [data] = createResource(searchInput, props.query);
+  const transformedData = async (search: string) => {
+    const data = await props.query(search);
+    return props.transform(data);
+  };
+
+  const [data] = createResource(searchInput, transformedData);
 
   const [picked, setPicked] = createSignal<PickerEntry<TE> | null>(null);
 
@@ -46,6 +53,10 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
     batch(() => {
       setOpen(true);
       setSearchInput('');
+    });
+
+    requestAnimationFrame(() => {
+      inputRef.focus();
     });
   };
 
@@ -71,19 +82,41 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
         $ServerOnly={true}
       >
         <span class={style.content}>{picked()?.label}</span>
-        <span aria-hidden="true">
-          <MaterialSymbol
-            color="primary"
-            symbol={open() ? 'keyboard_arrow_up' : 'keyboard_arrow_down'}
-          />
-        </span>
+
+        <Switch>
+          <Match when={picked() === null}>
+            <span aria-hidden="true">
+              <MaterialSymbol
+                color="primary"
+                symbol={open() ? 'keyboard_arrow_up' : 'keyboard_arrow_down'}
+              />
+            </span>
+          </Match>
+
+          <Match when={picked() !== null}>
+            <button
+              type="button"
+              onPointerUp={(ev) => {
+                ev.stopPropagation();
+                setPicked(null);
+              }}
+            >
+              <MaterialSymbol
+                interactive
+                color="primary"
+                highlightColor="primary"
+                symbol="delete"
+              />
+            </button>
+          </Match>
+        </Switch>
       </button>
 
       <AnchoredPopup
         id={menuId}
         open={open()}
         class={style.menu}
-        // aria-labelledby={triggerId}
+        aria-labelledby={triggerId}
         triggerRef={() => triggerRef}
         onClickOutside={closeMenu}
         matchTriggerWidth
@@ -101,31 +134,29 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
           <MaterialSymbol symbol="search" />
         </Input>
 
-        <Suspense>
-          <Show when={data()}>
-            {(d) => (
-              <For each={props.transform(d())}>
-                {(instance) => {
-                  const entry = props.toEntry(instance);
+        <div class={style.optionContainer}>
+          <Suspense fallback={<Spinner />}>
+            <For each={data.latest}>
+              {(instance) => {
+                const entry = props.toEntry(instance);
 
-                  return (
-                    <button
-                      role="option"
-                      type="button"
-                      classList={{
-                        [style.option]: true,
-                        [style.selected]: entry.value === picked()?.value,
-                      }}
-                      onPointerUp={() => setPicked(entry)}
-                    >
-                      {entry.label}
-                    </button>
-                  );
-                }}
-              </For>
-            )}
-          </Show>
-        </Suspense>
+                return (
+                  <button
+                    role="option"
+                    type="button"
+                    classList={{
+                      [style.option]: true,
+                      [style.picked]: entry.value === picked()?.value,
+                    }}
+                    onPointerUp={() => setPicked(entry)}
+                  >
+                    {entry.label}
+                  </button>
+                );
+              }}
+            </For>
+          </Suspense>
+        </div>
       </AnchoredPopup>
     </>
   );
