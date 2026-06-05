@@ -11,6 +11,7 @@ import {
   applyDirectives,
   type ComponentUseDirectiveHack,
 } from '#flib/solidHelpers';
+import { normalizeInputType } from '#flib/utils';
 import type { RequiredDefaults } from '#shared/utils';
 import style from './Input.module.scss';
 
@@ -48,30 +49,6 @@ export const inputDefaultProps: RequiredDefaults<CustomInputProps> = {
   type: 'text',
   invalid: false,
   useDirectives: [],
-};
-
-const normalizeInputType = (
-  type: InputProps['type'],
-  inputMode?: InputProps['inputMode'],
-): InputProps['type'] => {
-  if (inputMode) {
-    switch (inputMode) {
-      case 'text':
-        return 'text';
-      case 'search':
-        return 'search';
-      case 'email':
-        return 'email';
-      case 'numeric':
-        return 'number';
-      case 'decimal':
-        return 'number';
-      case 'tel':
-        return 'text';
-    }
-  }
-
-  return type;
 };
 
 export const Input: Component<InputProps> = (userProps) => {

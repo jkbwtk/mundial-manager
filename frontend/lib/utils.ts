@@ -1,3 +1,5 @@
+import type { JSX } from 'solid-js';
+
 export const isDev = (): boolean => {
   try {
     return import.meta.env.DEV ?? false;
@@ -47,4 +49,28 @@ export function joinPaths(...paths: string[]): string {
   }
 
   return startingSlash + joined + endingSlash;
+}
+
+export function normalizeInputType(
+  type: JSX.InputHTMLAttributes<HTMLInputElement>['type'],
+  inputMode?: JSX.InputHTMLAttributes<HTMLInputElement>['inputMode'],
+): JSX.InputHTMLAttributes<HTMLInputElement>['type'] {
+  if (inputMode) {
+    switch (inputMode) {
+      case 'text':
+        return 'text';
+      case 'search':
+        return 'search';
+      case 'email':
+        return 'email';
+      case 'numeric':
+        return 'number';
+      case 'decimal':
+        return 'number';
+      case 'tel':
+        return 'text';
+    }
+  }
+
+  return type;
 }

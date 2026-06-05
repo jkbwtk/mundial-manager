@@ -3,6 +3,7 @@ import { batch, createSignal, type JSX } from 'solid-js';
 import { createStore, unwrap } from 'solid-js/store';
 import type z from 'zod';
 import { treeifyError } from 'zod';
+import { normalizeInputType } from '#flib/utils';
 import { ZodLikeError } from '#shared/zod';
 
 export type UseFormValidationOptions<T extends z.ZodObject> = {
@@ -43,8 +44,10 @@ export const useFormValidation = <T extends z.ZodObject>(
     const { ref } = field;
     const value = ref.value;
 
-    const inputType = field.ref
-      .type as JSX.InputHTMLAttributes<HTMLInputElement>['type'];
+    const inputType = normalizeInputType(
+      ref.type,
+      ref.inputMode as JSX.InputHTMLAttributes<HTMLInputElement>['inputMode'],
+    );
 
     switch (inputType) {
       case 'checkbox':
