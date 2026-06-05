@@ -1,18 +1,27 @@
 import { debounce } from '@solid-primitives/scheduled';
 import {
   batch,
+  createEffect,
   createResource,
   createSignal,
   createUniqueId,
   For,
+  type JSX,
   Match,
+  on,
+  onMount,
   Suspense,
   Switch,
 } from 'solid-js';
 import { AnchoredPopup } from '#components/AnchoredPopup';
+import type { DropdownAnchor } from '#components/Dropdown';
 import { Input } from '#components/Input';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import { Spinner } from '#components/Spinner';
+import {
+  applyDirectives,
+  type ComponentUseDirectiveHack,
+} from '#flib/solidHelpers';
 import style from './ResourcePicker.module.scss';
 
 export interface PickerEntry<T> {
@@ -24,12 +33,23 @@ export interface ResourcePickerProps<T = unknown, TR = unknown, TE = string> {
   query: (search: string) => Promise<T>;
   transform: (data: T) => Array<TR>;
   toEntry: (data: TR) => PickerEntry<TE>;
+
+  name?: string;
+  disabled?: boolean;
+  invalid?: boolean;
+  anchor?: DropdownAnchor;
+  class?: string;
+  classList?: JSX.CustomAttributes<HTMLElement>['classList'];
+  useDirectives?: ComponentUseDirectiveHack<HTMLInputElement>[];
+
+  value?: TE;
+  onChange?: (value?: TE) => void;
 }
 
 export const ResourcePicker = <T = unknown, TR = T, TE = string>(
   props: ResourcePickerProps<T, TR, TE>,
 ) => {
-  let triggerRef!: HTMLButtonElement;
+  let ref!: HTMLButtonElement;
   let inputRef!: HTMLInputElement;
 
   const instanceId = createUniqueId();
@@ -62,24 +82,56 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
 
   const closeMenu = () => {
     setOpen(false);
+
+    ref.onblur?.(new FocusEvent('blur', { relatedTarget: ref }));
   };
 
   const toggleOpen = () => {
     open() ? closeMenu() : openMenu();
   };
 
+  createEffect(
+    on(
+      [picked],
+      ([picked]) => {
+        props.onChange?.(picked?.value);
+
+        ref.oninput?.(new InputEvent('input', { bubbles: true }));
+      },
+      { defer: true },
+    ),
+  );
+
+  onMount(() => {
+    ref.setCustomValidity = () => {};
+    ref.reportValidity = () => true;
+
+    // @ts-expect-error
+    applyDirectives(ref, props.useDirectives ?? []);
+  });
+
   return (
     <>
       <button
-        ref={triggerRef}
+        ref={ref}
         id={triggerId}
-        class={style.picker}
         type="button"
         aria-haspopup="listbox"
         aria-expanded={open()}
         aria-controls={menuId}
         onPointerUp={toggleOpen}
-        $ServerOnly={true}
+        disabled={props.disabled}
+        aria-invalid={props.invalid}
+        classList={{
+          [style.picker]: true,
+          [style.invalid]: props.invalid,
+          [props.class!]: !!props.class,
+          ...(props.classList ?? {}),
+        }}
+        //@ts-expect-error
+        prop:type="dropdown"
+        prop:name={props.name}
+        prop:value={picked()?.value}
       >
         <span class={style.content}>{picked()?.label}</span>
 
@@ -117,7 +169,7 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
         open={open()}
         class={style.menu}
         aria-labelledby={triggerId}
-        triggerRef={() => triggerRef}
+        triggerRef={() => ref}
         onClickOutside={closeMenu}
         matchTriggerWidth
       >

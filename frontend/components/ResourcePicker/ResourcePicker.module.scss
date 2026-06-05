@@ -32,9 +32,32 @@
       }
     }
   }
+
+  &:disabled {
+    cursor: not-allowed;
+    color: $textDimColor;
+
+    &::before {
+      color: $textDimColor;
+
+      content: '|';
+    }
+
+    &::after {
+      color: $textDimColor;
+      content: '|';
+    }
+  }
+
+  &.invalid {
+    &::before,
+    &::after {
+      color: $red;
+    }
+  }
 }
 
-.menu {
+.inv .menu {
   max-height: round(down, ch(12), ch(1));
   overflow-y: auto;
 }
