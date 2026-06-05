@@ -27,12 +27,15 @@ import style from './ResourcePicker.module.scss';
 export interface PickerEntry<T> {
   label: string;
   value: T;
+  loading?: true;
 }
 
 export interface ResourcePickerProps<T = unknown, TR = unknown, TE = string> {
   query: (search: string) => Promise<T>;
   transform: (data: T) => Array<TR>;
   toEntry: (data: TR) => PickerEntry<TE>;
+
+  queryById: (id: TE) => Promise<TR>;
 
   name?: string;
   disabled?: boolean;
@@ -56,7 +59,7 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
   const menuId = `${instanceId}-menu`;
   const triggerId = `${instanceId}-trigger`;
 
-  const [open, setOpen] = createSignal(true);
+  const [open, setOpen] = createSignal(false);
   const [searchInput, setSearchInput] = createSignal('');
   const searchInputDebounce = debounce((v: string) => setSearchInput(v), 300);
 
@@ -102,6 +105,24 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
     ),
   );
 
+  createEffect(
+    on([() => props.value], ([value]) => {
+      if (value === undefined) {
+        setPicked(null);
+        return;
+      }
+
+      setPicked({ label: '', value, loading: true });
+
+      props.queryById(value).then((instance) => {
+        if (picked()?.value !== value) return;
+
+        const entry = props.toEntry(instance);
+        setPicked(entry);
+      });
+    }),
+  );
+
   onMount(() => {
     ref.setCustomValidity = () => {};
     ref.reportValidity = () => true;
@@ -133,7 +154,13 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
         prop:name={props.name}
         prop:value={picked()?.value}
       >
-        <span class={style.content}>{picked()?.label}</span>
+        <span class={style.content}>
+          <Switch fallback={picked()?.label}>
+            <Match when={picked()?.loading}>
+              <Spinner />
+            </Match>
+          </Switch>
+        </span>
 
         <Switch>
           <Match when={picked() === null}>
