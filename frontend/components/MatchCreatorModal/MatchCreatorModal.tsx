@@ -156,7 +156,8 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
           <span class={style.fieldLabel}>Duration:</span>
           <Input
             class={style.fieldInput}
-            type="number"
+            type="text"
+            inputMode="numeric"
             placeholder="0"
             min={0}
             required
@@ -171,7 +172,8 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
           <span class={style.fieldLabel}>Pause Duration:</span>
           <Input
             class={style.fieldInput}
-            type="number"
+            type="text"
+            inputMode="numeric"
             placeholder="0"
             min={0}
             name="pauseDuration"
