@@ -32,8 +32,8 @@ export const SeasonsDashboard: Component = () => {
     open({
       props: {
         component: SeasonCreatorModal,
-        owner,
       },
+      owner,
       closeOnBackgroundClick: false,
     });
   };
@@ -74,9 +74,9 @@ export const SeasonsDashboard: Component = () => {
             open({
               props: {
                 component: SeasonCreatorModal,
-                owner,
                 season,
               },
+              owner,
               closeOnBackgroundClick: false,
             });
           },

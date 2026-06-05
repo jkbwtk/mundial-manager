@@ -1,13 +1,7 @@
 import { useAction } from '@solidjs/router';
 import hljs from 'highlight.js/lib/core';
 import json from 'highlight.js/lib/languages/json';
-import {
-  createMemo,
-  createUniqueId,
-  type getOwner,
-  runWithOwner,
-  Show,
-} from 'solid-js';
+import { createMemo, createUniqueId, Show } from 'solid-js';
 import { Button } from '#components/Button';
 import { HighlightedCode } from '#components/HighlightedCode';
 import { Input } from '#components/Input';
@@ -26,7 +20,6 @@ hljs.registerLanguage('json', json);
 
 export interface BallCreatorModalProps {
   ball?: Ball;
-  owner: ReturnType<typeof getOwner>;
 }
 
 interface CreatorState {
@@ -88,12 +81,8 @@ export const BallCreatorModal: Component<BallCreatorModalProps> = (props) => {
     closeModal(false);
   };
 
-  const createAction = runWithOwner(props.owner, () =>
-    useAction(actionCreateBall),
-  );
-  const updateAction = runWithOwner(props.owner, () =>
-    useAction(actionUpdateBall),
-  );
+  const createAction = useAction(actionCreateBall);
+  const updateAction = useAction(actionUpdateBall);
 
   if (!createAction || !updateAction) {
     actions.error('Failed to initialize Ball Creator modal');

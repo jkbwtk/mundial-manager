@@ -1,12 +1,6 @@
 import hljs from 'highlight.js/lib/core';
 import json from 'highlight.js/lib/languages/json';
-import {
-  createMemo,
-  createUniqueId,
-  type getOwner,
-  runWithOwner,
-  Show,
-} from 'solid-js';
+import { createMemo, createUniqueId, Show } from 'solid-js';
 import { Button } from '#components/Button';
 import { HighlightedCode } from '#components/HighlightedCode';
 import { Input } from '#components/Input';
@@ -26,7 +20,6 @@ hljs.registerLanguage('json', json);
 
 export interface LeagueCreatorModalProps {
   league?: League;
-  owner: ReturnType<typeof getOwner>;
 }
 
 interface CreatorState {
@@ -87,12 +80,8 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
     closeModal(false);
   };
 
-  const createAction = runWithOwner(props.owner, () =>
-    useAction(actionCreateLeague),
-  );
-  const updateAction = runWithOwner(props.owner, () =>
-    useAction(actionUpdateLeague),
-  );
+  const createAction = useAction(actionCreateLeague);
+  const updateAction = useAction(actionUpdateLeague);
 
   if (!createAction || !updateAction) {
     actions.error('Failed to initialize League Creator modal');

@@ -25,8 +25,8 @@ export const BallsDashboard: Component = () => {
     open({
       props: {
         component: BallCreatorModal,
-        owner,
       },
+      owner,
       closeOnBackgroundClick: false,
     });
   };
@@ -83,9 +83,9 @@ export const BallsDashboard: Component = () => {
             open({
               props: {
                 component: BallCreatorModal,
-                owner,
                 ball,
               },
+              owner,
               closeOnBackgroundClick: false,
             });
           },

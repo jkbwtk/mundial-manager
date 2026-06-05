@@ -25,8 +25,8 @@ export const TablesDashboard: Component = () => {
     open({
       props: {
         component: TableCreatorModal,
-        owner,
       },
+      owner,
       closeOnBackgroundClick: false,
     });
   };
@@ -82,9 +82,9 @@ export const TablesDashboard: Component = () => {
             open({
               props: {
                 component: TableCreatorModal,
-                owner,
                 table,
               },
+              owner,
               closeOnBackgroundClick: false,
             });
           },

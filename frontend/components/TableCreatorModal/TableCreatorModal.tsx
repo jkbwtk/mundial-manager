@@ -1,13 +1,7 @@
 import { useAction } from '@solidjs/router';
 import hljs from 'highlight.js/lib/core';
 import json from 'highlight.js/lib/languages/json';
-import {
-  createMemo,
-  createUniqueId,
-  type getOwner,
-  runWithOwner,
-  Show,
-} from 'solid-js';
+import { createMemo, createUniqueId, Show } from 'solid-js';
 import { Button } from '#components/Button';
 import { HighlightedCode } from '#components/HighlightedCode';
 import { Input } from '#components/Input';
@@ -26,7 +20,6 @@ hljs.registerLanguage('json', json);
 
 export interface TableCreatorModalProps {
   table?: Table;
-  owner: ReturnType<typeof getOwner>;
 }
 
 interface CreatorState {
@@ -88,12 +81,8 @@ export const TableCreatorModal: Component<TableCreatorModalProps> = (props) => {
     closeModal(false);
   };
 
-  const createAction = runWithOwner(props.owner, () =>
-    useAction(actionCreateTable),
-  );
-  const updateAction = runWithOwner(props.owner, () =>
-    useAction(actionUpdateTable),
-  );
+  const createAction = useAction(actionCreateTable);
+  const updateAction = useAction(actionUpdateTable);
 
   if (!createAction || !updateAction) {
     actions.error('Failed to initialize Table Creator modal');

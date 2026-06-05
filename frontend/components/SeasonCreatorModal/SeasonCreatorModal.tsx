@@ -1,13 +1,7 @@
 import { useAction } from '@solidjs/router';
 import hljs from 'highlight.js/lib/core';
 import json from 'highlight.js/lib/languages/json';
-import {
-  createMemo,
-  createUniqueId,
-  type getOwner,
-  runWithOwner,
-  Show,
-} from 'solid-js';
+import { createMemo, createUniqueId, Show } from 'solid-js';
 import { Button } from '#components/Button';
 import { DateInput } from '#components/DateInput';
 import { HighlightedCode } from '#components/HighlightedCode';
@@ -28,7 +22,6 @@ hljs.registerLanguage('json', json);
 
 export interface SeasonCreatorModalProps {
   season?: Season;
-  owner: ReturnType<typeof getOwner>;
 }
 
 interface CreatorState {
@@ -97,12 +90,8 @@ export const SeasonCreatorModal: Component<SeasonCreatorModalProps> = (
     closeModal(false);
   };
 
-  const createAction = runWithOwner(props.owner, () =>
-    useAction(actionCreateSeason),
-  );
-  const updateAction = runWithOwner(props.owner, () =>
-    useAction(actionUpdateSeason),
-  );
+  const createAction = useAction(actionCreateSeason);
+  const updateAction = useAction(actionUpdateSeason);
 
   if (!createAction || !updateAction) {
     actions.error('Failed to initialize Season Creator modal');

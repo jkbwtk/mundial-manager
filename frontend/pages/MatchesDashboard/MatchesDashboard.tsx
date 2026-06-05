@@ -25,8 +25,8 @@ export const MatchesDashboard: Component = () => {
     open({
       props: {
         component: MatchCreatorModal,
-        owner,
       },
+      owner,
       closeOnBackgroundClick: false,
     });
   };
@@ -73,9 +73,9 @@ export const MatchesDashboard: Component = () => {
             open({
               props: {
                 component: MatchCreatorModal,
-                owner,
                 match,
               },
+              owner,
               closeOnBackgroundClick: false,
             });
           },

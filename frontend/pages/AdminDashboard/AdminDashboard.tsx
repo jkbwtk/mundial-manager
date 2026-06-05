@@ -26,15 +26,14 @@ export const AdminDashboard: Component = () => {
 
   const changeLeague = useAction(actionChangeLeague);
   const deleteLeague = useAction(actionDeleteLeague);
-
   const owner = getOwner();
 
   const handleCreateLeague = () => {
     open({
       props: {
         component: LeagueCreatorModal,
-        owner,
       },
+      owner,
       closeOnBackgroundClick: false,
     });
   };
@@ -127,9 +126,9 @@ export const AdminDashboard: Component = () => {
             open({
               props: {
                 component: LeagueCreatorModal,
-                owner,
                 league,
               },
+              owner,
               closeOnBackgroundClick: false,
             });
           },

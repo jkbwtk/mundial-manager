@@ -25,8 +25,8 @@ export const PlayersDashboard: Component = () => {
     open({
       props: {
         component: PlayerCreatorModal,
-        owner,
       },
+      owner,
       closeOnBackgroundClick: false,
     });
   };
@@ -66,9 +66,9 @@ export const PlayersDashboard: Component = () => {
             open({
               props: {
                 component: PlayerCreatorModal,
-                owner,
                 player,
               },
+              owner,
               closeOnBackgroundClick: false,
             });
           },
