@@ -210,3 +210,6 @@ export function getValueHash(value: unknown): string {
 
   return hash;
 }
+
+export type ArrayElement<ArrayType extends readonly unknown[]> =
+  ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
