@@ -150,7 +150,6 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
           ...(props.classList ?? {}),
         }}
         //@ts-expect-error
-        prop:type="dropdown"
         prop:name={props.name}
         prop:value={picked()?.value}
       >
