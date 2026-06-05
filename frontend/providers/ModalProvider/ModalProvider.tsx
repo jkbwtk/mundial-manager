@@ -65,10 +65,12 @@ export const ModalProvider: ParentComponent = (props) => {
 
   const open: ModalContextActions['open'] = (options) => {
     const id = createUniqueId();
+    const owner = options.owner ?? null;
 
     const entry: ModalEntry = {
       id,
       props: options.props,
+      owner: () => owner,
       closeModal: closeFactory(id, options.afterClose),
       closeOnBackgroundClick: options.closeOnBackgroundClick ?? true,
     };
