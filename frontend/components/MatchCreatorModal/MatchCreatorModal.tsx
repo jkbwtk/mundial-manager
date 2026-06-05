@@ -1,26 +1,26 @@
 import { useAction } from '@solidjs/router';
 import hljs from 'highlight.js/lib/core';
 import json from 'highlight.js/lib/languages/json';
-import {
-  createMemo,
-  createUniqueId,
-  type getOwner,
-  runWithOwner,
-  Show,
-} from 'solid-js';
+import { createMemo, createUniqueId, Show } from 'solid-js';
 import { Button } from '#components/Button';
 import { HighlightedCode } from '#components/HighlightedCode';
 import { Input } from '#components/Input';
 import { Modal } from '#components/Modal';
 import { Divider } from '#components/Widget';
 import { useFormValidation } from '#flib/formValidation';
-import { actionCreateMatch, actionUpdateMatch } from '#flib/trpcCalls';
+import {
+  actionCreateMatch,
+  actionUpdateMatch,
+  querySearchTables,
+  queryTableById,
+} from '#flib/trpcCalls';
 import { toJson } from '#flib/utils';
 import { useModalActions } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
 import 'highlight.js/styles/gml.min.css';
 import { DateInput } from '#components/DateInput';
 import { Dropdown, type DropdownOption } from '#components/Dropdown';
+import { ResourcePicker } from '#components/ResourcePicker';
 import {
   type Match,
   MatchCreate,
@@ -32,7 +32,6 @@ hljs.registerLanguage('json', json);
 
 export interface MatchCreatorModalProps {
   match?: Match;
-  owner: ReturnType<typeof getOwner>;
 }
 
 interface CreatorState {
@@ -94,12 +93,8 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
     closeModal(false);
   };
 
-  const createAction = runWithOwner(props.owner, () =>
-    useAction(actionCreateMatch),
-  );
-  const updateAction = runWithOwner(props.owner, () =>
-    useAction(actionUpdateMatch),
-  );
+  const createAction = useAction(actionCreateMatch);
+  const updateAction = useAction(actionUpdateMatch);
 
   if (!createAction || !updateAction) {
     actions.error('Failed to initialize Match Creator modal');
@@ -186,6 +181,21 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
           >
             s
           </Input>
+
+          <span class={style.fieldLabel}>Table:</span>
+          <ResourcePicker
+            class={style.fieldInput}
+            queryById={queryTableById}
+            query={querySearchTables}
+            transform={(d) => d}
+            toEntry={(e) => {
+              return { label: e.name, value: e.uuid };
+            }}
+            name="tableUuid"
+            value={props.match?.tableUuid ?? undefined}
+            useDirectives={[validate]}
+            invalid={!!errors.tableUuid}
+          />
 
           <span class={style.fieldLabel}>Status:</span>
           <Dropdown
