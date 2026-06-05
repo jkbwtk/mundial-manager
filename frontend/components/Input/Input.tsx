@@ -50,6 +50,30 @@ export const inputDefaultProps: RequiredDefaults<CustomInputProps> = {
   useDirectives: [],
 };
 
+const normalizeInputType = (
+  type: InputProps['type'],
+  inputMode?: InputProps['inputMode'],
+): InputProps['type'] => {
+  if (inputMode) {
+    switch (inputMode) {
+      case 'text':
+        return 'text';
+      case 'search':
+        return 'search';
+      case 'email':
+        return 'email';
+      case 'numeric':
+        return 'number';
+      case 'decimal':
+        return 'number';
+      case 'tel':
+        return 'text';
+    }
+  }
+
+  return type;
+};
+
 export const Input: Component<InputProps> = (userProps) => {
   const mergedProps = mergeProps(inputDefaultProps, userProps);
   const [utilProps, props] = splitProps(mergedProps, [
@@ -63,7 +87,10 @@ export const Input: Component<InputProps> = (userProps) => {
 
   const id = createUniqueId();
 
-  const inputStyle = () => style[props.type as keyof typeof style];
+  const inputStyle = () =>
+    style[
+      normalizeInputType(props.type, props.inputMode) as keyof typeof style
+    ];
 
   let inputRef: HTMLInputElement | undefined;
 
