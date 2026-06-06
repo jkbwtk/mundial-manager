@@ -6,10 +6,12 @@ import {
   createSignal,
   createUniqueId,
   For,
+  getOwner,
   type JSX,
   Match,
   on,
   onMount,
+  runWithOwner,
   Suspense,
   Switch,
 } from 'solid-js';
@@ -58,6 +60,7 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
   const instanceId = createUniqueId();
   const menuId = `${instanceId}-menu`;
   const triggerId = `${instanceId}-trigger`;
+  const owner = getOwner();
 
   const [open, setOpen] = createSignal(false);
   const [searchInput, setSearchInput] = createSignal('');
@@ -97,6 +100,12 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
   const selectOption = (entry: PickerEntry<TE>) => {
     setPicked(entry);
     closeMenu();
+  };
+
+  const toEntryWithOwner = (instance: TR): PickerEntry<TE> => {
+    const createEntry = () => props.toEntry(instance);
+    if (!owner) return createEntry();
+    return runWithOwner(owner, createEntry) ?? createEntry();
   };
 
   const moveActiveIndex = (delta: 1 | -1) => {
@@ -156,7 +165,7 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
         const index = activeIndex();
         const option = data.latest?.[index];
 
-        if (option) selectOption(props.toEntry(option));
+        if (option) selectOption(toEntryWithOwner(option));
         break;
       }
       case 'Escape':
@@ -190,7 +199,7 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
       props.queryById(value).then((instance) => {
         if (picked()?.value !== value) return;
 
-        const entry = props.toEntry(instance);
+        const entry = toEntryWithOwner(instance);
         setPicked(entry);
       });
     }),
