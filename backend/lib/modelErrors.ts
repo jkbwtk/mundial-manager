@@ -104,6 +104,8 @@ export class NotFoundError extends ModelError {
 }
 
 const DuplicateExtractRegex = /Key \((.+)\)=\((.+)\) already exists\./;
+const ForeignKeyExtractRegex =
+  /Key \((.+)\)=\((.+)\) is not present in table "(.+)"\./;
 
 export function ConvertDrizzleErrors() {
   // biome-ignore lint/suspicious/noExplicitAny: yeah
@@ -152,6 +154,28 @@ export function ConvertDrizzleErrors() {
 
             case '23503': {
               const fields: ModelErrorFields = {};
+
+              if (
+                'detail' in err.cause &&
+                typeof err.cause.detail === 'string'
+              ) {
+                const extracted = ForeignKeyExtractRegex.exec(err.cause.detail);
+
+                if (extracted) {
+                  const [, field, value, foreignTable] = extracted;
+
+                  if (
+                    typeof field === 'string' &&
+                    typeof value === 'string' &&
+                    typeof foreignTable === 'string'
+                  ) {
+                    fields[field] = {
+                      value,
+                      errorType: 'Foreign key violation: value not found',
+                    };
+                  }
+                }
+              }
 
               throw new ForeignKeyViolationError(
                 'Foreign key violation error',
