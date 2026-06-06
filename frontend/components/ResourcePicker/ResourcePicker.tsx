@@ -25,7 +25,7 @@ import {
 import style from './ResourcePicker.module.scss';
 
 export interface PickerEntry<T> {
-  label: string;
+  label: string | JSX.Element;
   value: T;
   loading?: true;
 }
@@ -91,6 +91,11 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
 
   const toggleOpen = () => {
     open() ? closeMenu() : openMenu();
+  };
+
+  const selectOption = (entry: PickerEntry<TE>) => {
+    setPicked(entry);
+    closeMenu();
   };
 
   createEffect(
@@ -226,7 +231,7 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
                       [style.option]: true,
                       [style.picked]: entry.value === picked()?.value,
                     }}
-                    onPointerUp={() => setPicked(entry)}
+                    onPointerUp={() => selectOption(entry)}
                   >
                     {entry.label}
                   </button>
