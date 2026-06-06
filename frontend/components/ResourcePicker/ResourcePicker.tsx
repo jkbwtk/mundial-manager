@@ -44,6 +44,7 @@ export interface ResourcePickerProps<T = unknown, TR = unknown, TE = string> {
   invalid?: boolean;
   anchor?: DropdownAnchor;
   class?: string;
+  placeholder?: string;
   classList?: JSX.CustomAttributes<HTMLElement>['classList'];
   useDirectives?: ComponentUseDirectiveHack<HTMLInputElement>[];
 
@@ -239,6 +240,7 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
         classList={{
           [style.picker]: true,
           [style.invalid]: props.invalid,
+          [style.placeholder]: !picked() && !!props.placeholder,
           [props.class!]: !!props.class,
           ...(props.classList ?? {}),
         }}
@@ -247,7 +249,7 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
         prop:value={picked()?.value ?? ''}
       >
         <span class={style.content}>
-          <Switch fallback={picked()?.label}>
+          <Switch fallback={picked()?.label ?? props.placeholder}>
             <Match when={picked()?.loading}>
               <Spinner />
             </Match>
@@ -297,6 +299,7 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
           ref={inputRef}
           class={style.input}
           value={searchInput()}
+          placeholder="Search..."
           autocomplete="off"
           onInput={(ev) => {
             const target = ev.target as HTMLInputElement;

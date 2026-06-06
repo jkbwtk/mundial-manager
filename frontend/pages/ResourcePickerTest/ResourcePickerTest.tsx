@@ -9,6 +9,7 @@ export const ResourcePickerTest: Component = () => {
     <div class={style.container}>
       <ResourcePicker
         queryById={queryBallById}
+        placeholder="Select a ball..."
         query={querySearchBalls}
         transform={(d) => d}
         toEntry={(e) => {

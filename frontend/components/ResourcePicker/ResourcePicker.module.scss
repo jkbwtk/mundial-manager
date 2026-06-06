@@ -10,18 +10,18 @@
   color: $textColor;
   border-radius: $borderRadius;
 
-  transition:
-    background-color 0.1s,
-    color 0.1s;
-
   &::before {
     content: '[';
     font-weight: bold;
+
+    transition: color 0.1s;
   }
 
   &::after {
     content: ']';
     font-weight: bold;
+
+    transition: color 0.1s;
   }
 
   @media (hover: hover) {
@@ -62,9 +62,13 @@
       color: $red;
     }
   }
+
+  &.placeholder {
+    color: $textDimColor;
+  }
 }
 
-.inv .menu {
+.menu {
   max-height: round(down, ch(12), ch(1));
   overflow-y: auto;
 }
