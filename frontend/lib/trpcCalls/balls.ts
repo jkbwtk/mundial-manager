@@ -4,13 +4,13 @@ import { Ball, type BallCreate, type BallUpdate } from '#shared/types/api/ball';
 import { PaginatedResponse } from '#shared/zod';
 
 export const queryBalls = query(async () => {
-  const balls = await trpcClient.balls.balls.query();
+  const balls = await trpcClient.balls.getAll.query();
 
   return PaginatedResponse(Ball).parse(balls);
 }, 'queryBalls');
 
 export const actionCreateBall = action(async (ball: BallCreate) => {
-  const newBall = await trpcClient.balls.createBall.mutate(ball);
+  const newBall = await trpcClient.balls.create.mutate(ball);
 
   return json(Ball.parse(newBall), {
     revalidate: ['queryBalls'],
@@ -18,7 +18,7 @@ export const actionCreateBall = action(async (ball: BallCreate) => {
 }, 'actionCreateBall');
 
 export const actionUpdateBall = action(async (ball: BallUpdate) => {
-  const updatedBall = await trpcClient.balls.updateBall.mutate(ball);
+  const updatedBall = await trpcClient.balls.update.mutate(ball);
 
   return json(Ball.parse(updatedBall), {
     revalidate: ['queryBalls', 'queryBallById'],
@@ -26,7 +26,7 @@ export const actionUpdateBall = action(async (ball: BallUpdate) => {
 }, 'actionUpdateBall');
 
 export const actionDeleteBall = action(async (uuid: string) => {
-  const deletedBall = await trpcClient.balls.deleteBall.mutate({ uuid });
+  const deletedBall = await trpcClient.balls.delete.mutate({ uuid });
 
   return json(Ball.parse(deletedBall), {
     revalidate: ['queryBalls', 'queryBallById'],
@@ -34,7 +34,7 @@ export const actionDeleteBall = action(async (uuid: string) => {
 }, 'actionDeleteBall');
 
 export const queryBallById = query(async (uuid: string) => {
-  const ball = await trpcClient.balls.ballById.query({ uuid });
+  const ball = await trpcClient.balls.getById.query({ uuid });
 
   return Ball.parse(ball);
 }, 'queryBallById');
