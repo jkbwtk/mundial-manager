@@ -113,6 +113,15 @@ export const ballsTable = pgTable(
     alias: t.text().notNull(),
     description: t.text(),
 
+    searchVectors: tsvector()
+      .notNull()
+      .generatedAlwaysAs(
+        (): SQL =>
+          sql`setweight(to_tsvector('english', ${ballsTable.name}), 'A') || \
+          setweight(to_tsvector('english', ${ballsTable.alias}), 'B') || \
+          setweight(to_tsvector('english', coalesce(${ballsTable.description}, '')), 'C')`,
+      ),
+
     color: t.text(), // #RRGGBBAA
     diameter: t.real(), // millimeters
     weight: t.real(), // grams
@@ -121,7 +130,11 @@ export const ballsTable = pgTable(
 
     ...commonFields,
   }),
-  (r) => [index().on(r.leagueUuid), uniqueIndex().on(r.leagueUuid, r.name)],
+  (r) => [
+    index().on(r.leagueUuid),
+    uniqueIndex().on(r.leagueUuid, r.name),
+    index().using('gin', r.searchVectors),
+  ],
 );
 
 export const playersTable = pgTable(

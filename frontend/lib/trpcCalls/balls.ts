@@ -9,6 +9,12 @@ export const queryBalls = query(async () => {
   return PaginatedResponse(Ball).parse(balls);
 }, 'queryBalls');
 
+export const querySearchBalls = query(async (search: string) => {
+  const balls = await trpcClient.balls.search.query(search);
+
+  return Ball.array().parse(balls);
+}, 'querySearchBalls');
+
 export const actionCreateBall = action(async (ball: BallCreate) => {
   const newBall = await trpcClient.balls.create.mutate(ball);
 
