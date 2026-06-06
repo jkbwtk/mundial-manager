@@ -209,6 +209,12 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
     }),
   );
 
+  createEffect(
+    on([data], () => {
+      setActiveIndex(-1);
+    }),
+  );
+
   onMount(() => {
     ref.setCustomValidity = () => {};
     ref.reportValidity = () => true;
