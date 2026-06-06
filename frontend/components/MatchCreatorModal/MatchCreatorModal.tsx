@@ -11,6 +11,8 @@ import { useFormValidation } from '#flib/formValidation';
 import {
   actionCreateMatch,
   actionUpdateMatch,
+  queryBallById,
+  querySearchBalls,
   querySearchTables,
   queryTableById,
 } from '#flib/trpcCalls';
@@ -197,6 +199,21 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
             value={props.match?.tableUuid ?? undefined}
             useDirectives={[validate]}
             invalid={!!errors.tableUuid}
+          />
+
+          <span class={style.fieldLabel}>Ball:</span>
+          <ResourcePicker
+            class={style.fieldInput}
+            queryById={queryBallById}
+            query={querySearchBalls}
+            transform={(d) => d}
+            toEntry={(e) => {
+              return { label: e.name, value: e.uuid };
+            }}
+            name="ballUuid"
+            value={props.match?.ballUuid ?? undefined}
+            useDirectives={[validate]}
+            invalid={!!errors.ballUuid}
           />
 
           <span class={style.fieldLabel}>Status:</span>
