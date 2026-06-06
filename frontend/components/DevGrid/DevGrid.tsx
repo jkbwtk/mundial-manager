@@ -8,7 +8,6 @@ export const DevGrid: Component = () => {
 
   const handleEvent = (ev: KeyboardEvent) => {
     if (ev.key.toLowerCase() === 'g' && ev.shiftKey) {
-      ev.preventDefault();
       setVisible((s) => !s);
     }
   };
