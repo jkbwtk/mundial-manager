@@ -33,6 +33,13 @@
     }
   }
 
+  &:focus {
+    &::before,
+    &::after {
+      color: $textBrightColor;
+    }
+  }
+
   &:disabled {
     cursor: not-allowed;
     color: $textDimColor;
@@ -93,7 +100,7 @@
 
   padding: 0 cw(2);
 
-  &:hover {
+  &.active {
     background-color: $gray;
     color: $backgroundColor;
   }

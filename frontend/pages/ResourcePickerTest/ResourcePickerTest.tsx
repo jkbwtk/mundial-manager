@@ -1,16 +1,32 @@
+import { Show } from 'solid-js';
+import { ColorBlock } from '#components/ColorBlock';
 import { ResourcePicker } from '#components/ResourcePicker';
-import { querySearchTables, queryTableById } from '#flib/trpcCalls';
+import { queryBallById, querySearchBalls } from '#flib/trpcCalls';
 import style from './ResourcePickerTest.module.scss';
 
 export const ResourcePickerTest: Component = () => {
   return (
     <div class={style.container}>
       <ResourcePicker
-        queryById={queryTableById}
-        query={querySearchTables}
+        queryById={queryBallById}
+        query={querySearchBalls}
         transform={(d) => d}
         toEntry={(e) => {
-          return { label: e.name, value: e.uuid };
+          return {
+            label: (
+              <>
+                {e.name}{' '}
+                <Show when={e.color}>
+                  {(color) => (
+                    <>
+                      (<ColorBlock color={color()} width={2} />)
+                    </>
+                  )}
+                </Show>
+              </>
+            ),
+            value: e.uuid,
+          };
         }}
       />
     </div>

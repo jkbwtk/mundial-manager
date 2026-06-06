@@ -71,6 +71,7 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
   const [data] = createResource(searchInput, transformedData);
 
   const [picked, setPicked] = createSignal<PickerEntry<TE> | null>(null);
+  const [activeIndex, setActiveIndex] = createSignal(-1);
 
   const openMenu = () => {
     batch(() => {
@@ -96,6 +97,73 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
   const selectOption = (entry: PickerEntry<TE>) => {
     setPicked(entry);
     closeMenu();
+  };
+
+  const moveActiveIndex = (delta: 1 | -1) => {
+    const optionsCount = data.latest?.length ?? 0;
+    if (optionsCount === 0) return;
+
+    const currentIndex = activeIndex();
+    if (currentIndex < 0) {
+      setActiveIndex(delta > 0 ? 0 : optionsCount - 1);
+      return;
+    }
+
+    setActiveIndex((currentIndex + delta + optionsCount) % optionsCount);
+  };
+
+  const handleTriggerDown = (ev: KeyboardEvent) => {
+    switch (ev.key) {
+      case 'ArrowDown':
+        ev.preventDefault();
+        openMenu();
+        break;
+      case 'ArrowUp':
+        ev.preventDefault();
+        openMenu();
+        break;
+      case 'Enter':
+      case ' ':
+        if (open() === false) {
+          ev.preventDefault();
+          openMenu();
+        }
+        break;
+    }
+  };
+
+  const handleMenuKeyDown = (ev: KeyboardEvent) => {
+    switch (ev.key) {
+      case 'ArrowDown':
+        ev.preventDefault();
+        moveActiveIndex(1);
+        break;
+      case 'ArrowUp':
+        ev.preventDefault();
+        moveActiveIndex(-1);
+        break;
+      case 'Home':
+        ev.preventDefault();
+        setActiveIndex(0);
+        break;
+      case 'End':
+        ev.preventDefault();
+        setActiveIndex((data.latest?.length ?? 1) - 1);
+        break;
+      case 'Enter':
+      case ' ': {
+        ev.preventDefault();
+        const index = activeIndex();
+        const option = data.latest?.[index];
+
+        if (option) selectOption(props.toEntry(option));
+        break;
+      }
+      case 'Escape':
+        ev.preventDefault();
+        closeMenu();
+        break;
+    }
   };
 
   createEffect(
@@ -148,6 +216,7 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
         onPointerUp={toggleOpen}
         disabled={props.disabled}
         aria-invalid={props.invalid}
+        onKeyDown={handleTriggerDown}
         classList={{
           [style.picker]: true,
           [style.invalid]: props.invalid,
@@ -202,6 +271,7 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
         aria-labelledby={triggerId}
         triggerRef={() => ref}
         onClickOutside={closeMenu}
+        onKeyDown={handleMenuKeyDown}
         matchTriggerWidth
       >
         <Input
@@ -220,7 +290,7 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
         <div class={style.optionContainer}>
           <Suspense fallback={<Spinner />}>
             <For each={data.latest}>
-              {(instance) => {
+              {(instance, index) => {
                 const entry = props.toEntry(instance);
 
                 return (
@@ -229,9 +299,11 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
                     type="button"
                     classList={{
                       [style.option]: true,
+                      [style.active]: index() === activeIndex(),
                       [style.picked]: entry.value === picked()?.value,
                     }}
                     onPointerUp={() => selectOption(entry)}
+                    onPointerEnter={() => setActiveIndex(index())}
                   >
                     {entry.label}
                   </button>
