@@ -110,6 +110,10 @@
   .bottom-labels {
     @extend %label-container-base;
     bottom: 0;
+
+    & > div:first-child {
+      order: 2;
+    }
   }
 
   .left-labels {

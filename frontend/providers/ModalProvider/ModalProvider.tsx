@@ -117,6 +117,7 @@ export const ModalProvider: ParentComponent = (props) => {
       value={[state, { open, closeTop, closeAll, isActive }]}
     >
       <div
+        inert={state.modals.length > 0}
         aria-hidden={state.modals.length > 0}
         aria-disabled={state.modals.length > 0}
         classList={{

@@ -172,6 +172,34 @@ export const Modal: Component<ModalProps> = (userProps) => {
         onPointerDown={onDragStart}
       />
 
+      <div class={style.bottomLabels}>
+        <div class={style.rightLabels}>
+          <For
+            each={bottomRightLabels.toArray().filter((v) => v !== undefined)}
+          >
+            {(label) => (
+              <div class={style.bottomRightLabel}>
+                <div class={style.preDecoratorBottom} />
+                {label}
+                <div class={style.postDecoratorBottom} />
+              </div>
+            )}
+          </For>
+        </div>
+
+        <div class={style.leftLabels}>
+          <For each={bottomLeftLabels.toArray().filter((v) => v !== undefined)}>
+            {(label) => (
+              <div class={style.bottomLeftLabel}>
+                <div class={style.preDecoratorBottom} />
+                {label}
+                <div class={style.postDecoratorBottom} />
+              </div>
+            )}
+          </For>
+        </div>
+      </div>
+
       <div class={style.topLabels}>
         <div class={style.leftLabels}>
           <For each={topLeftLabels.toArray().filter((v) => v !== undefined)}>
@@ -189,34 +217,6 @@ export const Modal: Component<ModalProps> = (userProps) => {
               X
             </Button>
           </div>
-        </div>
-      </div>
-
-      <div class={style.bottomLabels}>
-        <div class={style.leftLabels}>
-          <For each={bottomLeftLabels.toArray().filter((v) => v !== undefined)}>
-            {(label) => (
-              <div class={style.bottomLeftLabel}>
-                <div class={style.preDecoratorBottom} />
-                {label}
-                <div class={style.postDecoratorBottom} />
-              </div>
-            )}
-          </For>
-        </div>
-
-        <div class={style.rightLabels}>
-          <For
-            each={bottomRightLabels.toArray().filter((v) => v !== undefined)}
-          >
-            {(label) => (
-              <div class={style.bottomRightLabel}>
-                <div class={style.preDecoratorBottom} />
-                {label}
-                <div class={style.postDecoratorBottom} />
-              </div>
-            )}
-          </For>
         </div>
       </div>
     </div>
