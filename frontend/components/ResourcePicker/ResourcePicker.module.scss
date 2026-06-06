@@ -129,3 +129,10 @@
     width: 0;
   }
 }
+
+.clear-button {
+  &:focus {
+    background-color: $textBrightColor;
+    border-radius: $borderRadius;
+  }
+}

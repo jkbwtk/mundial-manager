@@ -57,6 +57,7 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
 ) => {
   let ref!: HTMLButtonElement;
   let inputRef!: HTMLInputElement;
+  let clearRef!: HTMLButtonElement;
 
   const instanceId = createUniqueId();
   const menuId = `${instanceId}-menu`;
@@ -127,6 +128,8 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
   };
 
   const handleTriggerDown = (ev: KeyboardEvent) => {
+    if (clearRef && ev.target === clearRef) return;
+
     switch (ev.key) {
       case 'ArrowDown':
         ev.preventDefault();
@@ -178,6 +181,13 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
         closeMenu();
         break;
     }
+  };
+
+  const handleClearButtonClick = (ev: Event) => {
+    ev.stopPropagation();
+    setPicked(null);
+
+    ref.focus();
   };
 
   createEffect(
@@ -268,11 +278,11 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
 
           <Match when={picked() !== null}>
             <button
+              ref={clearRef}
               type="button"
-              onPointerUp={(ev) => {
-                ev.stopPropagation();
-                setPicked(null);
-              }}
+              class={style.clearButton}
+              onClick={handleClearButtonClick}
+              aria-label="Clear selection"
             >
               <MaterialSymbol
                 interactive
