@@ -101,24 +101,28 @@ export const tablesTable = pgTable(
   ],
 );
 
-export const ballsTable = pgTable('balls', (t) => ({
-  leagueUuid: t
-    .uuid()
-    .references(() => leaguesTable.uuid, { onDelete: 'cascade' })
-    .notNull(),
+export const ballsTable = pgTable(
+  'balls',
+  (t) => ({
+    leagueUuid: t
+      .uuid()
+      .references(() => leaguesTable.uuid, { onDelete: 'cascade' })
+      .notNull(),
 
-  name: t.text().notNull(),
-  alias: t.text().notNull(),
-  description: t.text(),
+    name: t.text().notNull(),
+    alias: t.text().notNull(),
+    description: t.text(),
 
-  color: t.text(), // #RRGGBBAA
-  diameter: t.real(), // millimeters
-  weight: t.real(), // grams
+    color: t.text(), // #RRGGBBAA
+    diameter: t.real(), // millimeters
+    weight: t.real(), // grams
 
-  labels: t.text().array().notNull().default(sql`ARRAY[]::varchar[]`),
+    labels: t.text().array().notNull().default(sql`ARRAY[]::varchar[]`),
 
-  ...commonFields,
-}));
+    ...commonFields,
+  }),
+  (r) => [index().on(r.leagueUuid), uniqueIndex().on(r.leagueUuid, r.name)],
+);
 
 export const playersTable = pgTable(
   'players',
