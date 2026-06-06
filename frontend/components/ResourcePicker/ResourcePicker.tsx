@@ -151,7 +151,7 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
         }}
         //@ts-expect-error
         prop:name={props.name}
-        prop:value={picked()?.value}
+        prop:value={picked()?.value ?? ''}
       >
         <span class={style.content}>
           <Switch fallback={picked()?.label}>
