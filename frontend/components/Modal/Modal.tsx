@@ -185,7 +185,7 @@ export const Modal: Component<ModalProps> = (userProps) => {
           </For>
 
           <div class={style.topRightLabel}>
-            <Button class={style.closeButton} onPointerUp={() => closeModal()}>
+            <Button class={style.closeButton} onClick={() => closeModal()}>
               X
             </Button>
           </div>

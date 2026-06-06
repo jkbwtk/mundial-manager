@@ -41,6 +41,11 @@
     }
   }
 
+  &:focus {
+    background-color: $grayBright;
+    color: $backgroundColor;
+  }
+
   &:active {
     background-color: $gray;
     color: $backgroundColor;
@@ -56,6 +61,12 @@
       color: $backgroundColor;
     }
   }
+
+  &:focus {
+    background-color: $grayBright;
+    color: $backgroundColor;
+  }
+
   &:active {
     background-color: $gray;
     color: $backgroundColor;
@@ -71,6 +82,11 @@
       background-color: $redBright;
       color: $backgroundColor;
     }
+  }
+
+  &:focus {
+    background-color: $redBright;
+    color: $backgroundColor;
   }
 
   &:active {

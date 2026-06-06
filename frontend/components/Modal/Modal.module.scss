@@ -188,8 +188,20 @@
 
   border-radius: 0;
 
-  &:hover {
+  @media (hover: hover) {
+    &:hover {
+      background-color: $red;
+      color: $backgroundColor;
+    }
+  }
+
+  &:focus {
     background-color: $red;
+    color: $backgroundColor;
+  }
+
+  &:active {
+    background-color: $redBright;
     color: $backgroundColor;
   }
 }
