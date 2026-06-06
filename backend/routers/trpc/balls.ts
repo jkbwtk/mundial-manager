@@ -1,6 +1,6 @@
 import { BallModel } from '#backend/db/models/BallModel';
 import { router } from '#blib/trpc';
-import { createCrudOps, createSearchProcedure } from '#blib/trpcCrudOps';
+import { createCrudOps, createSearchProcedure } from '#blib/trpcOps';
 import { Ball, BallCreate, BallUpdate } from '#shared/types/api/ball';
 
 export const ballsRouter = router({

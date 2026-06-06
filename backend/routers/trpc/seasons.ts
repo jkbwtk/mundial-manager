@@ -2,7 +2,7 @@ import z from 'zod';
 import { SeasonModel } from '#backend/db/models/SeasonModel';
 import { runWithErrorConversion } from '#blib/modelErrors';
 import { leagueScopedProcedure, router } from '#blib/trpc';
-import { createCrudOps } from '#blib/trpcCrudOps';
+import { createCrudOps } from '#blib/trpcOps';
 import {
   Season,
   SeasonCreate,
