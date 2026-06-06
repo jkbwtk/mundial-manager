@@ -20,6 +20,7 @@ import { toJson } from '#flib/utils';
 import { useModalActions } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
 import 'highlight.js/styles/gml.min.css';
+import { ColorBlock } from '#components/ColorBlock';
 import { DateInput } from '#components/DateInput';
 import { Dropdown, type DropdownOption } from '#components/Dropdown';
 import { ResourcePicker } from '#components/ResourcePicker';
@@ -189,6 +190,7 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
           <span class={style.fieldLabel}>Table:</span>
           <ResourcePicker
             class={style.fieldInput}
+            placeholder="Select a table..."
             queryById={queryTableById}
             query={querySearchTables}
             transform={(d) => d}
@@ -204,11 +206,26 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
           <span class={style.fieldLabel}>Ball:</span>
           <ResourcePicker
             class={style.fieldInput}
+            placeholder="Select a ball..."
             queryById={queryBallById}
             query={querySearchBalls}
             transform={(d) => d}
             toEntry={(e) => {
-              return { label: e.name, value: e.uuid };
+              return {
+                label: (
+                  <>
+                    {e.name}{' '}
+                    <Show when={e.color}>
+                      {(color) => (
+                        <>
+                          (<ColorBlock color={color()} width={2} />)
+                        </>
+                      )}
+                    </Show>
+                  </>
+                ),
+                value: e.uuid,
+              };
             }}
             name="ballUuid"
             value={props.match?.ballUuid ?? undefined}
