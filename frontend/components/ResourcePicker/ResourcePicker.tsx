@@ -87,8 +87,12 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
     });
   };
 
-  const closeMenu = () => {
+  const closeMenu = (focusTrigger = false) => {
     setOpen(false);
+
+    if (focusTrigger) {
+      ref.focus();
+    }
 
     ref.onblur?.(new FocusEvent('blur', { relatedTarget: ref }));
   };
@@ -99,7 +103,7 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
 
   const selectOption = (entry: PickerEntry<TE>) => {
     setPicked(entry);
-    closeMenu();
+    closeMenu(true);
   };
 
   const toEntryWithOwner = (instance: TR): PickerEntry<TE> => {
