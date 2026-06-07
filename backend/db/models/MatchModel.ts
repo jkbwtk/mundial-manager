@@ -1,3 +1,4 @@
+import { and, eq } from 'drizzle-orm';
 import z from 'zod';
 import type { DB, TX } from '#backend/db/database';
 import { ModelOps } from '#backend/db/models/ModelOps';
@@ -57,6 +58,7 @@ export class MatchModel extends ModelOps({
     return instances;
   }
 
+  @ConvertDrizzleErrors()
   public static async getById(db: DB | TX, leagueUuid: string, uuid: string) {
     const instance = await db.query.matchesTable.findFirst({
       where: {
@@ -87,7 +89,8 @@ export class MatchModel extends ModelOps({
     return instance ?? null;
   }
 
-  public static create(db: DB, leagueUuid: string, data: MatchCreate) {
+  @ConvertDrizzleErrors()
+  public static async create(db: DB, leagueUuid: string, data: MatchCreate) {
     const hash = getValueHash({
       leagueUuid,
       startDate: data.startDate,
@@ -96,10 +99,28 @@ export class MatchModel extends ModelOps({
       status: data.status,
     });
 
-    return super.create(db, leagueUuid, { ...data, hash });
+    const instance = await db.transaction(async (tx) => {
+      const created = await super.create(tx, leagueUuid, { ...data, hash });
+
+      await tx.insert(matchSpectatorsTable).values(
+        data.spectators.map((spectator) => ({
+          leagueUuid,
+          matchUuid: created.uuid,
+          playerUuid: spectator,
+        })),
+      );
+
+      return {
+        ...created,
+        spectators: data.spectators,
+      };
+    });
+
+    return instance;
   }
 
-  public static update(db: DB, leagueUuid: string, data: MatchUpdate) {
+  @ConvertDrizzleErrors()
+  public static async update(db: DB, leagueUuid: string, data: MatchUpdate) {
     const hash = getValueHash({
       leagueUuid,
       startDate: data.startDate,
@@ -108,6 +129,52 @@ export class MatchModel extends ModelOps({
       status: data.status,
     });
 
-    return super.update(db, leagueUuid, { ...data, hash });
+    const instance = await db.transaction(async (tx) => {
+      const updated = await super.update(db, leagueUuid, { ...data, hash });
+
+      if (data.spectators) {
+        await tx
+          .delete(matchSpectatorsTable)
+          .where(
+            and(
+              eq(matchSpectatorsTable.matchUuid, data.uuid),
+              eq(matchSpectatorsTable.leagueUuid, leagueUuid),
+            ),
+          );
+
+        await tx
+          .insert(matchSpectatorsTable)
+          .values(
+            data.spectators.map((spectator) => ({
+              leagueUuid,
+              matchUuid: data.uuid,
+              playerUuid: spectator,
+            })),
+          )
+          .returning();
+      }
+
+      const spectators = data.spectators
+        ? data.spectators
+        : (
+            await tx.query.matchSpectatorsTable.findMany({
+              columns: { playerUuid: true },
+              where: {
+                matchUuid: data.uuid,
+                leagueUuid,
+                $deletedAt: {
+                  isNull: true,
+                },
+              },
+            })
+          ).map((r) => r.playerUuid);
+
+      return {
+        ...updated,
+        spectators: spectators,
+      };
+    });
+
+    return instance;
   }
 }

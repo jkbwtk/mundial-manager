@@ -140,7 +140,7 @@ export function ModelOps<
 
     @ConvertDrizzleErrors()
     public static async create(
-      db: DB,
+      db: DB | TX,
       leagueUuid: string,
       data: z.infer<CreateSchema>,
     ) {
@@ -166,7 +166,7 @@ export function ModelOps<
 
     @ConvertDrizzleErrors()
     public static async update(
-      db: DB,
+      db: DB | TX,
       leagueUuid: string,
       data: z.infer<UpdateSchema>,
     ) {
