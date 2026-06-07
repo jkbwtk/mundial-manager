@@ -1,0 +1,22 @@
+@use 'app' as *;
+
+.paginator {
+  display: flex;
+  justify-content: center;
+
+  button {
+    transition:
+      filter 0.2s ease-in-out,
+      background-color 0.2s ease-in-out;
+
+    border-radius: $borderRadius;
+
+    &:disabled {
+      filter: grayscale(100%);
+    }
+
+    &:focus {
+      background-color: $textBrightColor;
+    }
+  }
+}
