@@ -110,6 +110,9 @@ export function ModelOps<
               isNull: true,
             },
           },
+          orderBy: {
+            $createdAt: 'asc',
+          },
           limit,
           offset,
         });
