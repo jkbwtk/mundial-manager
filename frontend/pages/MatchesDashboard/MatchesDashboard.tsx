@@ -1,7 +1,9 @@
 import { createAsync, useAction } from '@solidjs/router';
-import { getOwner, Show } from 'solid-js';
+import { createSignal, getOwner, Show } from 'solid-js';
+import type { PaginationInput } from '#backend/types/trpc';
 import { Button } from '#components/Button';
 import { MatchCreatorModal } from '#components/MatchCreatorModal/MatchCreatorModal';
+import { Paginator } from '#components/Paginator';
 import { type Column, Table } from '#components/Table';
 import { Divider, Widget } from '#components/Widget';
 import { useHandleButtonAction } from '#flib/index';
@@ -16,7 +18,16 @@ import style from './MatchesDashboard.module.scss';
 export const MatchesDashboard: Component = () => {
   const [, actions] = useToast();
   const [, { open }] = useModal();
-  const matches = createAsync(() => queryMatches());
+
+  const [limit, setLimit] = createSignal(3);
+  const [page, setPage] = createSignal(0);
+
+  const paginationProp = (): PaginationInput => ({
+    limit: limit(),
+    offset: page() * limit(),
+  });
+
+  const matches = createAsync(() => queryMatches(paginationProp()));
 
   const deleteMatch = useAction(actionDeleteMatch);
   const owner = getOwner();
@@ -129,8 +140,16 @@ export const MatchesDashboard: Component = () => {
         <Table
           class={style.leaguesTable}
           columns={column}
-          data={matches()?.data ?? []}
+          data={matches.latest?.data ?? []}
           classic={false}
+        />
+
+        <Paginator
+          total={matches.latest?.total ?? 0}
+          limit={limit()}
+          setLimit={setLimit}
+          page={page()}
+          setPage={setPage}
         />
       </div>
     </Widget>
