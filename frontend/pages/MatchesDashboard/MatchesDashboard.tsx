@@ -19,7 +19,7 @@ export const MatchesDashboard: Component = () => {
   const [, actions] = useToast();
   const [, { open }] = useModal();
 
-  const [limit, setLimit] = createSignal(3);
+  const [limit, setLimit] = createSignal(25);
   const [page, setPage] = createSignal(0);
 
   const paginationProp = (): PaginationInput => ({

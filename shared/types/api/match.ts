@@ -30,7 +30,7 @@ export const Match = z.object({
   // playersSide1: z.array(z.uuid()),
   // playersSide2: z.array(z.uuid()),
 
-  // spectators: z.array(z.uuid()),
+  spectators: z.array(z.uuid()),
 
   events: z.array(MatchEvent).default([]),
 
