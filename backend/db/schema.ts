@@ -1,4 +1,4 @@
-import { type SQL, sql } from 'drizzle-orm';
+import { isNull, type SQL, sql } from 'drizzle-orm';
 import { integer, pgEnum, timestamp, uuid } from 'drizzle-orm/pg-core/columns';
 import { index, uniqueIndex } from 'drizzle-orm/pg-core/indexes';
 import { pgTable } from 'drizzle-orm/pg-core/table';
@@ -37,7 +37,11 @@ export const leaguesTable = pgTable(
 
     ...commonFields,
   }),
-  (r) => [uniqueIndex().on(r.name), uniqueIndex().on(r.alias)],
+  (r) => [
+    uniqueIndex().on(r.name),
+    uniqueIndex().on(r.alias),
+    index().on(r.$deletedAt).where(isNull(r.$deletedAt)),
+  ],
 );
 
 export const seasonsTable = pgTable(
@@ -62,7 +66,11 @@ export const seasonsTable = pgTable(
 
     ...commonFields,
   }),
-  (r) => [index().on(r.leagueUuid), uniqueIndex().on(r.leagueUuid, r.name)],
+  (r) => [
+    index().on(r.leagueUuid),
+    uniqueIndex().on(r.leagueUuid, r.name),
+    index().on(r.$deletedAt).where(isNull(r.$deletedAt)),
+  ],
 );
 
 export const tablesTable = pgTable(
@@ -98,6 +106,7 @@ export const tablesTable = pgTable(
     index().on(r.leagueUuid),
     uniqueIndex().on(r.leagueUuid, r.name),
     index().using('gin', r.searchVectors),
+    index().on(r.$deletedAt).where(isNull(r.$deletedAt)),
   ],
 );
 
@@ -134,6 +143,7 @@ export const ballsTable = pgTable(
     index().on(r.leagueUuid),
     uniqueIndex().on(r.leagueUuid, r.name),
     index().using('gin', r.searchVectors),
+    index().on(r.$deletedAt).where(isNull(r.$deletedAt)),
   ],
 );
 
@@ -157,6 +167,7 @@ export const playersTable = pgTable(
     index().on(r.leagueUuid),
     uniqueIndex().on(r.leagueUuid, r.name),
     uniqueIndex().on(r.leagueUuid, r.alias),
+    index().on(r.$deletedAt).where(isNull(r.$deletedAt)),
   ],
 );
 
@@ -196,6 +207,7 @@ export const matchesTable = pgTable(
     index().on(r.startDate),
     index().on(r.status),
     uniqueIndex().on(r.leagueUuid, r.hash),
+    index().on(r.$deletedAt).where(isNull(r.$deletedAt)),
   ],
 );
 
@@ -215,6 +227,7 @@ export const teamConfigurationsTable = pgTable(
     index().on(r.leagueUuid),
     index().on(r.compositionKey),
     uniqueIndex().on(r.leagueUuid, r.compositionKey),
+    index().on(r.$deletedAt).where(isNull(r.$deletedAt)),
   ],
 );
 
@@ -241,6 +254,7 @@ export const teamConfigurationMembersTable = pgTable(
     index().on(r.teamConfigurationUuid),
     index().on(r.playerUuid),
     uniqueIndex().on(r.teamConfigurationUuid, r.playerUuid),
+    index().on(r.$deletedAt).where(isNull(r.$deletedAt)),
   ],
 );
 
@@ -272,6 +286,7 @@ export const matchSidesTable = pgTable(
     index().on(r.matchUuid),
     index().on(r.teamConfigurationUuid),
     uniqueIndex().on(r.matchUuid, r.side),
+    index().on(r.$deletedAt).where(isNull(r.$deletedAt)),
   ],
 );
 
@@ -298,6 +313,7 @@ export const matchSpectatorsTable = pgTable(
     index().on(r.matchUuid),
     index().on(r.playerUuid),
     uniqueIndex().on(r.matchUuid, r.playerUuid),
+    index().on(r.$deletedAt).where(isNull(r.$deletedAt)),
   ],
 );
 
@@ -330,5 +346,6 @@ export const matchEventsTable = pgTable(
     index().on(r.matchUuid),
     index().on(r.type),
     index().on(r.time),
+    index().on(r.$deletedAt).where(isNull(r.$deletedAt)),
   ],
 );
