@@ -152,7 +152,7 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
           <DateInput
             class={style.fieldInput}
             name="startDate"
-            value={props.match ? new Date(props.match.startDate) : new Date()}
+            value={props.match ? new Date(props.match.startDate) : undefined}
             useDirectives={[validate, autofocus]}
             invalid={!!errors.startDate}
           />
