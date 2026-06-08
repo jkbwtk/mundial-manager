@@ -449,6 +449,10 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
     // @ts-expect-error
     wrapRef.checkValidity = () => true;
 
+    wrapRef.focus = (options: FocusOptions) => {
+      yearRef.focus(options);
+    };
+
     // @ts-expect-error
     applyDirectives(wrapRef, props.useDirectives);
   });
