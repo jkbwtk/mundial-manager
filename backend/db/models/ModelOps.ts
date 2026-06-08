@@ -1,7 +1,7 @@
 import { and, count, eq, isNull } from 'drizzle-orm';
 import type z from 'zod';
 import type { DB, TX } from '#backend/db/database';
-import type { BaseModelType } from '#backend/db/models/Instance';
+import type { BaseModelType } from '#backend/db/Instance';
 import type {
   ballsTable,
   matchesTable,

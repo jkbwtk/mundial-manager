@@ -1,6 +1,6 @@
 import { TRPCError } from '@trpc/server';
 import { DrizzleQueryError } from 'drizzle-orm';
-import type { Model } from '#backend/db/models/Model';
+import type { Model } from '#backend/db/Model';
 import { logger } from '#shared/logger';
 import { ZodLikeError } from '#shared/zod';
 

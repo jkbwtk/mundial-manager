@@ -1,4 +1,4 @@
-import type { BaseModelType } from '#backend/db/models/Instance';
+import type { BaseModelType } from '#backend/db/Instance';
 
 export class List<
   T extends BaseModelType,

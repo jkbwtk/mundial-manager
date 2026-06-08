@@ -1,6 +1,6 @@
 import { and, count, eq, isNull } from 'drizzle-orm';
 import type { DB } from '#backend/db/database';
-import { Model } from '#backend/db/models/Model';
+import { Model } from '#backend/db/Model';
 import { leaguesTable } from '#backend/db/schema';
 import type { LeagueSelectSchema } from '#backend/types/db/league';
 import {
