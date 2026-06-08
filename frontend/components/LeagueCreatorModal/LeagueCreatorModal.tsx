@@ -12,6 +12,7 @@ import { useModalActions } from '#providers/ModalProvider';
 import { type League, LeagueCreate } from '#shared/types/api/league';
 import 'highlight.js/styles/gml.min.css';
 import { useAction } from '@solidjs/router';
+import { autofocus } from '#flib/solidHelpers';
 import { actionCreateLeague, actionUpdateLeague } from '#flib/trpcCalls';
 import { useToast } from '#providers/ToastProvider';
 import style from './LeagueCreatorModal.module.scss';
@@ -131,7 +132,7 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
             required
             name="name"
             value={props.league?.name ?? ''}
-            useDirectives={[validate]}
+            useDirectives={[validate, autofocus]}
             invalid={!!errors.name}
           />
         </div>

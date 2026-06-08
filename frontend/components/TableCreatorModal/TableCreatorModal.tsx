@@ -13,6 +13,7 @@ import { toJson } from '#flib/utils';
 import { useModalActions } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
 import 'highlight.js/styles/gml.min.css';
+import { autofocus } from '#flib/solidHelpers';
 import { type Table, TableCreate } from '#shared/types/api/table';
 import style from './TableCreatorModal.module.scss';
 
@@ -134,7 +135,7 @@ export const TableCreatorModal: Component<TableCreatorModalProps> = (props) => {
             required
             name="name"
             value={props.table?.name ?? ''}
-            useDirectives={[validate]}
+            useDirectives={[validate, autofocus]}
             invalid={!!errors.name}
           />
 

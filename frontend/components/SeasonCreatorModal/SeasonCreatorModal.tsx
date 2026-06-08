@@ -16,6 +16,7 @@ import { useToast } from '#providers/ToastProvider';
 import { type Season, SeasonCreate } from '#shared/types/api/season';
 import 'highlight.js/styles/gml.min.css';
 import dayjs from 'dayjs';
+import { autofocus } from '#flib/solidHelpers';
 import style from './SeasonCreatorModal.module.scss';
 
 hljs.registerLanguage('json', json);
@@ -143,7 +144,7 @@ export const SeasonCreatorModal: Component<SeasonCreatorModalProps> = (
             required
             name="name"
             value={props.season?.name ?? ''}
-            useDirectives={[validate]}
+            useDirectives={[validate, autofocus]}
             invalid={!!errors.name}
           />
         </div>

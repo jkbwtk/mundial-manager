@@ -54,3 +54,9 @@ export const hasAuxRoutes = (route: ExtendedRouteDefinition): boolean =>
 
 export const isPublicRoute = (route: ExtendedRouteDefinition): boolean =>
   route.info.public === true || route.info.public === undefined;
+
+export const autofocus: ComponentUseDirectiveHack<HTMLInputElement> = (
+  element,
+) => {
+  element.focus();
+};

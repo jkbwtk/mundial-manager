@@ -13,6 +13,7 @@ import { toJson } from '#flib/utils';
 import { useModalActions } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
 import 'highlight.js/styles/gml.min.css';
+import { autofocus } from '#flib/solidHelpers';
 import { type Ball, BallCreate } from '#shared/types/api/ball';
 import style from './BallCreatorModal.module.scss';
 
@@ -134,7 +135,7 @@ export const BallCreatorModal: Component<BallCreatorModalProps> = (props) => {
             required
             name="name"
             value={props.ball?.name ?? ''}
-            useDirectives={[validate]}
+            useDirectives={[validate, autofocus]}
             invalid={!!errors.name}
           />
 

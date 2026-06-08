@@ -13,6 +13,7 @@ import { toJson } from '#flib/utils';
 import { useModalActions } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
 import 'highlight.js/styles/gml.min.css';
+import { autofocus } from '#flib/solidHelpers';
 import { type Player, PlayerCreate } from '#shared/types/api/player';
 import style from './PlayerCreatorModal.module.scss';
 
@@ -136,7 +137,7 @@ export const PlayerCreatorModal: Component<PlayerCreatorModalProps> = (
             required
             name="name"
             value={props.player?.name ?? ''}
-            useDirectives={[validate]}
+            useDirectives={[validate, autofocus]}
             invalid={!!errors.name}
           />
 

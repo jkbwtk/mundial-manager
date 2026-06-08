@@ -24,6 +24,7 @@ import { ColorBlock } from '#components/ColorBlock';
 import { DateInput } from '#components/DateInput';
 import { Dropdown, type DropdownOption } from '#components/Dropdown';
 import { ResourcePicker } from '#components/ResourcePicker';
+import { autofocus } from '#flib/solidHelpers';
 import {
   type Match,
   MatchCreate,
@@ -152,7 +153,7 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
             class={style.fieldInput}
             name="startDate"
             value={props.match ? new Date(props.match.startDate) : new Date()}
-            useDirectives={[validate]}
+            useDirectives={[validate, autofocus]}
             invalid={!!errors.startDate}
           />
 
