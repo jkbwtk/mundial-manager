@@ -9,6 +9,7 @@ import type {
   seasonsTable,
   tablesTable,
 } from '#backend/db/schema';
+import type { QueryMetaSchema } from '#backend/types/trpc';
 import {
   ConvertDrizzleErrors,
   DatabaseError,
@@ -39,6 +40,7 @@ export interface ModelOpsMetadata<
   SelectSchema extends BaseModelType,
   CreateSchema extends z.ZodObject,
   UpdateSchema extends z.ZodObject,
+  QueryMetaSchemaType extends QueryMetaSchema,
   StrategySchema extends z.ZodObject,
 > {
   table: Table;
@@ -46,6 +48,7 @@ export interface ModelOpsMetadata<
   selectSchema: z.ZodType<SelectSchema>;
   createSchema: CreateSchema;
   updateSchema: UpdateSchema;
+  queryMetaSchema: QueryMetaSchemaType;
   strategySchema?: StrategySchema;
 }
 
@@ -55,6 +58,7 @@ export function ModelOps<
   SelectSchema extends BaseModelType,
   CreateSchema extends z.ZodObject,
   UpdateSchema extends z.ZodObject,
+  QueryMetaSchemaType extends QueryMetaSchema,
   ValidationSchema extends z.ZodObject,
 >(
   metadata: ModelOpsMetadata<
@@ -63,6 +67,7 @@ export function ModelOps<
     SelectSchema,
     CreateSchema,
     UpdateSchema,
+    QueryMetaSchemaType,
     ValidationSchema
   >,
 ) {
@@ -75,6 +80,7 @@ export function ModelOps<
     protected static readonly selectSchema = metadata.selectSchema;
     protected static readonly createSchema = metadata.createSchema;
     protected static readonly updateSchema = metadata.updateSchema;
+    protected static readonly queryMetaSchema = metadata.queryMetaSchema;
     protected static readonly strategySchema = metadata.strategySchema;
 
     @ConvertDrizzleErrors()
@@ -98,8 +104,7 @@ export function ModelOps<
     public static async getAll(
       db: DB | TX,
       leagueUuid: string,
-      limit?: number,
-      offset?: number,
+      meta: z.infer<QueryMetaSchemaType> = {} as z.infer<QueryMetaSchemaType>,
     ) {
       const instances = await db.query[ModelOps.tableName]
         // @ts-expect-error
@@ -111,10 +116,11 @@ export function ModelOps<
             },
           },
           orderBy: {
-            $createdAt: 'asc',
+            [meta.sorting?.field ?? '$createdAt']:
+              meta.sorting?.direction ?? 'asc',
           },
-          limit,
-          offset,
+          limit: meta.pagination?.limit,
+          offset: meta.pagination?.offset,
         });
 
       return instances;

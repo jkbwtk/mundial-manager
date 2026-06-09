@@ -2,7 +2,7 @@ import { TRPCError } from '@trpc/server';
 import z from 'zod';
 import type { DB } from '#backend/db/database';
 import type { ModelOps } from '#backend/db/models/ModelOps';
-import { Pagination } from '#backend/types/trpc';
+import type { QueryMetaSchema } from '#backend/types/trpc';
 import { runWithErrorConversion } from '#blib/modelErrors';
 import { leagueScopedProcedure } from '#blib/trpc';
 import { PaginatedResponse } from '#shared/zod';
@@ -21,6 +21,7 @@ export interface CreateCrudOpsMetadata<
   createSchema: CreateSchema;
   updateSchema: UpdateSchema;
   model: Model;
+  queryMetaSchema: QueryMetaSchema;
 }
 
 export function createCrudOps<
@@ -38,17 +39,12 @@ export function createCrudOps<
 ) {
   return {
     getAll: leagueScopedProcedure
-      .input(Pagination.optional())
+      .input(metadata.queryMetaSchema.optional())
       .output(PaginatedResponse(metadata.publicSchema))
       // @ts-expect-error
       .query(async ({ ctx, input }) => {
         const instances = runWithErrorConversion(() =>
-          metadata.model.getAll(
-            ctx.db,
-            ctx.league.uuid,
-            input?.limit,
-            input?.offset,
-          ),
+          metadata.model.getAll(ctx.db, ctx.league.uuid, input),
         );
         const total = runWithErrorConversion(() =>
           metadata.model.count(ctx.db, ctx.league.uuid),

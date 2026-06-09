@@ -3,12 +3,13 @@ import { trpcClient } from '#flib/trpcClient';
 import {
   Player,
   type PlayerCreate,
+  type PlayerQueryMeta,
   type PlayerUpdate,
 } from '#shared/types/api/player';
 import { PaginatedResponse } from '#shared/zod';
 
-export const queryPlayers = query(async () => {
-  const players = await trpcClient.players.getAll.query();
+export const queryPlayers = query(async (meta: PlayerQueryMeta = {}) => {
+  const players = await trpcClient.players.getAll.query(meta);
 
   return PaginatedResponse(Player).parse(players);
 }, 'queryPlayers');
