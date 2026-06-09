@@ -1,7 +1,12 @@
 import { MatchModel } from '#backend/db/models/MatchModel';
 import { router } from '#blib/trpc';
 import { createCrudOps } from '#blib/trpcOps';
-import { Match, MatchCreate, MatchUpdate } from '#shared/types/api/match';
+import {
+  Match,
+  MatchCreate,
+  MatchQueryMeta,
+  MatchUpdate,
+} from '#shared/types/api/match';
 
 export const matchesRouter = router({
   ...createCrudOps({
@@ -9,5 +14,6 @@ export const matchesRouter = router({
     createSchema: MatchCreate,
     updateSchema: MatchUpdate,
     model: MatchModel,
+    queryMetaSchema: MatchQueryMeta,
   }),
 });

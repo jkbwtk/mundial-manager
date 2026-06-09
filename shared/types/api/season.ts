@@ -1,4 +1,5 @@
 import z from 'zod';
+import { createQueryMeta } from '#backend/types/trpc';
 import { PaginatedResponse } from '#shared/zod';
 
 export const SeasonConfig = z.object({});
@@ -30,3 +31,8 @@ export const SeasonStrategy = SeasonCreate.extend({
   uuid: z.uuid().optional(),
 });
 export type SeasonStrategy = z.infer<typeof SeasonStrategy>;
+
+export const SeasonQueryMeta = createQueryMeta({
+  sortFields: ['name', 'startDate', 'endDate'] as const,
+});
+export type SeasonQueryMeta = z.infer<typeof SeasonQueryMeta>;

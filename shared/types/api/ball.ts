@@ -1,4 +1,5 @@
 import z from 'zod';
+import { createQueryMeta } from '#backend/types/trpc';
 import { hexColor, PaginatedResponse } from '#shared/zod';
 
 export const Ball = z.object({
@@ -27,3 +28,15 @@ export type BallCreate = z.infer<typeof BallCreate>;
 
 export const BallUpdate = BallCreate.partial().extend({ uuid: z.uuid() });
 export type BallUpdate = z.infer<typeof BallUpdate>;
+
+export const BallQueryMeta = createQueryMeta({
+  sortFields: [
+    'name',
+    'alias',
+    'description',
+    'color',
+    'diameter',
+    'weight',
+  ] as const,
+});
+export type BallQueryMeta = z.infer<typeof BallQueryMeta>;

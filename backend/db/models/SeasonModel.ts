@@ -11,6 +11,7 @@ import {
 } from '#blib/modelErrors';
 import {
   SeasonCreate,
+  SeasonQueryMeta,
   SeasonStrategy,
   SeasonUpdate,
 } from '#shared/types/api/season';
@@ -21,6 +22,7 @@ export class SeasonModel extends ModelOps({
   selectSchema: SeasonSelectSchema,
   createSchema: SeasonCreate,
   updateSchema: SeasonUpdate,
+  queryMetaSchema: SeasonQueryMeta,
   strategySchema: SeasonStrategy,
 }) {
   @ConvertDrizzleErrors()

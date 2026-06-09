@@ -1,6 +1,5 @@
 import { createAsync, useAction } from '@solidjs/router';
 import { createSignal, getOwner, Show } from 'solid-js';
-import type { Pagination } from '#backend/types/trpc';
 import { Button } from '#components/Button';
 import { MatchCreatorModal } from '#components/MatchCreatorModal/MatchCreatorModal';
 import { Paginator } from '#components/Paginator';
@@ -11,7 +10,7 @@ import { actionDeleteMatch, queryMatches } from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
 import { formatDate, formatDuration } from '#shared/timeUtils';
-import type { Match } from '#shared/types/api/match';
+import type { Match, MatchQueryMeta } from '#shared/types/api/match';
 import { shortUUID } from '#shared/utils';
 import style from './MatchesDashboard.module.scss';
 
@@ -22,12 +21,14 @@ export const MatchesDashboard: Component = () => {
   const [limit, setLimit] = createSignal(25);
   const [page, setPage] = createSignal(0);
 
-  const paginationProp = (): Pagination => ({
-    limit: limit(),
-    offset: page() * limit(),
+  const queryMetaProp = (): MatchQueryMeta => ({
+    pagination: {
+      limit: limit(),
+      offset: page() * limit(),
+    },
   });
 
-  const matches = createAsync(() => queryMatches(paginationProp()));
+  const matches = createAsync(() => queryMatches(queryMetaProp()));
 
   const deleteMatch = useAction(actionDeleteMatch);
   const owner = getOwner();

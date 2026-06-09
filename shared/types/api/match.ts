@@ -1,4 +1,5 @@
 import z from 'zod';
+import { createQueryMeta } from '#backend/types/trpc';
 import { MatchEvent } from '#shared/types/Sheets';
 import { PaginatedResponse } from '#shared/zod';
 
@@ -49,3 +50,8 @@ export type MatchCreate = z.infer<typeof MatchCreate>;
 
 export const MatchUpdate = MatchCreate.partial().extend({ uuid: z.uuid() });
 export type MatchUpdate = z.infer<typeof MatchUpdate>;
+
+export const MatchQueryMeta = createQueryMeta({
+  sortFields: ['startDate', 'duration', 'pauseDuration', 'status'] as const,
+});
+export type MatchQueryMeta = z.infer<typeof MatchQueryMeta>;

@@ -5,7 +5,11 @@ import { ModelOps } from '#backend/db/models/ModelOps';
 import { matchesTable, matchSpectatorsTable } from '#backend/db/schema';
 import { MatchSelectSchema } from '#backend/types/db/match';
 import { ConvertDrizzleErrors } from '#blib/modelErrors';
-import { MatchCreate, MatchUpdate } from '#shared/types/api/match';
+import {
+  MatchCreate,
+  MatchQueryMeta,
+  MatchUpdate,
+} from '#shared/types/api/match';
 import { getValueHash } from '#shared/utils';
 
 export class MatchModel extends ModelOps({
@@ -18,13 +22,13 @@ export class MatchModel extends ModelOps({
   updateSchema: MatchUpdate.extend({
     hash: z.string(),
   }),
+  queryMetaSchema: MatchQueryMeta,
 }) {
   @ConvertDrizzleErrors()
   public static async getAll(
     db: DB,
     leagueUuid: string,
-    limit?: number,
-    offset?: number,
+    meta: MatchQueryMeta = {},
   ) {
     const instances = await db.query.matchesTable.findMany({
       where: {
@@ -34,7 +38,7 @@ export class MatchModel extends ModelOps({
         },
       },
       orderBy: {
-        startDate: 'asc',
+        [meta.sorting?.field ?? 'startDate']: meta.sorting?.direction ?? 'asc',
       },
       extras: {
         spectators: (matches, { sql }) =>
@@ -51,8 +55,8 @@ export class MatchModel extends ModelOps({
             ARRAY[]::uuid[]
           )`,
       },
-      limit,
-      offset,
+      limit: meta.pagination?.limit,
+      offset: meta.pagination?.offset,
     });
 
     return instances;

@@ -1,4 +1,5 @@
 import z from 'zod';
+import { createQueryMeta } from '#backend/types/trpc';
 import { hexColor, PaginatedResponse } from '#shared/zod';
 
 export const Table = z.object({
@@ -32,3 +33,8 @@ export const TableStrategy = TableCreate.extend({
   uuid: z.uuid().optional(),
 });
 export type TableStrategy = z.infer<typeof TableStrategy>;
+
+export const TableQueryMeta = createQueryMeta({
+  sortFields: ['name', 'alias', 'description', 'location'] as const,
+});
+export type TableQueryMeta = z.infer<typeof TableQueryMeta>;

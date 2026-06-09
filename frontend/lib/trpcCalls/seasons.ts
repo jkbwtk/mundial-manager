@@ -4,12 +4,13 @@ import {
   Season,
   type SeasonCreate,
   SeasonNullable,
+  type SeasonQueryMeta,
   type SeasonUpdate,
 } from '#shared/types/api/season';
 import { PaginatedResponse } from '#shared/zod';
 
-export const querySeasons = query(async () => {
-  const seasons = await trpcClient.seasons.getAll.query();
+export const querySeasons = query(async (meta: SeasonQueryMeta = {}) => {
+  const seasons = await trpcClient.seasons.getAll.query(meta);
 
   return PaginatedResponse(Season).parse(seasons);
 }, 'querySeasons');

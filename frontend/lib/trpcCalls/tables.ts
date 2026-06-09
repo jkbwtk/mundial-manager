@@ -3,12 +3,13 @@ import { trpcClient } from '#flib/trpcClient';
 import {
   Table,
   type TableCreate,
+  type TableQueryMeta,
   type TableUpdate,
 } from '#shared/types/api/table';
 import { PaginatedResponse } from '#shared/zod';
 
-export const queryTables = query(async () => {
-  const tables = await trpcClient.tables.getAll.query();
+export const queryTables = query(async (meta: TableQueryMeta = {}) => {
+  const tables = await trpcClient.tables.getAll.query(meta);
 
   return PaginatedResponse(Table).parse(tables);
 }, 'queryTables');

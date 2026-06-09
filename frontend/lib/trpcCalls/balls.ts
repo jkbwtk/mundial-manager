@@ -1,10 +1,15 @@
 import { action, json, query } from '@solidjs/router';
 import { trpcClient } from '#flib/trpcClient';
-import { Ball, type BallCreate, type BallUpdate } from '#shared/types/api/ball';
+import {
+  Ball,
+  type BallCreate,
+  type BallQueryMeta,
+  type BallUpdate,
+} from '#shared/types/api/ball';
 import { PaginatedResponse } from '#shared/zod';
 
-export const queryBalls = query(async () => {
-  const balls = await trpcClient.balls.getAll.query();
+export const queryBalls = query(async (meta: BallQueryMeta = {}) => {
+  const balls = await trpcClient.balls.getAll.query(meta);
 
   return PaginatedResponse(Ball).parse(balls);
 }, 'queryBalls');

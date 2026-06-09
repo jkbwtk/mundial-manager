@@ -3,7 +3,7 @@ import type { DB } from '#backend/db/database';
 import { ModelOps } from '#backend/db/models/ModelOps';
 import { ballsTable } from '#backend/db/schema';
 import { BallSelectSchema } from '#backend/types/db/ball';
-import { BallCreate, BallUpdate } from '#shared/types/api/ball';
+import { BallCreate, BallQueryMeta, BallUpdate } from '#shared/types/api/ball';
 
 export class BallModel extends ModelOps({
   table: ballsTable,
@@ -11,10 +11,16 @@ export class BallModel extends ModelOps({
   selectSchema: BallSelectSchema,
   createSchema: BallCreate,
   updateSchema: BallUpdate,
+  queryMetaSchema: BallQueryMeta,
 }) {
   public static async search(db: DB, leagueUuid: string, query: string) {
     if (!query.trim()) {
-      return this.getAll(db, leagueUuid, 10, 0);
+      return this.getAll(db, leagueUuid, {
+        pagination: {
+          limit: 10,
+          offset: 0,
+        },
+      });
     }
 
     const matchQuery = sql`setweight(to_tsvector('english', ${ballsTable.name}), 'A') || \

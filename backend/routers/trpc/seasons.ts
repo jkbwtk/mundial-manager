@@ -7,6 +7,7 @@ import {
   Season,
   SeasonCreate,
   SeasonNullable,
+  SeasonQueryMeta,
   SeasonUpdate,
 } from '#shared/types/api/season';
 
@@ -16,6 +17,7 @@ export const seasonsRouter = router({
     createSchema: SeasonCreate,
     updateSchema: SeasonUpdate,
     model: SeasonModel,
+    queryMetaSchema: SeasonQueryMeta,
   }),
 
   seasonByDate: leagueScopedProcedure

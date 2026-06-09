@@ -9,6 +9,7 @@ import { TableSelectSchema } from '#backend/types/db/table';
 import { StrategyValidationError } from '#blib/modelErrors';
 import {
   TableCreate,
+  TableQueryMeta,
   TableStrategy,
   TableUpdate,
 } from '#shared/types/api/table';
@@ -19,11 +20,17 @@ export class TableModel extends ModelOps({
   selectSchema: TableSelectSchema,
   createSchema: TableCreate,
   updateSchema: TableUpdate,
+  queryMetaSchema: TableQueryMeta,
   strategySchema: TableStrategy,
 }) {
   public static async search(db: DB, leagueUuid: string, query: string) {
     if (!query.trim()) {
-      return this.getAll(db, leagueUuid, 10, 0);
+      return this.getAll(db, leagueUuid, {
+        pagination: {
+          limit: 10,
+          offset: 0,
+        },
+      });
     }
 
     const matchQuery = sql`setweight(to_tsvector('english', ${tablesTable.name}), 'A') || \
