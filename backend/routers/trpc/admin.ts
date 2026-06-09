@@ -3,7 +3,7 @@ import { TRPCError } from '@trpc/server';
 import { LeagueModel } from '#backend/db/models/LeagueModel';
 import { environment } from '#backend/environment';
 import type { JWTContextCreate } from '#backend/types/auth';
-import { PaginationInput } from '#backend/types/trpc';
+import { Pagination } from '#backend/types/trpc';
 import { sign } from '#blib/jwt';
 import { runWithErrorConversion } from '#blib/modelErrors';
 import { adminProcedure, router } from '#blib/trpc';
@@ -11,7 +11,7 @@ import { League, LeagueCreate, LeagueUpdate } from '#shared/types/api/league';
 
 export const adminRouter = router({
   leagues: adminProcedure
-    .input(PaginationInput.optional())
+    .input(Pagination.optional())
     .query(async ({ ctx, input }) => {
       const leagues = LeagueModel.getAll(ctx.db, input?.limit, input?.offset);
       const total = LeagueModel.count(ctx.db);

@@ -1,7 +1,7 @@
 import z from 'zod';
 
-export const PaginationInput = z.object({
+export const Pagination = z.object({
   limit: z.number().int().positive(),
   offset: z.number().int().nonnegative(),
 });
-export type PaginationInput = z.infer<typeof PaginationInput>;
+export type Pagination = z.infer<typeof Pagination>;

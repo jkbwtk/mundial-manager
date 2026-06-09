@@ -1,6 +1,6 @@
 import { createAsync, useAction } from '@solidjs/router';
 import { createSignal, getOwner, Show } from 'solid-js';
-import type { PaginationInput } from '#backend/types/trpc';
+import type { Pagination } from '#backend/types/trpc';
 import { Button } from '#components/Button';
 import { MatchCreatorModal } from '#components/MatchCreatorModal/MatchCreatorModal';
 import { Paginator } from '#components/Paginator';
@@ -22,7 +22,7 @@ export const MatchesDashboard: Component = () => {
   const [limit, setLimit] = createSignal(25);
   const [page, setPage] = createSignal(0);
 
-  const paginationProp = (): PaginationInput => ({
+  const paginationProp = (): Pagination => ({
     limit: limit(),
     offset: page() * limit(),
   });

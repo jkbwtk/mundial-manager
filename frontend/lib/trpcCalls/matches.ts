@@ -1,5 +1,5 @@
 import { action, json, query } from '@solidjs/router';
-import type { PaginationInput } from '#backend/types/trpc';
+import type { Pagination } from '#backend/types/trpc';
 import { trpcClient } from '#flib/trpcClient';
 import {
   Match,
@@ -8,7 +8,7 @@ import {
 } from '#shared/types/api/match';
 import { PaginatedResponse } from '#shared/zod';
 
-export const queryMatches = query(async (options?: PaginationInput) => {
+export const queryMatches = query(async (options?: Pagination) => {
   const matches = await trpcClient.matches.getAll.query(options);
 
   return PaginatedResponse(Match).parse(matches);

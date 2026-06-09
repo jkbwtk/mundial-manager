@@ -2,7 +2,7 @@ import { TRPCError } from '@trpc/server';
 import z from 'zod';
 import type { DB } from '#backend/db/database';
 import type { ModelOps } from '#backend/db/models/ModelOps';
-import { PaginationInput } from '#backend/types/trpc';
+import { Pagination } from '#backend/types/trpc';
 import { runWithErrorConversion } from '#blib/modelErrors';
 import { leagueScopedProcedure } from '#blib/trpc';
 import { PaginatedResponse } from '#shared/zod';
@@ -38,7 +38,7 @@ export function createCrudOps<
 ) {
   return {
     getAll: leagueScopedProcedure
-      .input(PaginationInput.optional())
+      .input(Pagination.optional())
       .output(PaginatedResponse(metadata.publicSchema))
       // @ts-expect-error
       .query(async ({ ctx, input }) => {
