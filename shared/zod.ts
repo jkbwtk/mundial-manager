@@ -44,3 +44,8 @@ export const PaginatedResponse = <T extends z.core.$ZodType>(schema: T) => {
     total: z.number().nonnegative(),
   });
 };
+
+export type PaginatedResponse<T> = {
+  data: T[];
+  total: number;
+};

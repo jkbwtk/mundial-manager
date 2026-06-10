@@ -1,7 +1,7 @@
 import { Show } from 'solid-js';
 import { ColorBlock } from '#components/ColorBlock';
 import { ResourcePicker } from '#components/ResourcePicker';
-import { queryBallById, querySearchBalls } from '#flib/trpcCalls';
+import { queryBallById, queryBalls } from '#flib/trpcCalls';
 import style from './ResourcePickerTest.module.scss';
 
 export const ResourcePickerTest: Component = () => {
@@ -10,8 +10,7 @@ export const ResourcePickerTest: Component = () => {
       <ResourcePicker
         queryById={queryBallById}
         placeholder="Select a ball..."
-        query={querySearchBalls}
-        transform={(d) => d}
+        query={queryBalls}
         toEntry={(e) => {
           return {
             label: (

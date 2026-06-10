@@ -36,5 +36,6 @@ export type TableStrategy = z.infer<typeof TableStrategy>;
 
 export const TableQueryMeta = createQueryMeta({
   sortFields: ['name', 'alias', 'description', 'location'] as const,
+  searchAvailable: true,
 });
 export type TableQueryMeta = z.infer<typeof TableQueryMeta>;

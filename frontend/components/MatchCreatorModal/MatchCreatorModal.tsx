@@ -12,8 +12,8 @@ import {
   actionCreateMatch,
   actionUpdateMatch,
   queryBallById,
-  querySearchBalls,
-  querySearchTables,
+  queryBalls,
+  queryTables,
   queryTableById,
 } from '#flib/trpcCalls';
 import { toJson } from '#flib/utils';
@@ -193,8 +193,7 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
             class={style.fieldInput}
             placeholder="Select a table..."
             queryById={queryTableById}
-            query={querySearchTables}
-            transform={(d) => d}
+            query={queryTables}
             toEntry={(e) => {
               return { label: e.name, value: e.uuid };
             }}
@@ -209,8 +208,7 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
             class={style.fieldInput}
             placeholder="Select a ball..."
             queryById={queryBallById}
-            query={querySearchBalls}
-            transform={(d) => d}
+            query={queryBalls}
             toEntry={(e) => {
               return {
                 label: (

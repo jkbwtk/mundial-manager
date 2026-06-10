@@ -24,6 +24,7 @@ import {
   applyDirectives,
   type ComponentUseDirectiveHack,
 } from '#flib/solidHelpers';
+import type { PaginatedResponse } from '#shared/zod';
 import style from './ResourcePicker.module.scss';
 
 export interface PickerEntry<T> {
@@ -32,12 +33,19 @@ export interface PickerEntry<T> {
   loading?: true;
 }
 
-export interface ResourcePickerProps<T = unknown, TR = unknown, TE = string> {
-  query: (search: string) => Promise<T>;
-  transform: (data: T) => Array<TR>;
-  toEntry: (data: TR) => PickerEntry<TE>;
+export interface ResourcePickerQueryMeta {
+  pagination?: {
+    limit: number;
+    offset: number;
+  };
+  search?: string;
+}
 
-  queryById: (id: TE) => Promise<TR>;
+export interface ResourcePickerProps<T = unknown, TE = string> {
+  query: (meta?: ResourcePickerQueryMeta) => Promise<PaginatedResponse<T>>;
+  toEntry: (data: T) => PickerEntry<TE>;
+
+  queryById: (id: TE) => Promise<T>;
 
   name?: string;
   disabled?: boolean;
@@ -52,8 +60,8 @@ export interface ResourcePickerProps<T = unknown, TR = unknown, TE = string> {
   onChange?: (value?: TE) => void;
 }
 
-export const ResourcePicker = <T = unknown, TR = T, TE = string>(
-  props: ResourcePickerProps<T, TR, TE>,
+export const ResourcePicker = <T, TE = string>(
+  props: ResourcePickerProps<T, TE>,
 ) => {
   let ref!: HTMLButtonElement;
   let inputRef!: HTMLInputElement;
@@ -69,8 +77,16 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
   const searchInputDebounce = debounce((v: string) => setSearchInput(v), 300);
 
   const transformedData = async (search: string) => {
-    const data = await props.query(search);
-    return props.transform(data);
+    const searchValue = search.trim();
+    const data = await props.query({
+      pagination: {
+        limit: 25,
+        offset: 0,
+      },
+      search: searchValue.length > 0 ? searchValue : undefined,
+    });
+
+    return data.data;
   };
 
   const [data] = createResource(searchInput, transformedData);
@@ -108,7 +124,7 @@ export const ResourcePicker = <T = unknown, TR = T, TE = string>(
     closeMenu(true);
   };
 
-  const toEntryWithOwner = (instance: TR): PickerEntry<TE> => {
+  const toEntryWithOwner = (instance: T): PickerEntry<TE> => {
     const createEntry = () => props.toEntry(instance);
     if (!owner) return createEntry();
     return runWithOwner(owner, createEntry) ?? createEntry();
