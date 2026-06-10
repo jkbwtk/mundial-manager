@@ -1,6 +1,6 @@
 import { BallModel } from '#backend/db/models/BallModel';
 import { router } from '#blib/trpc';
-import { createCrudOps, createSearchProcedure } from '#blib/trpcOps';
+import { createCrudOps } from '#blib/trpcOps';
 import {
   Ball,
   BallCreate,
@@ -16,6 +16,4 @@ export const ballsRouter = router({
     model: BallModel,
     queryMetaSchema: BallQueryMeta,
   }),
-
-  search: createSearchProcedure(Ball, BallModel),
 });

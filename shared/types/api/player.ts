@@ -27,5 +27,6 @@ export type PlayerUpdate = z.infer<typeof PlayerUpdate>;
 
 export const PlayerQueryMeta = createQueryMeta({
   sortFields: ['name', 'alias', 'color'] as const,
+  searchAvailable: true,
 });
 export type PlayerQueryMeta = z.infer<typeof PlayerQueryMeta>;

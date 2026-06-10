@@ -14,12 +14,6 @@ export const queryTables = query(async (meta: TableQueryMeta = {}) => {
   return PaginatedResponse(Table).parse(tables);
 }, 'queryTables');
 
-export const querySearchTables = query(async (search: string) => {
-  const tables = await trpcClient.tables.search.query(search);
-
-  return Table.array().parse(tables);
-}, 'querySearchTables');
-
 export const actionCreateTable = action(async (table: TableCreate) => {
   const newTable = await trpcClient.tables.create.mutate(table);
 

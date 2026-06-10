@@ -1,6 +1,5 @@
 import { TRPCError } from '@trpc/server';
 import z from 'zod';
-import type { DB } from '#backend/db/database';
 import type { ModelOps } from '#backend/db/models/ModelOps';
 import type { QueryMetaSchema } from '#backend/types/trpc';
 import { runWithErrorConversion } from '#blib/modelErrors';
@@ -111,26 +110,4 @@ export function createCrudOps<
         return season;
       }),
   };
-}
-
-export function createSearchProcedure<
-  PublicSchema extends typeof InstanceWithId,
-  Model extends {
-    search: (
-      db: DB,
-      leagueUuid: string,
-      query: string,
-    ) => Promise<z.input<PublicSchema>[]>;
-  },
->(publicSchema: PublicSchema, model: Model) {
-  return leagueScopedProcedure
-    .input(z.string())
-    .output(publicSchema.array())
-    .query(async ({ ctx, input }) => {
-      const instances = runWithErrorConversion(() =>
-        model.search(ctx.db, ctx.league.uuid, input),
-      );
-
-      return await instances;
-    });
 }

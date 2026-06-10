@@ -1,6 +1,6 @@
 import { TableModel } from '#backend/db/models/TableModel';
 import { router } from '#blib/trpc';
-import { createCrudOps, createSearchProcedure } from '#blib/trpcOps';
+import { createCrudOps } from '#blib/trpcOps';
 import {
   Table,
   TableCreate,
@@ -16,6 +16,4 @@ export const tablesRouter = router({
     model: TableModel,
     queryMetaSchema: TableQueryMeta,
   }),
-
-  search: createSearchProcedure(Table, TableModel),
 });

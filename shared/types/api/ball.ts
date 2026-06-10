@@ -38,5 +38,6 @@ export const BallQueryMeta = createQueryMeta({
     'diameter',
     'weight',
   ] as const,
+  searchAvailable: true,
 });
 export type BallQueryMeta = z.infer<typeof BallQueryMeta>;
