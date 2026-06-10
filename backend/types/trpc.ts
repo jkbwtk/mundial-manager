@@ -1,7 +1,11 @@
 import z from 'zod';
 
-export interface QueryMetaOptions<SortFields extends string[]> {
+export interface QueryMetaOptions<
+  SortFields extends string[],
+  SearchAvailable extends boolean = false,
+> {
   sortFields: SortFields;
+  searchAvailable?: SearchAvailable;
 }
 
 export const Pagination = z.object({
@@ -10,10 +14,11 @@ export const Pagination = z.object({
 });
 export type Pagination = z.infer<typeof Pagination>;
 
-export function createQueryMeta<SortFields extends string[]>(
-  options: QueryMetaOptions<SortFields>,
-) {
-  return z.object({
+export function createQueryMeta<
+  SortFields extends string[],
+  SearchAvailable extends boolean = false,
+>(options: QueryMetaOptions<SortFields, SearchAvailable>) {
+  const queryMeta = z.object({
     pagination: Pagination.optional(),
     sorting: z
       .object({
@@ -21,7 +26,14 @@ export function createQueryMeta<SortFields extends string[]>(
         direction: z.enum(['asc', 'desc']),
       })
       .optional(),
+    search: (options.searchAvailable
+      ? z.string().optional()
+      : z.never().optional()) as SearchAvailable extends true
+      ? z.ZodOptional<z.ZodString>
+      : z.ZodOptional<z.ZodNever>,
   });
+
+  return queryMeta;
 }
 
 export type QueryMetaSchema = ReturnType<typeof createQueryMeta>;
