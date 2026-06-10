@@ -1,4 +1,12 @@
-import { and, count, eq, isNull } from 'drizzle-orm';
+import {
+  and,
+  count,
+  desc,
+  eq,
+  getColumns,
+  isNull,
+  type SQL,
+} from 'drizzle-orm';
 import type z from 'zod';
 import type { DB, TX } from '#backend/db/database';
 import type { BaseModelType } from '#backend/db/Instance';
@@ -50,6 +58,10 @@ export interface ModelOpsMetadata<
   updateSchema: UpdateSchema;
   queryMetaSchema: QueryMetaSchemaType;
   strategySchema?: StrategySchema;
+  searchSql?: {
+    ranking: (search: string) => SQL;
+    where: (search: string) => SQL;
+  };
 }
 
 export function ModelOps<
@@ -82,6 +94,7 @@ export function ModelOps<
     protected static readonly updateSchema = metadata.updateSchema;
     protected static readonly queryMetaSchema = metadata.queryMetaSchema;
     protected static readonly strategySchema = metadata.strategySchema;
+    protected static readonly searchSql = metadata.searchSql;
 
     @ConvertDrizzleErrors()
     public static async count(db: DB | TX, leagueUuid: string) {
@@ -106,6 +119,29 @@ export function ModelOps<
       leagueUuid: string,
       meta: z.infer<QueryMetaSchemaType> = {} as z.infer<QueryMetaSchemaType>,
     ) {
+      if (ModelOps.searchSql && meta.search) {
+        const { ranking, where } = ModelOps.searchSql;
+
+        const instances = await db
+          .select({
+            ...getColumns(ModelOps.tableUnion),
+            rank: ranking(meta.search),
+          })
+          .from(ModelOps.tableUnion)
+          .where(
+            and(
+              eq(ModelOps.tableUnion.leagueUuid, leagueUuid),
+              isNull(ModelOps.tableUnion.$deletedAt),
+              where(meta.search),
+            ),
+          )
+          .orderBy((t) => desc(t.rank))
+          .limit(meta.pagination?.limit ?? 0)
+          .offset(meta.pagination?.offset ?? 0);
+
+        return instances;
+      }
+
       const instances = await db.query[ModelOps.tableName]
         // @ts-expect-error
         .findMany({
