@@ -10,13 +10,12 @@ import {
   runWithOwner,
   Switch,
 } from 'solid-js';
-import type { DropdownAnchor } from '#components/Dropdown';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import {
   type PickerEntry,
   type PickerQueryMeta,
   ResourcePickerBase,
-} from '#components/ResourcePicker/ResourcePickerBase';
+} from '#components/ResourcePicker';
 import { Spinner } from '#components/Spinner';
 import {
   applyDirectives,
@@ -34,7 +33,6 @@ export interface ResourcePickerProps<T = unknown, TE = string> {
   name?: string;
   disabled?: boolean;
   invalid?: boolean;
-  anchor?: DropdownAnchor;
   class?: string;
   placeholder?: string;
   classList?: JSX.CustomAttributes<HTMLElement>['classList'];
