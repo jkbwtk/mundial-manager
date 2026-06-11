@@ -165,12 +165,21 @@ export const playersTable = pgTable(
 
     labels: t.text().array().notNull().default(sql`ARRAY[]::varchar[]`),
 
+    searchVectors: tsvector()
+      .notNull()
+      .generatedAlwaysAs(
+        (): SQL =>
+          sql`setweight(to_tsvector('english', ${playersTable.name}), 'A') || \
+          setweight(to_tsvector('english', ${playersTable.alias}), 'B')`,
+      ),
+
     ...commonFields,
   }),
   (r) => [
     index().on(r.leagueUuid),
     uniqueIndex().on(r.leagueUuid, r.name),
     uniqueIndex().on(r.leagueUuid, r.alias),
+    index().using('gin', r.searchVectors),
     index().on(r.$createdAt),
     index().on(r.$deletedAt).where(isNull(r.$deletedAt)),
   ],
