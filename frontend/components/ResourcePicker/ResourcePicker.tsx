@@ -1,25 +1,22 @@
-import { debounce } from '@solid-primitives/scheduled';
 import {
-  batch,
   createEffect,
-  createResource,
   createSignal,
   createUniqueId,
-  For,
   getOwner,
   type JSX,
   Match,
   on,
   onMount,
   runWithOwner,
-  Suspense,
   Switch,
 } from 'solid-js';
-import { AnchoredPopup } from '#components/AnchoredPopup';
 import type { DropdownAnchor } from '#components/Dropdown';
-import { Input } from '#components/Input';
 import { MaterialSymbol } from '#components/MaterialSymbol';
-import { Paginator } from '#components/Paginator';
+import {
+  type PickerEntry,
+  type PickerQueryMeta,
+  ResourcePickerBase,
+} from '#components/ResourcePicker/ResourcePickerBase';
 import { Spinner } from '#components/Spinner';
 import {
   applyDirectives,
@@ -28,22 +25,8 @@ import {
 import type { PaginatedResponse } from '#shared/zod';
 import style from './ResourcePicker.module.scss';
 
-export interface PickerEntry<T> {
-  label: string | JSX.Element;
-  value: T;
-  loading?: true;
-}
-
-export interface ResourcePickerQueryMeta {
-  pagination?: {
-    limit: number;
-    offset: number;
-  };
-  search?: string;
-}
-
 export interface ResourcePickerProps<T = unknown, TE = string> {
-  query: (meta?: ResourcePickerQueryMeta) => Promise<PaginatedResponse<T>>;
+  query: (meta?: PickerQueryMeta) => Promise<PaginatedResponse<T>>;
   toEntry: (data: T) => PickerEntry<TE>;
 
   queryById: (id: TE) => Promise<T>;
@@ -65,7 +48,6 @@ export const ResourcePicker = <T, TE = string>(
   props: ResourcePickerProps<T, TE>,
 ) => {
   let ref!: HTMLButtonElement;
-  let inputRef!: HTMLInputElement;
   let clearRef!: HTMLButtonElement;
 
   const instanceId = createUniqueId();
@@ -75,33 +57,10 @@ export const ResourcePicker = <T, TE = string>(
 
   const [open, setOpen] = createSignal(false);
 
-  const [limit, setLimit] = createSignal(10);
-  const [page, setPage] = createSignal(0);
-  const [searchInput, setSearchInput] = createSignal('');
-  const searchInputDebounce = debounce((v: string) => setSearchInput(v), 300);
-
-  const queryMetaProp = (): ResourcePickerQueryMeta => ({
-    pagination: {
-      limit: limit(),
-      offset: page() * limit(),
-    },
-    search: searchInput().trim(),
-  });
-
-  const [resp] = createResource(queryMetaProp, props.query);
-
   const [picked, setPicked] = createSignal<PickerEntry<TE> | null>(null);
-  const [activeIndex, setActiveIndex] = createSignal(-1);
 
   const openMenu = () => {
-    batch(() => {
-      setOpen(true);
-      setSearchInput('');
-    });
-
-    requestAnimationFrame(() => {
-      inputRef.focus();
-    });
+    setOpen(true);
   };
 
   const closeMenu = (focusTrigger = false) => {
@@ -123,23 +82,14 @@ export const ResourcePicker = <T, TE = string>(
     closeMenu(true);
   };
 
+  const isPicked = (value: TE) => {
+    return value === picked()?.value;
+  };
+
   const toEntryWithOwner = (instance: T): PickerEntry<TE> => {
     const createEntry = () => props.toEntry(instance);
     if (!owner) return createEntry();
     return runWithOwner(owner, createEntry) ?? createEntry();
-  };
-
-  const moveActiveIndex = (delta: 1 | -1) => {
-    const optionsCount = resp.latest?.data.length ?? 0;
-    if (optionsCount === 0) return;
-
-    const currentIndex = activeIndex();
-    if (currentIndex < 0) {
-      setActiveIndex(delta > 0 ? 0 : optionsCount - 1);
-      return;
-    }
-
-    setActiveIndex((currentIndex + delta + optionsCount) % optionsCount);
   };
 
   const handleTriggerDown = (ev: KeyboardEvent) => {
@@ -160,40 +110,6 @@ export const ResourcePicker = <T, TE = string>(
           ev.preventDefault();
           openMenu();
         }
-        break;
-    }
-  };
-
-  const handleMenuKeyDown = (ev: KeyboardEvent) => {
-    switch (ev.key) {
-      case 'ArrowDown':
-        ev.preventDefault();
-        moveActiveIndex(1);
-        break;
-      case 'ArrowUp':
-        ev.preventDefault();
-        moveActiveIndex(-1);
-        break;
-      case 'Home':
-        ev.preventDefault();
-        setActiveIndex(0);
-        break;
-      case 'End':
-        ev.preventDefault();
-        setActiveIndex((resp.latest?.data.length ?? 1) - 1);
-        break;
-      case 'Enter':
-      case ' ': {
-        ev.preventDefault();
-        const index = activeIndex();
-        const option = resp.latest?.data[index];
-
-        if (option) selectOption(toEntryWithOwner(option));
-        break;
-      }
-      case 'Escape':
-        ev.preventDefault();
-        closeMenu();
         break;
     }
   };
@@ -232,12 +148,6 @@ export const ResourcePicker = <T, TE = string>(
         const entry = toEntryWithOwner(instance);
         setPicked(entry);
       });
-    }),
-  );
-
-  createEffect(
-    on([resp], () => {
-      setActiveIndex(-1);
     }),
   );
 
@@ -310,65 +220,17 @@ export const ResourcePicker = <T, TE = string>(
         </Switch>
       </button>
 
-      <AnchoredPopup
-        id={menuId}
+      <ResourcePickerBase
+        query={props.query}
+        toEntry={props.toEntry}
+        menuId={menuId}
+        triggerId={triggerId}
         open={open()}
-        class={style.menu}
-        aria-labelledby={triggerId}
         triggerRef={() => ref}
-        onClickOutside={closeMenu}
-        onKeyDown={handleMenuKeyDown}
-        matchTriggerWidth
-      >
-        <Input
-          ref={inputRef}
-          class={style.input}
-          value={searchInput()}
-          placeholder="Search..."
-          autocomplete="off"
-          onInput={(ev) => {
-            const target = ev.target as HTMLInputElement;
-            searchInputDebounce(target.value);
-          }}
-        >
-          <MaterialSymbol symbol="search" />
-        </Input>
-
-        <div class={style.optionContainer}>
-          <Suspense fallback={<Spinner />}>
-            <For each={resp.latest?.data}>
-              {(instance, index) => {
-                const entry = props.toEntry(instance);
-
-                return (
-                  <button
-                    role="option"
-                    type="button"
-                    classList={{
-                      [style.option]: true,
-                      [style.active]: index() === activeIndex(),
-                      [style.picked]: entry.value === picked()?.value,
-                    }}
-                    onPointerUp={() => selectOption(entry)}
-                    onPointerEnter={() => setActiveIndex(index())}
-                  >
-                    {entry.label}
-                  </button>
-                );
-              }}
-            </For>
-
-            <Paginator
-              class={style.paginator}
-              total={resp.latest?.total ?? 0}
-              limit={limit()}
-              setLimit={setLimit}
-              page={page()}
-              setPage={setPage}
-            />
-          </Suspense>
-        </div>
-      </AnchoredPopup>
+        onSelect={selectOption}
+        onClose={closeMenu}
+        isPicked={isPicked}
+      />
     </>
   );
 };
