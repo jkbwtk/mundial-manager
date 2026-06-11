@@ -25,32 +25,34 @@ export const Paginator: Component<PaginatorProps> = (props) => {
         ...(props.classList ?? {}),
       }}
     >
-      <button
-        type="button"
-        title="First page"
-        onClick={() => props.setPage(0)}
-        disabled={props.page === 0}
-      >
-        <MaterialSymbol
-          symbol="keyboard_double_arrow_left"
-          color="primary"
-          highlightColor="primary"
-          interactive={props.page > 0}
-        />
-      </button>
-      <button
-        type="button"
-        title="Previous page"
-        onClick={() => props.setPage((p) => p - 1)}
-        disabled={props.page === 0}
-      >
-        <MaterialSymbol
-          symbol="keyboard_arrow_left"
-          color="primary"
-          highlightColor="primary"
-          interactive={props.page > 0}
-        />
-      </button>
+      <span>
+        <button
+          type="button"
+          title="First page"
+          onClick={() => props.setPage(0)}
+          disabled={props.page === 0}
+        >
+          <MaterialSymbol
+            symbol="keyboard_double_arrow_left"
+            color="primary"
+            highlightColor="primary"
+            interactive={props.page > 0}
+          />
+        </button>
+        <button
+          type="button"
+          title="Previous page"
+          onClick={() => props.setPage((p) => p - 1)}
+          disabled={props.page === 0}
+        >
+          <MaterialSymbol
+            symbol="keyboard_arrow_left"
+            color="primary"
+            highlightColor="primary"
+            interactive={props.page > 0}
+          />
+        </button>
+      </span>
 
       <span>
         {props.page * props.limit + 1}-
@@ -58,33 +60,34 @@ export const Paginator: Component<PaginatorProps> = (props) => {
         {props.total}
       </span>
 
-      <button
-        type="button"
-        title="Next page"
-        onClick={() => props.setPage((p) => p + 1)}
-        disabled={props.page >= totalPages() - 1}
-      >
-        <MaterialSymbol
-          symbol="keyboard_arrow_right"
-          color="primary"
-          highlightColor="primary"
-          interactive={props.page < totalPages() - 1}
-        />
-      </button>
-
-      <button
-        type="button"
-        title="Last page"
-        onClick={() => props.setPage(totalPages() - 1)}
-        disabled={props.page >= totalPages() - 1}
-      >
-        <MaterialSymbol
-          symbol="keyboard_double_arrow_right"
-          color="primary"
-          highlightColor="primary"
-          interactive={props.page < totalPages() - 1}
-        />
-      </button>
+      <span>
+        <button
+          type="button"
+          title="Next page"
+          onClick={() => props.setPage((p) => p + 1)}
+          disabled={props.page >= totalPages() - 1}
+        >
+          <MaterialSymbol
+            symbol="keyboard_arrow_right"
+            color="primary"
+            highlightColor="primary"
+            interactive={props.page < totalPages() - 1}
+          />
+        </button>
+        <button
+          type="button"
+          title="Last page"
+          onClick={() => props.setPage(totalPages() - 1)}
+          disabled={props.page >= totalPages() - 1}
+        >
+          <MaterialSymbol
+            symbol="keyboard_double_arrow_right"
+            color="primary"
+            highlightColor="primary"
+            interactive={props.page < totalPages() - 1}
+          />
+        </button>{' '}
+      </span>
     </span>
   );
 };
