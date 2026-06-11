@@ -2,6 +2,7 @@ import { Show } from 'solid-js';
 import spin from '#assets/images/spin.gif';
 import { Button, VanillaAnchorButton } from '#components/Button';
 import { Divider } from '#components/Widget';
+import { isDev } from '#flib/utils';
 import { useSSRUtils } from '#providers/SSRUtilsProvider';
 import style from './GenericErrorPage.module.scss';
 
@@ -47,7 +48,7 @@ export const GenericErrorPage: Component<GenericErrorPageProps> = (props) => {
 
       <Show when={props.error}>
         {(error) => (
-          <details class={style.errorDetails}>
+          <details class={style.errorDetails} open={isDev()}>
             <summary>Details</summary>
             <span>
               <strong>{error().name}</strong>: {error().message}
