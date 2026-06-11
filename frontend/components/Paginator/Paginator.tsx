@@ -1,4 +1,4 @@
-import { createMemo, type Setter } from 'solid-js';
+import { createMemo, type JSX, type Setter } from 'solid-js';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import style from './Paginator.module.scss';
 
@@ -8,13 +8,23 @@ export interface PaginatorProps {
   setLimit: Setter<number>;
   page: number;
   setPage: Setter<number>;
+
+  class?: string;
+  classList?: JSX.CustomAttributes<HTMLElement>['classList'];
 }
 
 export const Paginator: Component<PaginatorProps> = (props) => {
   const totalPages = createMemo(() => Math.ceil(props.total / props.limit));
 
   return (
-    <span class={style.paginator}>
+    <span
+      classList={{
+        [style.paginator]: true,
+        [props.class!]: !!props.class,
+
+        ...(props.classList ?? {}),
+      }}
+    >
       <button
         type="button"
         title="First page"
