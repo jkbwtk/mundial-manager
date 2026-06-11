@@ -19,6 +19,7 @@ import { AnchoredPopup } from '#components/AnchoredPopup';
 import type { DropdownAnchor } from '#components/Dropdown';
 import { Input } from '#components/Input';
 import { MaterialSymbol } from '#components/MaterialSymbol';
+import { Paginator } from '#components/Paginator';
 import { Spinner } from '#components/Spinner';
 import {
   applyDirectives,
@@ -73,23 +74,21 @@ export const ResourcePicker = <T, TE = string>(
   const owner = getOwner();
 
   const [open, setOpen] = createSignal(false);
+
+  const [limit, setLimit] = createSignal(10);
+  const [page, setPage] = createSignal(0);
   const [searchInput, setSearchInput] = createSignal('');
   const searchInputDebounce = debounce((v: string) => setSearchInput(v), 300);
 
-  const transformedData = async (search: string) => {
-    const searchValue = search.trim();
-    const data = await props.query({
-      pagination: {
-        limit: 25,
-        offset: 0,
-      },
-      search: searchValue.length > 0 ? searchValue : undefined,
-    });
+  const queryMetaProp = (): ResourcePickerQueryMeta => ({
+    pagination: {
+      limit: limit(),
+      offset: page() * limit(),
+    },
+    search: searchInput().trim(),
+  });
 
-    return data.data;
-  };
-
-  const [data] = createResource(searchInput, transformedData);
+  const [resp] = createResource(queryMetaProp, props.query);
 
   const [picked, setPicked] = createSignal<PickerEntry<TE> | null>(null);
   const [activeIndex, setActiveIndex] = createSignal(-1);
@@ -131,7 +130,7 @@ export const ResourcePicker = <T, TE = string>(
   };
 
   const moveActiveIndex = (delta: 1 | -1) => {
-    const optionsCount = data.latest?.length ?? 0;
+    const optionsCount = resp.latest?.data.length ?? 0;
     if (optionsCount === 0) return;
 
     const currentIndex = activeIndex();
@@ -181,13 +180,13 @@ export const ResourcePicker = <T, TE = string>(
         break;
       case 'End':
         ev.preventDefault();
-        setActiveIndex((data.latest?.length ?? 1) - 1);
+        setActiveIndex((resp.latest?.data.length ?? 1) - 1);
         break;
       case 'Enter':
       case ' ': {
         ev.preventDefault();
         const index = activeIndex();
-        const option = data.latest?.[index];
+        const option = resp.latest?.data[index];
 
         if (option) selectOption(toEntryWithOwner(option));
         break;
@@ -237,7 +236,7 @@ export const ResourcePicker = <T, TE = string>(
   );
 
   createEffect(
-    on([data], () => {
+    on([resp], () => {
       setActiveIndex(-1);
     }),
   );
@@ -337,7 +336,7 @@ export const ResourcePicker = <T, TE = string>(
 
         <div class={style.optionContainer}>
           <Suspense fallback={<Spinner />}>
-            <For each={data.latest}>
+            <For each={resp.latest?.data}>
               {(instance, index) => {
                 const entry = props.toEntry(instance);
 
@@ -358,6 +357,15 @@ export const ResourcePicker = <T, TE = string>(
                 );
               }}
             </For>
+
+            <Paginator
+              class={style.paginator}
+              total={resp.latest?.total ?? 0}
+              limit={limit()}
+              setLimit={setLimit}
+              page={page()}
+              setPage={setPage}
+            />
           </Suspense>
         </div>
       </AnchoredPopup>
