@@ -13,8 +13,10 @@ import {
   actionUpdateMatch,
   queryBallById,
   queryBalls,
-  queryTables,
+  queryPlayerById,
+  queryPlayers,
   queryTableById,
+  queryTables,
 } from '#flib/trpcCalls';
 import { toJson } from '#flib/utils';
 import { useModalActions } from '#providers/ModalProvider';
@@ -23,7 +25,10 @@ import 'highlight.js/styles/gml.min.css';
 import { ColorBlock } from '#components/ColorBlock';
 import { DateInput } from '#components/DateInput';
 import { Dropdown, type DropdownOption } from '#components/Dropdown';
-import { ResourcePicker } from '#components/ResourcePicker';
+import {
+  MultiResourcePicker,
+  ResourcePicker,
+} from '#components/ResourcePicker';
 import { autofocus } from '#flib/solidHelpers';
 import {
   type Match,
@@ -239,6 +244,20 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
             name="status"
             useDirectives={[validate]}
             invalid={!!errors.status}
+          />
+
+          <span class={style.fieldLabel}>Spectators:</span>
+          <MultiResourcePicker
+            class={style.fieldInput}
+            queryById={queryPlayerById}
+            query={queryPlayers}
+            toEntry={(e) => {
+              return { label: e.name, value: e.uuid };
+            }}
+            name="spectators"
+            value={props.match?.spectators ?? []}
+            useDirectives={[validate]}
+            invalid={!!errors.spectators}
           />
         </div>
 
