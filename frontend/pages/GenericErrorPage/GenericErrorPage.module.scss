@@ -1,4 +1,5 @@
 @use 'app' as *;
+@use 'backgrounds' as *;
 
 .container {
   display: flex;
@@ -23,10 +24,7 @@
 
     padding: ch(1) cw(1);
 
-    border-radius: $borderRadius;
-
-    background-image: repeating-linear-gradient(45deg, $stripeColor 0, $stripeColor 0.1rem, transparent 0, transparent 50%);
-    background-size: 1rem 1rem;
+    @include stripedBackground;
 
     summary {
       cursor: pointer;
