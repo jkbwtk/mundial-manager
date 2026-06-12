@@ -37,7 +37,6 @@ export const MultiResourcePicker = <T, TE = unknown>(
   props: MultiResourcePickerProps<T, TE>,
 ) => {
   let ref!: HTMLButtonElement;
-  let clearRef!: HTMLButtonElement;
 
   const instanceId = createUniqueId();
   const menuId = `${instanceId}-menu`;
@@ -83,27 +82,40 @@ export const MultiResourcePicker = <T, TE = unknown>(
 
   return (
     <div>
-      <div>
+      <div class={styles.multiPicker}>
         <For each={picked()}>
           {(entry) => (
-            <div>
+            <div class={styles.multiEntry}>
               {entry.label}
               <button
                 type="button"
+                class={styles.clearButton}
                 onClick={() => {
                   setPicked((prev) =>
                     prev.filter((e) => e.value !== entry.value),
                   );
                 }}
               >
-                <MaterialSymbol symbol="delete" />
+                <MaterialSymbol
+                  interactive
+                  color="primary"
+                  highlightColor="primary"
+                  symbol="delete"
+                />
               </button>
             </div>
           )}
         </For>
       </div>
 
-      <Button ref={ref} type="button" id={triggerId} onClick={toggleOpen}>
+      <Button
+        ref={ref}
+        id={triggerId}
+        class={styles.multiTrigger}
+        type="button"
+        severity="secondary"
+        onClick={toggleOpen}
+      >
         +
       </Button>
 

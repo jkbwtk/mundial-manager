@@ -1,4 +1,5 @@
 @use 'app' as *;
+@use 'backgrounds' as *;
 
 .picker {
   min-width: cw(20);
@@ -139,4 +140,22 @@
 
 .paginator {
   justify-content: space-between;
+}
+
+.multi-picker {
+  @include stripedBackground;
+
+  padding: 0 cw(1);
+}
+
+.multi-trigger {
+  width: 100%;
+}
+
+.multi-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  width: 100%;
 }
