@@ -1,4 +1,5 @@
 @use 'app' as *;
+@use 'backgrounds' as *;
 @use 'sass:color';
 
 %label-disabled {
@@ -246,11 +247,11 @@
     }
 
     &::-webkit-color-swatch {
-      mask: url('/frontend/assets/images/braille.svg') 0 0 / cw(1) ch(1);
+      @include brailleBackground(transparent);
     }
 
     &::-moz-color-swatch {
-      mask: url('/frontend/assets/images/braille.svg') 0 0 / cw(1) ch(1);
+      @include brailleBackground(transparent);
     }
   }
 }

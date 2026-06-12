@@ -6,3 +6,9 @@
   background-image: repeating-linear-gradient(45deg, $color 0, $color 0.1rem, transparent 0, transparent 50%);
   background-size: 1rem 1rem;
 }
+
+@mixin brailleBackground($color: $textBrightColor) {
+  background-color: $color;
+
+  mask: url('/frontend/assets/images/braille.svg') 0 0 / cw(1) ch(1);
+}
