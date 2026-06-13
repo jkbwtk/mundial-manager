@@ -5,10 +5,12 @@ import {
   For,
   getOwner,
   type JSX,
+  Match,
   on,
   onMount,
   runWithOwner,
   Show,
+  Switch,
 } from 'solid-js';
 import { Button } from '#components/Button';
 import { MaterialSymbol } from '#components/MaterialSymbol';
@@ -17,6 +19,7 @@ import {
   type PickerQueryMeta,
   ResourcePickerBase,
 } from '#components/ResourcePicker';
+import { Spinner } from '#components/Spinner';
 import { TextMarquee } from '#components/TextMarquee';
 import {
   applyDirectives,
@@ -152,14 +155,25 @@ export const MultiResourcePicker = <T, TE = unknown>(
             {(entry) => (
               <div class={styles.multiEntry}>
                 <span class={styles.multiEntryLabel}>
-                  <TextMarquee>
-                    {entry.label ?? String(entry.value)}
-                  </TextMarquee>
+                  <Switch>
+                    <Match when={entry.loading}>
+                      <Spinner />
+                    </Match>
+
+                    <Match when={entry.label}>
+                      <TextMarquee>{entry.label}</TextMarquee>
+                    </Match>
+
+                    <Match when={entry.value}>
+                      <TextMarquee>{String(entry.value)}</TextMarquee>
+                    </Match>
+                  </Switch>
                 </span>
 
                 <button
                   type="button"
                   class={styles.clearButton}
+                  disabled={props.disabled}
                   onClick={() => {
                     setPicked((prev) =>
                       prev.filter((e) => e.value !== entry.value),

@@ -183,9 +183,13 @@
 }
 
 .multi-entry-label {
+  position: relative;
   display: inline-flex;
 
-  min-width: 0;
+  min-width: cw(1);
+  min-height: ch(1);
+
+  width: 100%;
   max-width: 100%;
 
   overflow: hidden;
