@@ -7,6 +7,7 @@ import {
   type JSX,
   on,
   onMount,
+  runWithOwner,
   Show,
 } from 'solid-js';
 import { Button } from '#components/Button';
@@ -89,6 +90,12 @@ export const MultiResourcePicker = <T, TE = unknown>(
     return picked().some((e) => e.value === value);
   };
 
+  const toEntryWithOwner = (instance: T): PickerEntry<TE> => {
+    const createEntry = () => props.toEntry(instance);
+    if (!owner) return createEntry();
+    return runWithOwner(owner, createEntry) ?? createEntry();
+  };
+
   createEffect(
     on(
       [picked],
@@ -108,7 +115,7 @@ export const MultiResourcePicker = <T, TE = unknown>(
       setPicked(value.map((e) => ({ label: '', value: e, loading: true })));
 
       Promise.all(value.map((v) => props.queryById(v)))
-        .then((instances) => instances.map(props.toEntry))
+        .then((instances) => instances.map(toEntryWithOwner))
         .then((entries) => {
           setPicked(entries);
         });
