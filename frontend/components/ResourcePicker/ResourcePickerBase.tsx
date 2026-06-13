@@ -199,6 +199,7 @@ export const ResourcePickerBase = <T, TE = unknown>(
             setLimit={setLimit}
             page={page()}
             setPage={setPage}
+            keyboardNavigation
           />
         </Suspense>
       </div>
