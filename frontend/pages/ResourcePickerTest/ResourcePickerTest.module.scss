@@ -1,5 +1,14 @@
 @use 'app' as *;
 
+.outer-container {
+  max-height: 100%;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  scrollbar-gutter: stable;
+}
+
 .container {
   max-height: 100%;
 
@@ -7,4 +16,14 @@
   overflow-y: auto;
 
   scrollbar-gutter: stable;
+}
+
+.forced-picker-width {
+  width: cw(24);
+}
+
+.side-by-side {
+  display: flex;
+  flex-wrap: wrap;
+  gap: cw(1);
 }
