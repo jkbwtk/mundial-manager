@@ -6,6 +6,7 @@ import style from './DropdownTest.module.scss';
 export const DropdownTest: Component = () => {
   const [basicDropdownValue, setBasicDropdownValue] = createSignal('option1');
   const [emptyDropdownValue, setEmptyDropdownValue] = createSignal('');
+  const [invalidDropdownValue, setInvalidDropdownValue] = createSignal('');
   const [wideLabelDropdownValue, setWideLabelDropdownValue] =
     createSignal('short');
   const [manyOptionsDropdownValue] = createSignal('item1');
@@ -62,6 +63,20 @@ export const DropdownTest: Component = () => {
               },
             ]}
           />
+          <Divider />
+          Invalid dropdown:{' '}
+          <Dropdown
+            invalid
+            value={invalidDropdownValue()}
+            onChange={setInvalidDropdownValue}
+            options={[
+              { label: 'Option 1', value: 'option1' },
+              { label: 'Option 2', value: 'option2' },
+              { label: 'Option 3', value: 'option3' },
+              { label: 'Option 4', value: 'option4' },
+            ]}
+          />{' '}
+          Selected: {invalidDropdownValue()}
           <Divider />
           Empty dropdown: <Dropdown value={''} options={[]} />
           <Divider />
