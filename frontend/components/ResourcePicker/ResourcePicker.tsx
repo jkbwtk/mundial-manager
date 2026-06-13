@@ -17,6 +17,7 @@ import {
   ResourcePickerBase,
 } from '#components/ResourcePicker';
 import { Spinner } from '#components/Spinner';
+import { TextMarquee } from '#components/TextMarquee';
 import {
   applyDirectives,
   type ComponentUseDirectiveHack,
@@ -182,9 +183,19 @@ export const ResourcePicker = <T, TE = string>(
         prop:value={picked()?.value ?? ''}
       >
         <span class={style.content}>
-          <Switch fallback={picked()?.label ?? props.placeholder}>
+          <Switch fallback={<TextMarquee>{props.placeholder}</TextMarquee>}>
             <Match when={picked()?.loading}>
               <Spinner />
+            </Match>
+
+            <Match when={picked()?.label !== undefined}>
+              <TextMarquee>{picked()?.label}</TextMarquee>
+            </Match>
+
+            <Match
+              when={picked()?.value !== undefined && picked()?.value !== null}
+            >
+              <TextMarquee>{String(picked()?.value)}</TextMarquee>
             </Match>
           </Switch>
         </span>
