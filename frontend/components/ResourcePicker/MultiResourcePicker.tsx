@@ -7,6 +7,7 @@ import {
   type JSX,
   on,
   onMount,
+  Show,
 } from 'solid-js';
 import { Button } from '#components/Button';
 import { MaterialSymbol } from '#components/MaterialSymbol';
@@ -15,6 +16,7 @@ import {
   type PickerQueryMeta,
   ResourcePickerBase,
 } from '#components/ResourcePicker';
+import { TextMarquee } from '#components/TextMarquee';
 import {
   applyDirectives,
   type ComponentUseDirectiveHack,
@@ -128,35 +130,47 @@ export const MultiResourcePicker = <T, TE = unknown>(
   return (
     <div
       ref={containerRef}
+      classList={{
+        [styles.multiContainer]: true,
+        [props.class ?? '']: !!props.class,
+        ...(props.classList ?? {}),
+      }}
       //@ts-expect-error
       prop:name={props.name}
       prop:value={picked().map((e) => e.value) ?? ''}
     >
-      <div class={styles.multiPicker}>
-        <For each={picked()}>
-          {(entry) => (
-            <div class={styles.multiEntry}>
-              {entry.label}
-              <button
-                type="button"
-                class={styles.clearButton}
-                onClick={() => {
-                  setPicked((prev) =>
-                    prev.filter((e) => e.value !== entry.value),
-                  );
-                }}
-              >
-                <MaterialSymbol
-                  interactive
-                  color="primary"
-                  highlightColor="primary"
-                  symbol="delete"
-                />
-              </button>
-            </div>
-          )}
-        </For>
-      </div>
+      <Show when={picked().length > 0}>
+        <div class={styles.multiPicker}>
+          <For each={picked()}>
+            {(entry) => (
+              <div class={styles.multiEntry}>
+                <span class={styles.multiEntryLabel}>
+                  <TextMarquee>
+                    {entry.label ?? String(entry.value)}
+                  </TextMarquee>
+                </span>
+
+                <button
+                  type="button"
+                  class={styles.clearButton}
+                  onClick={() => {
+                    setPicked((prev) =>
+                      prev.filter((e) => e.value !== entry.value),
+                    );
+                  }}
+                >
+                  <MaterialSymbol
+                    interactive
+                    color="primary"
+                    highlightColor="primary"
+                    symbol="delete"
+                  />
+                </button>
+              </div>
+            )}
+          </For>
+        </div>
+      </Show>
 
       <Button
         ref={ref}

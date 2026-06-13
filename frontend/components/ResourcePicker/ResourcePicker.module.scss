@@ -82,7 +82,10 @@
 
   text-align: left;
 
+  min-width: 0;
   width: 100%;
+
+  overflow: hidden;
 }
 
 .option-container {
@@ -142,20 +145,47 @@
   justify-content: space-between;
 }
 
+.multi-container {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  width: fit-content;
+  max-width: 100%;
+}
+
 .multi-picker {
   @include stripedBackground;
+
+  width: 100%;
+  min-width: cw(5);
+  max-width: 100%;
 
   padding: 0 cw(1);
 }
 
 .multi-trigger {
   width: 100%;
+  min-width: cw(5);
+  text-align: center;
+  white-space: nowrap;
 }
 
 .multi-entry {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: cw(1);
 
   width: 100%;
+  min-width: 0;
+}
+
+.multi-entry-label {
+  display: inline-flex;
+
+  min-width: 0;
+  max-width: 100%;
+
+  overflow: hidden;
 }
