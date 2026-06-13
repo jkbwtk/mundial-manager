@@ -1,4 +1,10 @@
-import { createMemo, type JSX, type Setter } from 'solid-js';
+import {
+  createMemo,
+  type JSX,
+  onCleanup,
+  onMount,
+  type Setter,
+} from 'solid-js';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import style from './Paginator.module.scss';
 
@@ -9,12 +15,50 @@ export interface PaginatorProps {
   page: number;
   setPage: Setter<number>;
 
+  keyboardNavigation?: boolean;
+
   class?: string;
   classList?: JSX.CustomAttributes<HTMLElement>['classList'];
 }
 
 export const Paginator: Component<PaginatorProps> = (props) => {
   const totalPages = createMemo(() => Math.ceil(props.total / props.limit));
+
+  const handleKeyDown = (ev: KeyboardEvent) => {
+    if (!props.keyboardNavigation) return;
+
+    switch (ev.key) {
+      case 'ArrowLeft':
+        ev.preventDefault();
+
+        if (ev.ctrlKey || ev.shiftKey) {
+          props.setPage(0);
+          break;
+        }
+
+        props.setPage((p) => Math.max(p - 1, 0));
+        break;
+
+      case 'ArrowRight':
+        ev.preventDefault();
+
+        if (ev.ctrlKey || ev.shiftKey) {
+          props.setPage(totalPages() - 1);
+          break;
+        }
+
+        props.setPage((p) => Math.min(p + 1, totalPages() - 1));
+        break;
+    }
+  };
+
+  onMount(() => {
+    document.addEventListener('keydown', handleKeyDown);
+  });
+
+  onCleanup(() => {
+    document.removeEventListener('keydown', handleKeyDown);
+  });
 
   return (
     <span
