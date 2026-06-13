@@ -178,6 +178,7 @@ export const ResourcePickerBase = <T, TE = unknown>(
                 <button
                   role="option"
                   type="button"
+                  tabIndex={-1}
                   classList={{
                     [style.option]: true,
                     [style.active]: index() === activeIndex(),
