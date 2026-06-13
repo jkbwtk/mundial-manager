@@ -1,71 +1,73 @@
 @use 'app' as *;
 
 .container {
-  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+
   overflow: hidden;
-  text-overflow: clip;
+
+  min-width: 0;
+  max-width: 100%;
+
+  --marquee-gap-px: 0px;
+  --marquee-distance-px: 0px;
+  --marquee-steps: 1;
+  --marquee-duration: 0ms;
+  --marquee-delay: 0ms;
+}
+
+.container {
+  .track {
+    display: inline-flex;
+    align-items: center;
+
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .segment {
+    display: inline-flex;
+    align-items: center;
+
+    flex-shrink: 0;
+
+    min-width: 0;
+    white-space: nowrap;
+  }
+
+  .gap {
+    width: var(--marquee-gap-px);
+    flex-shrink: 0;
+  }
+
+  .clone {
+    pointer-events: none;
+  }
 }
 
 .marquee {
-  text-indent: 99999px !important;
+  .track {
+    will-change: transform;
 
-  position: relative;
-
-  --anim1-units: calc(var(--total-width-chars) + var(--text-gap));
-  --anim2-units: calc(var(--total-width-chars) + var(--text-gap));
-
-  &::before {
-    position: absolute;
-
-    // color: $textColor;
-    color: inherit;
-    text-indent: 0px;
-
-    content: var(--text-content);
-
-    left: 0;
-  }
-
-  &::after {
-    position: absolute;
-
-    color: inherit;
-    text-indent: 0px;
-
-    content: var(--text-content);
-
-    left: calc(var(--anim2-units) * cw(1));
+    animation: marquee-scroll var(--marquee-duration) steps(var(--marquee-steps)) infinite;
+    animation-delay: var(--marquee-delay);
   }
 }
 
-.scrolling {
-  &::before {
-    left: unset;
-
-    animation: scroll-1 calc(var(--anim1-units) * var(--scroll-speed)) steps(var(--anim1-units)) infinite;
-  }
-
-  &::after {
-    left: unset;
-
-    animation: scroll-2 calc(var(--anim2-units) * var(--scroll-speed)) steps(var(--anim2-units)) infinite;
+@media (prefers-reduced-motion: reduce) {
+  .marquee {
+    .track {
+      animation: none;
+    }
   }
 }
 
-@keyframes scroll-1 {
+@keyframes marquee-scroll {
   from {
-    left: 0;
+    transform: translateX(0);
   }
-  to {
-    left: calc(var(--anim1-units) * cw(-1));
-  }
-}
 
-@keyframes scroll-2 {
-  from {
-    left: calc(var(--anim2-units) * cw(1));
-  }
   to {
-    left: 0;
+    transform: translateX(calc(var(--marquee-distance-px) * -1));
   }
 }

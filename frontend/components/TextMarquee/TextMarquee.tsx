@@ -1,13 +1,12 @@
-import { debounce } from '@solid-primitives/scheduled';
 import type { JSX } from 'solid-js';
 import {
-  children,
   createEffect,
-  createMemo,
   createSignal,
   mergeProps,
   onCleanup,
   onMount,
+  Show,
+  splitProps,
 } from 'solid-js';
 import { isServer } from 'solid-js/web';
 import { useConsoleUnitPrototype } from '#providers/ConsoleUnitPrototypeProvider';
@@ -15,90 +14,168 @@ import type { RequiredDefaults } from '#shared/utils';
 import style from './TextMarquee.module.scss';
 
 export type TextMarqueeBaseProps = {
-  scrollSpeed?: string;
+  scrollSpeed?: number;
   scrollDelay?: number;
   textGap?: number;
 };
 
-export type TextMarquee = TextMarqueeBaseProps &
+export type TextMarqueeProps = TextMarqueeBaseProps &
   JSX.HTMLAttributes<HTMLSpanElement>;
 
 const defaultProps: RequiredDefaults<TextMarqueeBaseProps> = {
-  scrollSpeed: '0.2s',
+  scrollSpeed: 200,
   scrollDelay: 500,
   textGap: 3,
 };
 
-export const TextMarquee: Component<TextMarquee> = (userProps) => {
-  const props = mergeProps(defaultProps, userProps);
+const FOCUSABLE_SELECTOR =
+  'a[href],button,input,select,textarea,[tabindex],[contenteditable],summary';
+
+export const TextMarquee: Component<TextMarqueeProps> = (userProps) => {
+  const [props, htmlProps] = splitProps(mergeProps(defaultProps, userProps), [
+    'children',
+    'class',
+    'classList',
+    'scrollSpeed',
+    'scrollDelay',
+    'textGap',
+  ]);
+
   const [{ unit: consoleUnit }] = useConsoleUnitPrototype();
 
-  const resolved = children(() => props.children);
-  const textContent = createMemo(() => resolved.toArray().join('') ?? '');
+  let containerRef!: HTMLSpanElement;
+  let contentRef!: HTMLSpanElement;
+  let cloneRef: HTMLSpanElement | undefined;
 
-  // biome-ignore lint/style/useConst: uninitialized ref
-  let ref: HTMLSpanElement = null!;
+  let resizeObserver: ResizeObserver | undefined;
+  let mutationObserver: MutationObserver | undefined;
 
-  const [visibleWidth, setVisibleWidth] = createSignal(0);
-  const [scrolling, setScrolling] = createSignal(false);
-  const scrollingDebounce = debounce(
-    (v: boolean) => setScrolling(v),
-    props.scrollDelay,
-  );
+  const [overflowing, setOverflowing] = createSignal(false);
 
-  const shouldScroll = () => {
-    if (isServer || ref === null) {
-      return false;
-    }
+  const sanitizeClone = (root: HTMLElement) => {
+    root.querySelectorAll('[id]').forEach((node) => {
+      node.removeAttribute('id');
+    });
 
-    ref.style.setProperty(
-      '--total-width-chars',
-      textContent().length.toString(),
-    );
-    ref.style.setProperty('--text-content', `"${textContent()}"`);
-
-    const overflowing = visibleWidth() < textContent().length;
-    scrollingDebounce(overflowing);
-
-    return overflowing;
+    root.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR).forEach((node) => {
+      node.setAttribute('tabindex', '-1');
+    });
   };
 
-  if (!isServer) {
-    const resizeObserver = new ResizeObserver((entries) => {
-      const entry = entries.pop();
-      if (entry === undefined) {
-        return;
-      }
+  const syncClone = () => {
+    if (!cloneRef || !contentRef) return;
 
-      const chars = Math.round(entry.contentRect.width / consoleUnit.width);
-      setVisibleWidth(chars);
+    const clonedNodes = Array.from(contentRef.childNodes).map((node) =>
+      node.cloneNode(true),
+    );
+
+    cloneRef.replaceChildren(...clonedNodes);
+    sanitizeClone(cloneRef);
+  };
+
+  const syncMarquee = () => {
+    if (isServer || !containerRef || !contentRef) return;
+
+    const gapPx = Math.max(0, props.textGap) * consoleUnit.width;
+    const contentWidth = contentRef.scrollWidth;
+    const viewportWidth = containerRef.clientWidth;
+    const distancePx = contentWidth + gapPx;
+
+    const hasOverflow = contentWidth > viewportWidth + 0.5;
+    setOverflowing(hasOverflow);
+
+    const distanceChars = Math.max(
+      1,
+      Math.round(distancePx / consoleUnit.width),
+    );
+    const steppedDistancePx = distanceChars * consoleUnit.width;
+    const durationMs = Math.max(
+      1,
+      Math.round(distanceChars * props.scrollSpeed),
+    );
+
+    containerRef.style.setProperty('--marquee-gap-px', `${gapPx}px`);
+    containerRef.style.setProperty(
+      '--marquee-distance-px',
+      `${steppedDistancePx}px`,
+    );
+    containerRef.style.setProperty('--marquee-steps', `${distanceChars}`);
+    containerRef.style.setProperty('--marquee-duration', `${durationMs}ms`);
+
+    if (hasOverflow) {
+      syncClone();
+    }
+  };
+
+  createEffect(() => {
+    props.scrollSpeed;
+    props.textGap;
+    props.children;
+
+    syncMarquee();
+  });
+
+  createEffect(() => {
+    containerRef.style.setProperty('--marquee-delay', `${props.scrollDelay}ms`);
+  });
+
+  onMount(() => {
+    resizeObserver = new ResizeObserver(() => {
+      syncMarquee();
     });
 
-    onMount(() => {
-      resizeObserver.observe(ref);
+    resizeObserver.observe(containerRef);
+    resizeObserver.observe(contentRef);
+
+    mutationObserver = new MutationObserver(() => {
+      syncMarquee();
     });
 
-    onCleanup(() => {
-      resizeObserver.unobserve(ref);
+    mutationObserver.observe(contentRef, {
+      childList: true,
+      subtree: true,
+      characterData: true,
     });
 
-    createEffect(() => {
-      ref.style.setProperty('--text-gap', `${props.textGap}`);
-      ref.style.setProperty('--scroll-speed', props.scrollSpeed);
-    });
-  }
+    syncMarquee();
+  });
+
+  onCleanup(() => {
+    resizeObserver?.disconnect();
+    mutationObserver?.disconnect();
+  });
 
   return (
     <span
-      {...props}
-      ref={ref}
+      {...htmlProps}
+      ref={containerRef}
       classList={{
         [style.container]: true,
-        [style.marquee]: shouldScroll(),
-        [style.scrolling]: scrolling(),
-        [props.class ?? '']: true,
+        [style.marquee]: overflowing(),
+        [props.class ?? '']: !!props.class,
         ...(props.classList ?? {}),
       }}
-    />
+    >
+      <span class={style.track}>
+        <span ref={contentRef} class={style.segment}>
+          {props.children}
+        </span>
+
+        <Show when={overflowing()}>
+          <span class={style.gap} aria-hidden="true" />
+          <span
+            ref={(el) => {
+              cloneRef = el;
+            }}
+            classList={{
+              [style.segment]: true,
+              [style.clone]: true,
+            }}
+            aria-hidden="true"
+            inert
+          />
+        </Show>
+      </span>
+    </span>
   );
 };
