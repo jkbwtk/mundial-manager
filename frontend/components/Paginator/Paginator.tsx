@@ -5,6 +5,7 @@ import {
   onMount,
   type Setter,
 } from 'solid-js';
+import { isServer } from 'solid-js/web';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import style from './Paginator.module.scss';
 
@@ -53,10 +54,12 @@ export const Paginator: Component<PaginatorProps> = (props) => {
   };
 
   onMount(() => {
+    console.log('witam ja z onMount podczas SSR');
     document.addEventListener('keydown', handleKeyDown);
   });
 
   onCleanup(() => {
+    if (isServer) return;
     document.removeEventListener('keydown', handleKeyDown);
   });
 
