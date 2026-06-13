@@ -1,9 +1,12 @@
 import {
+  createEffect,
   createSignal,
   createUniqueId,
   For,
   getOwner,
   type JSX,
+  on,
+  onMount,
 } from 'solid-js';
 import { Button } from '#components/Button';
 import { MaterialSymbol } from '#components/MaterialSymbol';
@@ -12,7 +15,10 @@ import {
   type PickerQueryMeta,
   ResourcePickerBase,
 } from '#components/ResourcePicker';
-import type { ComponentUseDirectiveHack } from '#flib/solidHelpers';
+import {
+  applyDirectives,
+  type ComponentUseDirectiveHack,
+} from '#flib/solidHelpers';
 import type { PaginatedResponse } from '#shared/zod';
 import styles from './ResourcePicker.module.scss';
 
@@ -36,6 +42,7 @@ export interface MultiResourcePickerProps<T, TE> {
 export const MultiResourcePicker = <T, TE = unknown>(
   props: MultiResourcePickerProps<T, TE>,
 ) => {
+  let containerRef!: HTMLDivElement;
   let ref!: HTMLButtonElement;
 
   const instanceId = createUniqueId();
@@ -80,8 +87,51 @@ export const MultiResourcePicker = <T, TE = unknown>(
     return picked().some((e) => e.value === value);
   };
 
+  createEffect(
+    on(
+      [picked],
+      ([picked]) => {
+        props.onChange?.(picked.map((e) => e.value));
+
+        ref.oninput?.(new InputEvent('input', { bubbles: true }));
+      },
+      { defer: true },
+    ),
+  );
+
+  createEffect(
+    on([() => props.value], ([value]) => {
+      if (value === undefined) return;
+
+      setPicked(value.map((e) => ({ label: '', value: e, loading: true })));
+
+      Promise.all(value.map((v) => props.queryById(v)))
+        .then((instances) => instances.map(props.toEntry))
+        .then((entries) => {
+          setPicked(entries);
+        });
+    }),
+  );
+
+  onMount(() => {
+    // @ts-expect-error
+    containerRef.setCustomValidity = () => {};
+    // @ts-expect-error
+    containerRef.reportValidity = () => true;
+    // @ts-expect-error
+    containerRef.checkValidity = () => true;
+
+    // @ts-expect-error
+    applyDirectives(containerRef, props.useDirectives ?? []);
+  });
+
   return (
-    <div>
+    <div
+      ref={containerRef}
+      //@ts-expect-error
+      prop:name={props.name}
+      prop:value={picked().map((e) => e.value) ?? ''}
+    >
       <div class={styles.multiPicker}>
         <For each={picked()}>
           {(entry) => (
@@ -114,6 +164,11 @@ export const MultiResourcePicker = <T, TE = unknown>(
         class={styles.multiTrigger}
         type="button"
         severity="secondary"
+        aria-haspopup="listbox"
+        aria-expanded={open()}
+        aria-controls={menuId}
+        disabled={props.disabled}
+        aria-invalid={props.invalid}
         onClick={toggleOpen}
       >
         +
