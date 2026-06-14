@@ -12,6 +12,7 @@ import type { DB, TX } from '#backend/db/database';
 import type { BaseModelType } from '#backend/db/Instance';
 import type {
   ballsTable,
+  matchEventsTable,
   matchesTable,
   playersTable,
   seasonsTable,
@@ -29,7 +30,8 @@ export type LeagueScopedTablesUnion =
   | typeof tablesTable
   | typeof ballsTable
   | typeof playersTable
-  | typeof matchesTable;
+  | typeof matchesTable
+  | typeof matchEventsTable;
 
 export type ValidationStrategy<T extends z.ZodObject> = (
   db: DB | TX,
@@ -46,8 +48,12 @@ export interface ModelOpsMetadata<
   Table extends LeagueScopedTablesUnion,
   TableName extends keyof DB['query'],
   SelectSchema extends BaseModelType,
-  CreateSchema extends z.ZodObject,
-  UpdateSchema extends z.ZodObject,
+  CreateSchema extends
+    | z.ZodObject
+    | z.ZodDiscriminatedUnion<z.ZodObject[], string>,
+  UpdateSchema extends
+    | z.ZodObject
+    | z.ZodDiscriminatedUnion<z.ZodObject[], string>,
   QueryMetaSchemaType extends QueryMetaSchema,
   StrategySchema extends z.ZodObject,
 > {
@@ -68,8 +74,12 @@ export function ModelOps<
   Table extends LeagueScopedTablesUnion,
   TableName extends keyof DB['query'],
   SelectSchema extends BaseModelType,
-  CreateSchema extends z.ZodObject,
-  UpdateSchema extends z.ZodObject,
+  CreateSchema extends
+    | z.ZodObject
+    | z.ZodDiscriminatedUnion<z.ZodObject[], string>,
+  UpdateSchema extends
+    | z.ZodObject
+    | z.ZodDiscriminatedUnion<z.ZodObject[], string>,
   QueryMetaSchemaType extends QueryMetaSchema,
   ValidationSchema extends z.ZodObject,
 >(
