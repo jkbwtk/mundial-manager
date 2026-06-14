@@ -54,7 +54,6 @@ export const Paginator: Component<PaginatorProps> = (props) => {
   };
 
   onMount(() => {
-    console.log('witam ja z onMount podczas SSR');
     document.addEventListener('keydown', handleKeyDown);
   });
 
