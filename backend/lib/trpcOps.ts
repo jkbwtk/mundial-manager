@@ -10,10 +10,14 @@ const InstanceWithId = z.object({
   uuid: z.uuid(),
 });
 
+type UnionWithId = z.ZodDiscriminatedUnion<(typeof InstanceWithId)[], string>;
+
 export interface CreateCrudOpsMetadata<
-  PublicSchema extends typeof InstanceWithId,
-  CreateSchema extends z.ZodObject,
-  UpdateSchema extends typeof InstanceWithId,
+  PublicSchema extends typeof InstanceWithId | UnionWithId,
+  CreateSchema extends
+    | z.ZodObject
+    | z.ZodDiscriminatedUnion<z.ZodObject[], string>,
+  UpdateSchema extends typeof InstanceWithId | UnionWithId,
   Model extends ReturnType<typeof ModelOps>,
 > {
   publicSchema: PublicSchema;
@@ -24,9 +28,11 @@ export interface CreateCrudOpsMetadata<
 }
 
 export function createCrudOps<
-  PublicSchema extends typeof InstanceWithId,
-  CreateSchema extends z.ZodObject,
-  UpdateSchema extends typeof InstanceWithId,
+  PublicSchema extends typeof InstanceWithId | UnionWithId,
+  CreateSchema extends
+    | z.ZodObject
+    | z.ZodDiscriminatedUnion<z.ZodObject[], string>,
+  UpdateSchema extends typeof InstanceWithId | UnionWithId,
   Model extends ReturnType<typeof ModelOps>,
 >(
   metadata: CreateCrudOpsMetadata<
@@ -40,7 +46,6 @@ export function createCrudOps<
     getAll: leagueScopedProcedure
       .input(metadata.queryMetaSchema.optional())
       .output(PaginatedResponse(metadata.publicSchema))
-      // @ts-expect-error
       .query(async ({ ctx, input }) => {
         const instances = runWithErrorConversion(() =>
           metadata.model.getAll(ctx.db, ctx.league.uuid, input),
@@ -56,7 +61,7 @@ export function createCrudOps<
       }),
 
     getById: leagueScopedProcedure
-      .input(metadata.publicSchema.pick({ uuid: true }))
+      .input(InstanceWithId)
       .output(metadata.publicSchema)
       // @ts-expect-error
       .query(async ({ ctx, input }) => {
@@ -99,7 +104,7 @@ export function createCrudOps<
       }),
 
     delete: leagueScopedProcedure
-      .input(metadata.publicSchema.pick({ uuid: true }))
+      .input(InstanceWithId)
       .output(metadata.publicSchema)
       // @ts-expect-error
       .mutation(async ({ ctx, input }) => {
