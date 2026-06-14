@@ -26,6 +26,8 @@ export interface ChangelogContextActions {
   disablePermanently: () => void;
   disableUntilNextVersion: () => void;
   resetOptions: () => void;
+  latestVersion: () => string | null;
+  latestCommitHash: () => string | null;
 }
 
 export type ChangelogContextValue = [
@@ -72,12 +74,18 @@ const ChangelogContext = createContext<ChangelogContextValue>([
         'ChangelogContext: resetOptions() called before provider',
       );
     },
+    latestVersion: () => {
+      throw new Error(
+        'ChangelogContext: latestVersion() called before provider',
+      );
+    },
+    latestCommitHash: () => {
+      throw new Error(
+        'ChangelogContext: latestCommitHash() called before provider',
+      );
+    },
   },
 ]);
-
-export const useChangelogContext = (): ChangelogContextValue => {
-  return useContext(ChangelogContext);
-};
 
 const changelogConfigKey = 'CHANGELOG_CONFIG';
 
@@ -151,6 +159,14 @@ export const ChangelogProvider: ParentComponent = (props) => {
     setState('config', defaultState.config);
   };
 
+  const latestVersion: ChangelogContextActions['latestVersion'] = () => {
+    return state.changelog.versions.at(0)?.version ?? null;
+  };
+
+  const latestCommitHash: ChangelogContextActions['latestCommitHash'] = () => {
+    return state.changelog.versions.at(0)?.commits.at(0)?.hash ?? null;
+  };
+
   createEffect(
     on(
       () => ({ ...state.config }),
@@ -175,6 +191,8 @@ export const ChangelogProvider: ParentComponent = (props) => {
           disablePermanently,
           disableUntilNextVersion,
           resetOptions,
+          latestVersion,
+          latestCommitHash,
         },
       ]}
     >
@@ -182,3 +200,6 @@ export const ChangelogProvider: ParentComponent = (props) => {
     </ChangelogContext.Provider>
   );
 };
+
+export const useChangelog = (): ChangelogContextValue =>
+  useContext(ChangelogContext);

@@ -1,12 +1,16 @@
-import { Suspense } from 'solid-js';
+import { Match, Suspense, Switch } from 'solid-js';
 import { Breadcrumbs } from '#components/Breadcrumbs';
 import { LogoSmall } from '#components/LogoSmall/LogoSmall';
 import { Sidebar } from '#components/Sidebar/Sidebar';
 import { Divider } from '#components/Widget';
+import { isDev } from '#flib/utils';
 import { routes } from '#frontend/routes';
+import { useChangelog } from '#providers/ChangelogProvider';
 import style from './DashboardLayout.module.scss';
 
 export const DashboardLayout: ParentComponent = (props) => {
+  const [, { latestVersion, latestCommitHash }] = useChangelog();
+
   return (
     <div class={style.container}>
       <div class={style.logo}>
@@ -24,7 +28,17 @@ export const DashboardLayout: ParentComponent = (props) => {
       <div class={style.nav}>
         <Sidebar routes={routes} />
         <div class={style.inDevelopment}>
-          <div>Still in development</div>
+          <Switch
+            fallback={
+              <div>
+                v{latestVersion()} ({latestCommitHash()})
+              </div>
+            }
+          >
+            <Match when={isDev()}>
+              <div>Development build</div>
+            </Match>
+          </Switch>
         </div>
       </div>
 

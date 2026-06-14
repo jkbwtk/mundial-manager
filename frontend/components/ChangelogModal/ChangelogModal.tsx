@@ -4,14 +4,14 @@ import { Button } from '#components/Button';
 import { VersionChangelog } from '#components/ChangelogModal/VersionChangelog';
 import { Modal } from '#components/Modal';
 import { Divider } from '#components/Widget';
-import { useChangelogContext } from '#providers/ChangelogProvider';
+import { useChangelog } from '#providers/ChangelogProvider';
 import { useModalActions } from '#providers/ModalProvider';
 import style from './ChangelogModal.module.scss';
 
 export const ChangelogModal: Component = () => {
   const { closeModal } = useModalActions();
   const [state, { disablePermanently, disableUntilNextVersion }] =
-    useChangelogContext();
+    useChangelog();
 
   return (
     <Modal

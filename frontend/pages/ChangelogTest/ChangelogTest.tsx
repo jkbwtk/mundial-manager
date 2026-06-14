@@ -1,10 +1,10 @@
 import { Button } from '#components/Button';
 import { Divider } from '#components/Widget';
-import { useChangelogContext } from '#providers/ChangelogProvider';
+import { useChangelog } from '#providers/ChangelogProvider';
 import style from './ChangelogTest.module.scss';
 
 const ChangelogTest: Component = () => {
-  const [state, actions] = useChangelogContext();
+  const [state, actions] = useChangelog();
 
   return (
     <div class={style.container}>
