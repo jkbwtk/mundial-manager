@@ -16,6 +16,14 @@ export const MatchStatusEnum = {
 export const MatchStatus = z.enum(MatchStatusEnum);
 export type MatchStatus = z.infer<typeof MatchStatus>;
 
+export const MatchSideEnum = {
+  SIDE_1: 'SIDE_1',
+  SIDE_2: 'SIDE_2',
+} as const;
+
+export const MatchSide = z.enum(MatchSideEnum);
+export type MatchSide = z.infer<typeof MatchSide>;
+
 export const Match = z.object({
   uuid: z.uuid(),
   tableUuid: z.uuid().nullish(),

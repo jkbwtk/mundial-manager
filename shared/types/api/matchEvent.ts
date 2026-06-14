@@ -1,5 +1,6 @@
 import z from 'zod';
 import { createQueryMeta } from '#backend/types/trpc';
+import { MatchSide } from '#shared/types/api/match';
 import { PaginatedResponse } from '#shared/zod';
 
 export const MatchEventTypeEnum = {
@@ -41,16 +42,15 @@ export type GoalType = z.infer<typeof GoalType>;
 
 export const MatchEventGoal = MatchEventBase.extend({
   type: z.literal(MatchEventTypeEnum.GOAL),
-  for: z.uuid(), // match side uuid
-  by: z.uuid(), // match side uuid
   player: z.uuid(), // player uuid
+  ownGoal: z.boolean(),
   goalType: z.array(GoalType).default([]),
 });
 export type MatchEventGoal = z.infer<typeof MatchEventGoal>;
 
 export const MatchEventPositionChange = MatchEventBase.extend({
   type: z.literal(MatchEventTypeEnum.POSITION_CHANGE),
-  side: z.uuid(), // match side uuid
+  side: MatchSide,
 });
 export type MatchEventPositionChange = z.infer<typeof MatchEventPositionChange>;
 

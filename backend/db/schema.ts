@@ -3,7 +3,7 @@ import { integer, pgEnum, timestamp, uuid } from 'drizzle-orm/pg-core/columns';
 import { index, uniqueIndex } from 'drizzle-orm/pg-core/indexes';
 import { pgTable } from 'drizzle-orm/pg-core/table';
 import { tsvector } from '#backend/db/utils';
-import { MatchStatusEnum } from '#shared/types/api/match';
+import { MatchSideEnum, MatchStatusEnum } from '#shared/types/api/match';
 import { MatchEventTypeEnum } from '#shared/types/api/matchEvent';
 import type { SeasonConfig } from '#shared/types/api/season';
 
@@ -275,7 +275,7 @@ export const teamConfigurationMembersTable = pgTable(
   ],
 );
 
-export const matchSideEnum = pgEnum('matchSide', ['SIDE_1', 'SIDE_2']);
+export const matchSideEnum = pgEnum('matchSide', MatchSideEnum);
 
 export const matchSidesTable = pgTable(
   'matchSides',
