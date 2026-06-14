@@ -11,6 +11,7 @@ import { toJson } from '#flib/index';
 import 'highlight.js/styles/gml.min.css';
 import { DateInput } from '#components/DateInput';
 import { Required } from '#components/Required/Required';
+import { TextArea } from '#components/TextArea/TextArea';
 import { hexColor } from '#shared/zod';
 import style from './FormsTest.module.scss';
 
@@ -34,6 +35,7 @@ const FormSchema = z
     color: hexColor,
     password: z.string().min(8),
     confirmPassword: z.string().min(8),
+    textArea: z.string().min(10).max(200),
   })
   .refine((data) => data.password === data.confirmPassword, {
     error: 'Passwords do not match',
@@ -194,6 +196,16 @@ export const FormsTest: Component = () => {
             required
             useDirectives={[validate]}
             invalid={!!errors.confirmPassword}
+          />
+
+          <span class={style.label}>
+            Text Area
+            <Required />:
+          </span>
+          <TextArea
+            name="textArea"
+            useDirectives={[validate]}
+            invalid={!!errors.textArea}
           />
         </form>
         <br />

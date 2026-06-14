@@ -1,0 +1,35 @@
+@use 'app' as *;
+@use 'backgrounds' as *;
+@use 'sass:color';
+
+.text-area {
+  border: 0;
+  outline: 0;
+  background-color: transparent;
+
+  @include stripedBackground;
+
+  box-shadow: inset 0 0 0 0.1rem $borderColor;
+
+  color: $textBrightColor;
+
+  font-size: inherit;
+  font-family: inherit;
+
+  &::placeholder {
+    color: $textDimColor;
+  }
+
+  &:focus {
+    box-shadow: inset 0 0 0 0.1rem $textBrightColor;
+  }
+
+  &:invalid {
+    color: $red;
+    box-shadow: inset 0 0 0 0.1rem $red;
+
+    &::placeholder {
+      color: color.scale($red, $lightness: -30%);
+    }
+  }
+}
