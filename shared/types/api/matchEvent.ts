@@ -19,7 +19,7 @@ export type MatchEventType = z.infer<typeof MatchEventType>;
 const MatchEventBase = z.object({
   uuid: z.uuid(),
   matchUuid: z.uuid(),
-  time: z.date(),
+  time: z.coerce.date(),
 });
 
 export const GoalTypeEnum = {
