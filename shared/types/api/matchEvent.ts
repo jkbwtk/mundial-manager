@@ -1,4 +1,6 @@
 import z from 'zod';
+import { createQueryMeta } from '#backend/types/trpc';
+import { PaginatedResponse } from '#shared/zod';
 
 export const MatchEventTypeEnum = {
   GOAL: 'GOAL',
@@ -15,6 +17,8 @@ export const MatchEventType = z.enum(MatchEventTypeEnum);
 export type MatchEventType = z.infer<typeof MatchEventType>;
 
 const MatchEventBase = z.object({
+  uuid: z.uuid(),
+  matchUuid: z.uuid(),
   time: z.date(),
 });
 
@@ -96,3 +100,40 @@ export const MatchEvent = z.discriminatedUnion('type', [
   MatchEventCancel,
 ]);
 export type MatchEvent = z.infer<typeof MatchEvent>;
+
+export const MatchEventPaginated = PaginatedResponse(MatchEvent);
+export type MatchEventPaginated = z.infer<typeof MatchEventPaginated>;
+
+export const MatchEventNullable = MatchEvent.nullable();
+export type MatchEventNullable = z.infer<typeof MatchEventNullable>;
+
+export const MatchEventCreate = z.discriminatedUnion('type', [
+  MatchEventGoal.omit({ uuid: true }),
+  MatchEventPositionChange.omit({ uuid: true }),
+  MatchEventBallOut.omit({ uuid: true }),
+  MatchEventEquipmentFailure.omit({ uuid: true }),
+  MatchEventPause.omit({ uuid: true }),
+  MatchEventResume.omit({ uuid: true }),
+  MatchEventCancel.omit({ uuid: true }),
+]);
+export type MatchEventCreate = z.infer<typeof MatchEventCreate>;
+
+export const MatchEventUpdate = z.discriminatedUnion('type', [
+  MatchEventGoal.omit({ uuid: true }).partial().extend({ uuid: z.uuid() }),
+  MatchEventPositionChange.omit({ uuid: true })
+    .partial()
+    .extend({ uuid: z.uuid() }),
+  MatchEventBallOut.omit({ uuid: true }).partial().extend({ uuid: z.uuid() }),
+  MatchEventEquipmentFailure.omit({ uuid: true })
+    .partial()
+    .extend({ uuid: z.uuid() }),
+  MatchEventPause.omit({ uuid: true }).partial().extend({ uuid: z.uuid() }),
+  MatchEventResume.omit({ uuid: true }).partial().extend({ uuid: z.uuid() }),
+  MatchEventCancel.omit({ uuid: true }).partial().extend({ uuid: z.uuid() }),
+]);
+export type MatchEventUpdate = z.infer<typeof MatchEventUpdate>;
+
+export const MatchEventQueryMeta = createQueryMeta({
+  sortFields: ['time'] as const,
+});
+export type MatchEventQueryMeta = z.infer<typeof MatchEventQueryMeta>;
