@@ -3,9 +3,10 @@ import z from 'zod';
 import { db } from '#backend/db/database';
 import { logger } from '#shared/logger';
 import { populateBalls } from '#tools/commands/populate/balls';
+import { populatePlayers } from '#tools/commands/populate/players';
 import { populateTables } from '#tools/commands/populate/tables';
 
-const PopulateTargets = ['tables', 'balls'] as const;
+const PopulateTargets = ['tables', 'balls', 'players'] as const;
 
 type PopulateTarget = (typeof PopulateTargets)[number];
 
@@ -22,6 +23,7 @@ const populateHandlers: Record<
 > = {
   tables: populateTables,
   balls: populateBalls,
+  players: populatePlayers,
 };
 
 async function populateTarget(
