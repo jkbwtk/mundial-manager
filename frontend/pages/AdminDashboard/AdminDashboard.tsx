@@ -44,7 +44,25 @@ export const AdminDashboard: Component = () => {
       header: 'UUID',
       align: 'left',
       width: 8,
-      transform: (val) => shortUUID(val),
+      transform: (val) => {
+        return (
+          <button
+            type="button"
+            onClick={() =>
+              navigator.clipboard
+                .writeText(val)
+                .then(() => {
+                  actions.success(`UUID ${val} copied to clipboard`);
+                })
+                .catch(() => {
+                  actions.error('Failed to copy UUID to clipboard');
+                })
+            }
+          >
+            {shortUUID(val)}
+          </button>
+        );
+      },
     },
     {
       key: 'name',

@@ -25,6 +25,20 @@
 
     td:global(.data-column-uuid) {
       color: $primaryColor;
+
+      button {
+        &:hover {
+          text-decoration: dashed underline;
+        }
+
+        &:active {
+          color: $primaryBrightColor;
+        }
+
+        &:focus {
+          text-decoration: dashed underline;
+        }
+      }
     }
   }
 }
