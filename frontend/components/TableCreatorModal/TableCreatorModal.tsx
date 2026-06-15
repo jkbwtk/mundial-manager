@@ -13,6 +13,7 @@ import { toJson } from '#flib/utils';
 import { useModalActions } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
 import 'highlight.js/styles/gml.min.css';
+import { TextArea } from '#components/TextArea';
 import { autofocus } from '#flib/solidHelpers';
 import { type Table, TableCreate } from '#shared/types/api/table';
 import style from './TableCreatorModal.module.scss';
@@ -192,12 +193,13 @@ export const TableCreatorModal: Component<TableCreatorModalProps> = (props) => {
           />
 
           <span class={style.fieldLabel}>Description:</span>
-          <Input
+          <TextArea
             class={style.fieldInput}
-            type="text"
             placeholder="Optional"
             maxLength={255}
             name="description"
+            style={{ resize: 'vertical' }}
+            autocomplete="off"
             value={props.table?.description ?? ''}
             useDirectives={[validate]}
             invalid={!!errors.description}

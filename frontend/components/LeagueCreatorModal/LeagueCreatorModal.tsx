@@ -12,6 +12,7 @@ import { useModalActions } from '#providers/ModalProvider';
 import { type League, LeagueCreate } from '#shared/types/api/league';
 import 'highlight.js/styles/gml.min.css';
 import { useAction } from '@solidjs/router';
+import { TextArea } from '#components/TextArea';
 import { autofocus } from '#flib/solidHelpers';
 import { actionCreateLeague, actionUpdateLeague } from '#flib/trpcCalls';
 import { useToast } from '#providers/ToastProvider';
@@ -155,12 +156,13 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
 
         <div class={style.fieldRow}>
           <span class={style.fieldLabel}>Description</span>
-          <Input
+          <TextArea
             class={style.fieldInput}
-            type="text"
             placeholder="Optional"
             maxLength={255}
             name="description"
+            style={{ resize: 'vertical' }}
+            autocomplete="off"
             value={props.league?.description ?? ''}
             useDirectives={[validate]}
             invalid={!!errors.description}

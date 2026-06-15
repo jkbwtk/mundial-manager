@@ -13,6 +13,7 @@ import { toJson } from '#flib/utils';
 import { useModalActions } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
 import 'highlight.js/styles/gml.min.css';
+import { TextArea } from '#components/TextArea';
 import { autofocus } from '#flib/solidHelpers';
 import { type Ball, BallCreate } from '#shared/types/api/ball';
 import style from './BallCreatorModal.module.scss';
@@ -196,12 +197,13 @@ export const BallCreatorModal: Component<BallCreatorModalProps> = (props) => {
           </Input>
 
           <span class={style.fieldLabel}>Description:</span>
-          <Input
+          <TextArea
             class={style.fieldInput}
-            type="text"
             placeholder="Optional"
             maxLength={255}
             name="description"
+            style={{ resize: 'vertical' }}
+            autocomplete="off"
             value={props.ball?.description ?? ''}
             useDirectives={[validate]}
             invalid={!!errors.description}
