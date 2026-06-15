@@ -2,9 +2,10 @@ import { type Command, Option } from 'commander';
 import z from 'zod';
 import { db } from '#backend/db/database';
 import { logger } from '#shared/logger';
+import { populateBalls } from '#tools/commands/populate/balls';
 import { populateTables } from '#tools/commands/populate/tables';
 
-const PopulateTargets = ['tables'] as const;
+const PopulateTargets = ['tables', 'balls'] as const;
 
 type PopulateTarget = (typeof PopulateTargets)[number];
 
@@ -20,6 +21,7 @@ const populateHandlers: Record<
   (options: PopulateOptions) => Promise<void>
 > = {
   tables: populateTables,
+  balls: populateBalls,
 };
 
 async function populateTarget(
