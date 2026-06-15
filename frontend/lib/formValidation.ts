@@ -6,6 +6,29 @@ import { treeifyError } from 'zod';
 import { normalizeInputType } from '#flib/utils';
 import { ZodLikeError } from '#shared/zod';
 
+export interface FormValidationCompatible {
+  name: string;
+  type?: string;
+  inputMode?: JSX.InputHTMLAttributes<HTMLInputElement>['inputMode'];
+
+  invalid?: boolean;
+  disabled?: boolean;
+
+  // biome-ignore lint/suspicious/noExplicitAny: yeah
+  value: any;
+
+  /**
+   * Used only when type is `checkbox`
+   */
+  checked?: boolean;
+
+  setCustomValidity: (message: string) => void;
+  checkValidity: () => boolean;
+
+  onblur: () => void;
+  oninput: () => void;
+}
+
 export type UseFormValidationOptions<T extends z.ZodObject> = {
   debounceTime?: number;
   updateMode?: boolean;
