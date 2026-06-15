@@ -18,11 +18,6 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.playersTable.leagueUuid,
       alias: 'players',
     }),
-    teamConfigurations: r.many.teamConfigurationsTable({
-      from: r.leaguesTable.uuid,
-      to: r.teamConfigurationsTable.leagueUuid,
-      alias: 'teamConfigurations',
-    }),
     matches: r.many.matchesTable({
       from: r.leaguesTable.uuid,
       to: r.matchesTable.leagueUuid,
@@ -75,11 +70,6 @@ export const relations = defineRelations(schema, (r) => ({
       alias: 'league',
       optional: false,
     }),
-    teamConfigurationMemberships: r.many.teamConfigurationMembersTable({
-      from: r.playersTable.uuid,
-      to: r.teamConfigurationMembersTable.playerUuid,
-      alias: 'teamConfigurationMemberships',
-    }),
     matchSpectators: r.many.matchSpectatorsTable({
       from: r.playersTable.uuid,
       to: r.matchSpectatorsTable.playerUuid,
@@ -91,36 +81,6 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.teamConfigurationsTable.leagueUuid,
       to: r.leaguesTable.uuid,
       alias: 'league',
-      optional: false,
-    }),
-    members: r.many.teamConfigurationMembersTable({
-      from: r.teamConfigurationsTable.uuid,
-      to: r.teamConfigurationMembersTable.teamConfigurationUuid,
-      alias: 'members',
-    }),
-    matchSides: r.many.matchSidesTable({
-      from: r.teamConfigurationsTable.uuid,
-      to: r.matchSidesTable.teamConfigurationUuid,
-      alias: 'matchSides',
-    }),
-  },
-  teamConfigurationMembersTable: {
-    league: r.one.leaguesTable({
-      from: r.teamConfigurationMembersTable.leagueUuid,
-      to: r.leaguesTable.uuid,
-      alias: 'league',
-      optional: false,
-    }),
-    teamConfiguration: r.one.teamConfigurationsTable({
-      from: r.teamConfigurationMembersTable.teamConfigurationUuid,
-      to: r.teamConfigurationsTable.uuid,
-      alias: 'teamConfiguration',
-      optional: false,
-    }),
-    player: r.one.playersTable({
-      from: r.teamConfigurationMembersTable.playerUuid,
-      to: r.playersTable.uuid,
-      alias: 'player',
       optional: false,
     }),
   },
@@ -143,10 +103,17 @@ export const relations = defineRelations(schema, (r) => ({
       alias: 'ball',
       optional: true,
     }),
-    sides: r.many.matchSidesTable({
-      from: r.matchesTable.uuid,
-      to: r.matchSidesTable.matchUuid,
-      alias: 'sides',
+    side1TeamConfiguration: r.one.teamConfigurationsTable({
+      from: r.matchesTable.side1TeamConfigurationUuid,
+      to: r.teamConfigurationsTable.uuid,
+      alias: 'side1TeamConfiguration',
+      optional: false,
+    }),
+    side2TeamConfiguration: r.one.teamConfigurationsTable({
+      from: r.matchesTable.side2TeamConfigurationUuid,
+      to: r.teamConfigurationsTable.uuid,
+      alias: 'side2TeamConfiguration',
+      optional: false,
     }),
     events: r.many.matchEventsTable({
       from: r.matchesTable.uuid,
@@ -157,26 +124,6 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.matchesTable.uuid,
       to: r.matchSpectatorsTable.matchUuid,
       alias: 'spectators',
-    }),
-  },
-  matchSidesTable: {
-    league: r.one.leaguesTable({
-      from: r.matchSidesTable.leagueUuid,
-      to: r.leaguesTable.uuid,
-      alias: 'league',
-      optional: false,
-    }),
-    match: r.one.matchesTable({
-      from: r.matchSidesTable.matchUuid,
-      to: r.matchesTable.uuid,
-      alias: 'match',
-      optional: false,
-    }),
-    teamConfiguration: r.one.teamConfigurationsTable({
-      from: r.matchSidesTable.teamConfigurationUuid,
-      to: r.teamConfigurationsTable.uuid,
-      alias: 'teamConfiguration',
-      optional: false,
     }),
   },
   matchSpectatorsTable: {

@@ -3,7 +3,7 @@ import { integer, pgEnum, timestamp, uuid } from 'drizzle-orm/pg-core/columns';
 import { index, uniqueIndex } from 'drizzle-orm/pg-core/indexes';
 import { pgTable } from 'drizzle-orm/pg-core/table';
 import { tsvector } from '#backend/db/utils';
-import { MatchSideEnum, MatchStatusEnum } from '#shared/types/api/match';
+import { MatchStatusEnum } from '#shared/types/api/match';
 import { MatchEventTypeEnum } from '#shared/types/api/matchEvent';
 import type { SeasonConfig } from '#shared/types/api/season';
 
@@ -185,6 +185,26 @@ export const playersTable = pgTable(
   ],
 );
 
+export const teamConfigurationsTable = pgTable(
+  'teamConfigurations',
+  (t) => ({
+    leagueUuid: t
+      .uuid()
+      .references(() => leaguesTable.uuid, { onDelete: 'cascade' })
+      .notNull(),
+
+    playerUuids: t.uuid().array().notNull().default(sql`ARRAY[]::uuid[]`),
+
+    ...commonFields,
+  }),
+  (r) => [
+    index().on(r.leagueUuid),
+    index().using('gin', r.playerUuids),
+    index().on(r.$createdAt),
+    index().on(r.$deletedAt).where(isNull(r.$deletedAt)),
+  ],
+);
+
 export const matchStatusEnum = pgEnum('matchStatus', MatchStatusEnum);
 
 export const matchesTable = pgTable(
@@ -208,6 +228,29 @@ export const matchesTable = pgTable(
     duration: t.integer().notNull(),
     pauseDuration: t.integer().default(0),
 
+    side1Score: t.integer().notNull(),
+    side2Score: t.integer().notNull(),
+
+    side1TeamConfigurationUuid: t
+      .uuid()
+      .references(() => teamConfigurationsTable.uuid, { onDelete: 'restrict' })
+      .notNull(),
+    side2TeamConfigurationUuid: t
+      .uuid()
+      .references(() => teamConfigurationsTable.uuid, { onDelete: 'restrict' })
+      .notNull(),
+
+    side1PlayerPositions: t
+      .jsonb()
+      .$type<Record<string, number>>()
+      .notNull()
+      .default(sql`'{}'::jsonb`),
+    side2PlayerPositions: t
+      .jsonb()
+      .$type<Record<string, number>>()
+      .notNull()
+      .default(sql`'{}'::jsonb`),
+
     status: matchStatusEnum().notNull(),
 
     hash: t.text().notNull(),
@@ -221,88 +264,6 @@ export const matchesTable = pgTable(
     index().on(r.startDate),
     index().on(r.status),
     uniqueIndex().on(r.leagueUuid, r.hash),
-    index().on(r.$createdAt),
-    index().on(r.$deletedAt).where(isNull(r.$deletedAt)),
-  ],
-);
-
-export const teamConfigurationsTable = pgTable(
-  'teamConfigurations',
-  (t) => ({
-    leagueUuid: t
-      .uuid()
-      .references(() => leaguesTable.uuid, { onDelete: 'cascade' })
-      .notNull(),
-
-    compositionKey: t.text().notNull(),
-
-    ...commonFields,
-  }),
-  (r) => [
-    index().on(r.leagueUuid),
-    index().on(r.compositionKey),
-    uniqueIndex().on(r.leagueUuid, r.compositionKey),
-    index().on(r.$createdAt),
-    index().on(r.$deletedAt).where(isNull(r.$deletedAt)),
-  ],
-);
-
-export const teamConfigurationMembersTable = pgTable(
-  'teamConfigurationMembers',
-  (t) => ({
-    leagueUuid: t
-      .uuid()
-      .references(() => leaguesTable.uuid, { onDelete: 'cascade' })
-      .notNull(),
-    teamConfigurationUuid: t
-      .uuid()
-      .references(() => teamConfigurationsTable.uuid, { onDelete: 'cascade' })
-      .notNull(),
-    playerUuid: t
-      .uuid()
-      .references(() => playersTable.uuid, { onDelete: 'restrict' })
-      .notNull(),
-
-    ...commonFields,
-  }),
-  (r) => [
-    index().on(r.leagueUuid),
-    index().on(r.teamConfigurationUuid),
-    index().on(r.playerUuid),
-    uniqueIndex().on(r.teamConfigurationUuid, r.playerUuid),
-    index().on(r.$createdAt),
-    index().on(r.$deletedAt).where(isNull(r.$deletedAt)),
-  ],
-);
-
-export const matchSideEnum = pgEnum('matchSide', MatchSideEnum);
-
-export const matchSidesTable = pgTable(
-  'matchSides',
-  (t) => ({
-    leagueUuid: t
-      .uuid()
-      .references(() => leaguesTable.uuid, { onDelete: 'cascade' })
-      .notNull(),
-    matchUuid: t
-      .uuid()
-      .references(() => matchesTable.uuid, { onDelete: 'cascade' })
-      .notNull(),
-    teamConfigurationUuid: t
-      .uuid()
-      .references(() => teamConfigurationsTable.uuid, { onDelete: 'restrict' })
-      .notNull(),
-
-    side: matchSideEnum().notNull(),
-    score: t.integer().notNull(),
-
-    ...commonFields,
-  }),
-  (r) => [
-    index().on(r.leagueUuid),
-    index().on(r.matchUuid),
-    index().on(r.teamConfigurationUuid),
-    uniqueIndex().on(r.matchUuid, r.side),
     index().on(r.$createdAt),
     index().on(r.$deletedAt).where(isNull(r.$deletedAt)),
   ],
