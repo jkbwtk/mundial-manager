@@ -206,6 +206,10 @@ export const FormsTest: Component = () => {
             name="textArea"
             useDirectives={[validate]}
             invalid={!!errors.textArea}
+            placeholder="Enter some text (10-200 characters)"
+            minLength={10}
+            maxLength={200}
+            required
           />
         </form>
         <br />
