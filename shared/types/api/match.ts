@@ -62,6 +62,11 @@ export type MatchCreate = z.infer<typeof MatchCreate>;
 export const MatchUpdate = MatchCreate.partial().extend({ uuid: z.uuid() });
 export type MatchUpdate = z.infer<typeof MatchUpdate>;
 
+export const MatchStrategy = MatchCreate.extend({
+  uuid: z.uuid().optional(),
+});
+export type MatchStrategy = z.infer<typeof MatchStrategy>;
+
 export const MatchQueryMeta = createQueryMeta({
   sortFields: ['startDate', 'duration', 'pauseDuration', 'status'] as const,
 });
