@@ -274,7 +274,7 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
               return { label: e.name, value: e.uuid };
             }}
             name="playersSide1"
-            value={props.match?.playersSide1 ?? []}
+            value={props.match?.playersSide1}
             useDirectives={[validate]}
             invalid={!!errors.playersSide1}
           />
@@ -288,7 +288,7 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
               return { label: e.name, value: e.uuid };
             }}
             name="playersSide2"
-            value={props.match?.playersSide2 ?? []}
+            value={props.match?.playersSide2}
             useDirectives={[validate]}
             invalid={!!errors.playersSide2}
           />

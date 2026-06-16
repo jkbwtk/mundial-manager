@@ -49,7 +49,7 @@ export const MultiResourcePicker = <T, TE = unknown>(
   props: MultiResourcePickerProps<T, TE>,
 ) => {
   let containerRef!: HTMLDivElement;
-  let ref!: HTMLButtonElement;
+  let addRef!: HTMLButtonElement;
 
   const instanceId = createUniqueId();
   const menuId = `${instanceId}-menu`;
@@ -68,10 +68,12 @@ export const MultiResourcePicker = <T, TE = unknown>(
     setOpen(false);
 
     if (focusTrigger) {
-      ref.focus();
+      addRef.focus();
     }
 
-    ref.onblur?.(new FocusEvent('blur', { relatedTarget: ref }));
+    containerRef.onblur?.(
+      new FocusEvent('blur', { relatedTarget: containerRef }),
+    );
   };
 
   const toggleOpen = () => {
@@ -105,7 +107,7 @@ export const MultiResourcePicker = <T, TE = unknown>(
       ([picked]) => {
         props.onChange?.(picked.map((e) => e.value));
 
-        ref.oninput?.(new InputEvent('input', { bubbles: true }));
+        containerRef.oninput?.(new InputEvent('input', { bubbles: true }));
       },
       { defer: true },
     ),
@@ -194,7 +196,7 @@ export const MultiResourcePicker = <T, TE = unknown>(
       </Show>
 
       <Button
-        ref={ref}
+        ref={addRef}
         id={triggerId}
         class={styles.multiTrigger}
         type="button"
@@ -215,7 +217,7 @@ export const MultiResourcePicker = <T, TE = unknown>(
         menuId={menuId}
         triggerId={triggerId}
         open={open()}
-        triggerRef={() => ref}
+        triggerRef={() => addRef}
         onSelect={selectOption}
         onClose={closeMenu}
         isPicked={isPicked}
