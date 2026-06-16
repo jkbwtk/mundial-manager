@@ -73,7 +73,11 @@ export const ResourcePicker = <T, TE = string>(
   };
 
   const toggleOpen = (ev: PointerEvent) => {
-    if (ev.target instanceof HTMLElement && clearRef.contains(ev.target)) {
+    if (
+      ev.target instanceof HTMLElement &&
+      clearRef &&
+      clearRef.contains(ev.target)
+    ) {
       return;
     }
 
@@ -96,7 +100,11 @@ export const ResourcePicker = <T, TE = string>(
   };
 
   const handleTriggerDown = (ev: KeyboardEvent) => {
-    if (ev.target instanceof HTMLElement && clearRef.contains(ev.target)) {
+    if (
+      ev.target instanceof HTMLElement &&
+      clearRef &&
+      clearRef.contains(ev.target)
+    ) {
       return;
     }
 
