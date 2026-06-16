@@ -459,6 +459,14 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
 
   const handleSegmentBlur = (ev: FocusEvent) => {
     if (
+      ev.relatedTarget instanceof HTMLElement &&
+      triggerRef &&
+      triggerRef.contains(ev.relatedTarget)
+    ) {
+      return;
+    }
+
+    if (
       ev.relatedTarget === yearRef ||
       ev.relatedTarget === monthRef ||
       ev.relatedTarget === dayRef
