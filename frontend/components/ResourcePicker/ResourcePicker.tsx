@@ -72,7 +72,11 @@ export const ResourcePicker = <T, TE = string>(
     ref.onblur?.(new FocusEvent('blur', { relatedTarget: ref }));
   };
 
-  const toggleOpen = () => {
+  const toggleOpen = (ev: PointerEvent) => {
+    if (ev.target instanceof HTMLElement && clearRef.contains(ev.target)) {
+      return;
+    }
+
     open() ? closeMenu() : openMenu();
   };
 
@@ -92,7 +96,9 @@ export const ResourcePicker = <T, TE = string>(
   };
 
   const handleTriggerDown = (ev: KeyboardEvent) => {
-    if (clearRef && ev.target === clearRef) return;
+    if (ev.target instanceof HTMLElement && clearRef.contains(ev.target)) {
+      return;
+    }
 
     switch (ev.key) {
       case 'ArrowDown':
@@ -114,6 +120,7 @@ export const ResourcePicker = <T, TE = string>(
   };
 
   const handleClearButtonClick = (ev: Event) => {
+    ev.preventDefault();
     ev.stopPropagation();
     setPicked(null);
 
