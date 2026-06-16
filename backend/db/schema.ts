@@ -199,6 +199,7 @@ export const teamConfigurationsTable = pgTable(
   }),
   (r) => [
     index().on(r.leagueUuid),
+    uniqueIndex().on(r.leagueUuid, r.playerUuids),
     index().using('gin', r.playerUuids),
     index().on(r.$createdAt),
     index().on(r.$deletedAt).where(isNull(r.$deletedAt)),
@@ -240,6 +241,10 @@ export const matchesTable = pgTable(
       .references(() => teamConfigurationsTable.uuid, { onDelete: 'restrict' })
       .notNull(),
 
+    // keep duplicate player lists for faster access and to simplify queries
+    playersSide1: t.uuid().array().notNull(),
+    playersSide2: t.uuid().array().notNull(),
+
     side1PlayerPositions: t
       .jsonb()
       .$type<Record<string, number>>()
@@ -250,6 +255,8 @@ export const matchesTable = pgTable(
       .$type<Record<string, number>>()
       .notNull()
       .default(sql`'{}'::jsonb`),
+
+    spectators: t.uuid().array().notNull().default(sql`ARRAY[]::uuid[]`),
 
     status: matchStatusEnum().notNull(),
 
@@ -264,34 +271,6 @@ export const matchesTable = pgTable(
     index().on(r.startDate),
     index().on(r.status),
     uniqueIndex().on(r.leagueUuid, r.hash),
-    index().on(r.$createdAt),
-    index().on(r.$deletedAt).where(isNull(r.$deletedAt)),
-  ],
-);
-
-export const matchSpectatorsTable = pgTable(
-  'matchSpectators',
-  (t) => ({
-    leagueUuid: t
-      .uuid()
-      .references(() => leaguesTable.uuid, { onDelete: 'cascade' })
-      .notNull(),
-    matchUuid: t
-      .uuid()
-      .references(() => matchesTable.uuid, { onDelete: 'cascade' })
-      .notNull(),
-    playerUuid: t
-      .uuid()
-      .references(() => playersTable.uuid, { onDelete: 'restrict' })
-      .notNull(),
-
-    ...commonFields,
-  }),
-  (r) => [
-    index().on(r.leagueUuid),
-    index().on(r.matchUuid),
-    index().on(r.playerUuid),
-    uniqueIndex().on(r.matchUuid, r.playerUuid),
     index().on(r.$createdAt),
     index().on(r.$deletedAt).where(isNull(r.$deletedAt)),
   ],
