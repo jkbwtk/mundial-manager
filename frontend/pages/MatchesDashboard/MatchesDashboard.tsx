@@ -57,6 +57,12 @@ export const MatchesDashboard: Component = () => {
       align: 'center',
     },
     {
+      key: 'score',
+      header: 'Score',
+      align: 'center',
+      transform: (_val, row: Match) => `${row.side1Score}:${row.side2Score}`,
+    },
+    {
       key: 'startDate',
       header: 'Start Date',
       align: 'center',
