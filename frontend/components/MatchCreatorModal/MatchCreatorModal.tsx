@@ -237,6 +237,62 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
             invalid={!!errors.ballUuid}
           />
 
+          <span class={style.fieldLabel}>Side 1 Score:</span>
+          <Input
+            class={style.fieldInput}
+            type="text"
+            inputMode="numeric"
+            placeholder="0"
+            min={0}
+            required
+            name="side1Score"
+            value={props.match?.side1Score.toString()}
+            useDirectives={[validate]}
+            invalid={!!errors.side1Score}
+          />
+
+          <span class={style.fieldLabel}>Side 2 Score:</span>
+          <Input
+            class={style.fieldInput}
+            type="text"
+            inputMode="numeric"
+            placeholder="0"
+            min={0}
+            required
+            name="side2Score"
+            value={props.match?.side2Score.toString()}
+            useDirectives={[validate]}
+            invalid={!!errors.side2Score}
+          />
+
+          <span class={style.fieldLabel}>Side 1 Players:</span>
+          <MultiResourcePicker
+            class={style.fieldInput}
+            queryById={queryPlayerById}
+            query={queryPlayers}
+            toEntry={(e) => {
+              return { label: e.name, value: e.uuid };
+            }}
+            name="playersSide1"
+            value={props.match?.playersSide1 ?? []}
+            useDirectives={[validate]}
+            invalid={!!errors.playersSide1}
+          />
+
+          <span class={style.fieldLabel}>Side 2 Players:</span>
+          <MultiResourcePicker
+            class={style.fieldInput}
+            queryById={queryPlayerById}
+            query={queryPlayers}
+            toEntry={(e) => {
+              return { label: e.name, value: e.uuid };
+            }}
+            name="playersSide2"
+            value={props.match?.playersSide2 ?? []}
+            useDirectives={[validate]}
+            invalid={!!errors.playersSide2}
+          />
+
           <span class={style.fieldLabel}>Status:</span>
           <Dropdown
             value={props.match?.status ?? ''}
