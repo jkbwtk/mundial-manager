@@ -1,7 +1,7 @@
 import z from 'zod';
 import { createQueryMeta } from '#backend/types/trpc';
 import { MatchEvent } from '#shared/types/Sheets';
-import { PaginatedResponse } from '#shared/zod';
+import { PaginatedResponse, uuidArray } from '#shared/zod';
 
 export const MatchStatusEnum = {
   SCHEDULED: 'SCHEDULED',
@@ -34,12 +34,15 @@ export const Match = z.object({
   duration: z.number().int().nonnegative(),
   pauseDuration: z.number().int().nonnegative().nullish(),
 
+  side1Score: z.number().int().nonnegative().default(0),
+  side2Score: z.number().int().nonnegative().default(0),
+
   status: MatchStatus,
 
-  // playersSide1: z.array(z.uuid()),
-  // playersSide2: z.array(z.uuid()),
+  playersSide1: uuidArray.check(z.minLength(1), z.maxLength(4)),
+  playersSide2: uuidArray.check(z.minLength(1), z.maxLength(4)),
 
-  spectators: z.array(z.uuid()),
+  spectators: uuidArray,
 
   events: z.array(MatchEvent).default([]),
 

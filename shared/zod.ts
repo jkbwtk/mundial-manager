@@ -23,6 +23,10 @@ export const hexColor = z
   .string()
   .regex(/^(#[0-9A-Fa-f]{6})|(0x[0-9A-Fa-f]{8})$/);
 
+export const uuidArray = z
+  .array(z.uuid())
+  .pipe(z.transform((arr) => Array.from(new Set(arr))));
+
 export const ZodPropertyError = z.object({
   errors: z.array(z.string()),
 });
