@@ -18,14 +18,19 @@ export const MatchesDashboard: Component = () => {
   const [, actions] = useToast();
   const [, { open }] = useModal();
 
-  const [limit, setLimit] = createSignal(25);
+  const [limit, setLimit] = createSignal(100);
   const [page, setPage] = createSignal(0);
+  const [sorting, setSorting] = createSignal<MatchQueryMeta['sorting']>({
+    direction: 'asc',
+    field: 'startDate',
+  });
 
   const queryMetaProp = (): MatchQueryMeta => ({
     pagination: {
       limit: limit(),
       offset: page() * limit(),
     },
+    sorting: sorting(),
   });
 
   const matches = createAsync(() => queryMatches(queryMetaProp()));
@@ -43,6 +48,13 @@ export const MatchesDashboard: Component = () => {
     });
   };
 
+  const handleOnSort = (field: string, direction: 'asc' | 'desc') => {
+    setSorting({
+      field: field as NonNullable<MatchQueryMeta['sorting']>['field'],
+      direction,
+    });
+  };
+
   const column: Column[] = [
     {
       key: 'uuid',
@@ -55,6 +67,7 @@ export const MatchesDashboard: Component = () => {
       key: 'status',
       header: 'Status',
       align: 'center',
+      sortable: true,
     },
     {
       key: 'score',
@@ -66,18 +79,21 @@ export const MatchesDashboard: Component = () => {
       key: 'startDate',
       header: 'Start Date',
       align: 'center',
+      sortable: true,
       transform: (val: Date) => formatDate(val.getTime() / 1000),
     },
     {
       key: 'duration',
       header: 'Duration',
       align: 'center',
+      sortable: true,
       transform: (val) => formatDuration(val),
     },
     {
       key: 'pauseDuration',
       header: 'Pause Duration',
       align: 'center',
+      sortable: true,
       transform: (val) => formatDuration(val),
     },
     {
@@ -149,6 +165,7 @@ export const MatchesDashboard: Component = () => {
           columns={column}
           data={matches.latest?.data ?? []}
           classic={false}
+          onSort={handleOnSort}
         />
 
         <Paginator
