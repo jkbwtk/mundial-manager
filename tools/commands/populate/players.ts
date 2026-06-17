@@ -2,7 +2,6 @@ import { faker } from '@faker-js/faker';
 import { db } from '#backend/db/database';
 import { PlayerModel } from '#backend/db/models/PlayerModel';
 import { playersTable } from '#backend/db/schema';
-import { runWithErrorConversion } from '#blib/modelErrors';
 import { logger } from '#shared/logger';
 import { range } from '#shared/utils';
 import type { PopulateOptions } from '#tools/commands/populate';
@@ -26,14 +25,12 @@ export async function populatePlayers(options: PopulateOptions): Promise<void> {
 
   await Promise.all(
     range(options.count).map(() =>
-      runWithErrorConversion(() =>
-        PlayerModel.create(db, options.leagueUuid, {
-          name: faker.person.fullName(),
-          alias: faker.internet.username(),
-          color: faker.color.rgb({ format: 'hex' }),
-          labels: [],
-        }),
-      ),
+      PlayerModel.create(db, options.leagueUuid, {
+        name: faker.person.fullName(),
+        alias: faker.internet.username(),
+        color: faker.color.rgb({ format: 'hex' }),
+        labels: [],
+      }),
     ),
   );
 
