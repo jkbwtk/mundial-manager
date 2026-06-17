@@ -124,7 +124,6 @@ export const Table: Component<TableProps> = (userProps) => {
                   }}
                   classList={{
                     [style.valignBottom]: true,
-                    [style.horizontalBorder]: true,
                     [style.sortable]: column.sortable,
                     [style.alignLeft]: column.align === 'left',
                     [style.alignCenter]: column.align === 'center',

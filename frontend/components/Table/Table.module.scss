@@ -22,6 +22,8 @@
     &.sortable {
       position: relative;
 
+      text-decoration: underline dotted;
+
       padding-right: cw(2);
 
       text-indent: cw(1);
