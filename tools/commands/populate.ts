@@ -4,10 +4,11 @@ import { db } from '#backend/db/database';
 import { runWithErrorConversion } from '#blib/modelErrors';
 import { logger } from '#shared/logger';
 import { populateBalls } from '#tools/commands/populate/balls';
+import { populateMatches } from '#tools/commands/populate/matches';
 import { populatePlayers } from '#tools/commands/populate/players';
 import { populateTables } from '#tools/commands/populate/tables';
 
-const PopulateTargets = ['tables', 'balls', 'players'] as const;
+const PopulateTargets = ['tables', 'balls', 'players', 'matches'] as const;
 
 type PopulateTarget = (typeof PopulateTargets)[number];
 
@@ -25,6 +26,7 @@ const populateHandlers: Record<
   tables: populateTables,
   balls: populateBalls,
   players: populatePlayers,
+  matches: populateMatches,
 };
 
 async function populateTarget(
