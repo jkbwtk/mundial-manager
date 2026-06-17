@@ -39,67 +39,70 @@ export class MatchModel extends ModelOps({
     playersSide1: string[],
     playersSide2: string[],
   ) {
+    const sortedPlayersSide1 = [...playersSide1].sort();
+    const sortedPlayersSide2 = [...playersSide2].sort();
+
     const side1Team =
-      (await db.query.teamConfigurationsTable.findFirst({
-        where: {
-          leagueUuid,
-          playerUuids: {
-            arrayContains: playersSide1,
-            arrayContained: playersSide1,
-          },
-          $deletedAt: {
-            isNull: true,
-          },
-        },
-      })) ??
       (
         await db
           .insert(teamConfigurationsTable)
           .values({
             leagueUuid,
-            playerUuids: playersSide1,
+            playerUuids: sortedPlayersSide1,
           })
           .onConflictDoNothing()
           .returning()
-      ).at(0);
+      ).at(0) ??
+      (await db.query.teamConfigurationsTable.findFirst({
+        where: {
+          leagueUuid,
+          playerUuids: {
+            arrayContains: sortedPlayersSide1,
+            arrayContained: sortedPlayersSide1,
+          },
+          $deletedAt: {
+            isNull: true,
+          },
+        },
+      }));
 
     if (!side1Team) {
       throw new DatabaseError('Failed to process SIDE_1 team configuration', {
         playersSide1: {
-          value: playersSide1,
+          value: sortedPlayersSide1,
           errorType: 'TEAM_CONFIGURATION_ERROR',
         },
       });
     }
 
     const side2Team =
-      (await db.query.teamConfigurationsTable.findFirst({
-        where: {
-          leagueUuid,
-          playerUuids: {
-            arrayContains: playersSide2,
-            arrayContained: playersSide2,
-          },
-          $deletedAt: {
-            isNull: true,
-          },
-        },
-      })) ??
       (
         await db
           .insert(teamConfigurationsTable)
           .values({
             leagueUuid,
-            playerUuids: playersSide2,
+            playerUuids: sortedPlayersSide2,
           })
           .onConflictDoNothing()
           .returning()
-      ).at(0);
+      ).at(0) ??
+      (await db.query.teamConfigurationsTable.findFirst({
+        where: {
+          leagueUuid,
+          playerUuids: {
+            arrayContains: sortedPlayersSide2,
+            arrayContained: sortedPlayersSide2,
+          },
+          $deletedAt: {
+            isNull: true,
+          },
+        },
+      }));
 
     if (!side2Team) {
       throw new DatabaseError('Failed to process SIDE_2 team configuration', {
         playersSide2: {
-          value: playersSide2,
+          value: sortedPlayersSide2,
           errorType: 'TEAM_CONFIGURATION_ERROR',
         },
       });
