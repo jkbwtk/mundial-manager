@@ -1,10 +1,19 @@
 @use 'app' as *;
+@use 'backgrounds' as *;
 
-.container {
-  width: round(down, 100%, cw(1));
+.outer-container {
+  max-height: 100%;
+
+  overflow-x: hidden;
+  overflow-y: hidden;
+
+  scrollbar-gutter: stable;
+
+  display: flex;
+  flex-direction: column;
 }
 
-.league {
+.controls {
   display: flex;
   gap: cw(1);
 }
@@ -15,13 +24,25 @@
 }
 
 .leagues-table-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: ch(1);
+  max-height: 100%;
+  overflow-y: auto;
 
   .leagues-table {
     width: calc(100% - cw(2));
+    margin: 0 auto;
+
+    thead {
+      position: sticky;
+      top: 0;
+
+      z-index: 9000;
+
+      background-color: $backgroundColor;
+
+      th {
+        color: $textBrightColor;
+      }
+    }
 
     td:global(.data-column-uuid) {
       color: $primaryColor;

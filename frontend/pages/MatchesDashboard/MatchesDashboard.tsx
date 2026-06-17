@@ -4,7 +4,7 @@ import { Button } from '#components/Button';
 import { MatchCreatorModal } from '#components/MatchCreatorModal/MatchCreatorModal';
 import { Paginator } from '#components/Paginator';
 import { type Column, Table } from '#components/Table';
-import { Divider, Widget } from '#components/Widget';
+import { Divider } from '#components/Widget';
 import { useHandleButtonAction } from '#flib/index';
 import { actionDeleteMatch, queryMatches } from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
@@ -68,11 +68,13 @@ export const MatchesDashboard: Component = () => {
       header: 'Status',
       align: 'center',
       sortable: true,
+      width: 12,
     },
     {
       key: 'score',
       header: 'Score',
       align: 'center',
+      width: 7,
       transform: (_val, row: Match) => `${row.side1Score}:${row.side2Score}`,
     },
     {
@@ -80,6 +82,7 @@ export const MatchesDashboard: Component = () => {
       header: 'Start Date',
       align: 'center',
       sortable: true,
+      width: 14,
       transform: (val: Date) => formatDate(val.getTime() / 1000),
     },
     {
@@ -87,6 +90,7 @@ export const MatchesDashboard: Component = () => {
       header: 'Duration',
       align: 'center',
       sortable: true,
+      width: 10,
       transform: (val) => formatDuration(val),
     },
     {
@@ -94,7 +98,21 @@ export const MatchesDashboard: Component = () => {
       header: 'Pause Duration',
       align: 'center',
       sortable: true,
+      width: 18,
       transform: (val) => formatDuration(val),
+    },
+    {
+      key: 'spectators',
+      header: 'Spectators',
+      align: 'center',
+      width: 12,
+      transform: (val: string[]) => val.length,
+    },
+    {
+      key: 'spacer',
+      header: '',
+      align: 'center',
+      transform: () => '',
     },
     {
       key: 'edit',
@@ -152,10 +170,18 @@ export const MatchesDashboard: Component = () => {
   ];
 
   return (
-    <Widget class={style.container} topLeftLabels="Matches Dashboard">
-      <div class={style.league}>
+    <div class={style.outerContainer}>
+      <div class={style.controls}>
         <Button onPointerUp={handleCreateMatch}>Create Match</Button>
       </div>
+
+      <Paginator
+        total={matches.latest?.total ?? 0}
+        limit={limit()}
+        setLimit={setLimit}
+        page={page()}
+        setPage={setPage}
+      />
 
       <Divider />
 
@@ -167,16 +193,8 @@ export const MatchesDashboard: Component = () => {
           classic={false}
           onSort={handleOnSort}
         />
-
-        <Paginator
-          total={matches.latest?.total ?? 0}
-          limit={limit()}
-          setLimit={setLimit}
-          page={page()}
-          setPage={setPage}
-        />
       </div>
-    </Widget>
+    </div>
   );
 };
 
