@@ -1,19 +1,88 @@
 import { randomInt } from 'node:crypto';
 import { db } from '#backend/db/database';
 import { BallModel } from '#backend/db/models/BallModel';
+import { MatchEventModel } from '#backend/db/models/MatchEventModel';
 import { MatchModel } from '#backend/db/models/MatchModel';
 import { PlayerModel } from '#backend/db/models/PlayerModel';
 import { TableModel } from '#backend/db/models/TableModel';
 import { matchesTable } from '#backend/db/schema';
 import { logger } from '#shared/logger';
 import {
+  nonLinearRandomInt,
   pickRandom,
   pickRandomMultiple,
-  runWithProbability,
 } from '#shared/random';
-import { MatchSideEnum } from '#shared/types/api/match';
+import type { MatchEventCreate } from '#shared/types/api/matchEvent';
+import { MatchSideEnum } from '#shared/types/api/matchEvent';
 import { range } from '#shared/utils';
 import type { PopulateOptions } from '#tools/commands/populate';
+
+interface MatchEventContext {
+  startDate: Date;
+  playersSide1: string[];
+  playersSide2: string[];
+}
+
+interface MatchEventsResult {
+  events: MatchEventCreate[];
+  side1Score: number;
+  side2Score: number;
+  duration: number;
+  pauseDuration: number;
+}
+
+function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
+  const events: MatchEventCreate[] = [];
+
+  let side1Score = 0;
+  let side2Score = 0;
+
+  let currentTime = ctx.startDate.getTime();
+
+  while (
+    (side1Score < 10 && side2Score < 10) ||
+    side1Score === side2Score ||
+    Math.abs(side1Score - side2Score) < 2
+  ) {
+    currentTime += nonLinearRandomInt(5000, 180000);
+    const scoringSide = pickRandom([
+      MatchSideEnum.SIDE_1,
+      MatchSideEnum.SIDE_2,
+    ]);
+
+    if (scoringSide === MatchSideEnum.SIDE_1) {
+      side1Score += 1;
+      events.push({
+        time: new Date(currentTime),
+        type: 'GOAL',
+        matchUuid: '',
+        ownGoal: false,
+        goalType: [],
+        player: pickRandom(ctx.playersSide1),
+      });
+    } else {
+      side2Score += 1;
+      events.push({
+        time: new Date(currentTime),
+        type: 'GOAL',
+        matchUuid: '',
+        ownGoal: false,
+        goalType: [],
+        player: pickRandom(ctx.playersSide2),
+      });
+    }
+  }
+
+  const duration = currentTime - ctx.startDate.getTime();
+
+  return {
+    events,
+    side1Score,
+    side2Score,
+    duration,
+    pauseDuration: 0,
+  };
+}
 
 export async function populateMatches(options: PopulateOptions): Promise<void> {
   if (options.clear) {
@@ -49,7 +118,7 @@ export async function populateMatches(options: PopulateOptions): Promise<void> {
   }
 
   await Promise.all(
-    range(options.count).map(() => {
+    range(options.count).map(async () => {
       const tableUuid = pickRandom(tableUuids);
       const ballUuid = pickRandom(ballUuids);
 
@@ -65,48 +134,38 @@ export async function populateMatches(options: PopulateOptions): Promise<void> {
       const playersSide1 = players.slice(0, Math.floor(players.length / 2));
       const playersSide2 = players.slice(Math.floor(players.length / 2));
 
-      const winnerSide = pickRandom([
-        MatchSideEnum.SIDE_1,
-        MatchSideEnum.SIDE_2,
-      ]);
-
-      let side1Score = winnerSide === 'SIDE_1' ? 10 : randomInt(0, 11);
-      let side2Score = winnerSide === 'SIDE_2' ? 10 : randomInt(0, 11);
-
-      while (
-        side1Score === side2Score ||
-        Math.abs(side1Score - side2Score) < 2
-      ) {
-        side1Score += randomInt(0, 2);
-        side2Score += randomInt(0, 2);
-      }
-
-      const duration = randomInt(240, 600);
-      const pauseDuration = runWithProbability(
-        0.2,
-        () => randomInt(10, 120),
-        () => 0,
-      );
-
       const spectators = pickRandomMultiple(
         playerUuids,
         randomInt(0, Math.min(4, playerUuids.length - 2) + 1),
       );
 
-      return MatchModel.create(db, options.leagueUuid, {
+      const eventsResult = generateMatchEvents({
+        startDate,
+        playersSide1,
+        playersSide2,
+      });
+
+      const match = await MatchModel.create(db, options.leagueUuid, {
         tableUuid,
         ballUuid,
         startDate,
-        duration,
-        pauseDuration,
-        side1Score,
-        side2Score,
+        duration: eventsResult.duration,
+        pauseDuration: eventsResult.pauseDuration,
+        side1Score: eventsResult.side1Score,
+        side2Score: eventsResult.side2Score,
         playersSide1,
         playersSide2,
         spectators,
         status: 'FINISHED',
         events: [],
       });
+
+      for (const event of eventsResult.events) {
+        await MatchEventModel.create(db, options.leagueUuid, {
+          ...event,
+          matchUuid: match.uuid,
+        });
+      }
     }),
   );
 
