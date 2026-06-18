@@ -27,7 +27,10 @@ export async function populatePlayers(options: PopulateOptions): Promise<void> {
     range(options.count).map(() =>
       PlayerModel.create(db, options.leagueUuid, {
         name: faker.person.fullName(),
-        alias: faker.internet.username(),
+        alias: faker.string.alphanumeric({
+          casing: 'upper',
+          length: { min: 3, max: 5 },
+        }),
         color: faker.color.rgb({ format: 'hex' }),
         labels: [],
       }),
