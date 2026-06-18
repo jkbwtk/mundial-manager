@@ -1,7 +1,14 @@
 import z from 'zod';
 import { createQueryMeta } from '#backend/types/trpc';
-import { MatchSide } from '#shared/types/api/match';
 import { PaginatedResponse } from '#shared/zod';
+
+export const MatchSideEnum = {
+  SIDE_1: 'SIDE_1',
+  SIDE_2: 'SIDE_2',
+} as const;
+
+export const MatchSide = z.enum(MatchSideEnum);
+export type MatchSide = z.infer<typeof MatchSide>;
 
 export const MatchEventTypeEnum = {
   GOAL: 'GOAL',
