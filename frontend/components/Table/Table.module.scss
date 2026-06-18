@@ -14,10 +14,17 @@
     border: none;
   }
 
+  thead {
+    z-index: 9000;
+    position: sticky;
+    top: 0;
+  }
+
   th {
     user-select: none;
 
-    color: $textDimColor;
+    color: $textBrightColor;
+    background-color: $backgroundColor;
 
     &.sortable {
       position: relative;
@@ -46,7 +53,7 @@
   }
 
   tr {
-    &:nth-child(odd):not(.header) {
+    &:nth-child(even):not(.header) {
       background-color: $backgroundColor;
     }
   }

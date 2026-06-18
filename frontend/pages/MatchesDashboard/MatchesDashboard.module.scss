@@ -31,19 +31,6 @@
     width: calc(100% - cw(2));
     margin: 0 auto;
 
-    thead {
-      position: sticky;
-      top: 0;
-
-      z-index: 9000;
-
-      background-color: $backgroundColor;
-
-      th {
-        color: $textBrightColor;
-      }
-    }
-
     td:global(.data-column-uuid) {
       color: $primaryColor;
     }
