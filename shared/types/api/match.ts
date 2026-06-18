@@ -1,6 +1,6 @@
 import z from 'zod';
 import { createQueryMeta } from '#backend/types/trpc';
-import { MatchEvent } from '#shared/types/Sheets';
+import { MatchEvent } from '#shared/types/api/matchEvent';
 import { PaginatedResponse, uuidArray } from '#shared/zod';
 
 export const MatchStatusEnum = {
