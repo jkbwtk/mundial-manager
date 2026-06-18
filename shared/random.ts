@@ -42,3 +42,35 @@ export function runWithProbability<T>(
     return falseFn();
   }
 }
+
+export function pickRandomWeighed<T>(possibilities: [number, T][]): T {
+  const total = possibilities.reduce((p, [c]) => p + c, 0);
+
+  if (total !== 1) {
+    throw new Error(`The sum of the weights must be 1, but got ${total}`);
+  }
+
+  const random = Math.random();
+  let cumulativeWeight = 0;
+
+  for (const [weight, value] of possibilities) {
+    cumulativeWeight += weight;
+
+    if (random < cumulativeWeight) {
+      return value;
+    }
+  }
+
+  throw new Error('Failed to pick a random weighed value');
+}
+
+export function nonLinearRandomInt(
+  min: number,
+  max: number,
+  exponent = 2,
+): number {
+  const random = Math.random();
+  const nonLinearRandom = random ** exponent;
+
+  return Math.floor(min + nonLinearRandom * (max - min));
+}
