@@ -1,4 +1,5 @@
 import { randomInt } from 'node:crypto';
+import { faker } from '@faker-js/faker';
 import { db } from '#backend/db/database';
 import { BallModel } from '#backend/db/models/BallModel';
 import { MatchEventModel } from '#backend/db/models/MatchEventModel';
@@ -11,8 +12,13 @@ import {
   nonLinearRandomInt,
   pickRandom,
   pickRandomMultiple,
+  pickRandomWeighed,
+  runWithProbability,
 } from '#shared/random';
-import type { MatchEventCreate } from '#shared/types/api/matchEvent';
+import type {
+  MatchEventCreate,
+  MatchEventType,
+} from '#shared/types/api/matchEvent';
 import { MatchSideEnum } from '#shared/types/api/matchEvent';
 import { range } from '#shared/utils';
 import type { PopulateOptions } from '#tools/commands/populate';
@@ -38,38 +44,106 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
   let side2Score = 0;
 
   let currentTime = ctx.startDate.getTime();
+  let pauseDuration = 0;
 
   while (
     (side1Score < 10 && side2Score < 10) ||
     side1Score === side2Score ||
     Math.abs(side1Score - side2Score) < 2
   ) {
-    currentTime += nonLinearRandomInt(5000, 180000);
-    const scoringSide = pickRandom([
-      MatchSideEnum.SIDE_1,
-      MatchSideEnum.SIDE_2,
+    currentTime += nonLinearRandomInt(10000, 120000, 5);
+
+    const eventType: MatchEventType = pickRandomWeighed([
+      [0.85, 'GOAL'],
+      [0.1, 'BALL_OUT'],
+      [0.02, 'POSITION_CHANGE'],
+      [0.02, 'EQUIPMENT_FAILURE'],
+      [0.01, 'PAUSE'],
     ]);
 
-    if (scoringSide === MatchSideEnum.SIDE_1) {
-      side1Score += 1;
-      events.push({
-        time: new Date(currentTime),
-        type: 'GOAL',
-        matchUuid: '',
-        ownGoal: false,
-        goalType: [],
-        player: pickRandom(ctx.playersSide1),
-      });
-    } else {
-      side2Score += 1;
-      events.push({
-        time: new Date(currentTime),
-        type: 'GOAL',
-        matchUuid: '',
-        ownGoal: false,
-        goalType: [],
-        player: pickRandom(ctx.playersSide2),
-      });
+    switch (eventType) {
+      case 'GOAL':
+        {
+          const scoringSide = pickRandom([
+            MatchSideEnum.SIDE_1,
+            MatchSideEnum.SIDE_2,
+          ]);
+
+          if (scoringSide === MatchSideEnum.SIDE_1) {
+            side1Score += 1;
+            events.push({
+              time: new Date(currentTime),
+              type: 'GOAL',
+              matchUuid: '',
+              ownGoal: false,
+              goalType: [],
+              player: pickRandom(ctx.playersSide1),
+            });
+          } else {
+            side2Score += 1;
+            events.push({
+              time: new Date(currentTime),
+              type: 'GOAL',
+              matchUuid: '',
+              ownGoal: false,
+              goalType: [],
+              player: pickRandom(ctx.playersSide2),
+            });
+          }
+        }
+        break;
+
+      case 'BALL_OUT':
+        events.push({
+          time: new Date(currentTime),
+          type: 'BALL_OUT',
+          matchUuid: '',
+        });
+        break;
+
+      case 'POSITION_CHANGE':
+        events.push({
+          time: new Date(currentTime),
+          type: 'POSITION_CHANGE',
+          matchUuid: '',
+          side: pickRandom([MatchSideEnum.SIDE_1, MatchSideEnum.SIDE_2]),
+        });
+        break;
+
+      case 'EQUIPMENT_FAILURE':
+        events.push({
+          time: new Date(currentTime),
+          type: 'EQUIPMENT_FAILURE',
+          matchUuid: '',
+          details:
+            runWithProbability(0.7, () => faker.lorem.sentence()) ?? null,
+        });
+        break;
+
+      case 'PAUSE': {
+        events.push({
+          time: new Date(currentTime),
+          type: 'PAUSE',
+          matchUuid: '',
+          details:
+            runWithProbability(0.7, () => faker.lorem.sentence()) ?? null,
+        });
+
+        const pause = nonLinearRandomInt(10000, 180000, 3);
+
+        currentTime += pause;
+        pauseDuration += pause;
+
+        events.push({
+          time: new Date(currentTime),
+          type: 'RESUME',
+          matchUuid: '',
+        });
+        break;
+      }
+
+      default:
+        break;
     }
   }
 
@@ -79,8 +153,8 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
     events,
     side1Score,
     side2Score,
-    duration,
-    pauseDuration: 0,
+    duration: Math.floor(duration / 1000),
+    pauseDuration: Math.floor(pauseDuration / 1000),
   };
 }
 
