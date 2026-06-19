@@ -13,6 +13,7 @@ import {
   StrategyValidationError,
 } from '#blib/modelErrors';
 import {
+  Match,
   MatchCreate,
   MatchQueryMeta,
   type MatchStrategy,
@@ -23,6 +24,7 @@ import { getValueHash } from '#shared/utils';
 export class MatchModel extends ModelOps({
   table: matchesTable,
   tableName: 'matchesTable',
+  publicSchema: Match,
   selectSchema: MatchSelectSchema,
   createSchema: MatchCreate.extend({
     hash: z.string(),

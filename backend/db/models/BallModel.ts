@@ -2,11 +2,17 @@ import { sql } from 'drizzle-orm';
 import { ModelOps } from '#backend/db/models/ModelOps';
 import { ballsTable } from '#backend/db/schema';
 import { BallSelectSchema } from '#backend/types/db/ball';
-import { BallCreate, BallQueryMeta, BallUpdate } from '#shared/types/api/ball';
+import {
+  Ball,
+  BallCreate,
+  BallQueryMeta,
+  BallUpdate,
+} from '#shared/types/api/ball';
 
 export class BallModel extends ModelOps({
   table: ballsTable,
   tableName: 'ballsTable',
+  publicSchema: Ball,
   selectSchema: BallSelectSchema,
   createSchema: BallCreate,
   updateSchema: BallUpdate,

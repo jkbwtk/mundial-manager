@@ -47,6 +47,9 @@ export type ValidationStrategies<T extends z.ZodObject> = Record<
 export interface ModelOpsMetadata<
   Table extends LeagueScopedTablesUnion,
   TableName extends keyof DB['query'],
+  PublicSchema extends
+    | z.ZodObject
+    | z.ZodDiscriminatedUnion<z.ZodObject[], string>,
   SelectSchema extends BaseModelType,
   CreateSchema extends
     | z.ZodObject
@@ -59,6 +62,7 @@ export interface ModelOpsMetadata<
 > {
   table: Table;
   tableName: TableName;
+  publicSchema: PublicSchema;
   selectSchema: z.ZodType<SelectSchema>;
   createSchema: CreateSchema;
   updateSchema: UpdateSchema;
@@ -73,6 +77,9 @@ export interface ModelOpsMetadata<
 export function ModelOps<
   Table extends LeagueScopedTablesUnion,
   TableName extends keyof DB['query'],
+  PublicSchema extends
+    | z.ZodObject
+    | z.ZodDiscriminatedUnion<z.ZodObject[], string>,
   SelectSchema extends BaseModelType,
   CreateSchema extends
     | z.ZodObject
@@ -86,6 +93,7 @@ export function ModelOps<
   metadata: ModelOpsMetadata<
     Table,
     TableName,
+    PublicSchema,
     SelectSchema,
     CreateSchema,
     UpdateSchema,
@@ -99,6 +107,7 @@ export function ModelOps<
     protected static readonly tableUnion: LeagueScopedTablesUnion =
       metadata.table;
     protected static readonly tableName = metadata.tableName;
+    protected static readonly publicSchema = metadata.publicSchema;
     protected static readonly selectSchema = metadata.selectSchema;
     protected static readonly createSchema = metadata.createSchema;
     protected static readonly updateSchema = metadata.updateSchema;
@@ -149,7 +158,7 @@ export function ModelOps<
           .limit(meta.pagination?.limit ?? 0)
           .offset(meta.pagination?.offset ?? 0);
 
-        return instances;
+        return instances as unknown as SelectSchema[];
       }
 
       const instances = await db.query[ModelOps.tableName]
@@ -169,7 +178,7 @@ export function ModelOps<
           offset: meta.pagination?.offset,
         });
 
-      return instances;
+      return instances as unknown as SelectSchema[];
     }
 
     @ConvertDrizzleErrors()
@@ -187,7 +196,7 @@ export function ModelOps<
           },
         });
 
-      return instance ?? null;
+      return (instance as unknown as SelectSchema) ?? null;
     }
 
     @ConvertDrizzleErrors()
@@ -291,6 +300,14 @@ export function ModelOps<
       }
 
       return deleted as unknown as SelectSchema;
+    }
+
+    @ConvertDrizzleErrors()
+    public static async mapToPublic(
+      _db: DB | TX,
+      data: SelectSchema,
+    ): Promise<z.infer<PublicSchema>> {
+      return data as unknown as z.infer<PublicSchema>;
     }
 
     public static validationStrategies: ValidationStrategies<ValidationSchema> =

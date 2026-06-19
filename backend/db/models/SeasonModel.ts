@@ -10,6 +10,7 @@ import {
   StrategyValidationError,
 } from '#blib/modelErrors';
 import {
+  Season,
   SeasonCreate,
   SeasonQueryMeta,
   SeasonStrategy,
@@ -19,6 +20,7 @@ import {
 export class SeasonModel extends ModelOps({
   table: seasonsTable,
   tableName: 'seasonsTable',
+  publicSchema: Season,
   selectSchema: SeasonSelectSchema,
   createSchema: SeasonCreate,
   updateSchema: SeasonUpdate,

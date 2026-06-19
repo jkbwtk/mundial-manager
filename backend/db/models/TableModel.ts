@@ -7,6 +7,7 @@ import { tablesTable } from '#backend/db/schema';
 import { TableSelectSchema } from '#backend/types/db/table';
 import { StrategyValidationError } from '#blib/modelErrors';
 import {
+  Table,
   TableCreate,
   TableQueryMeta,
   TableStrategy,
@@ -16,6 +17,7 @@ import {
 export class TableModel extends ModelOps({
   table: tablesTable,
   tableName: 'tablesTable',
+  publicSchema: Table,
   selectSchema: TableSelectSchema,
   createSchema: TableCreate,
   updateSchema: TableUpdate,

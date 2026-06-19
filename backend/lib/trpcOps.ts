@@ -47,15 +47,21 @@ export function createCrudOps<
       .input(metadata.queryMetaSchema.optional())
       .output(PaginatedResponse(metadata.publicSchema))
       .query(async ({ ctx, input }) => {
-        const instances = runWithErrorConversion(() =>
+        const instances = await runWithErrorConversion(() =>
           metadata.model.getAll(ctx.db, ctx.league.uuid, input),
         );
         const total = runWithErrorConversion(() =>
           metadata.model.count(ctx.db, ctx.league.uuid),
         );
 
+        const mappedInstances = Promise.all(
+          instances.map((instance) =>
+            metadata.model.mapToPublic(ctx.db, instance),
+          ),
+        );
+
         return {
-          data: await instances,
+          data: await mappedInstances,
           total: await total,
         };
       }),
@@ -65,18 +71,18 @@ export function createCrudOps<
       .output(metadata.publicSchema)
       // @ts-expect-error
       .query(async ({ ctx, input }) => {
-        const season = await runWithErrorConversion(() =>
+        const instance = await runWithErrorConversion(() =>
           metadata.model.getById(ctx.db, ctx.league.uuid, input.uuid),
         );
 
-        if (!season) {
+        if (!instance) {
           throw new TRPCError({
             code: 'NOT_FOUND',
             message: 'Instance not found',
           });
         }
 
-        return season;
+        return metadata.model.mapToPublic(ctx.db, instance);
       }),
 
     create: leagueScopedProcedure
@@ -96,11 +102,11 @@ export function createCrudOps<
       .output(metadata.publicSchema)
       // @ts-expect-error
       .mutation(async ({ ctx, input }) => {
-        const season = await runWithErrorConversion(() =>
+        const instance = await runWithErrorConversion(() =>
           metadata.model.update(ctx.db, ctx.league.uuid, input),
         );
 
-        return season;
+        return instance;
       }),
 
     delete: leagueScopedProcedure
@@ -108,11 +114,11 @@ export function createCrudOps<
       .output(metadata.publicSchema)
       // @ts-expect-error
       .mutation(async ({ ctx, input }) => {
-        const season = await runWithErrorConversion(() =>
+        const instance = await runWithErrorConversion(() =>
           metadata.model.delete(ctx.db, ctx.league.uuid, input.uuid),
         );
 
-        return season;
+        return instance;
       }),
   };
 }
