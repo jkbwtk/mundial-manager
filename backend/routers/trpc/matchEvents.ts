@@ -31,6 +31,10 @@ export const matchEventsRouter = router({
         MatchEventModel.getByMatchId(ctx.db, ctx.league.uuid, input.matchUuid),
       );
 
-      return instances as MatchEvent[];
+      return await Promise.all(
+        instances.map((instance) =>
+          MatchEventModel.mapToPublic(ctx.db, instance),
+        ),
+      );
     }),
 });
