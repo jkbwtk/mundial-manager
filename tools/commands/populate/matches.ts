@@ -16,6 +16,7 @@ import {
   runWithProbability,
 } from '#shared/random';
 import type {
+  GoalType,
   MatchEventCreate,
   MatchEventType,
 } from '#shared/types/api/matchEvent';
@@ -69,6 +70,24 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
             MatchSideEnum.SIDE_2,
           ]);
 
+          const goalTypes: Set<GoalType> = new Set(
+            range(nonLinearRandomInt(0, 4, 2)).map(() =>
+              pickRandomWeighed([
+                [0.25, 'LONG_SHOT_GOAL'],
+                [0.25, 'FAST_GOAL'],
+                [0.15, 'PARRY_GOAL'],
+                [0.1, 'GUARD_PIERCE_GOAL'],
+                [0.1, 'TRICK_SHOT_GOAL'],
+                [0.05, 'SLOW_GOAL'],
+                [0.03, 'BACK_STAB_GOAL'],
+                [0.02, 'AERIAL_GOAL'],
+                [0.01, 'BERMUDA_TRIANGLE_GOAL'],
+                [0.02, 'RETURN_TO_FIELD_GOAL'],
+                [0.02, 'PUSH_GOAL'],
+              ]),
+            ),
+          );
+
           if (scoringSide === MatchSideEnum.SIDE_1) {
             side1Score += 1;
             events.push({
@@ -76,7 +95,7 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
               type: 'GOAL',
               matchUuid: '',
               ownGoal: false,
-              goalType: [],
+              goalType: Array.from(goalTypes),
               player: pickRandom(ctx.playersSide1),
             });
           } else {
@@ -86,7 +105,7 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
               type: 'GOAL',
               matchUuid: '',
               ownGoal: false,
-              goalType: [],
+              goalType: Array.from(goalTypes),
               player: pickRandom(ctx.playersSide2),
             });
           }
