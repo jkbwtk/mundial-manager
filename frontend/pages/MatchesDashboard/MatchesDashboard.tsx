@@ -6,7 +6,11 @@ import { Paginator } from '#components/Paginator';
 import { type Column, Table } from '#components/Table';
 import { Divider } from '#components/Widget';
 import { useHandleButtonAction } from '#flib/index';
-import { actionDeleteMatch, queryMatches } from '#flib/trpcCalls';
+import {
+  actionDeleteMatch,
+  queryMatchEventsByMatchId,
+  queryMatches,
+} from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
 import { formatDate, formatDuration } from '#shared/timeUtils';
@@ -53,6 +57,12 @@ export const MatchesDashboard: Component = () => {
       field: field as NonNullable<MatchQueryMeta['sorting']>['field'],
       direction,
     });
+  };
+
+  const handleFetchEvents = async (matchUuid: string) => {
+    const events = await queryMatchEventsByMatchId(matchUuid);
+
+    console.log(events);
   };
 
   const column: Column[] = [
@@ -113,6 +123,24 @@ export const MatchesDashboard: Component = () => {
       header: '',
       align: 'center',
       transform: () => '',
+    },
+    {
+      key: 'events',
+      header: 'Events',
+      align: 'center',
+      width: 10,
+      transform: (_, item: Match) => {
+        return (
+          <Show when={item.uuid}>
+            <Button
+              severity="secondary"
+              onClick={() => handleFetchEvents(item.uuid)}
+            >
+              Events
+            </Button>
+          </Show>
+        );
+      },
     },
     {
       key: 'edit',
