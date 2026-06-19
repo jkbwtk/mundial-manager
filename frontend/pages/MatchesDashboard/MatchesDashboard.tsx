@@ -22,7 +22,7 @@ export const MatchesDashboard: Component = () => {
   const [, actions] = useToast();
   const [, { open }] = useModal();
 
-  const [limit, setLimit] = createSignal(100);
+  const [limit, setLimit] = createSignal(50);
   const [page, setPage] = createSignal(0);
   const [sorting, setSorting] = createSignal<MatchQueryMeta['sorting']>({
     direction: 'asc',
