@@ -5,13 +5,15 @@ import z from 'zod';
 import { Button } from '#components/Button';
 import { HighlightedCode } from '#components/HighlightedCode';
 import { Input } from '#components/Input';
-import { Widget } from '#components/Widget';
+import { Divider, Widget } from '#components/Widget';
 import { useFormValidation } from '#flib/formValidation';
-import { toJson } from '#flib/index';
+import { actionCreateBall, toJson } from '#flib/index';
 import 'highlight.js/styles/gml.min.css';
 import { DateInput } from '#components/DateInput';
+import { Form } from '#components/Form';
 import { Required } from '#components/Required/Required';
 import { TextArea } from '#components/TextArea/TextArea';
+import { BallCreate } from '#shared/types/api/ball';
 import { hexColor } from '#shared/zod';
 import style from './FormsTest.module.scss';
 
@@ -216,6 +218,54 @@ export const FormsTest: Component = () => {
       </Widget>
 
       <HighlightedCode language="json" code={`Errors: ${toJson(errors)}`} />
+
+      <Divider />
+
+      <Widget topLeftLabels="Form test" class={style.dynamicFormContainer}>
+        <Form
+          model={BallCreate}
+          action={actionCreateBall}
+          fields={{
+            name: {
+              label: 'Name',
+              placeholder: 'Ball name...',
+              type: 'text',
+            },
+            alias: {
+              label: 'Alias',
+              placeholder: 'Ball alias...',
+              type: 'text',
+            },
+            color: {
+              label: 'Color',
+              type: 'color',
+            },
+            diameter: {
+              label: 'Diameter',
+              placeholder: 'Ball diameter...',
+              type: 'number',
+              unit: 'mm',
+            },
+            weight: {
+              label: 'Weight',
+              placeholder: 'Ball weight...',
+              type: 'number',
+              unit: 'g',
+            },
+            description: {
+              label: 'Description',
+              placeholder: 'Ball description...',
+              type: 'textArea',
+            },
+            labels: {
+              label: 'Labels',
+              type: 'text',
+              hidden: true,
+              transform: () => [],
+            },
+          }}
+        />
+      </Widget>
     </div>
   );
 };
