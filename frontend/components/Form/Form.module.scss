@@ -1,0 +1,30 @@
+@use 'app' as *;
+
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.field-container {
+  display: flex;
+  flex-direction: column;
+
+  // margin-bottom: ch(1);
+}
+
+.field-label {
+  font-weight: bold;
+  margin: 0 cw(1);
+}
+
+.field-input {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+
+  resize: vertical;
+
+  input {
+    width: 100%;
+  }
+}
