@@ -1,19 +1,14 @@
 import { type Action, type CustomResponse, useAction } from '@solidjs/router';
-import hljs from 'highlight.js/lib/core';
-import json from 'highlight.js/lib/languages/json';
-import { createMemo, createUniqueId, type JSX, Show } from 'solid-js';
+import { createUniqueId, type JSX } from 'solid-js';
 import type z from 'zod';
 import { Button } from '#components/Button';
 import { Form, type FormField } from '#components/Form';
-import { HighlightedCode } from '#components/HighlightedCode';
+import { FormErrors } from '#components/FormErrors';
 import { Divider } from '#components/Widget';
 import { Widget } from '#components/Widget/Widget';
 import { useFormValidation } from '#flib/formValidation';
-import { toJson } from '#flib/utils';
 import { useToast } from '#providers/ToastProvider';
 import style from './WidgetForm.module.scss';
-
-hljs.registerLanguage('json', json);
 
 export interface WidgetFormProps<
   Model extends z.ZodObject,
@@ -57,6 +52,11 @@ export const WidgetForm = <
   const [, actions] = useToast();
 
   const formId = createUniqueId();
+
+  const fieldNames = () =>
+    Object.fromEntries(
+      Object.entries(props.fields).map(([key, field]) => [key, field.label]),
+    );
 
   const { validate, errors, canSubmit, formSubmit } = useFormValidation(
     props.model,
@@ -108,8 +108,6 @@ export const WidgetForm = <
     props.onError ?? handleError,
   );
 
-  const hasValidationErrors = createMemo(() => Object.keys(errors).length > 0);
-
   return (
     <Widget
       topLeftLabels={props.title}
@@ -150,14 +148,7 @@ export const WidgetForm = <
 
       <Divider class={style.divider} />
 
-      <div class={style.hintRow}>
-        <Show
-          when={hasValidationErrors()}
-          fallback={<span class={style.noErrors}>No validation errors</span>}
-        >
-          <HighlightedCode language="json" code={`Errors: ${toJson(errors)}`} />
-        </Show>
-      </div>
+      <FormErrors errors={errors} fieldNames={fieldNames()} />
     </Widget>
   );
 };

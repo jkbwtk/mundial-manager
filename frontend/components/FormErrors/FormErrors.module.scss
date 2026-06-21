@@ -1,0 +1,43 @@
+@use 'app' as *;
+
+.no-errors {
+  text-align: center;
+  display: inline-block;
+  width: 100%;
+
+  font-style: italic;
+  color: $textDimColor;
+}
+
+.errors {
+  display: flex;
+  flex-direction: column;
+}
+
+.error {
+  display: flex;
+  flex-direction: column;
+}
+
+.field-name {
+  font-weight: bold;
+  color: $textBrightColor;
+}
+
+.error-description {
+  position: relative;
+
+  color: $red;
+
+  margin-left: cw(3);
+
+  &::before {
+    content: '◈';
+
+    position: absolute;
+    top: 0;
+    left: cw(-2);
+
+    color: $textColor;
+  }
+}
