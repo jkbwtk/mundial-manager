@@ -261,7 +261,7 @@ export const FormsTest: Component = () => {
             label: 'Labels',
             type: 'text',
             hidden: true,
-            transform: () => [],
+            implicitDefault: [],
           },
         }}
       />

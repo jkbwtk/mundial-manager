@@ -49,6 +49,7 @@ export interface FormProps<
   instance?: Instance;
 
   formId?: string;
+  handleSubmit: JSX.EventHandlerUnion<HTMLFormElement, SubmitEvent>;
 
   fields: {
     [Field in keyof z.infer<Model>]: FormField<z.infer<Model>[Field]>;
@@ -87,6 +88,7 @@ export const Form = <
 
         ...(props.classList ?? {}),
       }}
+      onSubmit={props.handleSubmit}
     >
       <For each={visibleFields()}>
         {([fieldName, field]) => {

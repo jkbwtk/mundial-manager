@@ -1,1 +1,24 @@
 @use 'app' as *;
+
+.container {
+  display: block;
+}
+
+.divider {
+  --divider-border-style: dashed;
+}
+
+.hint-row {
+  pre {
+    white-space: break-spaces;
+  }
+}
+
+.no-errors {
+  text-align: center;
+  display: inline-block;
+  width: 100%;
+
+  font-style: italic;
+  color: $textDimColor;
+}
