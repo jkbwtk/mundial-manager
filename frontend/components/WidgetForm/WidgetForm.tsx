@@ -129,7 +129,7 @@ export const WidgetForm = <
           loading={handleSubmit.isSubmitting()}
           disabled={!canSubmit()}
         >
-          Submit
+          {props.submitButtonText ?? 'Submit'}
         </Button>,
       ]}
     >
