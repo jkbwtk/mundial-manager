@@ -1,58 +1,5 @@
 @use 'app' as *;
 
 .modal {
-  --modal-width: #{cw(40)};
-}
-
-.form {
-  display: flex;
-  flex-direction: column;
-  padding: 0 cw(1);
-}
-
-.fields-container {
-  display: grid;
-  grid-template-columns: auto auto;
-  align-items: center;
-
-  column-gap: cw(1);
-}
-
-.field-label {
-  text-align: right;
-  white-space: nowrap;
-}
-
-.field-input {
-  width: 100%;
-  display: inline-flex;
-  align-items: center;
-
-  input {
-    width: 100%;
-  }
-}
-
-.date-input {
-  display: inline-flex;
-  align-items: center;
-}
-
-.divider {
-  --divider-border-style: dashed;
-}
-
-.hint-row {
-  pre {
-    white-space: break-spaces;
-  }
-}
-
-.no-errors {
-  text-align: center;
-  display: inline-block;
-  width: 100%;
-
-  font-style: italic;
-  color: $textDimColor;
+  --modal-width: #{cw(80)};
 }
