@@ -157,9 +157,11 @@ export const Modal: Component<ModalProps> = (userProps) => {
       {...modalProps}
       ref={modalRef}
       classList={{
-        [props.class ?? '']: true,
         [style.modal]: true,
         [style.narrow]: isNarrowScreen(),
+        [props.class ?? '']: true,
+
+        ...(props.classList ?? {}),
       }}
     >
       <div class={style.contentContainer}>{props.children}</div>
