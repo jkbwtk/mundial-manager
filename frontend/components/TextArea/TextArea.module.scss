@@ -17,6 +17,10 @@
   font-size: inherit;
   font-family: inherit;
 
+  :where(&) {
+    min-height: ch(4);
+  }
+
   &::placeholder {
     color: $textDimColor;
   }
