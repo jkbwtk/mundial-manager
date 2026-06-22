@@ -4,6 +4,7 @@ import {
   For,
   type JSX,
   Match,
+  Show,
   Switch,
   untrack,
 } from 'solid-js';
@@ -12,6 +13,7 @@ import { toJSONSchema } from 'zod';
 import { Input } from '#components/Input';
 import style from './Form.module.scss';
 import 'highlight.js/styles/gml.min.css';
+import { Required } from '#components/Required';
 import { TextArea } from '#components/TextArea';
 import type { ComponentUseDirectiveHack } from '#flib/solidHelpers';
 
@@ -119,7 +121,11 @@ export const Form = <
                   }}
                 >
                   <span classList={{ [style.fieldLabel]: true, label: true }}>
-                    {field.label}:
+                    {field.label}
+                    <Show when={required}>
+                      <Required />
+                    </Show>
+                    :
                   </span>
                   <Input
                     classList={{ [style.fieldInput]: true, input: true }}
@@ -143,7 +149,11 @@ export const Form = <
                   }}
                 >
                   <span classList={{ [style.fieldLabel]: true, label: true }}>
-                    {field.label}:
+                    {field.label}
+                    <Show when={required}>
+                      <Required />
+                    </Show>
+                    :
                   </span>
                   <Input
                     classList={{ [style.fieldInput]: true, input: true }}
@@ -169,7 +179,11 @@ export const Form = <
                   }}
                 >
                   <span classList={{ [style.fieldLabel]: true, label: true }}>
-                    {field.label}:
+                    {field.label}
+                    <Show when={required}>
+                      <Required />
+                    </Show>
+                    :
                   </span>
                   <Input
                     classList={{ [style.fieldInput]: true, input: true }}
@@ -187,7 +201,11 @@ export const Form = <
 
               <Match when={field.type === 'textArea'}>
                 <span classList={{ [style.fieldLabel]: true, label: true }}>
-                  {field.label}:
+                  {field.label}
+                  <Show when={required}>
+                    <Required />
+                  </Show>
+                  :
                 </span>
                 <TextArea
                   classList={{ [style.fieldInput]: true, input: true }}
