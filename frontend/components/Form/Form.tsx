@@ -13,6 +13,7 @@ import { toJSONSchema } from 'zod';
 import { Input } from '#components/Input';
 import style from './Form.module.scss';
 import 'highlight.js/styles/gml.min.css';
+import { DateInput } from '#components/DateInput';
 import { Required } from '#components/Required';
 import { TextArea } from '#components/TextArea';
 import type { ComponentUseDirectiveHack } from '#flib/solidHelpers';
@@ -92,7 +93,9 @@ export const Form = <
       ([, field]) => !field.hidden,
     );
 
-  const schema = createMemo(() => toJSONSchema(props.model));
+  const schema = createMemo(() =>
+    toJSONSchema(props.model, { unrepresentable: 'any' }),
+  );
 
   return (
     <form
@@ -215,6 +218,24 @@ export const Form = <
                   value={props.instance?.[fieldName] ?? ''}
                   required={required}
                   autocomplete="off"
+                  useDirectives={props.directives}
+                  invalid={!!props.errors[fieldName]}
+                />
+              </Match>
+
+              <Match when={field.type === 'date'}>
+                <span classList={{ [style.fieldLabel]: true, label: true }}>
+                  {field.label}
+                  <Show when={required}>
+                    <Required />
+                  </Show>
+                  :
+                </span>
+                <DateInput
+                  classList={{ [style.fieldInput]: true, input: true }}
+                  name={fieldName}
+                  // @ts-expect-error
+                  value={props.instance?.[fieldName]?.toString()}
                   useDirectives={props.directives}
                   invalid={!!props.errors[fieldName]}
                 />
