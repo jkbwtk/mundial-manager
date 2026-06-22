@@ -193,7 +193,7 @@ export const Form = <
                     placeholder={field.placeholder}
                     name={fieldName}
                     // @ts-expect-error
-                    value={props.instance?.[fieldName] ?? ''}
+                    value={props.instance?.[fieldName] ?? '#FFFFFF'}
                     required={required}
                     useDirectives={props.directives}
                     invalid={!!props.errors[fieldName]}
