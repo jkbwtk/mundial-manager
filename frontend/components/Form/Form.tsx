@@ -10,13 +10,12 @@ import {
 } from 'solid-js';
 import type z from 'zod';
 import { toJSONSchema } from 'zod';
-import { Input } from '#components/Input';
-import style from './Form.module.scss';
-import 'highlight.js/styles/gml.min.css';
 import { DateInput } from '#components/DateInput';
+import { Input } from '#components/Input';
 import { Required } from '#components/Required';
 import { TextArea } from '#components/TextArea';
 import type { ComponentUseDirectiveHack } from '#flib/solidHelpers';
+import style from './Form.module.scss';
 
 export const FormFieldTypes = [
   'text',

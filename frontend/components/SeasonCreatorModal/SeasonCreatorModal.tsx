@@ -1,11 +1,10 @@
+import { ModalForm, type ModalFormLabels } from '#components/ModalForm';
+import { actionCreateSeason, actionUpdateSeason } from '#flib/trpcCalls';
 import {
   type Season,
   SeasonCreate,
   SeasonUpdate,
 } from '#shared/types/api/season';
-import 'highlight.js/styles/gml.min.css';
-import { ModalForm, type ModalFormLabels } from '#components/ModalForm';
-import { actionCreateSeason, actionUpdateSeason } from '#flib/trpcCalls';
 import style from './SeasonCreatorModal.module.scss';
 
 export interface SeasonCreatorModalProps {

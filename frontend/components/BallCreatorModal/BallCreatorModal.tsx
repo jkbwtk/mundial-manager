@@ -1,8 +1,7 @@
 import hljs from 'highlight.js/lib/core';
 import json from 'highlight.js/lib/languages/json';
-import { actionCreateBall, actionUpdateBall } from '#flib/trpcCalls';
-import 'highlight.js/styles/gml.min.css';
 import { ModalForm, type ModalFormLabels } from '#components/ModalForm';
+import { actionCreateBall, actionUpdateBall } from '#flib/trpcCalls';
 import { type Ball, BallCreate, BallUpdate } from '#shared/types/api/ball';
 import style from './BallCreatorModal.module.scss';
 

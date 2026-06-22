@@ -1,11 +1,10 @@
+import { ModalForm, type ModalFormLabels } from '#components/ModalForm';
+import { actionCreateLeague, actionUpdateLeague } from '#flib/trpcCalls';
 import {
   type League,
   LeagueCreate,
   LeagueUpdate,
 } from '#shared/types/api/league';
-import 'highlight.js/styles/gml.min.css';
-import { ModalForm, type ModalFormLabels } from '#components/ModalForm';
-import { actionCreateLeague, actionUpdateLeague } from '#flib/trpcCalls';
 import style from './LeagueCreatorModal.module.scss';
 export interface LeagueCreatorModalProps {
   league?: League;
