@@ -2,7 +2,7 @@ import { type Action, type CustomResponse, useAction } from '@solidjs/router';
 import { createUniqueId, type JSX } from 'solid-js';
 import type z from 'zod';
 import { Button } from '#components/Button';
-import { Form, type FormField } from '#components/Form';
+import { Form, type SharedFormProps } from '#components/Form';
 import { FormErrors } from '#components/FormErrors';
 import { Modal } from '#components/Modal';
 import { Divider } from '#components/Widget';
@@ -16,16 +16,7 @@ export interface ModalFormProps<
   Result,
   TRPCAction extends Action<[data: z.infer<Model>], CustomResponse<Result>>,
   Instance extends { uuid: string } | undefined,
-> {
-  model: Model;
-  action: TRPCAction;
-
-  instance?: Instance;
-
-  fields: {
-    [Field in keyof z.infer<Model>]: FormField<z.infer<Model>[Field]>;
-  };
-
+> extends SharedFormProps<Model, Result, TRPCAction, Instance> {
   onSuccess?: (result: Result) => void;
   onError?: (error: unknown) => void;
 

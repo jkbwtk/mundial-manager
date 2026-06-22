@@ -37,7 +37,7 @@ export interface FormField<Value> {
   transform?: (value: Value) => Value;
 }
 
-export interface FormProps<
+export interface SharedFormProps<
   Model extends z.ZodObject,
   Result,
   Action extends (data: z.infer<Model>) => Promise<Result>,
@@ -48,6 +48,17 @@ export interface FormProps<
 
   instance?: Instance;
 
+  fields: {
+    [Field in keyof z.infer<Model>]: FormField<z.infer<Model>[Field]>;
+  };
+}
+
+export interface FormProps<
+  Model extends z.ZodObject,
+  Result,
+  Action extends (data: z.infer<Model>) => Promise<Result>,
+  Instance extends { uuid: string } | undefined,
+> extends SharedFormProps<Model, Result, Action, Instance> {
   formId?: string;
   handleSubmit: JSX.EventHandlerUnion<HTMLFormElement, SubmitEvent>;
 
