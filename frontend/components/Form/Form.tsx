@@ -14,8 +14,14 @@ import { DateInput } from '#components/DateInput';
 import { Dropdown, type DropdownOption } from '#components/Dropdown';
 import { Input } from '#components/Input';
 import { Required } from '#components/Required';
+import {
+  type PickerEntry,
+  type PickerQueryMeta,
+  ResourcePicker,
+} from '#components/ResourcePicker';
 import { TextArea } from '#components/TextArea';
 import type { ComponentUseDirectiveHack } from '#flib/solidHelpers';
+import type { PaginatedResponse } from '#shared/zod';
 import style from './Form.module.scss';
 
 export const FormFieldTypes = [
@@ -25,6 +31,7 @@ export const FormFieldTypes = [
   'date',
   'color',
   'dropdown',
+  'resourcePicker',
 ] as const;
 
 export type FormFieldType = (typeof FormFieldTypes)[number];
@@ -40,7 +47,7 @@ interface BaseFormField<Value> {
   transform?: (value: Value) => Value;
 }
 
-export type FormField<Value> =
+export type FormField<Value, Result> =
   | (BaseFormField<Value> & {
       type: 'number';
       unit?: string;
@@ -48,6 +55,13 @@ export type FormField<Value> =
   | (BaseFormField<Value> & {
       type: 'dropdown';
       options: DropdownOption[];
+    })
+  | (BaseFormField<Value> & {
+      type: 'resourcePicker';
+      query: (meta?: PickerQueryMeta) => Promise<PaginatedResponse<Result>>;
+      toEntry: (data: Result) => PickerEntry<Value>;
+
+      queryById: (id: Value) => Promise<Result>;
     })
   | BaseFormField<Value>;
 
@@ -63,9 +77,9 @@ export interface SharedFormProps<
   instance?: Instance;
 
   fields: {
-    [Field in keyof z.infer<Model>]: FormField<z.infer<Model>[Field]>;
+    [Field in keyof z.infer<Model>]: FormField<z.infer<Model>[Field], Result>;
   } & {
-    uuid?: FormField<string>;
+    uuid?: FormField<string, Result>;
   };
 }
 
@@ -79,7 +93,7 @@ export interface FormProps<
   handleSubmit: JSX.EventHandlerUnion<HTMLFormElement, SubmitEvent>;
 
   fields: {
-    [Field in keyof z.infer<Model>]: FormField<z.infer<Model>[Field]>;
+    [Field in keyof z.infer<Model>]: FormField<z.infer<Model>[Field], Result>;
   };
 
   directives: ComponentUseDirectiveHack<HTMLInputElement>[];
@@ -100,9 +114,9 @@ export const Form = <
   const defaultFormId = createUniqueId();
 
   const visibleFields = () =>
-    (Object.entries(props.fields) as [string, FormField<unknown>][]).filter(
-      ([, field]) => !field.hidden,
-    );
+    (
+      Object.entries(props.fields) as [string, FormField<unknown, unknown>][]
+    ).filter(([, field]) => !field.hidden);
 
   const schema = createMemo(() =>
     toJSONSchema(props.model, { unrepresentable: 'any' }),
@@ -288,6 +302,7 @@ export const Form = <
                     </Show>
                     :
                   </span>
+
                   <Dropdown
                     classList={{ [style.fieldInput]: true, input: true }}
                     name={fieldName}
@@ -295,6 +310,39 @@ export const Form = <
                     options={field.options}
                     // @ts-expect-error
                     value={props.instance?.[fieldName] ?? ''}
+                    useDirectives={props.directives}
+                    invalid={!!props.errors[fieldName]}
+                  />
+                </div>
+              </Match>
+
+              <Match when={field.type === 'resourcePicker'}>
+                <div
+                  classList={{
+                    [style.fieldContainer]: true,
+                    [`form-field-${fieldName}`]: true,
+                  }}
+                >
+                  <span classList={{ [style.fieldLabel]: true, label: true }}>
+                    {field.label}
+                    <Show when={required}>
+                      <Required />
+                    </Show>
+                    :
+                  </span>
+
+                  <ResourcePicker
+                    classList={{ [style.fieldInput]: true, input: true }}
+                    name={fieldName}
+                    placeholder={field.placeholder}
+                    // @ts-expect-error
+                    queryById={field.queryById}
+                    // @ts-expect-error
+                    query={field.query}
+                    // @ts-expect-error
+                    toEntry={field.toEntry}
+                    // @ts-expect-error
+                    value={props.instance?.[fieldName] ?? undefined}
                     useDirectives={props.directives}
                     invalid={!!props.errors[fieldName]}
                   />
