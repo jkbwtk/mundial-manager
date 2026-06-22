@@ -11,6 +11,7 @@ import {
 import type z from 'zod';
 import { toJSONSchema } from 'zod';
 import { DateInput } from '#components/DateInput';
+import { Dropdown, type DropdownOption } from '#components/Dropdown';
 import { Input } from '#components/Input';
 import { Required } from '#components/Required';
 import { TextArea } from '#components/TextArea';
@@ -23,6 +24,7 @@ export const FormFieldTypes = [
   'number',
   'date',
   'color',
+  'dropdown',
 ] as const;
 
 export type FormFieldType = (typeof FormFieldTypes)[number];
@@ -42,6 +44,10 @@ export type FormField<Value> =
   | (BaseFormField<Value> & {
       type: 'number';
       unit?: string;
+    })
+  | (BaseFormField<Value> & {
+      type: 'dropdown';
+      options: DropdownOption[];
     })
   | BaseFormField<Value>;
 
@@ -247,6 +253,33 @@ export const Form = <
                   useDirectives={props.directives}
                   invalid={!!props.errors[fieldName]}
                 />
+              </Match>
+
+              <Match when={field.type === 'dropdown'}>
+                <div
+                  classList={{
+                    [style.fieldContainer]: true,
+                    [`form-field-${fieldName}`]: true,
+                  }}
+                >
+                  <span classList={{ [style.fieldLabel]: true, label: true }}>
+                    {field.label}
+                    <Show when={required}>
+                      <Required />
+                    </Show>
+                    :
+                  </span>
+                  <Dropdown
+                    classList={{ [style.fieldInput]: true, input: true }}
+                    name={fieldName}
+                    // @ts-expect-error
+                    options={field.options}
+                    // @ts-expect-error
+                    value={props.instance?.[fieldName] ?? ''}
+                    useDirectives={props.directives}
+                    invalid={!!props.errors[fieldName]}
+                  />
+                </div>
               </Match>
             </Switch>
           );
