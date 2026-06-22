@@ -235,7 +235,7 @@ export const Form = <
                   classList={{ [style.fieldInput]: true, input: true }}
                   name={fieldName}
                   // @ts-expect-error
-                  value={props.instance?.[fieldName]?.toString()}
+                  value={props.instance?.[fieldName]}
                   useDirectives={props.directives}
                   invalid={!!props.errors[fieldName]}
                 />
