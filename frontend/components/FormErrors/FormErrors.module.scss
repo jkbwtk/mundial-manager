@@ -1,5 +1,11 @@
 @use 'app' as *;
 
+.container {
+  :where(&) {
+    margin-bottom: ch(1);
+  }
+}
+
 .no-errors {
   text-align: center;
   display: inline-block;

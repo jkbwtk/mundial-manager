@@ -18,6 +18,7 @@ export const FormErrors: Component<FormErrorsProps> = (props) => {
   return (
     <div
       classList={{
+        [style.container]: true,
         [props.class!]: !!props.class,
 
         ...(props.classList ?? {}),
