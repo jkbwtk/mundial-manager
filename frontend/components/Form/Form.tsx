@@ -141,6 +141,7 @@ export const Form = <
                     </Show>
                     :
                   </span>
+
                   <Input
                     classList={{ [style.fieldInput]: true, input: true }}
                     type="text"
@@ -169,6 +170,7 @@ export const Form = <
                     </Show>
                     :
                   </span>
+
                   <Input
                     classList={{ [style.fieldInput]: true, input: true }}
                     type="number"
@@ -202,6 +204,7 @@ export const Form = <
                     </Show>
                     :
                   </span>
+
                   <Input
                     classList={{ [style.fieldInput]: true, input: true }}
                     type="color"
@@ -217,42 +220,58 @@ export const Form = <
               </Match>
 
               <Match when={field.type === 'textArea'}>
-                <span classList={{ [style.fieldLabel]: true, label: true }}>
-                  {field.label}
-                  <Show when={required}>
-                    <Required />
-                  </Show>
-                  :
-                </span>
-                <TextArea
-                  classList={{ [style.fieldInput]: true, input: true }}
-                  placeholder={field.placeholder}
-                  name={fieldName}
-                  // @ts-expect-error
-                  value={props.instance?.[fieldName] ?? ''}
-                  required={required}
-                  autocomplete="off"
-                  useDirectives={props.directives}
-                  invalid={!!props.errors[fieldName]}
-                />
+                <div
+                  classList={{
+                    [style.fieldContainer]: true,
+                    [`form-field-${fieldName}`]: true,
+                  }}
+                >
+                  <span classList={{ [style.fieldLabel]: true, label: true }}>
+                    {field.label}
+                    <Show when={required}>
+                      <Required />
+                    </Show>
+                    :
+                  </span>
+
+                  <TextArea
+                    classList={{ [style.fieldInput]: true, input: true }}
+                    placeholder={field.placeholder}
+                    name={fieldName}
+                    // @ts-expect-error
+                    value={props.instance?.[fieldName] ?? ''}
+                    required={required}
+                    autocomplete="off"
+                    useDirectives={props.directives}
+                    invalid={!!props.errors[fieldName]}
+                  />
+                </div>
               </Match>
 
               <Match when={field.type === 'date'}>
-                <span classList={{ [style.fieldLabel]: true, label: true }}>
-                  {field.label}
-                  <Show when={required}>
-                    <Required />
-                  </Show>
-                  :
-                </span>
-                <DateInput
-                  classList={{ [style.fieldInput]: true, input: true }}
-                  name={fieldName}
-                  // @ts-expect-error
-                  value={props.instance?.[fieldName]}
-                  useDirectives={props.directives}
-                  invalid={!!props.errors[fieldName]}
-                />
+                <div
+                  classList={{
+                    [style.fieldContainer]: true,
+                    [`form-field-${fieldName}`]: true,
+                  }}
+                >
+                  <span classList={{ [style.fieldLabel]: true, label: true }}>
+                    {field.label}
+                    <Show when={required}>
+                      <Required />
+                    </Show>
+                    :
+                  </span>
+
+                  <DateInput
+                    classList={{ [style.fieldInput]: true, input: true }}
+                    name={fieldName}
+                    // @ts-expect-error
+                    value={props.instance?.[fieldName]}
+                    useDirectives={props.directives}
+                    invalid={!!props.errors[fieldName]}
+                  />
+                </div>
               </Match>
 
               <Match when={field.type === 'dropdown'}>
