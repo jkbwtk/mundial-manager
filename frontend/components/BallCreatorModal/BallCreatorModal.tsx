@@ -2,7 +2,7 @@ import hljs from 'highlight.js/lib/core';
 import json from 'highlight.js/lib/languages/json';
 import { actionCreateBall, actionUpdateBall } from '#flib/trpcCalls';
 import 'highlight.js/styles/gml.min.css';
-import { ModalForm } from '#components/ModalForm';
+import { ModalForm, type ModalFormLabels } from '#components/ModalForm';
 import { type Ball, BallCreate, BallUpdate } from '#shared/types/api/ball';
 import style from './BallCreatorModal.module.scss';
 
@@ -15,21 +15,21 @@ export interface BallCreatorModalProps {
 export const BallCreatorModal: Component<BallCreatorModalProps> = (props) => {
   const isCreating = props.ball === undefined;
 
-  const config = isCreating
-    ? ({
+  const config: ModalFormLabels = isCreating
+    ? {
         title: 'Ball Creator',
         submitButtonText: 'Create',
         successMessage: 'Ball created successfully!',
         errorMessage: 'Failed to create ball. Please try again.',
         logLabel: 'Ball creation error:',
-      } as const)
-    : ({
+      }
+    : {
         title: 'Ball Editor',
         submitButtonText: 'Update',
         successMessage: 'Ball updated successfully!',
         errorMessage: 'Failed to update ball. Please try again.',
         logLabel: 'Ball update error:',
-      } as const);
+      };
 
   return (
     <ModalForm

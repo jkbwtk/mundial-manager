@@ -11,20 +11,23 @@ import { useModalActions } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
 import style from './ModalForm.module.scss';
 
-export interface ModalFormProps<
-  Model extends z.ZodObject,
-  Result,
-  TRPCAction extends Action<[data: z.infer<Model>], CustomResponse<Result>>,
-  Instance extends { uuid: string } | undefined,
-> extends SharedFormProps<Model, Result, TRPCAction, Instance> {
-  onSuccess?: (result: Result) => void;
-  onError?: (error: unknown) => void;
-
+export interface ModalFormLabels {
   title: string;
   submitButtonText: string;
   successMessage: string;
   errorMessage: string;
   logLabel: string;
+}
+
+export interface ModalFormProps<
+  Model extends z.ZodObject,
+  Result,
+  TRPCAction extends Action<[data: z.infer<Model>], CustomResponse<Result>>,
+  Instance extends { uuid: string } | undefined,
+> extends SharedFormProps<Model, Result, TRPCAction, Instance>,
+    ModalFormLabels {
+  onSuccess?: (result: Result) => void;
+  onError?: (error: unknown) => void;
 
   class?: string;
   classList?: JSX.CustomAttributes<HTMLElement>['classList'];
