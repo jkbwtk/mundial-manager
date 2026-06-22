@@ -27,17 +27,23 @@ export const FormFieldTypes = [
 
 export type FormFieldType = (typeof FormFieldTypes)[number];
 
-export interface FormField<Value> {
+interface BaseFormField<Value> {
   label: string;
   type: FormFieldType;
   placeholder?: string;
-  unit?: string;
   hidden?: boolean;
 
   implicitDefault?: Value;
 
   transform?: (value: Value) => Value;
 }
+
+export type FormField<Value> =
+  | (BaseFormField<Value> & {
+      type: 'number';
+      unit?: string;
+    })
+  | BaseFormField<Value>;
 
 export interface SharedFormProps<
   Model extends z.ZodObject,
@@ -168,7 +174,10 @@ export const Form = <
                     useDirectives={props.directives}
                     invalid={!!props.errors[fieldName]}
                   >
-                    {field.unit}
+                    {
+                      // @ts-expect-error
+                      field.unit ?? ''
+                    }
                   </Input>
                 </div>
               </Match>
