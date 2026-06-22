@@ -50,6 +50,8 @@ export interface SharedFormProps<
 
   fields: {
     [Field in keyof z.infer<Model>]: FormField<z.infer<Model>[Field]>;
+  } & {
+    uuid?: FormField<string>;
   };
 }
 
