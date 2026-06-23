@@ -24,6 +24,9 @@ const PlayersDashboard = lazy(
 const MatchesDashboard = lazy(
   () => import('#pages/MatchesDashboard/MatchesDashboard'),
 );
+const MatchEventsDashboard = lazy(
+  () => import('#pages/MatchEventsDashboard/MatchEventsDashboard'),
+);
 
 const RouteMap = lazy(() => import('#pages/RouteMap/RouteMap'));
 const ChartTest = lazy(() => import('#pages/ChartTest/ChartTest'));
@@ -101,6 +104,11 @@ export const dashboardRoutes: ExtendedRouteDefinition[] = [
     path: '/matches',
     component: MatchesDashboard,
     info: { name: 'Matches', icon: 'gps_fixed' },
+  },
+  {
+    path: '/match-events/:matchUuid',
+    component: MatchEventsDashboard,
+    info: { name: 'Match Events', icon: 'atr', public: false },
   },
 ];
 

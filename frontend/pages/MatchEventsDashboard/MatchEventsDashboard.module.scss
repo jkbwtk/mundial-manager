@@ -1,0 +1,10 @@
+@use 'app' as *;
+
+.container {
+  max-height: 100%;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  scrollbar-gutter: stable;
+}
