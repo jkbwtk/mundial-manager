@@ -50,7 +50,7 @@ interface BaseFormField<Value> {
   transform?: (value: Value) => Value;
 }
 
-export type FormField<Value, Result> =
+export type FormField<Value> =
   | (BaseFormField<Value> & {
       type: 'number';
       unit?: string;
@@ -61,16 +61,19 @@ export type FormField<Value, Result> =
     })
   | (BaseFormField<Value> & {
       type: 'resourcePicker' | 'multiResourcePicker';
-      query: (meta?: PickerQueryMeta) => Promise<PaginatedResponse<Result>>;
-      toEntry: (data: Result) => PickerEntry<Value>;
+      // biome-ignore lint/suspicious/noExplicitAny: yeah
+      query: (meta?: PickerQueryMeta) => Promise<PaginatedResponse<any>>;
+      // biome-ignore lint/suspicious/noExplicitAny: yeah
+      toEntry: (data: any) => PickerEntry<string>;
 
-      queryById: (id: Value) => Promise<Result>;
+      // biome-ignore lint/suspicious/noExplicitAny: yeah
+      queryById: (id: string) => Promise<any>;
     })
   | BaseFormField<Value>;
 
 export interface SharedFormProps<
   Model extends z.ZodObject,
-  Result,
+  Result extends ReturnType<TRPCAction>,
   TRPCAction extends Action<[data: z.infer<Model>], CustomResponse<Result>>,
   Instance extends { uuid: string } | undefined,
 > {
@@ -80,15 +83,15 @@ export interface SharedFormProps<
   instance?: Instance;
 
   fields: {
-    [Field in keyof z.infer<Model>]: FormField<z.infer<Model>[Field], Result>;
+    [Field in keyof z.infer<Model>]: FormField<z.infer<Model>[Field]>;
   } & {
-    uuid?: FormField<string, Result>;
+    uuid?: FormField<string>;
   };
 }
 
 export interface FormProps<
   Model extends z.ZodObject,
-  Result,
+  Result extends ReturnType<TRPCAction>,
   TRPCAction extends Action<[data: z.infer<Model>], CustomResponse<Result>>,
   Instance extends { uuid: string } | undefined,
 > extends SharedFormProps<Model, Result, TRPCAction, Instance> {
@@ -96,7 +99,7 @@ export interface FormProps<
   handleSubmit: JSX.EventHandlerUnion<HTMLFormElement, SubmitEvent>;
 
   fields: {
-    [Field in keyof z.infer<Model>]: FormField<z.infer<Model>[Field], Result>;
+    [Field in keyof z.infer<Model>]: FormField<z.infer<Model>[Field]>;
   };
 
   directives: ComponentUseDirectiveHack<HTMLInputElement>[];
@@ -108,7 +111,7 @@ export interface FormProps<
 
 export const Form = <
   Model extends z.ZodObject,
-  Result,
+  Result extends ReturnType<TRPCAction>,
   TRPCAction extends Action<[data: z.infer<Model>], CustomResponse<Result>>,
   Instance extends { uuid: string } | undefined,
 >(
@@ -117,9 +120,9 @@ export const Form = <
   const defaultFormId = createUniqueId();
 
   const visibleFields = () =>
-    (
-      Object.entries(props.fields) as [string, FormField<unknown, unknown>][]
-    ).filter(([, field]) => !field.hidden);
+    (Object.entries(props.fields) as [string, FormField<unknown>][]).filter(
+      ([, field]) => !field.hidden,
+    );
 
   const schema = createMemo(() =>
     toJSONSchema(props.model, { unrepresentable: 'any' }),
