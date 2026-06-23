@@ -1,10 +1,37 @@
 @use 'app' as *;
 
-.container {
+.outer-container {
   max-height: 100%;
 
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: hidden;
 
   scrollbar-gutter: stable;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+}
+
+.no-description {
+  color: $textDimColor;
+  font-style: italic;
+}
+
+.table-container {
+  max-height: 100%;
+  overflow-y: auto;
+
+  .table {
+    width: calc(100% - cw(2));
+    margin: 0 auto;
+
+    td:global(.data-column-uuid) {
+      color: $primaryColor;
+    }
+  }
 }
