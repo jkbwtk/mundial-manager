@@ -201,9 +201,9 @@ export const MatchesDashboard: Component = () => {
 
       <Divider />
 
-      <div class={style.leaguesTableContainer}>
+      <div class={style.tableContainer}>
         <Table
-          class={style.leaguesTable}
+          class={style.table}
           columns={column}
           data={matches.latest?.data ?? []}
           classic={false}

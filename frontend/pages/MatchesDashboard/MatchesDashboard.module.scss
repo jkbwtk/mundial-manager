@@ -1,5 +1,4 @@
 @use 'app' as *;
-@use 'backgrounds' as *;
 
 .outer-container {
   max-height: 100%;
@@ -23,11 +22,11 @@
   font-style: italic;
 }
 
-.leagues-table-container {
+.table-container {
   max-height: 100%;
   overflow-y: auto;
 
-  .leagues-table {
+  .table {
     width: calc(100% - cw(2));
     margin: 0 auto;
 
