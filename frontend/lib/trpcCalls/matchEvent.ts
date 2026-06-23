@@ -19,7 +19,7 @@ export const queryMatchEventsByMatchId = query(
   async (query: MatchEventByMatchId) => {
     const matchEvents = await trpcClient.matchEvents.getByMatchId.query(query);
 
-    return MatchEvent.array().parse(matchEvents);
+    return PaginatedResponse(MatchEvent).parse(matchEvents);
   },
   'queryMatchEventsByMatchId',
 );

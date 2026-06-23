@@ -1,3 +1,4 @@
+import { and, count, eq, isNull } from 'drizzle-orm';
 import type { DB, TX } from '#backend/db/database';
 import { ModelOps } from '#backend/db/models/ModelOps';
 import { matchEventsTable } from '#backend/db/schema';
@@ -33,6 +34,28 @@ export class MatchEventModel extends ModelOps({
       ...rest,
       ...payload,
     };
+  }
+
+  @ConvertDrizzleErrors()
+  public static async countByMatchId(
+    db: DB | TX,
+    leagueUuid: string,
+    matchUuid: string,
+  ) {
+    const request = await db
+      .select({
+        count: count(),
+      })
+      .from(matchEventsTable)
+      .where(
+        and(
+          eq(matchEventsTable.leagueUuid, leagueUuid),
+          eq(matchEventsTable.matchUuid, matchUuid),
+          isNull(matchEventsTable.$deletedAt),
+        ),
+      );
+
+    return Number(request[0]?.count ?? 0);
   }
 
   @ConvertDrizzleErrors()
