@@ -39,13 +39,19 @@ interface MatchEventsResult {
 }
 
 function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
-  const events: MatchEventCreate[] = [];
-
   let side1Score = 0;
   let side2Score = 0;
 
   let currentTime = ctx.startDate.getTime();
   let pauseDuration = 0;
+
+  const events: MatchEventCreate[] = [
+    {
+      time: new Date(currentTime),
+      type: 'MATCH_START',
+      matchUuid: '',
+    },
+  ];
 
   while (
     (side1Score < 10 && side2Score < 10) ||
