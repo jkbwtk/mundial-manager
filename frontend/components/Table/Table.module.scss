@@ -31,10 +31,6 @@
 
       text-decoration: underline dotted;
 
-      padding-right: cw(2);
-
-      text-indent: cw(1);
-
       cursor: pointer;
 
       span {
@@ -60,6 +56,10 @@
 
   .vertical-border {
     padding-right: cw(1);
+
+    &.sortable {
+      padding-right: cw(2);
+    }
   }
 
   .horizontal-border {

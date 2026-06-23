@@ -175,6 +175,7 @@ export const Table: Component<TableProps> = (userProps) => {
                         [style.alignLeft]: column.align === 'left',
                         [style.alignCenter]: column.align === 'center',
                         [style.alignRight]: column.align === 'right',
+                        [style.sortable]: column.sortable,
                         [style.verticalBorder]:
                           colIndex() < props.columns.length - 1,
                         [`data-column-${column.key}`]: true,
