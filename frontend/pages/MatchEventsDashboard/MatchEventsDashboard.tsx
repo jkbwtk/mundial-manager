@@ -1,13 +1,13 @@
 import { createAsync, useParams } from '@solidjs/router';
 import hljs from 'highlight.js/lib/core';
 import json from 'highlight.js/lib/languages/json';
-import { createSignal } from 'solid-js';
+import { createMemo, createSignal } from 'solid-js';
 import { HighlightedCode } from '#components/HighlightedCode';
 import { Paginator } from '#components/Paginator';
 import { type Column, Table } from '#components/Table';
 import { Divider } from '#components/Widget';
 import { queryMatchEventsByMatchId } from '#flib/trpcCalls';
-import { formatDate } from '#shared/timeUtils';
+import { formatDate, formatDuration } from '#shared/timeUtils';
 import type {
   MatchEvent,
   MatchEventByMatchId,
@@ -54,6 +54,13 @@ export const MatchEventsDashboard: Component = () => {
     });
   };
 
+  const matchStart = createMemo(() => {
+    const startEvent = matchEvents.latest?.data.find(
+      (event) => event.type === 'MATCH_START',
+    );
+    return startEvent?.time.getTime() ?? 0;
+  });
+
   const column: Column[] = [
     {
       key: 'uuid',
@@ -64,11 +71,22 @@ export const MatchEventsDashboard: Component = () => {
     },
     {
       key: 'time',
-      header: 'Time',
+      header: 'Date',
       align: 'center',
       width: 12,
       sortable: true,
       transform: (val: Date) => formatDate(val.getTime() / 1000),
+    },
+    {
+      key: 'deltaT',
+      header: 'T+',
+      align: 'center',
+      width: 8,
+      transform: (_val, row: MatchEvent) => {
+        const deltaT = row.time.getTime() - matchStart();
+
+        return formatDuration(deltaT / 1000);
+      },
     },
     {
       key: 'type',
