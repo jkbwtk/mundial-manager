@@ -1,3 +1,4 @@
+import type { Action, CustomResponse } from '@solidjs/router';
 import {
   createMemo,
   createUniqueId,
@@ -70,11 +71,11 @@ export type FormField<Value, Result> =
 export interface SharedFormProps<
   Model extends z.ZodObject,
   Result,
-  Action extends (data: z.infer<Model>) => Promise<Result>,
+  TRPCAction extends Action<[data: z.infer<Model>], CustomResponse<Result>>,
   Instance extends { uuid: string } | undefined,
 > {
   model: Model;
-  action: Action;
+  action: TRPCAction;
 
   instance?: Instance;
 
@@ -88,9 +89,9 @@ export interface SharedFormProps<
 export interface FormProps<
   Model extends z.ZodObject,
   Result,
-  Action extends (data: z.infer<Model>) => Promise<Result>,
+  TRPCAction extends Action<[data: z.infer<Model>], CustomResponse<Result>>,
   Instance extends { uuid: string } | undefined,
-> extends SharedFormProps<Model, Result, Action, Instance> {
+> extends SharedFormProps<Model, Result, TRPCAction, Instance> {
   formId?: string;
   handleSubmit: JSX.EventHandlerUnion<HTMLFormElement, SubmitEvent>;
 
@@ -108,10 +109,10 @@ export interface FormProps<
 export const Form = <
   Model extends z.ZodObject,
   Result,
-  Action extends (data: z.infer<Model>) => Promise<Result>,
+  TRPCAction extends Action<[data: z.infer<Model>], CustomResponse<Result>>,
   Instance extends { uuid: string } | undefined,
 >(
-  props: FormProps<Model, Result, Action, Instance>,
+  props: FormProps<Model, Result, TRPCAction, Instance>,
 ) => {
   const defaultFormId = createUniqueId();
 
