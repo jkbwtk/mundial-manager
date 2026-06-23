@@ -1,9 +1,10 @@
 import { createAsync, useAction } from '@solidjs/router';
-import { getOwner, Show } from 'solid-js';
+import { createSignal, getOwner, Show } from 'solid-js';
 import { Button } from '#components/Button';
+import { Paginator } from '#components/Paginator';
 import { SeasonCreatorModal } from '#components/SeasonCreatorModal';
 import { type Column, Table } from '#components/Table';
-import { Divider, Widget } from '#components/Widget';
+import { Divider } from '#components/Widget';
 import { useHandleButtonAction } from '#flib/solidHelpers';
 import {
   actionDeleteSeason,
@@ -13,14 +14,30 @@ import {
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
 import { formatDate } from '#shared/timeUtils';
-import type { Season } from '#shared/types/api/season';
+import type { Season, SeasonQueryMeta } from '#shared/types/api/season';
 import { shortUUID } from '#shared/utils';
 import style from './SeasonsDashboard.module.scss';
 
 export const SeasonsDashboard: Component = () => {
   const [, actions] = useToast();
   const [, { open }] = useModal();
-  const seasons = createAsync(() => querySeasons());
+
+  const [limit, setLimit] = createSignal(50);
+  const [page, setPage] = createSignal(0);
+  const [sorting, setSorting] = createSignal<SeasonQueryMeta['sorting']>({
+    direction: 'asc',
+    field: 'startDate',
+  });
+
+  const queryMetaProp = (): SeasonQueryMeta => ({
+    pagination: {
+      limit: limit(),
+      offset: page() * limit(),
+    },
+    sorting: sorting(),
+  });
+
+  const seasons = createAsync(() => querySeasons(queryMetaProp()));
   const currentSeason = createAsync(() => queryCurrentSeason());
 
   const deleteSeason = useAction(actionDeleteSeason);
@@ -33,6 +50,13 @@ export const SeasonsDashboard: Component = () => {
       },
       owner,
       closeOnBackgroundClick: false,
+    });
+  };
+
+  const handleOnSort = (field: string, direction: 'asc' | 'desc') => {
+    setSorting({
+      field: field as NonNullable<SeasonQueryMeta['sorting']>['field'],
+      direction,
     });
   };
 
@@ -121,30 +145,41 @@ export const SeasonsDashboard: Component = () => {
   ];
 
   return (
-    <Widget class={style.container} topLeftLabels="Seasons Dashboard">
-      <div class={style.league}>
-        <span>Current Season:</span>
-        <Show
-          when={currentSeason()}
-          fallback={<span class={style.noDescription}>None</span>}
-        >
-          {currentSeason()!.name}
-        </Show>
+    <div class={style.outerContainer}>
+      <div class={style.controls}>
+        <div>
+          <span>Current Season: </span>
+          <Show
+            when={currentSeason()}
+            fallback={<span class={style.noDescription}>None</span>}
+          >
+            {currentSeason()!.name}
+          </Show>
+        </div>
+
+        <Button onPointerUp={handleCreateSeason}>Create Season</Button>
       </div>
 
-      <Button onPointerUp={handleCreateSeason}>Create Season</Button>
+      <Paginator
+        total={seasons.latest?.total ?? 0}
+        limit={limit()}
+        setLimit={setLimit}
+        page={page()}
+        setPage={setPage}
+      />
 
       <Divider />
 
-      <div class={style.leaguesTableContainer}>
+      <div class={style.tableContainer}>
         <Table
-          class={style.leaguesTable}
+          class={style.table}
           columns={column}
-          data={seasons()?.data ?? []}
+          data={seasons.latest?.data ?? []}
           classic={false}
+          onSort={handleOnSort}
         />
       </div>
-    </Widget>
+    </div>
   );
 };
 export default SeasonsDashboard;
