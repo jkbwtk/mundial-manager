@@ -1,22 +1,36 @@
 import { createAsync, useAction } from '@solidjs/router';
-import { getOwner, Show } from 'solid-js';
+import { createSignal, getOwner, Show } from 'solid-js';
 import { BallCreatorModal } from '#components/BallCreatorModal/BallCreatorModal';
 import { Button } from '#components/Button';
 import { ColorBlock } from '#components/ColorBlock';
+import { Paginator } from '#components/Paginator';
 import { type Column, Table } from '#components/Table';
-import { Divider, Widget } from '#components/Widget';
+import { Divider } from '#components/Widget';
 import { useHandleButtonAction } from '#flib/index';
 import { actionDeleteBall, queryBalls } from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
-import type { Ball } from '#shared/types/api/ball';
+import type { Ball, BallQueryMeta } from '#shared/types/api/ball';
 import { shortUUID } from '#shared/utils';
 import style from './BallsDashboard.module.scss';
 
 export const BallsDashboard: Component = () => {
   const [, actions] = useToast();
   const [, { open }] = useModal();
-  const balls = createAsync(() => queryBalls());
+
+  const [limit, setLimit] = createSignal(50);
+  const [page, setPage] = createSignal(0);
+  const [sorting, setSorting] = createSignal<BallQueryMeta['sorting']>();
+
+  const queryMetaProp = (): BallQueryMeta => ({
+    pagination: {
+      limit: limit(),
+      offset: page() * limit(),
+    },
+    sorting: sorting(),
+  });
+
+  const balls = createAsync(() => queryBalls(queryMetaProp()));
 
   const deleteBall = useAction(actionDeleteBall);
   const owner = getOwner();
@@ -28,6 +42,13 @@ export const BallsDashboard: Component = () => {
       },
       owner,
       closeOnBackgroundClick: false,
+    });
+  };
+
+  const handleOnSort = (field: string, direction: 'asc' | 'desc') => {
+    setSorting({
+      field: field as NonNullable<BallQueryMeta['sorting']>['field'],
+      direction,
     });
   };
 
@@ -43,34 +64,40 @@ export const BallsDashboard: Component = () => {
       key: 'name',
       header: 'Name',
       align: 'left',
+      sortable: true,
     },
     {
       key: 'alias',
       header: 'Alias',
       align: 'center',
+      sortable: true,
     },
     {
       key: 'color',
       header: 'Color',
       align: 'center',
+      sortable: true,
       transform: (val) => <ColorBlock color={val} />,
     },
     {
       key: 'diameter',
       header: 'Diameter',
       align: 'right',
-      transform: (val) => `${val} mm`,
+      sortable: true,
+      transform: (val) => (val ? `${val} mm` : '-'),
     },
     {
       key: 'weight',
       header: 'Weight',
       align: 'right',
-      transform: (val) => `${val} g`,
+      sortable: true,
+      transform: (val) => (val ? `${val} g` : '-'),
     },
     {
       key: 'description',
       header: 'Description',
       align: 'center',
+      sortable: true,
     },
     {
       key: 'edit',
@@ -128,22 +155,31 @@ export const BallsDashboard: Component = () => {
   ];
 
   return (
-    <Widget class={style.container} topLeftLabels="Balls Dashboard">
-      <div class={style.league}>
+    <div class={style.outerContainer}>
+      <div class={style.controls}>
         <Button onPointerUp={handleCreateBall}>Create Ball</Button>
       </div>
 
+      <Paginator
+        total={balls.latest?.total ?? 0}
+        limit={limit()}
+        setLimit={setLimit}
+        page={page()}
+        setPage={setPage}
+      />
+
       <Divider />
 
-      <div class={style.leaguesTableContainer}>
+      <div class={style.tableContainer}>
         <Table
-          class={style.leaguesTable}
+          class={style.table}
           columns={column}
-          data={balls()?.data ?? []}
+          data={balls.latest?.data ?? []}
           classic={false}
+          onSort={handleOnSort}
         />
       </div>
-    </Widget>
+    </div>
   );
 };
 
