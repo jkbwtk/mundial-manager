@@ -2,6 +2,7 @@ import { lazy } from 'solid-js';
 import type { ExtendedRouteDefinition } from '#frontend/types';
 import { errors, GenericErrorPage } from '#pages/GenericErrorPage';
 import Homepage from '#pages/Homepage/Homepage';
+import { preloadMatchEventsDashboard } from '#pages/MatchEventsDashboard';
 
 const MundialCalculator = lazy(
   () => import('#pages/MundialCalculator/MundialCalculator'),
@@ -108,6 +109,7 @@ export const dashboardRoutes: ExtendedRouteDefinition[] = [
   {
     path: '/match-events/:matchUuid',
     component: MatchEventsDashboard,
+    preload: preloadMatchEventsDashboard,
     info: { name: 'Match Events', icon: 'atr', public: false },
   },
 ];
