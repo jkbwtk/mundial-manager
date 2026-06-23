@@ -1,22 +1,39 @@
 import { createAsync, useAction } from '@solidjs/router';
-import { getOwner, Show } from 'solid-js';
+import { createSignal, getOwner, Show } from 'solid-js';
 import { Button } from '#components/Button';
 import { ColorBlock } from '#components/ColorBlock';
+import { Paginator } from '#components/Paginator';
 import { type Column, Table } from '#components/Table';
 import { TableCreatorModal } from '#components/TableCreatorModal/TableCreatorModal';
-import { Divider, Widget } from '#components/Widget';
+import { Divider } from '#components/Widget';
 import { useHandleButtonAction } from '#flib/index';
 import { actionDeleteTable, queryTables } from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
-import type { Table as TableType } from '#shared/types/api/table';
+import type {
+  TableQueryMeta,
+  Table as TableType,
+} from '#shared/types/api/table';
 import { shortUUID } from '#shared/utils';
 import style from './TablesDashboard.module.scss';
 
 export const TablesDashboard: Component = () => {
   const [, actions] = useToast();
   const [, { open }] = useModal();
-  const tables = createAsync(() => queryTables());
+
+  const [limit, setLimit] = createSignal(50);
+  const [page, setPage] = createSignal(0);
+  const [sorting, setSorting] = createSignal<TableQueryMeta['sorting']>();
+
+  const queryMetaProp = (): TableQueryMeta => ({
+    pagination: {
+      limit: limit(),
+      offset: page() * limit(),
+    },
+    sorting: sorting(),
+  });
+
+  const tables = createAsync(() => queryTables(queryMetaProp()));
 
   const deleteTable = useAction(actionDeleteTable);
   const owner = getOwner();
@@ -28,6 +45,13 @@ export const TablesDashboard: Component = () => {
       },
       owner,
       closeOnBackgroundClick: false,
+    });
+  };
+
+  const handleOnSort = (field: string, direction: 'asc' | 'desc') => {
+    setSorting({
+      field: field as NonNullable<TableQueryMeta['sorting']>['field'],
+      direction,
     });
   };
 
@@ -127,22 +151,31 @@ export const TablesDashboard: Component = () => {
   ];
 
   return (
-    <Widget class={style.container} topLeftLabels="Tables Dashboard">
-      <div class={style.league}>
+    <div class={style.outerContainer}>
+      <div class={style.controls}>
         <Button onPointerUp={handleCreateTable}>Create Table</Button>
       </div>
 
+      <Paginator
+        total={tables.latest?.total ?? 0}
+        limit={limit()}
+        setLimit={setLimit}
+        page={page()}
+        setPage={setPage}
+      />
+
       <Divider />
 
-      <div class={style.leaguesTableContainer}>
+      <div class={style.tableContainer}>
         <Table
-          class={style.leaguesTable}
+          class={style.table}
           columns={column}
-          data={tables()?.data ?? []}
+          data={tables.latest?.data ?? []}
           classic={false}
+          onSort={handleOnSort}
         />
       </div>
-    </Widget>
+    </div>
   );
 };
 
