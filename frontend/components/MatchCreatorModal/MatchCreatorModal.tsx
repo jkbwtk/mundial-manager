@@ -12,12 +12,15 @@ import {
   queryTableById,
   queryTables,
 } from '#flib/trpcCalls';
+import type { Ball } from '#shared/types/api/ball';
 import {
   type Match,
   MatchCreate,
   MatchStatusEnum,
   MatchUpdate,
 } from '#shared/types/api/match';
+import type { Player } from '#shared/types/api/player';
+import type { Table } from '#shared/types/api/table';
 import style from './MatchCreatorModal.module.scss';
 
 export interface MatchCreatorModalProps {
@@ -102,7 +105,7 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
           placeholder: 'Select a table...',
           queryById: queryTableById,
           query: queryTables,
-          toEntry: (e) => {
+          toEntry: (e: Table) => {
             return { label: e.name, value: e.uuid };
           },
         },
@@ -112,7 +115,7 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
           queryById: queryBallById,
           query: queryBalls,
           placeholder: 'Select a ball...',
-          toEntry: (e) => {
+          toEntry: (e: Ball) => {
             return {
               label: (
                 <>
@@ -135,7 +138,7 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
           type: 'multiResourcePicker',
           queryById: queryPlayerById,
           query: queryPlayers,
-          toEntry: (e) => {
+          toEntry: (e: Player) => {
             return { label: e.name, value: e.uuid };
           },
         },
@@ -144,7 +147,7 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
           type: 'multiResourcePicker',
           queryById: queryPlayerById,
           query: queryPlayers,
-          toEntry: (e) => {
+          toEntry: (e: Player) => {
             return { label: e.name, value: e.uuid };
           },
         },
@@ -153,7 +156,7 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
           type: 'multiResourcePicker',
           queryById: queryPlayerById,
           query: queryPlayers,
-          toEntry: (e) => {
+          toEntry: (e: Player) => {
             return { label: e.name, value: e.uuid };
           },
         },
