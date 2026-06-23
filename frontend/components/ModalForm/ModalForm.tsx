@@ -21,7 +21,7 @@ export interface ModalFormLabels {
 
 export interface ModalFormProps<
   Model extends z.ZodObject,
-  Result,
+  Result extends ReturnType<TRPCAction>,
   TRPCAction extends Action<[data: z.infer<Model>], CustomResponse<Result>>,
   Instance extends { uuid: string } | undefined,
 > extends SharedFormProps<Model, Result, TRPCAction, Instance>,
@@ -38,7 +38,7 @@ export interface ModalFormProps<
 
 export const ModalForm = <
   Model extends z.ZodObject,
-  Result,
+  Result extends ReturnType<TRPCAction>,
   TRPCAction extends Action<[data: z.infer<Model>], CustomResponse<Result>>,
   Instance extends { uuid: string } | undefined,
 >(

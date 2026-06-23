@@ -12,7 +12,7 @@ import style from './WidgetForm.module.scss';
 
 export interface WidgetFormProps<
   Model extends z.ZodObject,
-  Result,
+  Result extends ReturnType<TRPCAction>,
   TRPCAction extends Action<[data: z.infer<Model>], CustomResponse<Result>>,
   Instance extends { uuid: string } | undefined,
 > extends SharedFormProps<Model, Result, TRPCAction, Instance> {
@@ -34,7 +34,7 @@ export interface WidgetFormProps<
 
 export const WidgetForm = <
   Model extends z.ZodObject,
-  Result,
+  Result extends ReturnType<TRPCAction>,
   TRPCAction extends Action<[data: z.infer<Model>], CustomResponse<Result>>,
   Instance extends { uuid: string } | undefined,
 >(
