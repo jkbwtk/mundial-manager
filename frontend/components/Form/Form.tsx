@@ -15,6 +15,7 @@ import { Dropdown, type DropdownOption } from '#components/Dropdown';
 import { Input } from '#components/Input';
 import { Required } from '#components/Required';
 import {
+  MultiResourcePicker,
   type PickerEntry,
   type PickerQueryMeta,
   ResourcePicker,
@@ -32,6 +33,7 @@ export const FormFieldTypes = [
   'color',
   'dropdown',
   'resourcePicker',
+  'multiResourcePicker',
 ] as const;
 
 export type FormFieldType = (typeof FormFieldTypes)[number];
@@ -57,7 +59,7 @@ export type FormField<Value, Result> =
       options: DropdownOption[];
     })
   | (BaseFormField<Value> & {
-      type: 'resourcePicker';
+      type: 'resourcePicker' | 'multiResourcePicker';
       query: (meta?: PickerQueryMeta) => Promise<PaginatedResponse<Result>>;
       toEntry: (data: Result) => PickerEntry<Value>;
 
@@ -335,6 +337,38 @@ export const Form = <
                     classList={{ [style.fieldInput]: true, input: true }}
                     name={fieldName}
                     placeholder={field.placeholder}
+                    // @ts-expect-error
+                    queryById={field.queryById}
+                    // @ts-expect-error
+                    query={field.query}
+                    // @ts-expect-error
+                    toEntry={field.toEntry}
+                    // @ts-expect-error
+                    value={props.instance?.[fieldName] ?? undefined}
+                    useDirectives={props.directives}
+                    invalid={!!props.errors[fieldName]}
+                  />
+                </div>
+              </Match>
+
+              <Match when={field.type === 'multiResourcePicker'}>
+                <div
+                  classList={{
+                    [style.fieldContainer]: true,
+                    [`form-field-${fieldName}`]: true,
+                  }}
+                >
+                  <span classList={{ [style.fieldLabel]: true, label: true }}>
+                    {field.label}
+                    <Show when={required}>
+                      <Required />
+                    </Show>
+                    :
+                  </span>
+
+                  <MultiResourcePicker
+                    classList={{ [style.fieldInput]: true, input: true }}
+                    name={fieldName}
                     // @ts-expect-error
                     queryById={field.queryById}
                     // @ts-expect-error
