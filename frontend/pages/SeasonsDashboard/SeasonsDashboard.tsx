@@ -7,7 +7,6 @@ import { Divider, Widget } from '#components/Widget';
 import { useHandleButtonAction } from '#flib/solidHelpers';
 import {
   actionDeleteSeason,
-  queryActiveLeague,
   queryCurrentSeason,
   querySeasons,
 } from '#flib/trpcCalls';
@@ -21,7 +20,6 @@ import style from './SeasonsDashboard.module.scss';
 export const SeasonsDashboard: Component = () => {
   const [, actions] = useToast();
   const [, { open }] = useModal();
-  const activeLeague = createAsync(() => queryActiveLeague());
   const seasons = createAsync(() => querySeasons());
   const currentSeason = createAsync(() => queryCurrentSeason());
 
@@ -134,11 +132,7 @@ export const SeasonsDashboard: Component = () => {
         </Show>
       </div>
 
-      <div class={style.league}>
-        <Button onPointerUp={handleCreateSeason} disabled={!activeLeague()}>
-          Create Season
-        </Button>
-      </div>
+      <Button onPointerUp={handleCreateSeason}>Create Season</Button>
 
       <Divider />
 
