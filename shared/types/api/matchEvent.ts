@@ -144,3 +144,8 @@ export const MatchEventQueryMeta = createQueryMeta({
   sortFields: ['time'] as const,
 });
 export type MatchEventQueryMeta = z.infer<typeof MatchEventQueryMeta>;
+
+export const MatchEventByMatchId = MatchEventQueryMeta.extend({
+  matchUuid: z.uuid(),
+});
+export type MatchEventByMatchId = z.infer<typeof MatchEventByMatchId>;

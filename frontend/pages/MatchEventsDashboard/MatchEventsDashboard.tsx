@@ -12,7 +12,13 @@ export const MatchEventsDashboard: Component = () => {
   const params = useParams<MatchEventsDashboardParams>();
 
   const matchEvents = createAsync(() =>
-    queryMatchEventsByMatchId(params.matchUuid),
+    queryMatchEventsByMatchId({
+      matchUuid: params.matchUuid,
+      sorting: {
+        field: 'time',
+        direction: 'asc',
+      },
+    }),
   );
 
   return (

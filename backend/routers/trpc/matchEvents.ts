@@ -5,6 +5,7 @@ import { leagueScopedProcedure, router } from '#blib/trpc';
 import { createCrudOps } from '#blib/trpcOps';
 import {
   MatchEvent,
+  MatchEventByMatchId,
   MatchEventCreate,
   MatchEventQueryMeta,
   MatchEventUpdate,
@@ -20,15 +21,11 @@ export const matchEventsRouter = router({
   }),
 
   getByMatchId: leagueScopedProcedure
-    .input(
-      z.object({
-        matchUuid: z.uuid(),
-      }),
-    )
+    .input(MatchEventByMatchId)
     .output(z.array(MatchEvent))
-    .query(async ({ ctx, input }) => {
+    .query(async ({ ctx, input: { matchUuid, ...meta } }) => {
       const instances = await runWithErrorConversion(() =>
-        MatchEventModel.getByMatchId(ctx.db, ctx.league.uuid, input.matchUuid),
+        MatchEventModel.getByMatchId(ctx.db, ctx.league.uuid, matchUuid, meta),
       );
 
       return await Promise.all(
