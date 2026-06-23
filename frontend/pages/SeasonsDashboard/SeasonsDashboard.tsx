@@ -72,17 +72,22 @@ export const SeasonsDashboard: Component = () => {
       key: 'name',
       header: 'Name',
       align: 'left',
+      sortable: true,
     },
     {
       key: 'startDate',
       header: 'Start Date',
       align: 'center',
+      width: 14,
+      sortable: true,
       transform: (val: Date) => formatDate(val.getTime() / 1000),
     },
     {
       key: 'endDate',
       header: 'End Date',
       align: 'center',
+      width: 14,
+      sortable: true,
       transform: (val: Date) => formatDate(val.getTime() / 1000),
     },
     {
