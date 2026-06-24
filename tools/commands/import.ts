@@ -3,6 +3,7 @@ import z from 'zod';
 import { db } from '#backend/db/database';
 import { SheetStore } from '#backend/SheetStore';
 import { logger } from '#shared/logger';
+import { importLegacyPlayers } from '#tools/commands/import/players';
 import { importLegacySeasons } from '#tools/commands/import/seasons';
 
 const ImportOptions = z.object({
@@ -30,8 +31,10 @@ async function importData(options: ImportOptions) {
   });
 
   const seasons = await importLegacySeasons(options);
+  const players = await importLegacyPlayers(options, legacyMatches);
 
   console.log(seasons);
+  console.log(players);
 }
 
 export function registerImportCommand(program: Command): void {
