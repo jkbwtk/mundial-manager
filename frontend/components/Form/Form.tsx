@@ -11,7 +11,7 @@ import {
 } from 'solid-js';
 import type z from 'zod';
 import { toJSONSchema } from 'zod';
-import { DateInput } from '#components/DateInput';
+import { DateInput, type DateMode } from '#components/DateInput';
 import { Dropdown, type DropdownOption } from '#components/Dropdown';
 import { Input } from '#components/Input';
 import { Required } from '#components/Required';
@@ -54,6 +54,10 @@ export type FormField<Value> =
   | (BaseFormField<Value> & {
       type: 'number';
       unit?: string;
+    })
+  | (BaseFormField<Value> & {
+      type: 'date';
+      dateMode: DateMode;
     })
   | (BaseFormField<Value> & {
       type: 'dropdown';
@@ -288,6 +292,8 @@ export const Form = <
                     name={fieldName}
                     // @ts-expect-error
                     value={props.instance?.[fieldName]}
+                    // @ts-expect-error
+                    dateMode={field.dateMode}
                     useDirectives={props.directives}
                     invalid={!!props.errors[fieldName]}
                   />
