@@ -138,6 +138,10 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
   let minuteRef: HTMLInputElement = document.createElement('input');
   let secondRef: HTMLInputElement = document.createElement('input');
 
+  hourRef.defaultValue = '0';
+  minuteRef.defaultValue = '0';
+  secondRef.defaultValue = '0';
+
   let triggerRef!: HTMLButtonElement;
   let calRef!: HTMLDivElement;
   let wrapRef!: HTMLSpanElement;
@@ -157,15 +161,6 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
   const grid = createMemo(() => buildGrid(viewYear(), viewMonth()));
 
   const emitFromRefs = () => {
-    if (props.dateMode === 'date') {
-      hourRef.value = '0';
-      minuteRef.value = '0';
-    }
-
-    if (props.dateMode !== 'dateTimeSeconds') {
-      secondRef.value = '0';
-    }
-
     if (
       !yearRef.value ||
       !monthRef.value ||
