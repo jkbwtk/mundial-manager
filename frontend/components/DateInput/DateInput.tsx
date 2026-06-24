@@ -627,7 +627,7 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
           class={style.day}
           maxlength={2}
           placeholder="HH"
-          defaultValue={props.value ? parseDate(props.value).day : ''}
+          defaultValue={props.value ? parseDate(props.value).hour : ''}
           label="Hour"
           disabled={props.disabled}
           keys={hourKeys}
@@ -645,7 +645,7 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
           class={style.day}
           maxlength={2}
           placeholder="mm"
-          defaultValue={props.value ? parseDate(props.value).day : ''}
+          defaultValue={props.value ? parseDate(props.value).minute : ''}
           label="Minute"
           disabled={props.disabled}
           keys={minuteKeys}
@@ -664,7 +664,7 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
             class={style.day}
             maxlength={2}
             placeholder="SS"
-            defaultValue={props.value ? parseDate(props.value).day : ''}
+            defaultValue={props.value ? parseDate(props.value).second : ''}
             label="Second"
             disabled={props.disabled}
             keys={secondKeys}
