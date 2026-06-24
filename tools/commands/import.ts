@@ -1,10 +1,12 @@
 import type { Command } from 'commander';
 import z from 'zod';
 import { db } from '#backend/db/database';
+import { matchesTable } from '#backend/db/schema';
 import { SheetStore } from '#backend/SheetStore';
 import { logger } from '#shared/logger';
 import { importLegacyPlayers } from '#tools/commands/import/players';
 import { importLegacySeasons } from '#tools/commands/import/seasons';
+import { importLegacyTables } from '#tools/commands/import/tables';
 
 const ImportOptions = z.object({
   clear: z.coerce.boolean(),
@@ -30,11 +32,23 @@ async function importData(options: ImportOptions) {
     label: ['cli', 'import'],
   });
 
+  if (options.clear) {
+    logger.info('Clearing existing data from matches...', {
+      label: ['cli', 'import'],
+    });
+
+    const deletedMatches = await db.delete(matchesTable).returning();
+
+    logger.info('Deleted %d matches', deletedMatches.length, {
+      label: ['cli', 'import'],
+    });
+  }
+
   const seasons = await importLegacySeasons(options);
   const players = await importLegacyPlayers(options, legacyMatches);
+  const tables = await importLegacyTables(options, legacyMatches);
 
-  console.log(seasons);
-  console.log(players);
+  console.log(tables);
 }
 
 export function registerImportCommand(program: Command): void {
