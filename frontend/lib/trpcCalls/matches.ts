@@ -3,6 +3,7 @@ import { trpcClient } from '#flib/trpcClient';
 import {
   Match,
   type MatchCreate,
+  type MatchFullCreate,
   type MatchQueryMeta,
   type MatchUpdate,
 } from '#shared/types/api/match';
@@ -27,6 +28,17 @@ export const actionCreateMatch = action(async (match: MatchCreate) => {
     revalidate: ['queryMatches'],
   });
 }, 'actionCreateMatch');
+
+export const actionCreateFullMatch = action(
+  async (fullMatch: MatchFullCreate) => {
+    const newMatch = await trpcClient.matches.createFullMatch.mutate(fullMatch);
+
+    return json(Match.parse(newMatch), {
+      revalidate: ['queryMatches'],
+    });
+  },
+  'actionCreateFullMatch',
+);
 
 export const actionUpdateMatch = action(async (match: MatchUpdate) => {
   const updatedMatch = await trpcClient.matches.update.mutate(match);

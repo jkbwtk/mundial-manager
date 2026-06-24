@@ -1,5 +1,6 @@
 import z from 'zod';
 import { createQueryMeta } from '#backend/types/trpc';
+import { MatchEventCreateWithoutMatch } from '#shared/types/api/matchEvent';
 import { PaginatedResponse, uuidArray } from '#shared/zod';
 
 export const MatchStatusEnum = {
@@ -60,3 +61,13 @@ export const MatchQueryMeta = createQueryMeta({
   sortFields: ['startDate', 'duration', 'pauseDuration', 'status'] as const,
 });
 export type MatchQueryMeta = z.infer<typeof MatchQueryMeta>;
+
+export const MatchFullCreate = Match.extend({
+  events: MatchEventCreateWithoutMatch.array(),
+});
+export type MatchFullCreate = z.infer<typeof MatchFullCreate>;
+
+export const MatchFullStrategy = MatchFullCreate.extend({
+  uuid: z.uuid().optional(),
+});
+export type MatchFullStrategy = z.infer<typeof MatchFullStrategy>;

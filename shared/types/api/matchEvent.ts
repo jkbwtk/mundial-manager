@@ -158,3 +158,17 @@ export const MatchEventByMatchId = MatchEventQueryMeta.extend({
   matchUuid: z.uuid(),
 });
 export type MatchEventByMatchId = z.infer<typeof MatchEventByMatchId>;
+
+export const MatchEventCreateWithoutMatch = z.discriminatedUnion('type', [
+  MatchEventStart.omit({ uuid: true, matchUuid: true }),
+  MatchEventGoal.omit({ uuid: true, matchUuid: true }),
+  MatchEventPositionChange.omit({ uuid: true, matchUuid: true }),
+  MatchEventBallOut.omit({ uuid: true, matchUuid: true }),
+  MatchEventEquipmentFailure.omit({ uuid: true, matchUuid: true }),
+  MatchEventPause.omit({ uuid: true, matchUuid: true }),
+  MatchEventResume.omit({ uuid: true, matchUuid: true }),
+  MatchEventCancel.omit({ uuid: true, matchUuid: true }),
+]);
+export type MatchEventCreateWithoutMatch = z.infer<
+  typeof MatchEventCreateWithoutMatch
+>;

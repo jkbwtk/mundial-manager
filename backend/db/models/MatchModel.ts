@@ -1,6 +1,7 @@
 import { and, eq, isNull } from 'drizzle-orm';
 import z from 'zod';
 import type { DB, TX } from '#backend/db/database';
+import { MatchEventModel } from '#backend/db/models/MatchEventModel';
 import {
   ModelOps,
   type ValidationStrategies,
@@ -15,6 +16,8 @@ import {
 import {
   Match,
   MatchCreate,
+  type MatchFullCreate,
+  type MatchFullStrategy,
   MatchQueryMeta,
   type MatchStrategy,
   MatchUpdate,
@@ -117,7 +120,11 @@ export class MatchModel extends ModelOps({
   }
 
   @ConvertDrizzleErrors()
-  public static async create(db: DB, leagueUuid: string, data: MatchCreate) {
+  public static async create(
+    db: DB | TX,
+    leagueUuid: string,
+    data: MatchCreate,
+  ) {
     const hash = getValueHash({
       leagueUuid,
       startDate: data.startDate,
@@ -160,7 +167,11 @@ export class MatchModel extends ModelOps({
   }
 
   @ConvertDrizzleErrors()
-  public static async update(db: DB, leagueUuid: string, data: MatchUpdate) {
+  public static async update(
+    db: DB | TX,
+    leagueUuid: string,
+    data: MatchUpdate,
+  ) {
     const hash = getValueHash({
       leagueUuid,
       startDate: data.startDate,
@@ -219,6 +230,38 @@ export class MatchModel extends ModelOps({
       }
 
       return updated;
+    });
+
+    return instance;
+  }
+
+  @ConvertDrizzleErrors()
+  public static async createFullMatch(
+    db: DB,
+    leagueUuid: string,
+    data: MatchFullCreate,
+  ) {
+    const instance = await db.transaction(async (tx) => {
+      for (const strategy of Object.values(
+        this.fullCreateValidationStrategies,
+      )) {
+        await strategy(db, leagueUuid, data);
+      }
+
+      const { events, ...matchData } = data;
+
+      const match = await this.create(tx, leagueUuid, matchData);
+
+      await Promise.all(
+        events.map((event) =>
+          MatchEventModel.create(tx, leagueUuid, {
+            ...event,
+            matchUuid: match.uuid,
+          }),
+        ),
+      );
+
+      return match;
     });
 
     return instance;
@@ -286,6 +329,30 @@ export class MatchModel extends ModelOps({
             errorType: 'PLAYERS_NOT_FOUND',
           },
         });
+      }
+    },
+  };
+
+  public static fullCreateValidationStrategies: ValidationStrategies<
+    typeof MatchFullStrategy
+  > = {
+    startsWithStartEvent: (_db, _leagueUuid, data) => {
+      if (data.events.length === 0) return;
+
+      const sorted = data.events.toSorted(
+        (a, b) => a.time.getTime() - b.time.getTime(),
+      );
+
+      if (sorted.at(0)?.type !== 'MATCH_START') {
+        throw new StrategyValidationError(
+          '"MATCH_START" event missing or at wrong chronological position',
+          {
+            events: {
+              value: sorted.at(0)?.type,
+              errorType: 'MATCH_START_EVENT_MISSING_OR_INVALID',
+            },
+          },
+        );
       }
     },
   };
