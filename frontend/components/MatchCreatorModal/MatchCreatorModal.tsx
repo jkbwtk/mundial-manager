@@ -83,6 +83,7 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
         startDate: {
           label: 'Start Date',
           type: 'date',
+          dateMode: 'dateTimeSeconds',
         },
         side1Score: {
           label: 'Side 1 Score',
