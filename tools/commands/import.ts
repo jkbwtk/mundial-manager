@@ -4,6 +4,7 @@ import { db } from '#backend/db/database';
 import { matchesTable } from '#backend/db/schema';
 import { SheetStore } from '#backend/SheetStore';
 import { logger } from '#shared/logger';
+import { importLegacyMatches } from '#tools/commands/import/matches';
 import { importLegacyPlayers } from '#tools/commands/import/players';
 import { importLegacySeasons } from '#tools/commands/import/seasons';
 import { importLegacyTables } from '#tools/commands/import/tables';
@@ -44,11 +45,10 @@ async function importData(options: ImportOptions) {
     });
   }
 
-  const seasons = await importLegacySeasons(options);
+  await importLegacySeasons(options);
   const players = await importLegacyPlayers(options, legacyMatches);
   const tables = await importLegacyTables(options, legacyMatches);
-
-  console.log(tables);
+  await importLegacyMatches(options, legacyMatches, tables, players);
 }
 
 export function registerImportCommand(program: Command): void {
