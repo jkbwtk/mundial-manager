@@ -1,5 +1,6 @@
 import { createSignal } from 'solid-js';
 import { Break } from '#components/Break';
+import { Button } from '#components/Button';
 import { DateInput } from '#components/DateInput';
 import { Input } from '#components/Input';
 import { Divider } from '#components/Widget';
@@ -65,8 +66,11 @@ export const InputTest: Component = () => {
       />{' '}
       <Divider />
       Date input:{' '}
-      <DateInput value={dateValue()} onInput={(v) => setDateValue(v)} /> Date
-      value: {dateValue()?.toISOString() ?? 'None'}
+      <DateInput value={dateValue()} onInput={(v) => setDateValue(v)} />
+      <Button severity="secondary" onClick={() => setDateValue(null)}>
+        Clear
+      </Button>{' '}
+      Date value: {dateValue()?.toISOString() ?? 'None'}
       <Break />
       Disabled date input:{' '}
       <DateInput

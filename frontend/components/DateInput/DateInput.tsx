@@ -11,6 +11,7 @@ import {
   mergeProps,
   on,
   onMount,
+  Show,
   splitProps,
 } from 'solid-js';
 import { AnchoredPopup } from '#components/AnchoredPopup';
@@ -32,9 +33,14 @@ type CalCell = {
   date: Date;
 };
 
+export const DateModes = ['date', 'dateTime', 'dateTimeSeconds'] as const;
+
+export type DateMode = (typeof DateModes)[number];
+
 export type DateInputProps = {
   invalid?: boolean;
   value?: Date | null;
+  dateMode?: DateMode;
   onInput?: (value: Date | null) => void;
   disabled?: boolean;
   class?: string;
@@ -62,6 +68,7 @@ const DayNames = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 export const dateInputDefaultProps: RequiredDefaults<DateInputProps> = {
   invalid: false,
   value: null,
+  dateMode: 'date',
   onInput: () => {},
   disabled: false,
   class: '',
@@ -96,10 +103,26 @@ const buildGrid = (year: number, month: number): CalCell[] => {
   return cells;
 };
 
+const clampAndPad = (value: string, min: number, max: number, pad = 2) =>
+  value ? String(clamp(min, max, Number(value))).padStart(pad, '0') : '';
+
+const segmentClamps = {
+  year: (value) => clampAndPad(value, 1, 9999, 4),
+  month: (value) => clampAndPad(value, 1, 12, 2),
+  day: (value, maxOverride?: number) =>
+    clampAndPad(value, 1, maxOverride ?? 31, 2),
+  hour: (value) => clampAndPad(value, 0, 23, 2),
+  minute: (value) => clampAndPad(value, 0, 59, 2),
+  second: (value) => clampAndPad(value, 0, 59, 2),
+} satisfies Record<string, (value: string, maxOverride?: number) => string>;
+
 const parseDate = (date: Date) => ({
   year: String(date.getFullYear()).padStart(4, '0'),
   month: String(date.getMonth() + 1).padStart(2, '0'),
   day: String(date.getDate()).padStart(2, '0'),
+  hour: String(date.getHours()).padStart(2, '0'),
+  minute: String(date.getMinutes()).padStart(2, '0'),
+  second: String(date.getSeconds()).padStart(2, '0'),
 });
 
 const TodayDate = new Date().toDateString();
@@ -111,6 +134,10 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
   let yearRef!: HTMLInputElement;
   let monthRef!: HTMLInputElement;
   let dayRef!: HTMLInputElement;
+  let hourRef: HTMLInputElement = document.createElement('input');
+  let minuteRef: HTMLInputElement = document.createElement('input');
+  let secondRef: HTMLInputElement = document.createElement('input');
+
   let triggerRef!: HTMLButtonElement;
   let calRef!: HTMLDivElement;
   let wrapRef!: HTMLSpanElement;
@@ -130,7 +157,23 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
   const grid = createMemo(() => buildGrid(viewYear(), viewMonth()));
 
   const emitFromRefs = () => {
-    if (!yearRef.value || !monthRef.value || !dayRef.value) {
+    if (props.dateMode === 'date') {
+      hourRef.value = '0';
+      minuteRef.value = '0';
+    }
+
+    if (props.dateMode !== 'dateTimeSeconds') {
+      secondRef.value = '0';
+    }
+
+    if (
+      !yearRef.value ||
+      !monthRef.value ||
+      !dayRef.value ||
+      !hourRef.value ||
+      !minuteRef.value ||
+      !secondRef.value
+    ) {
       batch(() => {
         setSelectedDate(null);
         props.onInput(null);
@@ -141,7 +184,11 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
       return;
     }
 
-    const date = new Date(`${yearRef.value}-${monthRef.value}-${dayRef.value}`);
+    const dateString = `${segmentClamps.year(yearRef.value)}-${segmentClamps.month(monthRef.value)}-${segmentClamps.day(dayRef.value)}T${segmentClamps.hour(hourRef.value)}:${segmentClamps.minute(minuteRef.value)}:${segmentClamps.second(secondRef.value)}`;
+
+    console.log(dateString);
+
+    const date = new Date(dateString);
 
     batch(() => {
       setSelectedDate(date);
@@ -161,15 +208,21 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
       yearRef.value = '';
       monthRef.value = '';
       dayRef.value = '';
+      hourRef.value = '';
+      minuteRef.value = '';
+      secondRef.value = '';
       return;
     }
 
-    const { year, month, day } = parseDate(date);
+    const { year, month, day, hour, minute, second } = parseDate(date);
     const active = document.activeElement;
 
     if (active !== yearRef) yearRef.value = year;
     if (active !== monthRef) monthRef.value = month;
     if (active !== dayRef) dayRef.value = day;
+    if (active !== hourRef) hourRef.value = hour;
+    if (active !== minuteRef) minuteRef.value = minute;
+    if (active !== secondRef) secondRef.value = second;
   };
 
   const moveTo = (element: HTMLInputElement, position: 'start' | 'end') => {
@@ -178,9 +231,6 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
     const p = position === 'start' ? 0 : element.value.length;
     element.setSelectionRange(p, p);
   };
-
-  const clampAndPad = (value: string, min: number, max: number, pad = 2) =>
-    value ? String(clamp(min, max, Number(value))).padStart(pad, '0') : '';
 
   const currentDaysInMonth = () =>
     daysInMonth(
@@ -309,18 +359,37 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
     4,
     () => null,
     () => monthRef,
+    segmentClamps.year,
   );
   const monthKeys = makeSegmentKeys(
     2,
     () => yearRef,
     () => dayRef,
-    (value) => clampAndPad(value, 1, 12),
+    segmentClamps.month,
   );
   const dayKeys = makeSegmentKeys(
     2,
     () => monthRef,
+    () => (props.dateMode === 'date' ? null : hourRef),
+    (value) => segmentClamps.day(value, currentDaysInMonth()),
+  );
+  const hourKeys = makeSegmentKeys(
+    2,
+    () => dayRef,
+    () => minuteRef,
+    segmentClamps.hour,
+  );
+  const minuteKeys = makeSegmentKeys(
+    2,
+    () => hourRef,
+    () => (props.dateMode === 'dateTimeSeconds' ? secondRef : null),
+    segmentClamps.minute,
+  );
+  const secondKeys = makeSegmentKeys(
+    2,
+    () => minuteRef,
     () => null,
-    (value) => clampAndPad(value, 1, currentDaysInMonth()),
+    segmentClamps.second,
   );
 
   const stepMonth = (delta: number) => {
@@ -469,7 +538,10 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
     if (
       ev.relatedTarget === yearRef ||
       ev.relatedTarget === monthRef ||
-      ev.relatedTarget === dayRef
+      ev.relatedTarget === dayRef ||
+      ev.relatedTarget === hourRef ||
+      ev.relatedTarget === minuteRef ||
+      ev.relatedTarget === secondRef
     ) {
       return;
     }
@@ -502,7 +574,7 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
         label="Year"
         disabled={props.disabled}
         keys={yearKeys}
-        blurClamp={(rawValue) => clampAndPad(rawValue, 1, 9999, 4)}
+        blurClamp={segmentClamps.year}
         onEmit={emitFromRefs}
         onBlur={handleSegmentBlur}
       />
@@ -520,7 +592,7 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
         label="Month"
         disabled={props.disabled}
         keys={monthKeys}
-        blurClamp={(rawValue) => clampAndPad(rawValue, 1, 12)}
+        blurClamp={segmentClamps.month}
         onEmit={emitFromRefs}
         onBlur={handleSegmentBlur}
       />
@@ -538,10 +610,70 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
         label="Day"
         disabled={props.disabled}
         keys={dayKeys}
-        blurClamp={(rawValue) => clampAndPad(rawValue, 1, currentDaysInMonth())}
+        blurClamp={(rawValue) =>
+          segmentClamps.day(rawValue, currentDaysInMonth())
+        }
         onEmit={emitFromRefs}
         onBlur={handleSegmentBlur}
       />
+
+      <Show when={props.dateMode !== 'date'}>
+        <span aria-hidden="true"> </span>
+
+        <SegmentInput
+          ref={(el) => {
+            hourRef = el;
+          }}
+          class={style.day}
+          maxlength={2}
+          placeholder="HH"
+          defaultValue={props.value ? parseDate(props.value).day : ''}
+          label="Hour"
+          disabled={props.disabled}
+          keys={hourKeys}
+          blurClamp={segmentClamps.hour}
+          onEmit={emitFromRefs}
+          onBlur={handleSegmentBlur}
+        />
+
+        <span aria-hidden="true">:</span>
+
+        <SegmentInput
+          ref={(el) => {
+            minuteRef = el;
+          }}
+          class={style.day}
+          maxlength={2}
+          placeholder="mm"
+          defaultValue={props.value ? parseDate(props.value).day : ''}
+          label="Minute"
+          disabled={props.disabled}
+          keys={minuteKeys}
+          blurClamp={segmentClamps.minute}
+          onEmit={emitFromRefs}
+          onBlur={handleSegmentBlur}
+        />
+
+        <Show when={props.dateMode === 'dateTimeSeconds'}>
+          <span aria-hidden="true">:</span>
+
+          <SegmentInput
+            ref={(el) => {
+              secondRef = el;
+            }}
+            class={style.day}
+            maxlength={2}
+            placeholder="SS"
+            defaultValue={props.value ? parseDate(props.value).day : ''}
+            label="Second"
+            disabled={props.disabled}
+            keys={secondKeys}
+            blurClamp={segmentClamps.second}
+            onEmit={emitFromRefs}
+            onBlur={handleSegmentBlur}
+          />
+        </Show>
+      </Show>
 
       <button
         ref={triggerRef!}
