@@ -29,7 +29,7 @@ export async function importLegacyMatches(
     await MatchModel.create(db, options.leagueUuid, {
       tableUuid: tables[match.floor ?? '']?.uuid,
 
-      startDate: new Date(match.date ?? 0),
+      startDate: new Date((match.date ?? 0) * 1000),
 
       duration: Math.floor(match.duration ?? 0),
       pauseDuration: Math.floor(match.pauseDuration),
