@@ -14,6 +14,7 @@ import {
   Show,
   splitProps,
 } from 'solid-js';
+import { isServer } from 'solid-js/web';
 import { AnchoredPopup } from '#components/AnchoredPopup';
 import { SegmentInput } from '#components/DateInput';
 import { MaterialSymbol } from '#components/MaterialSymbol';
@@ -134,13 +135,15 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
   let yearRef!: HTMLInputElement;
   let monthRef!: HTMLInputElement;
   let dayRef!: HTMLInputElement;
-  let hourRef: HTMLInputElement = document.createElement('input');
-  let minuteRef: HTMLInputElement = document.createElement('input');
-  let secondRef: HTMLInputElement = document.createElement('input');
+  let hourRef!: HTMLInputElement;
+  let minuteRef!: HTMLInputElement;
+  let secondRef!: HTMLInputElement;
 
-  hourRef.defaultValue = '0';
-  minuteRef.defaultValue = '0';
-  secondRef.defaultValue = '0';
+  if (!isServer) {
+    hourRef = document.createElement('input');
+    minuteRef = document.createElement('input');
+    secondRef = document.createElement('input');
+  }
 
   let triggerRef!: HTMLButtonElement;
   let calRef!: HTMLDivElement;
@@ -161,6 +164,15 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
   const grid = createMemo(() => buildGrid(viewYear(), viewMonth()));
 
   const emitFromRefs = () => {
+    if (props.dateMode === 'date') {
+      hourRef.value = '0';
+      minuteRef.value = '0';
+    }
+
+    if (props.dateMode !== 'dateTimeSeconds') {
+      secondRef.value = '0';
+    }
+
     if (
       !yearRef.value ||
       !monthRef.value ||
@@ -180,8 +192,6 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
     }
 
     const dateString = `${segmentClamps.year(yearRef.value)}-${segmentClamps.month(monthRef.value)}-${segmentClamps.day(dayRef.value)}T${segmentClamps.hour(hourRef.value)}:${segmentClamps.minute(minuteRef.value)}:${segmentClamps.second(secondRef.value)}`;
-
-    console.log(dateString);
 
     const date = new Date(dateString);
 
