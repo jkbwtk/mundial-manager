@@ -256,7 +256,6 @@ export async function populateMatches(options: PopulateOptions): Promise<void> {
         playersSide2,
         spectators,
         status: 'FINISHED',
-        events: [],
       });
 
       for (const event of eventsResult.events) {

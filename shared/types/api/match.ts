@@ -1,6 +1,5 @@
 import z from 'zod';
 import { createQueryMeta } from '#backend/types/trpc';
-import { MatchEvent } from '#shared/types/api/matchEvent';
 import { PaginatedResponse, uuidArray } from '#shared/zod';
 
 export const MatchStatusEnum = {
@@ -35,8 +34,6 @@ export const Match = z.object({
   playersSide2: uuidArray.check(z.minLength(1), z.maxLength(4)),
 
   spectators: uuidArray,
-
-  events: z.array(MatchEvent).default([]),
 
   hash: z.string(),
 });
