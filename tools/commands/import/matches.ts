@@ -2,8 +2,7 @@ import { db } from '#backend/db/database';
 import { MatchModel } from '#backend/db/models/MatchModel';
 import type { PlayerSelectSchema } from '#backend/types/db/player';
 import type { TableSelectSchema } from '#backend/types/db/table';
-import { getPlayersFromTeam } from '#flib/sheetUtils';
-import { convertFromLegacyMatchEvent } from '#shared/adapters/matchAdapter';
+import { convertFromLegacyMatch } from '#shared/adapters/matchAdapter';
 import { logger } from '#shared/logger';
 import type { Match } from '#shared/types/Sheets';
 import type { ImportOptions } from '#tools/commands/import';
@@ -27,43 +26,8 @@ export async function importLegacyMatches(
       label: ['cli', 'import', 'matches'],
     });
 
-    await MatchModel.createFullMatch(db, options.leagueUuid, {
-      tableUuid: tables[match.floor ?? '']?.uuid,
-
-      startDate: new Date((match.date ?? 0) * 1000),
-
-      duration: Math.floor(match.duration ?? 0),
-      pauseDuration: Math.floor(match.pauseDuration),
-
-      side1Score: match.score1,
-      side2Score: match.score2,
-
-      status: 'FINISHED',
-
-      playersSide1: getPlayersFromTeam(match.team1).map(
-        // biome-ignore lint/suspicious/noNonNullAssertedOptionalChain: yeah
-        (player) => players[player]?.uuid!,
-      ),
-      playersSide2: getPlayersFromTeam(match.team2).map(
-        // biome-ignore lint/suspicious/noNonNullAssertedOptionalChain: yeah
-        (player) => players[player]?.uuid!,
-      ),
-
-      spectators: [],
-      events: match.replayMetadata
-        ? [
-            {
-              type: 'MATCH_START',
-              time: new Date(match.replayMetadata.startedAt * 1000),
-            },
-            ...match.replayMetadata.events
-              .map((event) =>
-                convertFromLegacyMatchEvent(match, event, players),
-              )
-              .filter((event) => event !== null),
-          ]
-        : [],
-    });
+    const converted = convertFromLegacyMatch(match, tables, players);
+    await MatchModel.createFullMatch(db, options.leagueUuid, converted);
   }
 
   logger.info('Successfully imported legacy matches', {
