@@ -3,6 +3,7 @@ import { MatchModel } from '#backend/db/models/MatchModel';
 import type { PlayerSelectSchema } from '#backend/types/db/player';
 import type { TableSelectSchema } from '#backend/types/db/table';
 import { getPlayersFromTeam } from '#flib/sheetUtils';
+import { convertFromLegacyMatchEvent } from '#shared/adapters/matchAdapter';
 import { logger } from '#shared/logger';
 import type { Match } from '#shared/types/Sheets';
 import type { ImportOptions } from '#tools/commands/import';
@@ -26,7 +27,7 @@ export async function importLegacyMatches(
       label: ['cli', 'import', 'matches'],
     });
 
-    await MatchModel.create(db, options.leagueUuid, {
+    await MatchModel.createFullMatch(db, options.leagueUuid, {
       tableUuid: tables[match.floor ?? '']?.uuid,
 
       startDate: new Date((match.date ?? 0) * 1000),
@@ -49,6 +50,19 @@ export async function importLegacyMatches(
       ),
 
       spectators: [],
+      events: match.replayMetadata
+        ? [
+            {
+              type: 'MATCH_START',
+              time: new Date(match.replayMetadata.startedAt * 1000),
+            },
+            ...match.replayMetadata.events
+              .map((event) =>
+                convertFromLegacyMatchEvent(match, event, players),
+              )
+              .filter((event) => event !== null),
+          ]
+        : [],
     });
   }
 
