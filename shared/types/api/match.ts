@@ -62,7 +62,7 @@ export const MatchQueryMeta = createQueryMeta({
 });
 export type MatchQueryMeta = z.infer<typeof MatchQueryMeta>;
 
-export const MatchFullCreate = Match.extend({
+export const MatchFullCreate = MatchCreate.extend({
   events: MatchEventCreateWithoutMatch.array(),
 });
 export type MatchFullCreate = z.infer<typeof MatchFullCreate>;
