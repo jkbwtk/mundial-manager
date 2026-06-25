@@ -131,6 +131,10 @@ export class MatchModel extends ModelOps({
       duration: data.duration,
       pauseDuration: data.pauseDuration,
       status: data.status,
+      side1Score: data.side1Score,
+      side2Score: data.side2Score,
+      playersSide1: data.playersSide1,
+      playersSide2: data.playersSide2,
     });
 
     for (const strategy of Object.values(this.validationStrategies)) {
