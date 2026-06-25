@@ -38,12 +38,6 @@ export type UseFormValidationOptions<T extends z.ZodObject> = {
    * but are required by the schema.
    */
   implicitDefaults?: Partial<z.infer<T>>;
-
-  fieldTransforms?: Partial<{
-    [Field in keyof z.infer<T>]: (
-      value: z.infer<T>[Field],
-    ) => z.infer<T>[Field];
-  }>;
 };
 
 export interface Field {
@@ -200,14 +194,6 @@ export const useFormValidation = <T extends z.ZodObject>(
     };
   };
 
-  const applyFieldTransforms = (data: z.infer<T>) => {
-    for (const [fieldName, transform] of Object.entries(
-      options.fieldTransforms ?? {},
-    )) {
-      data[fieldName as keyof z.infer<T>] = transform(data[fieldName]);
-    }
-  };
-
   const formSubmit = <R>(
     handler: (data: z.infer<T>) => Promise<R>,
     onSuccess?: (response: R) => void,
@@ -230,8 +216,6 @@ export const useFormValidation = <T extends z.ZodObject>(
         });
         return;
       }
-
-      applyFieldTransforms(result.data);
 
       setIsSubmitting(true);
 
