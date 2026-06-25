@@ -6,10 +6,13 @@ import type {
   MatchEventCreateWithoutMatch,
   MatchSide,
 } from '#shared/types/api/matchEvent';
-import type { Match, MatchEvent } from '#shared/types/Sheets';
+import type {
+  Match as LegacyMatch,
+  MatchEvent as LegacyMatchEvent,
+} from '#shared/types/Sheets';
 
 export function convertFromLegacyMatch(
-  match: Match,
+  match: LegacyMatch,
   tables: Record<string, TableSelectSchema>,
   players: Record<string, PlayerSelectSchema>,
 ): MatchFullCreate {
@@ -51,8 +54,8 @@ export function convertFromLegacyMatch(
 }
 
 export function convertFromLegacyMatchEvent(
-  match: Match,
-  event: MatchEvent,
+  match: LegacyMatch,
+  event: LegacyMatchEvent,
   players: Record<string, PlayerSelectSchema>,
 ): MatchEventCreateWithoutMatch | null {
   const common = {
