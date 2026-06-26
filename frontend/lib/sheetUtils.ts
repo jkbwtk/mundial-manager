@@ -704,7 +704,9 @@ export function convertCalculatorFinishEventToMatch(
   };
 }
 
-export function getMatchDuration(event: CalculatorFinishEvent): number {
+export function getMatchDuration(
+  event: Pick<CalculatorFinishEvent, 'events' | 'startedAt'>,
+): number {
   const lastEvent = event.events?.at(-1);
 
   const duration = lastEvent
