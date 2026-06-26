@@ -1,11 +1,11 @@
 import type { PlayerSelectSchema } from '#backend/types/db/player';
 import type { TableSelectSchema } from '#backend/types/db/table';
 import { getMatchDuration, getPlayersFromTeam } from '#flib/sheetUtils';
-import type { MatchFullCreate } from '#shared/types/api/match';
 import type {
   MatchEventCreateWithoutMatch,
   MatchSide,
 } from '#shared/types/api/matchEvent';
+import type { MatchFullCreate } from '#shared/types/api/matchFull';
 import type {
   MatchCreate as LegacyMatchCreate,
   MatchEvent as LegacyMatchEvent,

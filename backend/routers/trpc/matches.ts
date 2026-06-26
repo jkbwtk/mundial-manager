@@ -5,10 +5,10 @@ import { createCrudOps } from '#blib/trpcOps';
 import {
   Match,
   MatchCreate,
-  MatchFullCreate,
   MatchQueryMeta,
   MatchUpdate,
 } from '#shared/types/api/match';
+import { MatchFullCreate } from '#shared/types/api/matchFull';
 
 export const matchesRouter = router({
   ...createCrudOps({

@@ -3,10 +3,10 @@ import { trpcClient } from '#flib/trpcClient';
 import {
   Match,
   type MatchCreate,
-  type MatchFullCreate,
   type MatchQueryMeta,
   type MatchUpdate,
 } from '#shared/types/api/match';
+import type { MatchFullCreate } from '#shared/types/api/matchFull';
 import { PaginatedResponse } from '#shared/zod';
 
 export const queryMatches = query(async (meta: MatchQueryMeta = {}) => {

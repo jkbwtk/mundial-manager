@@ -16,12 +16,14 @@ import {
 import {
   Match,
   MatchCreate,
-  type MatchFullCreate,
-  type MatchFullStrategy,
   MatchQueryMeta,
   type MatchStrategy,
   MatchUpdate,
 } from '#shared/types/api/match';
+import type {
+  MatchFullCreate,
+  MatchFullStrategy,
+} from '#shared/types/api/matchFull';
 import { getValueHash } from '#shared/utils';
 
 export class MatchModel extends ModelOps({
