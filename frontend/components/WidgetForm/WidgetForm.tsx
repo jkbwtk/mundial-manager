@@ -52,12 +52,6 @@ export const WidgetForm = <
   const { validate, errors, canSubmit, formSubmit } = useFormValidation(
     props.model,
     {
-      fieldTransforms: Object.fromEntries(
-        Object.entries(props.fields)
-          .map(([fieldName, field]) => [fieldName, field.transform])
-          .filter(([, transform]) => transform !== undefined),
-      ),
-
       updateMode: props.instance !== undefined,
 
       implicitDefaults: Object.fromEntries(
