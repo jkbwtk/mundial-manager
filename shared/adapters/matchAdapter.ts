@@ -16,24 +16,51 @@ export function convertFromLegacyMatch(
   tables: Record<string, TableSelectSchema>,
   players: Record<string, PlayerSelectSchema>,
 ): MatchFullCreate {
+  const table = tables[match.floor ?? ''];
+
+  let swapRequired = false;
+
+  if (table) {
+    const side1Color = table.labels
+      .find((v) => v.startsWith('legacyImportSide1Color'))
+      ?.split('=')
+      .at(1)
+      ?.trim();
+
+    if (side1Color !== undefined && match.winningColor !== 'unknown') {
+      if (side1Color === match.winningColor && match.score1 < match.score2) {
+        swapRequired = true;
+      } else if (
+        side1Color !== match.winningColor &&
+        match.score1 > match.score2
+      ) {
+        swapRequired = true;
+      }
+    }
+  }
+
   return {
-    tableUuid: tables[match.floor ?? '']?.uuid,
+    tableUuid: table?.uuid,
 
     startDate: new Date((match.date ?? 0) * 1000),
 
     duration: Math.floor(match.duration ?? 0),
     pauseDuration: Math.floor(match.pauseDuration),
 
-    side1Score: match.score1,
-    side2Score: match.score2,
+    side1Score: swapRequired ? match.score2 : match.score1,
+    side2Score: swapRequired ? match.score1 : match.score2,
 
     status: 'FINISHED',
 
-    playersSide1: getPlayersFromTeam(match.team1).map(
+    playersSide1: getPlayersFromTeam(
+      swapRequired ? match.team2 : match.team1,
+    ).map(
       // biome-ignore lint/suspicious/noNonNullAssertedOptionalChain: yeah
       (player) => players[player]?.uuid!,
     ),
-    playersSide2: getPlayersFromTeam(match.team2).map(
+    playersSide2: getPlayersFromTeam(
+      swapRequired ? match.team1 : match.team2,
+    ).map(
       // biome-ignore lint/suspicious/noNonNullAssertedOptionalChain: yeah
       (player) => players[player]?.uuid!,
     ),
@@ -46,7 +73,9 @@ export function convertFromLegacyMatch(
             time: new Date(match.replayMetadata.startedAt * 1000),
           },
           ...match.replayMetadata.events
-            .map((event) => convertFromLegacyMatchEvent(match, event, players))
+            .map((event) =>
+              convertFromLegacyMatchEvent(match, event, players, swapRequired),
+            )
             .filter((event) => event !== null),
         ]
       : [],
@@ -57,6 +86,7 @@ export function convertFromLegacyMatchEvent(
   match: LegacyMatch,
   event: LegacyMatchEvent,
   players: Record<string, PlayerSelectSchema>,
+  swapRequired = false,
 ): MatchEventCreateWithoutMatch | null {
   const common = {
     time: new Date(event.time * 1000),
@@ -74,12 +104,15 @@ export function convertFromLegacyMatchEvent(
       };
 
     case 'POSITION_CHANGE': {
-      let side: MatchSide = 'SIDE_1';
+      const S1 = swapRequired ? 'SIDE_2' : 'SIDE_1';
+      const S2 = swapRequired ? 'SIDE_1' : 'SIDE_2';
+
+      let side: MatchSide = S1;
 
       if (event.side === match.winningColor) {
-        side = match.score1 > match.score2 ? 'SIDE_1' : 'SIDE_2';
+        side = match.score1 > match.score2 ? S1 : S2;
       } else {
-        side = match.score1 > match.score2 ? 'SIDE_2' : 'SIDE_1';
+        side = match.score1 > match.score2 ? S1 : S2;
       }
 
       return {
