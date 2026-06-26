@@ -1,8 +1,8 @@
+import { convertFromLegacyMatch } from '#backend/adapters/matchAdapter';
 import { db } from '#backend/db/database';
 import { MatchModel } from '#backend/db/models/MatchModel';
 import type { PlayerSelectSchema } from '#backend/types/db/player';
 import type { TableSelectSchema } from '#backend/types/db/table';
-import { convertFromLegacyMatch } from '#shared/adapters/matchAdapter';
 import { logger } from '#shared/logger';
 import type { Match } from '#shared/types/Sheets';
 import type { ImportOptions } from '#tools/commands/import';
