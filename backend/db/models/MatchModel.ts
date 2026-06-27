@@ -21,6 +21,7 @@ import {
   MatchUpdate,
 } from '#shared/types/api/match';
 import type {
+  MatchFull,
   MatchFullCreate,
   MatchFullStrategy,
 } from '#shared/types/api/matchFull';
@@ -242,7 +243,67 @@ export class MatchModel extends ModelOps({
   }
 
   @ConvertDrizzleErrors()
-  public static async createFullMatch(
+  public static async getAllFull(
+    db: DB | TX,
+    leagueUuid: string,
+    meta: MatchQueryMeta = {},
+  ): Promise<MatchFull[]> {
+    const instances = await db.query.matchesTable.findMany({
+      where: {
+        leagueUuid,
+        $deletedAt: {
+          isNull: true,
+        },
+      },
+
+      with: {
+        ball: true,
+        table: true,
+
+        events: {
+          where: {
+            leagueUuid,
+            $deletedAt: {
+              isNull: true,
+            },
+          },
+          orderBy: {
+            time: 'asc',
+          },
+        },
+      },
+
+      orderBy: meta.sorting
+        ? {
+            [meta.sorting?.field ?? '$createdAt']:
+              meta.sorting?.direction ?? 'asc',
+          }
+        : {
+            startDate: 'asc',
+            $createdAt: 'asc',
+          },
+      limit: meta.pagination?.limit,
+      offset: meta.pagination?.offset,
+    });
+
+    const mappedInstances = await Promise.all(
+      instances.map(async (instance) => {
+        return {
+          ...instance,
+          events: await Promise.all(
+            instance.events.map((event) =>
+              MatchEventModel.mapToPublic(db, event),
+            ),
+          ),
+        };
+      }),
+    );
+
+    return mappedInstances;
+  }
+
+  @ConvertDrizzleErrors()
+  public static async createFull(
     db: DB,
     leagueUuid: string,
     data: MatchFullCreate,
