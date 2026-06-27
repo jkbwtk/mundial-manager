@@ -19,12 +19,12 @@ export const matchesRouter = router({
     queryMetaSchema: MatchQueryMeta,
   }),
 
-  createFullMatch: leagueScopedProcedure
+  createFull: leagueScopedProcedure
     .input(MatchFullCreate)
     .output(Match)
     .mutation(async ({ ctx, input }) => {
       const instance = await runWithErrorConversion(() =>
-        MatchModel.createFullMatch(ctx.db, ctx.league.uuid, input),
+        MatchModel.createFull(ctx.db, ctx.league.uuid, input),
       );
 
       return instance;

@@ -31,7 +31,7 @@ export const actionCreateMatch = action(async (match: MatchCreate) => {
 
 export const actionCreateFullMatch = action(
   async (fullMatch: MatchFullCreate) => {
-    const newMatch = await trpcClient.matches.createFullMatch.mutate(fullMatch);
+    const newMatch = await trpcClient.matches.createFull.mutate(fullMatch);
 
     return json(Match.parse(newMatch), {
       revalidate: ['queryMatches'],

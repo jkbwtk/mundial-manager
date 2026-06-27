@@ -27,7 +27,7 @@ export async function importLegacyMatches(
     });
 
     const converted = convertFromLegacyMatch(match, tables, players);
-    await MatchModel.createFullMatch(db, options.leagueUuid, converted);
+    await MatchModel.createFull(db, options.leagueUuid, converted);
   }
 
   logger.info('Successfully imported legacy matches', {
