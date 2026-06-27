@@ -101,6 +101,7 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
               type: 'GOAL',
               matchUuid: '',
               ownGoal: false,
+              side: 'SIDE_1',
               goalType: Array.from(goalTypes),
               player: pickRandom(ctx.playersSide1),
             });
@@ -111,6 +112,7 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
               type: 'GOAL',
               matchUuid: '',
               ownGoal: false,
+              side: 'SIDE_2',
               goalType: Array.from(goalTypes),
               player: pickRandom(ctx.playersSide2),
             });
