@@ -161,6 +161,12 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
             return { label: e.name, value: e.uuid };
           },
         },
+        labels: {
+          label: 'Labels',
+          type: 'text',
+          hidden: true,
+          implicitDefault: props.match?.labels ?? [],
+        },
       }}
     />
   );

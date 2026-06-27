@@ -36,6 +36,8 @@ export const Match = z.object({
   spectators: uuidArray,
 
   hash: z.string(),
+
+  labels: z.array(z.string()),
 });
 export type Match = z.infer<typeof Match>;
 

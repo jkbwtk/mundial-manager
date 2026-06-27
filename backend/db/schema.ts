@@ -262,6 +262,8 @@ export const matchesTable = pgTable(
 
     hash: t.text().notNull(),
 
+    labels: t.text().array().notNull().default(sql`ARRAY[]::varchar[]`),
+
     ...commonFields,
   }),
   (r) => [
