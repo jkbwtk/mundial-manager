@@ -57,6 +57,7 @@ export const MatchEventGoal = MatchEventBase.extend({
   type: z.literal(MatchEventTypeEnum.GOAL),
   player: z.uuid(), // player uuid
   ownGoal: z.boolean(),
+  side: MatchSide, // duplicates data but reduces code complexity
   goalType: z.array(GoalType).default([]),
 });
 export type MatchEventGoal = z.infer<typeof MatchEventGoal>;

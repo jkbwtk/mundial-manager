@@ -1,17 +1,17 @@
-import type { PlayerSelectSchema } from '#backend/types/db/player';
-import type { TableSelectSchema } from '#backend/types/db/table';
 import { getMatchDuration, getPlayersFromTeam } from '#flib/sheetUtils';
 import type {
   MatchEventCreateWithoutMatch,
   MatchSide,
 } from '#shared/types/api/matchEvent';
 import type { MatchFullCreate } from '#shared/types/api/matchFull';
+import type { Player } from '#shared/types/api/player';
+import type { Table } from '#shared/types/api/table';
 import type {
   MatchCreate as LegacyMatchCreate,
   MatchEvent as LegacyMatchEvent,
 } from '#shared/types/Sheets';
 
-function getLegacyColorsFromTable(table: TableSelectSchema): string[] {
+function getLegacyColorsFromTable(table: Table): string[] {
   return table.labels
     .filter((l) => l.startsWith('legacyImportSide'))
     .map((l) => l.split('=').at(1))
@@ -20,8 +20,8 @@ function getLegacyColorsFromTable(table: TableSelectSchema): string[] {
 
 function getMatchTable(
   match: LegacyMatchCreate,
-  tables: Record<string, TableSelectSchema>,
-): TableSelectSchema | null {
+  tables: Record<string, Table>,
+): Table | null {
   if (match.winningColor === 'unknown') {
     return null;
   }
@@ -33,10 +33,7 @@ function getMatchTable(
   );
 }
 
-function checkIfSwapRequired(
-  match: LegacyMatchCreate,
-  table?: TableSelectSchema,
-): boolean {
+function checkIfSwapRequired(match: LegacyMatchCreate, table?: Table): boolean {
   if (table) {
     const side1Color = table.labels
       .find((v) => v.startsWith('legacyImportSide1Color'))
@@ -60,8 +57,8 @@ function checkIfSwapRequired(
 
 export function convertFromLegacyMatch(
   match: LegacyMatchCreate,
-  tables: Record<string, TableSelectSchema>,
-  players: Record<string, PlayerSelectSchema>,
+  tables: Record<string, Table>,
+  players: Record<string, Player>,
 ): MatchFullCreate {
   const table = getMatchTable(match, tables);
   const swapRequired = table ? checkIfSwapRequired(match, table) : false;
@@ -119,15 +116,22 @@ export function convertFromLegacyMatch(
 export function convertFromLegacyMatchEvent(
   match: LegacyMatchCreate,
   event: LegacyMatchEvent,
-  players: Record<string, PlayerSelectSchema>,
+  players: Record<string, Player>,
   swapRequired = false,
 ): MatchEventCreateWithoutMatch | null {
   const common = {
     time: new Date(event.time * 1000),
   } as const;
 
+  const S1: MatchSide = swapRequired ? 'SIDE_2' : 'SIDE_1';
+  const S2: MatchSide = swapRequired ? 'SIDE_1' : 'SIDE_2';
+
   switch (event.type) {
-    case 'GOAL':
+    case 'GOAL': {
+      let side: MatchSide = S1;
+
+      side = event.player && match.team1.includes(event.player) ? S1 : S2;
+
       return {
         ...common,
 
@@ -135,18 +139,17 @@ export function convertFromLegacyMatchEvent(
         goalType: event.goalType,
         player: players[event.player ?? '']?.uuid ?? '',
         ownGoal: event.for !== event.by,
+        side,
       };
+    }
 
     case 'POSITION_CHANGE': {
-      const S1 = swapRequired ? 'SIDE_2' : 'SIDE_1';
-      const S2 = swapRequired ? 'SIDE_1' : 'SIDE_2';
-
       let side: MatchSide = S1;
 
       if (event.side === match.winningColor) {
         side = match.score1 > match.score2 ? S1 : S2;
       } else {
-        side = match.score1 > match.score2 ? S1 : S2;
+        side = match.score1 > match.score2 ? S2 : S1;
       }
 
       return {
