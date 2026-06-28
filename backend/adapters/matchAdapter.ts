@@ -1,21 +1,37 @@
-import { getMatchDuration, getPlayersFromTeam } from '#flib/sheetUtils';
+import dayjs from 'dayjs';
+import { getPlayersFromTeam } from '#flib/sheetUtils';
+import { getPauseDuration } from '#shared/matchUtils';
 import type {
+  MatchEvent,
   MatchEventCreateWithoutMatch,
   MatchSide,
 } from '#shared/types/api/matchEvent';
-import type { MatchFullCreate } from '#shared/types/api/matchFull';
+import type { MatchFull, MatchFullCreate } from '#shared/types/api/matchFull';
 import type { Player } from '#shared/types/api/player';
 import type { Table } from '#shared/types/api/table';
 import type {
+  Match as LegacyMatch,
   MatchCreate as LegacyMatchCreate,
   MatchEvent as LegacyMatchEvent,
 } from '#shared/types/Sheets';
 
-function getLegacyColorsFromTable(table: Table): string[] {
+function getLegacyColorsFromTable(table?: Table): string[] {
+  if (!table) return [];
+
   return table.labels
     .filter((l) => l.startsWith('legacyImportSide'))
     .map((l) => l.split('=').at(1))
     .filter((c) => c !== undefined);
+}
+
+function getLegacyFloorFromTable(table?: Table): number | null {
+  const floorStr = table?.labels
+    .find((l) => l.startsWith('legacyImportFloor'))
+    ?.split('=')
+    .at(1);
+  const floorInt = Number(floorStr);
+
+  return Number.isNaN(floorInt) ? null : floorInt;
 }
 
 function getMatchTable(
@@ -70,12 +86,7 @@ export function convertFromLegacyMatch(
 
     duration: Math.floor(match.duration ?? 0),
     pauseDuration: Math.floor(
-      match.replayMetadata
-        ? getMatchDuration({
-            events: match.replayMetadata.events,
-            startedAt: match.replayMetadata.startedAt,
-          })
-        : 0,
+      match.replayMetadata ? getPauseDuration(match.replayMetadata.events) : 0,
     ),
 
     side1Score: swapRequired ? match.score2 : match.score1,
@@ -110,6 +121,8 @@ export function convertFromLegacyMatch(
             .filter((event) => event !== null),
         ]
       : [],
+
+    labels: [`legacyImportSwap=${String(swapRequired)}`],
   };
 }
 
@@ -200,5 +213,143 @@ export function convertFromLegacyMatchEvent(
 
     default:
       return null;
+  }
+}
+
+export function convertToLegacyMatch(
+  match: MatchFull,
+  players: Record<string, Player>,
+  index?: number,
+): LegacyMatch {
+  const colors = getLegacyColorsFromTable(match.table ?? undefined);
+
+  return {
+    id: index ?? 0,
+
+    team1: match.playersSide1
+      .map((uuid) => players[uuid]?.name ?? uuid)
+      .sort()
+      .join(' '),
+    team2: match.playersSide2
+      .map((uuid) => players[uuid]?.name ?? uuid)
+      .sort()
+      .join(' '),
+
+    score1: match.side1Score,
+    score2: match.side2Score,
+
+    floor: getLegacyFloorFromTable(match.table ?? undefined),
+    winningColor:
+      (match.side1Score > match.side2Score ? colors.at(0) : colors.at(1)) ??
+      'unknown',
+
+    duration: match.duration,
+    pauseDuration: match.pauseDuration ?? 0,
+
+    date:
+      match.startDate.getTime() === 0
+        ? null
+        : dayjs(match.startDate).startOf('day').unix(),
+    hash: match.hash,
+
+    replayMetadata:
+      match.events.length !== 0
+        ? {
+            startedAt: match.startDate.getTime() / 1000,
+            events: match.events
+              .map((event) => convertToLegacyMatchEvent(match, event, players))
+              .filter((event) => event !== null),
+          }
+        : null,
+  };
+}
+
+export function convertToLegacyMatchEvent(
+  match: MatchFull,
+  event: MatchEvent,
+  players: Record<string, Player>,
+): LegacyMatchEvent | null {
+  const common = {
+    time: event.time.getTime() / 1000,
+  } as const;
+
+  const colors = match.table ? getLegacyColorsFromTable(match.table) : [];
+
+  try {
+    switch (event.type) {
+      case 'GOAL': {
+        if (!match.table) return null;
+
+        const teamColor =
+          (event.side === 'SIDE_1' ? colors.at(0) : colors.at(1)) ?? 'unknown';
+        const opponentColor =
+          colors.find((color) => color !== teamColor) ?? 'unknown';
+
+        return {
+          ...common,
+
+          type: 'GOAL',
+          player: players[event.player]?.name ?? null,
+          goalType: event.goalType,
+          by: teamColor,
+          for: event.ownGoal ? opponentColor : teamColor,
+        };
+      }
+
+      case 'BALL_OUT':
+        return {
+          ...common,
+
+          type: 'BALL_OUT',
+        };
+
+      case 'POSITION_CHANGE':
+        if (!match.table) return null;
+
+        return {
+          ...common,
+
+          type: 'POSITION_CHANGE',
+          side:
+            (event.side === 'SIDE_1' ? colors.at(0) : colors.at(1)) ??
+            'unknown',
+        };
+
+      case 'EQUIPMENT_FAILURE':
+        return {
+          ...common,
+
+          type: 'EQUIPMENT_FAILURE',
+          details: event.details,
+        };
+
+      case 'PAUSE':
+        return {
+          ...common,
+
+          type: 'PAUSE',
+          reason: event.details,
+        };
+
+      case 'RESUME':
+        return {
+          ...common,
+
+          type: 'RESUME',
+        };
+
+      case 'CANCEL':
+        return {
+          ...common,
+
+          type: 'CANCEL',
+          reason: event.details,
+        };
+
+      default:
+        return null;
+    }
+  } catch {
+    return null;
   }
 }
