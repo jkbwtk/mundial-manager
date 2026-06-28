@@ -1,74 +1,82 @@
-import { tracked } from '@trpc/server';
 import z from 'zod';
+import {
+  convertFromLegacyMatch,
+  convertToLegacyMatch,
+} from '#backend/adapters/matchAdapter';
+import { MatchEventModel } from '#backend/db/models/MatchEventModel';
+import { MatchModel } from '#backend/db/models/MatchModel';
+import { PlayerModel } from '#backend/db/models/PlayerModel';
+import { TableModel } from '#backend/db/models/TableModel';
 import { zodEncode } from '#backend/lib/utils';
-import { SheetStore } from '#backend/SheetStore';
-import { procedure, router } from '#blib/trpc';
-import { MatchCreate, type SheetMetadata } from '#shared/types/Sheets';
-
-const sheetStore = new SheetStore();
-sheetStore.initialize();
-
-export const sheetProcedure = procedure.use((opts) => {
-  return opts.next({
-    ctx: { sheetStore, ...opts.ctx },
-  });
-});
+import { runWithErrorConversion } from '#blib/modelErrors';
+import { leagueScopedProcedure, router } from '#blib/trpc';
+import { type Match, MatchCreate } from '#shared/types/Sheets';
 
 export const sheetsRouter = router({
-  metadata: sheetProcedure.query(async ({ ctx }): Promise<SheetMetadata> => {
-    const store = await ctx.sheetStore.getInitialized();
+  matches: leagueScopedProcedure.query(async ({ ctx }) => {
+    const matches = await runWithErrorConversion(() =>
+      MatchModel.getAllFull(ctx.db, ctx.league.uuid),
+    );
+    const players = await runWithErrorConversion(() =>
+      PlayerModel.getAll(ctx.db, ctx.league.uuid),
+    );
+    const playersDict = Object.fromEntries(
+      players.map((player) => [player.uuid, player]),
+    );
 
-    return {
-      title: store.doc.title,
-      timezone: store.doc.timeZone,
-      locale: store.doc.locale,
-      rows: store.sheet.rowCount,
-      columns: store.sheet.columnCount,
-    };
+    return matches.map((match, index) =>
+      convertToLegacyMatch(match, playersDict, index + 1),
+    );
   }),
-  matches: sheetProcedure.query(async ({ ctx }) => {
-    const store = await ctx.sheetStore.getInitialized();
-
-    return store.getMatches();
-  }),
-  createMatch: sheetProcedure
+  createMatch: leagueScopedProcedure
     .input(zodEncode(MatchCreate))
     .mutation(async ({ ctx, input: match }) => {
-      const store = await ctx.sheetStore.getInitialized();
+      const players = await runWithErrorConversion(() =>
+        PlayerModel.getAll(ctx.db, ctx.league.uuid),
+      );
+      const playersDict = Object.fromEntries(
+        players.map((player) => [player.uuid, player]),
+      );
 
-      return store.createMatch(match);
+      const tables = await runWithErrorConversion(() =>
+        TableModel.getAll(ctx.db, ctx.league.uuid),
+      );
+      const tablesDict = Object.fromEntries(
+        tables.map((table) => [table.uuid, table]),
+      );
+
+      const matchFullCreate = convertFromLegacyMatch(
+        match,
+        tablesDict,
+        playersDict,
+      );
+
+      const instance = await runWithErrorConversion(() =>
+        MatchModel.createFull(ctx.db, ctx.league.uuid, matchFullCreate),
+      );
+      const events = await runWithErrorConversion(() =>
+        MatchEventModel.getByMatchId(ctx.db, ctx.league.uuid, instance.uuid),
+      );
+
+      const fullMatch = {
+        ...instance,
+        events: await Promise.all(
+          events.map((event) => MatchEventModel.mapToPublic(ctx.db, event)),
+        ),
+      };
+
+      return convertToLegacyMatch(fullMatch, playersDict);
     }),
-  createMatches: sheetProcedure
+  createMatches: leagueScopedProcedure
     .input(zodEncode(z.array(MatchCreate)))
-    .mutation(async ({ ctx, input: matches }) => {
-      const store = await ctx.sheetStore.getInitialized();
-
-      return store.createMatches(matches);
+    .mutation(async () => {
+      throw new Error('Not implemented');
     }),
-  onMatchAdded: sheetProcedure
+  onMatchAdded: leagueScopedProcedure
     .input(
       z.object({ lastEventId: z.coerce.number().int().nullish() }).optional(),
     )
-    .subscription(async function* (opts) {
-      const store = await opts.ctx.sheetStore.getInitialized();
-      const lastEventId = opts.input?.lastEventId;
-
-      const iterator = store.matchesEmitter.toIterable('matchCreated', {
-        signal: opts.signal,
-      });
-
-      if (lastEventId) {
-        const localMatches = store
-          .getLocalMatches()
-          .filter((match) => match.id > lastEventId);
-
-        for (const match of localMatches) {
-          yield tracked(String(match.id), match);
-        }
-      }
-
-      for await (const [match] of iterator) {
-        yield tracked(String(match.id), match);
-      }
+    .subscription(async function* () {
+      yield {} as { data: Match };
     }),
 });

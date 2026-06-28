@@ -151,15 +151,11 @@ export const SheetsProvider: ParentComponent = (props) => {
       setState('matches', loadCachedMatches() ?? []);
     });
 
-    const [metadata, matches] = await Promise.all([
-      trpcClient.sheets.metadata.query(),
-      trpcClient.sheets.matches.query(),
-    ]);
+    const [matches] = await Promise.all([trpcClient.sheets.matches.query()]);
 
     cacheMatches(matches);
 
     batch(() => {
-      setState('metadata', metadata);
       setState('matches', matches);
       setState('ready', true);
     });
