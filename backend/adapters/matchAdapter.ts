@@ -15,7 +15,7 @@ import type {
   MatchEvent as LegacyMatchEvent,
 } from '#shared/types/Sheets';
 
-function getLegacyColorsFromTable(table?: Table): string[] {
+export function getLegacyColorsFromTable(table?: Table): string[] {
   if (!table) return [];
 
   return table.labels
@@ -24,7 +24,7 @@ function getLegacyColorsFromTable(table?: Table): string[] {
     .filter((c) => c !== undefined);
 }
 
-function getLegacyFloorFromTable(table?: Table): number | null {
+export function getLegacyFloorFromTable(table?: Table): number | null {
   const floorStr = table?.labels
     .find((l) => l.startsWith('legacyImportFloor'))
     ?.split('=')

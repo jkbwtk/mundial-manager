@@ -2,6 +2,7 @@ import z from 'zod';
 import {
   convertFromLegacyMatch,
   convertToLegacyMatch,
+  getLegacyFloorFromTable,
 } from '#backend/adapters/matchAdapter';
 import { MatchEventModel } from '#backend/db/models/MatchEventModel';
 import { MatchModel } from '#backend/db/models/MatchModel';
@@ -35,14 +36,14 @@ export const sheetsRouter = router({
         PlayerModel.getAll(ctx.db, ctx.league.uuid),
       );
       const playersDict = Object.fromEntries(
-        players.map((player) => [player.uuid, player]),
+        players.map((player) => [player.name, player]),
       );
 
       const tables = await runWithErrorConversion(() =>
         TableModel.getAll(ctx.db, ctx.league.uuid),
       );
       const tablesDict = Object.fromEntries(
-        tables.map((table) => [table.uuid, table]),
+        tables.map((table) => [getLegacyFloorFromTable(table), table]),
       );
 
       const matchFullCreate = convertFromLegacyMatch(
