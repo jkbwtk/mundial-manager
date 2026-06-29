@@ -1,5 +1,6 @@
 import { createSignal, Match, Switch } from 'solid-js';
 import { AggregateStats } from '#components/AggregateStats';
+import { DesktopOnly } from '#components/DesktopOnly';
 import { Dropdown } from '#components/Dropdown';
 import { GeneralStatCharts } from '#components/GeneralStatCharts';
 import { GeneralStats } from '#components/GeneralStats';
@@ -88,7 +89,9 @@ const Homepage: Component = () => {
           <RatingCharts />
         </div>
 
-        <MundialCalculatorLink />
+        <DesktopOnly>
+          <MundialCalculatorLink />
+        </DesktopOnly>
       </div>
     </div>
   );
