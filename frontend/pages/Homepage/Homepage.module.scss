@@ -1,7 +1,7 @@
 @use 'app' as *;
 
 .container {
-  width: round(down, 100%, cw(1));
+  width: 100%;
   max-height: 100%;
 
   container-type: inline-size;
