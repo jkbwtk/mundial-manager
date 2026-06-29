@@ -12,7 +12,7 @@ export const DashboardDesktopLayout: ParentComponent = (props) => {
   const [, { latestVersion, latestCommitHash }] = useChangelog();
 
   return (
-    <div classList={{ [style.container]: true }}>
+    <div class={style.desktopContainer}>
       <div class={style.logo}>
         <LogoSmall />
       </div>

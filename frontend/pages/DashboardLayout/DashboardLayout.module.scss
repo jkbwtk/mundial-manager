@@ -1,9 +1,22 @@
 @use 'app' as *;
 
-.container {
+.desktop-container {
   display: grid;
   grid-template-columns: cw(24) cw(1) 1fr;
   grid-template-rows: ch(3) ch(1) 1fr;
+
+  height: 100vh;
+  width: 100vw;
+
+  max-height: 100vh;
+  max-width: 100vw;
+
+  overflow: hidden;
+}
+
+.mobile-container {
+  display: grid;
+  grid-template-rows: 1fr max-content;
 
   height: 100vh;
   width: 100vw;
