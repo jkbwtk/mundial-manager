@@ -1,0 +1,67 @@
+@use 'app' as *;
+@use 'backgrounds' as *;
+
+.container {
+  @include stripedBackground;
+
+  display: flex;
+
+  justify-content: space-around;
+  align-items: center;
+
+  width: 100%;
+  height: ch(3);
+
+  border-radius: $borderRadius;
+  box-shadow: inset 0 0 0 0.1rem $textDimColor;
+}
+
+.calculator-link {
+  display: flex;
+
+  justify-content: space-around;
+  align-items: center;
+
+  width: cw(4);
+  height: ch(2);
+
+  background-color: $green;
+  color: $textBrightColor;
+  border-radius: $borderRadius;
+
+  user-select: none;
+
+  transition: background-color 0.2s ease-in-out;
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: $greenBright;
+    }
+  }
+}
+
+.entry {
+  display: flex;
+
+  justify-content: space-around;
+  align-items: center;
+
+  width: cw(4);
+  height: ch(2);
+
+  color: $textBrightColor;
+
+  border-radius: $borderRadius;
+}
+
+.homepage {
+  background-color: $blue;
+}
+
+:global(.active).entry {
+  background-color: $primaryColor;
+  border-radius: $borderRadius;
+
+  color: $backgroundColor;
+  --material-symbol-fill: 1;
+}
