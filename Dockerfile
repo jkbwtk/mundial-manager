@@ -7,7 +7,8 @@ ENV VITE_CALCULATOR_URL=${VITE_CALCULATOR_URL}
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
-RUN corepack enable && pnpm install --frozen-lockfile
+RUN npm install -g corepack --no-cache && \
+  corepack enable && pnpm install --frozen-lockfile
 
 COPY . .
 
