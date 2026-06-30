@@ -3,6 +3,7 @@ import { integer, pgEnum, timestamp, uuid } from 'drizzle-orm/pg-core/columns';
 import { index, uniqueIndex } from 'drizzle-orm/pg-core/indexes';
 import { pgTable } from 'drizzle-orm/pg-core/table';
 import { tsvector } from '#backend/db/utils';
+import type { Labels } from '#shared/labels';
 import { MatchStatusEnum } from '#shared/types/api/match';
 import { MatchEventTypeEnum } from '#shared/types/api/matchEvent';
 import type { SeasonConfig } from '#shared/types/api/season';
@@ -163,7 +164,7 @@ export const playersTable = pgTable(
     alias: t.text().notNull(),
     color: t.text().notNull(), // #RRGGBBAA
 
-    labels: t.text().array().notNull().default(sql`ARRAY[]::varchar[]`),
+    labels: t.jsonb().$type<Labels>().notNull().default(sql`'{}'::jsonb`),
 
     searchVectors: tsvector()
       .notNull()

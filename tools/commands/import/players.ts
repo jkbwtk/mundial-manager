@@ -46,7 +46,9 @@ export async function importLegacyPlayers(
         name: player,
         alias: player,
         color: generateTeamColor(player),
-        labels: [],
+        labels: {
+          legacyImportName: player,
+        },
       }),
     ),
   );

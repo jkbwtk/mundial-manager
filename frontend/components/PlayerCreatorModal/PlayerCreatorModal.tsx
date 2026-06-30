@@ -65,7 +65,7 @@ export const PlayerCreatorModal: Component<PlayerCreatorModalProps> = (
           label: 'Labels',
           type: 'text',
           hidden: true,
-          implicitDefault: props.player?.labels ?? [],
+          implicitDefault: props.player?.labels ?? {},
         },
       }}
     />

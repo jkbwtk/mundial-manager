@@ -1,5 +1,6 @@
 import z from 'zod';
 import { createQueryMeta } from '#backend/types/trpc';
+import { Labels } from '#shared/labels';
 import { hexColor, PaginatedResponse } from '#shared/zod';
 
 export const Player = z.object({
@@ -9,7 +10,7 @@ export const Player = z.object({
   alias: z.string().max(16),
   color: hexColor, // #RRGGBBAA
 
-  labels: z.array(z.string()),
+  labels: Labels,
 });
 export type Player = z.infer<typeof Player>;
 
