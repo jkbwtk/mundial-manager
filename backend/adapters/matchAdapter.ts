@@ -253,9 +253,9 @@ export function convertToLegacyMatch(
     hash: match.hash,
 
     replayMetadata:
-      match.events.length !== 0
+      match.events.length !== 0 && match.events.at(0)?.type === 'MATCH_START'
         ? {
-            startedAt: match.startDate.getTime() / 1000,
+            startedAt: (match.events.at(0)?.time.getTime() ?? 0) / 1000,
             events: match.events
               .map((event) => convertToLegacyMatchEvent(match, event, players))
               .filter((event) => event !== null),
