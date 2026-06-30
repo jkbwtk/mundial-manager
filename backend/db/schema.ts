@@ -226,8 +226,8 @@ export const matchesTable = pgTable(
       .timestamp({ mode: 'date', withTimezone: true, precision: 6 })
       .notNull(),
 
-    duration: t.integer().notNull(),
-    pauseDuration: t.integer().default(0),
+    duration: t.doublePrecision().notNull(),
+    pauseDuration: t.doublePrecision().default(0),
 
     side1Score: t.integer().notNull(),
     side2Score: t.integer().notNull(),

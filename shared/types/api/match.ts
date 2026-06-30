@@ -22,8 +22,8 @@ export const Match = z.object({
 
   startDate: z.coerce.date(),
 
-  duration: z.number().int().nonnegative(),
-  pauseDuration: z.number().int().nonnegative().nullish(),
+  duration: z.number().nonnegative(),
+  pauseDuration: z.number().nonnegative().nullish(),
 
   side1Score: z.number().int().nonnegative().default(0),
   side2Score: z.number().int().nonnegative().default(0),

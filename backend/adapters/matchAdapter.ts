@@ -84,10 +84,10 @@ export function convertFromLegacyMatch(
 
     startDate: new Date((match.date ?? 0) * 1000),
 
-    duration: Math.floor(match.duration ?? 0),
-    pauseDuration: Math.floor(
-      match.replayMetadata ? getPauseDuration(match.replayMetadata.events) : 0,
-    ),
+    duration: match.duration ?? 0,
+    pauseDuration: match.replayMetadata
+      ? getPauseDuration(match.replayMetadata.events)
+      : 0,
 
     side1Score: swapRequired ? match.score2 : match.score1,
     side2Score: swapRequired ? match.score1 : match.score2,
