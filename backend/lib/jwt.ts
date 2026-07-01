@@ -46,7 +46,7 @@ export function sign<T extends JWTPayload>(
       enc: 'A256GCM',
     })
     .setIssuedAt()
-    .setExpirationTime('4 weeks')
+    .setExpirationTime('1 year')
     .encrypt(pubKey, options);
 }
 
