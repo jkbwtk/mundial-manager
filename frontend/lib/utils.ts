@@ -20,6 +20,7 @@ export function toJson(data: unknown): string {
 }
 
 export function isMobile(): boolean {
+  // TODO: Implement mobile detection method that works during SSR
   return navigator.maxTouchPoints > 1;
 }
 

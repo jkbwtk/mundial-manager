@@ -32,6 +32,10 @@ export type CalculatorApi = {
   getBalls(): Promise<Ball[]>;
   getPlayers(): Promise<Player[]>;
 
+  // TODO: add getGoalTypes endpoint
+  // TODO: expose season and league info
+  // TODO: add live match predictions endpoint
+
   createLegacyMatch(legacyMatch: CalculatorFinishEvent): void;
 
   createMatch(match: MatchCreate): Promise<Match>;
