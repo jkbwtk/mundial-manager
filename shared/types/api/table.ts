@@ -1,5 +1,6 @@
 import z from 'zod';
 import { createQueryMeta } from '#backend/types/trpc';
+import { Labels } from '#shared/labels';
 import { hexColor, PaginatedResponse } from '#shared/zod';
 
 export const Table = z.object({
@@ -13,7 +14,7 @@ export const Table = z.object({
   side2Color: hexColor,
   location: z.string().nullish(),
 
-  labels: z.array(z.string()),
+  labels: Labels,
 });
 export type Table = z.infer<typeof Table>;
 

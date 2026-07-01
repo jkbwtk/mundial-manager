@@ -1,5 +1,6 @@
 import z from 'zod';
 import { createQueryMeta } from '#backend/types/trpc';
+import { Labels } from '#shared/labels';
 import { PaginatedResponse } from '#shared/zod';
 
 export const MatchSideEnum = {
@@ -29,6 +30,7 @@ const MatchEventBase = z.object({
   uuid: z.uuid(),
   matchUuid: z.uuid(),
   time: z.coerce.date(),
+  labels: Labels,
 });
 
 export const GoalTypeEnum = {

@@ -1,5 +1,6 @@
 import z from 'zod';
 import { createQueryMeta } from '#backend/types/trpc';
+import { Labels } from '#shared/labels';
 import { hexColor, PaginatedResponse } from '#shared/zod';
 
 export const Ball = z.object({
@@ -13,7 +14,7 @@ export const Ball = z.object({
   diameter: z.number().positive().nullish(), // millimeters
   weight: z.number().positive().nullish(), // grams
 
-  labels: z.array(z.string()),
+  labels: Labels,
 });
 export type Ball = z.infer<typeof Ball>;
 

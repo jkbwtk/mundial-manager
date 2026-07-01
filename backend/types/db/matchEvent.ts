@@ -1,17 +1,18 @@
 import { createInsertSchema, createSelectSchema } from 'drizzle-orm/zod';
 import z from 'zod';
 import { matchEventsTable } from '#backend/db/schema';
+import { Labels } from '#shared/labels';
 
-export const MatchEventInsertSchema = createInsertSchema(matchEventsTable).omit(
-  {
-    uuid: true,
-    leagueUuid: true,
-    $createdAt: true,
-    $updatedAt: true,
-    $deletedAt: true,
-    $updateCounter: true,
-  },
-);
+export const MatchEventInsertSchema = createInsertSchema(matchEventsTable, {
+  labels: Labels,
+}).omit({
+  uuid: true,
+  leagueUuid: true,
+  $createdAt: true,
+  $updatedAt: true,
+  $deletedAt: true,
+  $updateCounter: true,
+});
 export type MatchEventInsertSchema = z.infer<typeof MatchEventInsertSchema>;
 
 export const MatchEventUpdateSchema = MatchEventInsertSchema.partial().extend({
@@ -21,5 +22,6 @@ export type MatchEventUpdateSchema = z.infer<typeof MatchEventUpdateSchema>;
 
 export const MatchEventSelectSchema = createSelectSchema(matchEventsTable, {
   payload: z.any(),
+  labels: Labels,
 });
 export type MatchEventSelectSchema = z.infer<typeof MatchEventSelectSchema>;

@@ -64,7 +64,7 @@ export const seasonsTable = pgTable(
       .notNull(),
 
     config: t.jsonb().notNull().$type<SeasonConfig>(),
-    labels: t.text().array().notNull().default(sql`ARRAY[]::varchar[]`),
+    labels: t.jsonb().$type<Labels>().notNull().default(sql`'{}'::jsonb`),
 
     ...commonFields,
   }),
@@ -101,7 +101,7 @@ export const tablesTable = pgTable(
     side2Color: t.text().notNull(), // #RRGGBBAA
     location: t.text(),
 
-    labels: t.text().array().notNull().default(sql`ARRAY[]::varchar[]`),
+    labels: t.jsonb().$type<Labels>().notNull().default(sql`'{}'::jsonb`),
 
     ...commonFields,
   }),
@@ -139,7 +139,7 @@ export const ballsTable = pgTable(
     diameter: t.real(), // millimeters
     weight: t.real(), // grams
 
-    labels: t.text().array().notNull().default(sql`ARRAY[]::varchar[]`),
+    labels: t.jsonb().$type<Labels>().notNull().default(sql`'{}'::jsonb`),
 
     ...commonFields,
   }),
@@ -263,7 +263,7 @@ export const matchesTable = pgTable(
 
     hash: t.text().notNull(),
 
-    labels: t.text().array().notNull().default(sql`ARRAY[]::varchar[]`),
+    labels: t.jsonb().$type<Labels>().notNull().default(sql`'{}'::jsonb`),
 
     ...commonFields,
   }),
@@ -299,7 +299,7 @@ export const matchEventsTable = pgTable(
       .notNull(),
     payload: t.jsonb(),
 
-    labels: t.text().array().notNull().default(sql`ARRAY[]::varchar[]`),
+    labels: t.jsonb().$type<Labels>().notNull().default(sql`'{}'::jsonb`),
 
     ...commonFields,
   }),

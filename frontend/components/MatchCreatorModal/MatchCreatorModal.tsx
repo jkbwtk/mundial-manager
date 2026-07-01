@@ -165,7 +165,7 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
           label: 'Labels',
           type: 'text',
           hidden: true,
-          implicitDefault: props.match?.labels ?? [],
+          implicitDefault: props.match?.labels ?? {},
         },
       }}
     />

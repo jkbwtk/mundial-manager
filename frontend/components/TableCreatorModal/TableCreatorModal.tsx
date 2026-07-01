@@ -68,7 +68,7 @@ export const TableCreatorModal: Component<TableCreatorModalProps> = (props) => {
           label: 'Labels',
           type: 'text',
           hidden: true,
-          implicitDefault: props.table?.labels ?? [],
+          implicitDefault: props.table?.labels ?? {},
         },
         description: {
           label: 'Description',

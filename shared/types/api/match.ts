@@ -1,5 +1,6 @@
 import z from 'zod';
 import { createQueryMeta } from '#backend/types/trpc';
+import { Labels } from '#shared/labels';
 import { PaginatedResponse, uuidArray } from '#shared/zod';
 
 export const MatchStatusEnum = {
@@ -37,7 +38,7 @@ export const Match = z.object({
 
   hash: z.string(),
 
-  labels: z.array(z.string()),
+  labels: Labels,
 });
 export type Match = z.infer<typeof Match>;
 

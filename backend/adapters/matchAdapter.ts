@@ -1,5 +1,7 @@
 import dayjs from 'dayjs';
+import z from 'zod';
 import { getPlayersFromTeam } from '#flib/sheetUtils';
+import { getLabelValue } from '#shared/labels';
 import { getPauseDuration } from '#shared/matchUtils';
 import type {
   MatchEvent,
@@ -16,22 +18,28 @@ import type {
 } from '#shared/types/Sheets';
 
 export function getLegacyColorsFromTable(table?: Table): string[] {
-  if (!table) return [];
+  if (!table) return ['unknown', 'unknown'];
 
-  return table.labels
-    .filter((l) => l.startsWith('legacyImportSide'))
-    .map((l) => l.split('=').at(1))
-    .filter((c) => c !== undefined);
+  const side1Color = getLabelValue(
+    table,
+    'legacyImportSide1Color',
+    z.string(),
+    'unknown',
+  );
+  const side2Color = getLabelValue(
+    table,
+    'legacyImportSide2Color',
+    z.string(),
+    'unknown',
+  );
+
+  return [side1Color, side2Color];
 }
 
 export function getLegacyFloorFromTable(table?: Table): number | null {
-  const floorStr = table?.labels
-    .find((l) => l.startsWith('legacyImportFloor'))
-    ?.split('=')
-    .at(1);
-  const floorInt = Number(floorStr);
+  if (table === undefined) return null;
 
-  return Number.isNaN(floorInt) ? null : floorInt;
+  return getLabelValue(table, 'legacyImportFloor', z.number().int(), null!);
 }
 
 function getMatchTable(
@@ -51,13 +59,14 @@ function getMatchTable(
 
 function checkIfSwapRequired(match: LegacyMatchCreate, table?: Table): boolean {
   if (table) {
-    const side1Color = table.labels
-      .find((v) => v.startsWith('legacyImportSide1Color'))
-      ?.split('=')
-      .at(1)
-      ?.trim();
+    const side1Color = getLabelValue(
+      table,
+      'legacyImportSide1Color',
+      z.string(),
+      null!,
+    );
 
-    if (side1Color !== undefined && match.winningColor !== 'unknown') {
+    if (side1Color !== null && match.winningColor !== 'unknown') {
       if (side1Color === match.winningColor && match.score1 < match.score2) {
         return true;
       }
@@ -113,6 +122,7 @@ export function convertFromLegacyMatch(
           {
             type: 'MATCH_START',
             time: new Date(match.replayMetadata.startedAt * 1000),
+            labels: {},
           },
           ...match.replayMetadata.events
             .map((event) =>
@@ -122,7 +132,7 @@ export function convertFromLegacyMatch(
         ]
       : [],
 
-    labels: [`legacyImportSwap=${String(swapRequired)}`],
+    labels: { legacyImportSwap: swapRequired },
   };
 }
 
@@ -134,6 +144,7 @@ export function convertFromLegacyMatchEvent(
 ): MatchEventCreateWithoutMatch | null {
   const common = {
     time: new Date(event.time * 1000),
+    labels: {},
   } as const;
 
   const S1: MatchSide = swapRequired ? 'SIDE_2' : 'SIDE_1';

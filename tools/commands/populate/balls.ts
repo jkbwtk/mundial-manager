@@ -38,7 +38,7 @@ export async function populateBalls(options: PopulateOptions): Promise<void> {
           Math.random() > 0.8
             ? faker.lorem.paragraphs({ min: 1, max: 1 })
             : null,
-        labels: [],
+        labels: {},
       }),
     ),
   );

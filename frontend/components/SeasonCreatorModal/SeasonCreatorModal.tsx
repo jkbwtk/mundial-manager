@@ -70,7 +70,7 @@ export const SeasonCreatorModal: Component<SeasonCreatorModalProps> = (
           label: 'Labels',
           type: 'text',
           hidden: true,
-          implicitDefault: props.season?.labels ?? [],
+          implicitDefault: props.season?.labels ?? {},
         },
       }}
     />

@@ -1,8 +1,11 @@
 import { createInsertSchema, createSelectSchema } from 'drizzle-orm/zod';
 import type z from 'zod';
 import { tablesTable } from '#backend/db/schema';
+import { Labels } from '#shared/labels';
 
-export const TableInsertSchema = createInsertSchema(tablesTable).omit({
+export const TableInsertSchema = createInsertSchema(tablesTable, {
+  labels: Labels,
+}).omit({
   uuid: true,
   $createdAt: true,
   $updatedAt: true,
@@ -11,7 +14,9 @@ export const TableInsertSchema = createInsertSchema(tablesTable).omit({
 });
 export type TableInsertSchema = z.infer<typeof TableInsertSchema>;
 
-export const TableSelectSchema = createSelectSchema(tablesTable);
+export const TableSelectSchema = createSelectSchema(tablesTable, {
+  labels: Labels,
+});
 export type TableSelectSchema = z.infer<typeof TableSelectSchema>;
 
 export const TablePublicSchema = TableSelectSchema.omit({

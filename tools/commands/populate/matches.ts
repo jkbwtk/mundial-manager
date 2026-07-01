@@ -50,6 +50,7 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
       time: new Date(currentTime),
       type: 'MATCH_START',
       matchUuid: '',
+      labels: {},
     },
   ];
 
@@ -104,6 +105,7 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
               side: 'SIDE_1',
               goalType: Array.from(goalTypes),
               player: pickRandom(ctx.playersSide1),
+              labels: {},
             });
           } else {
             side2Score += 1;
@@ -115,6 +117,7 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
               side: 'SIDE_2',
               goalType: Array.from(goalTypes),
               player: pickRandom(ctx.playersSide2),
+              labels: {},
             });
           }
         }
@@ -125,6 +128,7 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
           time: new Date(currentTime),
           type: 'BALL_OUT',
           matchUuid: '',
+          labels: {},
         });
         break;
 
@@ -134,6 +138,7 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
           type: 'POSITION_CHANGE',
           matchUuid: '',
           side: pickRandom([MatchSideEnum.SIDE_1, MatchSideEnum.SIDE_2]),
+          labels: {},
         });
         break;
 
@@ -144,6 +149,7 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
           matchUuid: '',
           details:
             runWithProbability(0.7, () => faker.lorem.sentence()) ?? null,
+          labels: {},
         });
         break;
 
@@ -154,6 +160,7 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
           matchUuid: '',
           details:
             runWithProbability(0.7, () => faker.lorem.sentence()) ?? null,
+          labels: {},
         });
 
         const pause = nonLinearRandomInt(10000, 180000, 3);
@@ -165,6 +172,7 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
           time: new Date(currentTime),
           type: 'RESUME',
           matchUuid: '',
+          labels: {},
         });
         break;
       }
@@ -258,7 +266,7 @@ export async function populateMatches(options: PopulateOptions): Promise<void> {
         playersSide2,
         spectators,
         status: 'FINISHED',
-        labels: [],
+        labels: {},
       });
 
       for (const event of eventsResult.events) {

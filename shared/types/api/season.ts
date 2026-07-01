@@ -1,5 +1,6 @@
 import z from 'zod';
 import { createQueryMeta } from '#backend/types/trpc';
+import { Labels } from '#shared/labels';
 import { PaginatedResponse } from '#shared/zod';
 
 export const SeasonConfig = z.object({});
@@ -11,7 +12,7 @@ export const Season = z.object({
   startDate: z.coerce.date(),
   endDate: z.coerce.date(),
   config: SeasonConfig,
-  labels: z.array(z.string()),
+  labels: Labels,
 });
 export type Season = z.infer<typeof Season>;
 

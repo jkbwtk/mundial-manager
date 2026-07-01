@@ -60,11 +60,11 @@ export async function importLegacyTables(
         side1Color: '#363636',
         side2Color: '#acacac',
         location: `Floor ${floor.floor}`,
-        labels: [
-          `legacyImportFloor=${floor.floor}`,
-          `legacyImportSide1Color=${colors.at(0)}`,
-          `legacyImportSide2Color=${colors.at(1)}`,
-        ],
+        labels: {
+          legacyImportFloor: floor.floor,
+          legacyImportSide1Color: colors.at(0) ?? 'unknown',
+          legacyImportSide2Color: colors.at(1) ?? 'unknown',
+        },
       });
     }),
   );

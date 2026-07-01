@@ -89,13 +89,14 @@ export class MatchEventModel extends ModelOps({
     leagueUuid: string,
     data: MatchEventCreate,
   ) {
-    const { matchUuid, type, time, ...payload } = data;
+    const { matchUuid, type, time, labels, ...payload } = data;
 
     return super.create(db, leagueUuid, {
       matchUuid,
       type,
       time,
       payload,
+      labels,
     });
   }
 

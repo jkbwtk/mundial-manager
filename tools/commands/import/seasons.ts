@@ -33,7 +33,7 @@ export async function importLegacySeasons(options: ImportOptions) {
         config: {},
         startDate: season.startDate.toDate(),
         endDate: season.endDate.toDate(),
-        labels: [],
+        labels: {},
       }),
     ),
   );
