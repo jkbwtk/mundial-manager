@@ -1,15 +1,35 @@
+import { useAction } from '@solidjs/router';
+import { type Connection, connect, WindowMessenger } from 'penpal';
 import { onCleanup, onMount } from 'solid-js';
 import { isServer } from 'solid-js/web';
 import { MatchSaveConfirmModal } from '#components/MatchSaveConfirmModal';
 import { convertCalculatorFinishEventToMatch } from '#flib/sheetUtils';
+import {
+  actionCreateMatch,
+  actionCreateMatchEvent,
+  actionDeleteMatch,
+  actionDeleteMatchEvent,
+  actionUpdateMatch,
+  actionUpdateMatchEvent,
+  queryBalls,
+  queryPlayers,
+  queryTables,
+} from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
-import { CalculatorFinishEvent } from '#shared/types/MundialCalculator';
+import { useToast } from '#providers/ToastProvider';
+import type {
+  CalculatorApi,
+  CalculatorFinishEvent,
+} from '#shared/types/MundialCalculator';
 import style from './MundialCalculator.module.scss';
 
-const URL = import.meta.env.VITE_CALCULATOR_URL;
+const CALCULATOR_URL = import.meta.env.VITE_CALCULATOR_URL;
 
 const MundialCalculator: Component = () => {
   const [, { open }] = useModal();
+  const [, { info }] = useToast();
+
+  let iframeRef!: HTMLIFrameElement;
 
   const openMatchModal = (data: CalculatorFinishEvent) => {
     open({
@@ -21,31 +41,62 @@ const MundialCalculator: Component = () => {
     });
   };
 
-  const handleMessage = (ev: MessageEvent) => {
-    const parsed = CalculatorFinishEvent.safeParse(ev.data);
+  const createMatch = useAction(actionCreateMatch);
+  const updateMatch = useAction(actionUpdateMatch);
+  const deleteMatch = useAction(actionDeleteMatch);
 
-    if (parsed.success) {
-      openMatchModal(parsed.data);
-    } else {
-      console.error(parsed.error);
-    }
-  };
+  const createEvent = useAction(actionCreateMatchEvent);
+  const updateEvent = useAction(actionUpdateMatchEvent);
+  const deleteEvent = useAction(actionDeleteMatchEvent);
 
-  onMount(() => {
-    if (isServer === false) {
-      window.addEventListener('message', handleMessage);
-    }
+  let messenger: WindowMessenger | undefined;
+  let connection: Connection | undefined;
+
+  onMount(async () => {
+    messenger = new WindowMessenger({
+      remoteWindow: iframeRef.contentWindow!,
+      allowedOrigins: [new URL(iframeRef.src).origin],
+    });
+
+    connection = connect({
+      messenger,
+      log: (...args) => console.debug(...args),
+
+      methods: {
+        getTables: () => queryTables().then((r) => r.data),
+        getBalls: () => queryBalls().then((r) => r.data),
+        getPlayers: () => queryPlayers().then((r) => r.data),
+
+        createLegacyMatch: (match) => openMatchModal(match),
+
+        createMatch,
+        updateMatch,
+        deleteMatch,
+
+        createEvent,
+        updateEvent,
+        deleteEvent,
+      } satisfies CalculatorApi,
+    });
+
+    await connection.promise;
+
+    info('Connection with calculator successful', {
+      duration: 1000,
+    });
   });
 
   onCleanup(() => {
     if (isServer === false) {
-      window.removeEventListener('message', handleMessage);
+      connection?.destroy();
+      messenger?.destroy();
     }
   });
 
   return (
     <iframe
-      src={URL}
+      ref={iframeRef}
+      src={CALCULATOR_URL}
       title="Mundial Calculator"
       class={style.iframe}
       sandbox="allow-scripts allow-same-origin allow-forms"
