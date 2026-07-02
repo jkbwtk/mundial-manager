@@ -1,4 +1,5 @@
 import type { JSX } from 'solid-js';
+import { useSSRUtils } from '#providers/SSRUtilsProvider';
 
 export const isDev = (): boolean => {
   try {
@@ -20,8 +21,12 @@ export function toJson(data: unknown): string {
 }
 
 export function isMobile(): boolean {
-  // TODO: Implement mobile detection method that works during SSR
-  return navigator.maxTouchPoints > 1;
+  const [state] = useSSRUtils();
+  const userAgent = state.userAgent ?? navigator.userAgent;
+
+  if (typeof userAgent !== 'string') return false;
+
+  return userAgent.toLowerCase().includes('mobi');
 }
 
 export function addNullable<T extends number | null>(
