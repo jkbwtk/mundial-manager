@@ -14,7 +14,7 @@ type PopulateTarget = (typeof PopulateTargets)[number];
 
 const PopulateOptions = z.object({
   clear: z.coerce.boolean(),
-  count: z.coerce.number().int().positive(),
+  count: z.coerce.number().int().nonnegative(),
   leagueUuid: z.uuid(),
 });
 export type PopulateOptions = z.infer<typeof PopulateOptions>;
