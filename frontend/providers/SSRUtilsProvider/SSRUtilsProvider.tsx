@@ -6,6 +6,7 @@ export interface SSRUtilsContextState {
   responseStatus?: number;
   title?: string;
   trpcCaller?: ReturnType<AnyRouter['createCaller']>;
+  userAgent?: string;
 }
 
 export interface SSRUtilsContextActions {
@@ -23,6 +24,7 @@ function createDefaultState(): SSRUtilsContextState {
     responseStatus: undefined,
     title: undefined,
     trpcCaller: undefined,
+    userAgent: undefined,
   };
 }
 
@@ -44,6 +46,7 @@ export interface SSRUtilsProviderProps {
   setResponseStatus?: (status: number) => void;
   setTitle?: (title: string) => void;
   trpcCaller?: ReturnType<AnyRouter['createCaller']>;
+  userAgent?: string;
 }
 
 export const SSRUtilsProvider: ParentComponent<SSRUtilsProviderProps> = (
@@ -52,6 +55,7 @@ export const SSRUtilsProvider: ParentComponent<SSRUtilsProviderProps> = (
   const [state, setState] = createStore<SSRUtilsContextState>({
     ...createDefaultState(),
     trpcCaller: props.trpcCaller,
+    userAgent: props.userAgent,
   });
 
   const setResponseStatus: SSRUtilsContextActions['setResponseStatus'] = (

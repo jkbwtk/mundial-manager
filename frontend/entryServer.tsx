@@ -22,6 +22,8 @@ export async function render(
   let status: number | undefined;
   let title = 'Mundial Manager';
 
+  const userAgent = fetchEvent.request.header('user-agent');
+
   const setResponseStatus = (next: number) => {
     status = responseStatusSchema.safeParse(next).data;
   };
@@ -41,6 +43,7 @@ export async function render(
           setResponseStatus,
           setTitle,
           trpcCaller,
+          userAgent,
         }}
       />
     )),
