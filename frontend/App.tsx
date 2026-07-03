@@ -7,6 +7,7 @@ import { AcrylicBackground } from '#components/AcrylicBackground';
 import { DevGrid } from '#components/DevGrid';
 import { PWAInitializer } from '#components/PWAInitializer';
 import { isDev } from '#flib/utils';
+import FatalErrorPage from '#pages/FatalErrorPage/FatalErrorPage';
 import { errors, GenericErrorPage } from '#pages/GenericErrorPage';
 import { RootLayout } from '#pages/RootLayout';
 import { ChangelogProvider } from '#providers/ChangelogProvider';
@@ -27,47 +28,49 @@ export interface AppProps {
 
 const App: Component<AppProps> = (props) => {
   return (
-    <SSRUtilsProvider {...props.ssrProps}>
-      <ErrorBoundary
-        fallback={(err, reset) => (
-          <GenericErrorPage
-            config={errors.internalError}
-            error={err}
-            reset={reset}
-          />
-        )}
-      >
-        <Suspense>
-          <MetaProvider>
-            <ConsoleUnitPrototypeProvider>
-              <ToastProvider>
-                <SheetsProvider>
-                  <ModalProvider>
-                    <ChangelogProvider>
-                      <ModalDispatcher>
-                        <AcrylicBackground />
-                        <Show when={isDev()}>
-                          <DevGrid />
-                        </Show>
+    <ErrorBoundary fallback={(err) => <FatalErrorPage error={err} />}>
+      <SSRUtilsProvider {...props.ssrProps}>
+        <ErrorBoundary
+          fallback={(err, reset) => (
+            <GenericErrorPage
+              config={errors.internalError}
+              error={err}
+              reset={reset}
+            />
+          )}
+        >
+          <Suspense>
+            <MetaProvider>
+              <ConsoleUnitPrototypeProvider>
+                <ToastProvider>
+                  <SheetsProvider>
+                    <ModalProvider>
+                      <ChangelogProvider>
+                        <ModalDispatcher>
+                          <AcrylicBackground />
+                          <Show when={isDev()}>
+                            <DevGrid />
+                          </Show>
 
-                        <PWAInitializer />
+                          <PWAInitializer />
 
-                        <Router
-                          url={isServer ? props.url : ''}
-                          root={RootLayout}
-                        >
-                          {routes}
-                        </Router>
-                      </ModalDispatcher>
-                    </ChangelogProvider>
-                  </ModalProvider>
-                </SheetsProvider>
-              </ToastProvider>
-            </ConsoleUnitPrototypeProvider>
-          </MetaProvider>
-        </Suspense>
-      </ErrorBoundary>
-    </SSRUtilsProvider>
+                          <Router
+                            url={isServer ? props.url : ''}
+                            root={RootLayout}
+                          >
+                            {routes}
+                          </Router>
+                        </ModalDispatcher>
+                      </ChangelogProvider>
+                    </ModalProvider>
+                  </SheetsProvider>
+                </ToastProvider>
+              </ConsoleUnitPrototypeProvider>
+            </MetaProvider>
+          </Suspense>
+        </ErrorBoundary>
+      </SSRUtilsProvider>
+    </ErrorBoundary>
   );
 };
 
