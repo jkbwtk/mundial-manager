@@ -49,6 +49,9 @@
       "#providers/*": [
         "./frontend/providers/*"
       ],
+      "#preloaders/*": [
+        "./frontend/preloaders/*"
+      ],
       "#flib/*": [
         "./frontend/lib/*"
       ],

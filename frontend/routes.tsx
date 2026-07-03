@@ -2,7 +2,7 @@ import { lazy } from 'solid-js';
 import type { ExtendedRouteDefinition } from '#frontend/types';
 import { errors, GenericErrorPage } from '#pages/GenericErrorPage';
 import Homepage from '#pages/Homepage/Homepage';
-import { preloadMatchEventsDashboard } from '#pages/MatchEventsDashboard';
+import { preloadMatchEventsDashboard } from '#preloaders/MatchEventsDashboard';
 
 const MundialCalculator = lazy(
   () => import('#pages/MundialCalculator/MundialCalculator'),
