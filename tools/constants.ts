@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import 'dotenv/config';
 
 export const Environment = z.object({
   WEB_PORT: z.coerce.number().int().positive().default(4200),
