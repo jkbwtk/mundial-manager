@@ -1,9 +1,9 @@
 import type { AnyRouter } from '@trpc/server';
 import { renderToStringAsync } from 'solid-js/web';
 import z from 'zod';
+import App from '#frontend/App';
+import { routes } from '#frontend/routes';
 import { type FetchEvent, provideRequestEvent } from '#shared/solidSSR';
-import App from './App';
-import { routes } from './routes';
 
 const responseStatusSchema = z
   .int()
