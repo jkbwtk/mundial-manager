@@ -137,3 +137,5 @@ export const GeneralStatCharts: Component = () => {
     </div>
   );
 };
+
+export default GeneralStatCharts;

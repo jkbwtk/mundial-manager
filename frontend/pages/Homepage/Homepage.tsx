@@ -1,8 +1,7 @@
-import { createSignal, Match, Switch } from 'solid-js';
+import { createSignal, lazy, Match, Suspense, Switch } from 'solid-js';
 import { AggregateStats } from '#components/AggregateStats';
 import { DesktopOnly } from '#components/DesktopOnly';
 import { Dropdown } from '#components/Dropdown';
-import { GeneralStatCharts } from '#components/GeneralStatCharts';
 import { GeneralStats } from '#components/GeneralStats';
 import { InlineAction } from '#components/InlineAction';
 import {
@@ -11,7 +10,6 @@ import {
 } from '#components/Leaderboard';
 import { MatchStats } from '#components/MatchStats';
 import { MundialCalculatorLink } from '#components/MundialCalculatorLink';
-import { RatingCharts } from '#components/RatingCharts';
 import { SeasonProgress } from '#components/SeasonProgress';
 import { SeasonSummaryActivator } from '#components/SeasonSummaryActivator';
 import {
@@ -20,6 +18,13 @@ import {
   StatTypeOptions,
 } from '#components/StatPaginatorWidget';
 import style from './Homepage.module.scss';
+
+const GeneralStatCharts = lazy(
+  () => import('#components/GeneralStatCharts/GeneralStatCharts'),
+);
+const RatingCharts = lazy(
+  () => import('#components/RatingCharts/RatingCharts'),
+);
 
 const Homepage: Component = () => {
   const [leaderboardStatType, setLeaderboardStatType] =
@@ -85,8 +90,13 @@ const Homepage: Component = () => {
         </div>
 
         <div>
-          <GeneralStatCharts />
-          <RatingCharts />
+          <Suspense>
+            <GeneralStatCharts />
+          </Suspense>
+
+          <Suspense>
+            <RatingCharts />
+          </Suspense>
         </div>
 
         <DesktopOnly>

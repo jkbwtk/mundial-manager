@@ -159,3 +159,5 @@ export const RatingCharts: Component = () => {
     </StatPaginatorWidget>
   );
 };
+
+export default RatingCharts;
