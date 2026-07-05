@@ -4,7 +4,6 @@ import Cookies from 'cookies';
 import { Router } from 'express';
 import { environment } from '#backend/environment';
 import type { JWTContextCreate } from '#backend/types/auth';
-import { ExpressStack } from '#blib/ExpressStack';
 import { getJWTContext, sign } from '#blib/jwt';
 import { logger } from '#shared/logger';
 
@@ -42,42 +41,37 @@ export async function createMagicRouter() {
     label: ['magic-router'],
   });
 
-  magicRouter.get(
-    '/',
-    new ExpressStack()
-      .use(async (req, res) => {
-        const cookies = new Cookies(req, res);
-        const rawData = req.query[MAGIC_LINK_TOKEN_KEY];
+  magicRouter.get('/', async (req, res) => {
+    const cookies = new Cookies(req, res);
+    const rawData = req.query[MAGIC_LINK_TOKEN_KEY];
 
-        const jwt = await getJWTContext(String(rawData));
+    const jwt = await getJWTContext(String(rawData));
 
-        if (jwt === null) {
-          logger.warn('Invalid magic link token', {
-            label: ['magic-router'],
-            rawData,
-          });
+    if (jwt === null) {
+      logger.warn('Invalid magic link token', {
+        label: ['magic-router'],
+        rawData,
+      });
 
-          res.redirect(environment.BASE_SITE_URL);
-        } else {
-          const newJwt = await sign({
-            ...jwt,
-            origin: 'magic-router',
-            redirectTo: null,
-          });
+      res.redirect(environment.BASE_SITE_URL);
+    } else {
+      const newJwt = await sign({
+        ...jwt,
+        origin: 'magic-router',
+        redirectTo: null,
+      });
 
-          cookies.set(environment.JWT_COOKIE_NAME, newJwt, {
-            httpOnly: true,
-            secure: environment.PRODUCTION,
-            sameSite: 'lax',
-            overwrite: true,
-            expires: new Date(jwt.exp * 1000),
-          });
+      cookies.set(environment.JWT_COOKIE_NAME, newJwt, {
+        httpOnly: true,
+        secure: environment.PRODUCTION,
+        sameSite: 'lax',
+        overwrite: true,
+        expires: new Date(jwt.exp * 1000),
+      });
 
-          res.redirect(jwt.redirectTo ?? environment.BASE_SITE_URL);
-        }
-      })
-      .unwrap(),
-  );
+      res.redirect(jwt.redirectTo ?? environment.BASE_SITE_URL);
+    }
+  });
 
   return magicRouter;
 }

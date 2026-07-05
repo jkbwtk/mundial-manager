@@ -11,7 +11,6 @@ import { environment } from '#backend/environment';
 import { createMagicRouter } from '#backend/routers/magic/magicRouter';
 import { appRouter } from '#backend/routers/trpc/app';
 import { createTRPCRouter } from '#backend/routers/trpc/trpcRouter';
-import { ExpressStack } from '#blib/ExpressStack';
 import {
   jwtMiddleware,
   notFoundMiddleware,
@@ -80,44 +79,39 @@ export async function createRouter() {
     },
   );
 
-  router.get(
-    '*splat',
-    new ExpressStack()
-      .use(jwtMiddleware)
-      .use(async (req, res) => {
-        const url = req.originalUrl;
+  router.get('*splat', jwtMiddleware, async (req, res) => {
+    const url = req.originalUrl;
 
-        const trpcCaller = appRouter.createCaller(
-          {
-            cookies: new Cookies(req, res),
-            jwt: Promise.resolve(req.jwt ?? null),
-            db,
-          },
-          {
-            onError: (err) => {
-              logger.error('Error during TRPC call', {
-                label: ['ssr'],
-                error: err,
-              });
-            },
-          },
-        );
+    const trpcCaller = appRouter.createCaller(
+      {
+        cookies: new Cookies(req, res),
+        // @ts-expect-error
+        jwt: Promise.resolve(req.jwt ?? null),
+        db,
+      },
+      {
+        onError: (err) => {
+          logger.error('Error during TRPC call', {
+            label: ['ssr'],
+            error: err,
+          });
+        },
+      },
+    );
 
-        const fetchEvent = createFetchEvent(req, res);
+    const fetchEvent = createFetchEvent(req, res);
 
-        const rendered = await render(url, trpcCaller, fetchEvent);
+    const rendered = await render(url, trpcCaller, fetchEvent);
 
-        const html = template
-          .replace('<!--app-title-->', rendered.title)
-          .replace('<!--app-head-->', head)
-          .replace('<!--app-html-->', rendered.html);
+    const html = template
+      .replace('<!--app-title-->', rendered.title)
+      .replace('<!--app-head-->', head)
+      .replace('<!--app-html-->', rendered.html);
 
-        const status = rendered.status ?? 200;
+    const status = rendered.status ?? 200;
 
-        res.status(status).set({ 'Content-Type': 'text/html' }).send(html);
-      })
-      .unwrap(),
-  );
+    res.status(status).set({ 'Content-Type': 'text/html' }).send(html);
+  });
 
   return router;
 }

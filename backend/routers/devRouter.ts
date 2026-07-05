@@ -7,7 +7,6 @@ import { db } from '#backend/db/database';
 import { createMagicRouter } from '#backend/routers/magic/magicRouter';
 import { appRouter } from '#backend/routers/trpc/app';
 import { createTRPCRouter } from '#backend/routers/trpc/trpcRouter';
-import { ExpressStack } from '#blib/ExpressStack';
 import { jwtMiddleware, requestLogger } from '#blib/middlewares';
 import { logger } from '#shared/logger';
 import { createFetchEvent } from '#shared/solidSSR';
@@ -30,64 +29,56 @@ export async function createDevRouter() {
 
   devRouter.use('/magic', await createMagicRouter());
 
-  devRouter.use(
-    '*splat',
-    new ExpressStack()
-      .use(jwtMiddleware)
-      .use(async (req, res) => {
-        const url = req.originalUrl;
+  devRouter.use('*splat', jwtMiddleware, async (req, res) => {
+    const url = req.originalUrl;
 
-        const trpcCaller = appRouter.createCaller(
-          {
-            cookies: new Cookies(req, res),
-            jwt: Promise.resolve(req.jwt ?? null),
-            db,
-          },
-          {
-            onError: (err) => {
-              logger.error('Error during TRPC call', {
-                label: ['ssr'],
-                error: err,
-              });
-            },
-          },
-        );
-
-        try {
-          const transformedTemplate = await vite.transformIndexHtml(
-            url,
-            template,
-          );
-          const render = (await vite.ssrLoadModule('/frontend/entryServer.tsx'))
-            .render;
-
-          const fetchEvent = createFetchEvent(req, res);
-
-          const rendered = await render(url, trpcCaller, fetchEvent);
-
-          const head = (rendered.head ?? '') + generateHydrationScript();
-
-          const html = transformedTemplate
-            .replace('<!--app-title-->', rendered.title)
-            .replace('<!--app-head-->', head)
-            .replace('<!--app-html-->', rendered.html ?? '');
-
-          const status = rendered.status ?? 200;
-
-          res.status(status).set({ 'Content-Type': 'text/html' }).send(html);
-        } catch (err) {
-          if (err instanceof Error) {
-            vite.ssrFixStacktrace(err);
-          }
-
-          logger.error('Error during SSR', {
-            label: ['dev-server'],
+    const trpcCaller = appRouter.createCaller(
+      {
+        cookies: new Cookies(req, res),
+        // @ts-expect-error
+        jwt: Promise.resolve(req.jwt ?? null),
+        db,
+      },
+      {
+        onError: (err) => {
+          logger.error('Error during TRPC call', {
+            label: ['ssr'],
             error: err,
           });
-        }
-      })
-      .unwrap(),
-  );
+        },
+      },
+    );
+
+    try {
+      const transformedTemplate = await vite.transformIndexHtml(url, template);
+      const render = (await vite.ssrLoadModule('/frontend/entryServer.tsx'))
+        .render;
+
+      const fetchEvent = createFetchEvent(req, res);
+
+      const rendered = await render(url, trpcCaller, fetchEvent);
+
+      const head = (rendered.head ?? '') + generateHydrationScript();
+
+      const html = transformedTemplate
+        .replace('<!--app-title-->', rendered.title)
+        .replace('<!--app-head-->', head)
+        .replace('<!--app-html-->', rendered.html ?? '');
+
+      const status = rendered.status ?? 200;
+
+      res.status(status).set({ 'Content-Type': 'text/html' }).send(html);
+    } catch (err) {
+      if (err instanceof Error) {
+        vite.ssrFixStacktrace(err);
+      }
+
+      logger.error('Error during SSR', {
+        label: ['dev-server'],
+        error: err,
+      });
+    }
+  });
 
   return devRouter;
 }

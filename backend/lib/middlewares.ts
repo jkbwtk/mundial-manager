@@ -2,8 +2,6 @@ import Cookies from 'cookies';
 import type { RequestHandler } from 'express-serve-static-core';
 import onFinished from 'on-finished';
 import onHeaders from 'on-headers';
-import type { JWTContext } from '#backend/types/auth';
-import type { Middleware } from '#blib/ExpressStack';
 import { getJWTContextFromCookies } from '#blib/jwt';
 import { logger } from '#shared/logger';
 
@@ -65,16 +63,11 @@ export const requestLogger: RequestHandler = (req, res, next) => {
   next();
 };
 
-export const jwtMiddleware: Middleware<
-  never,
-  object,
-  object,
-  { jwt: JWTContext | null }
-> = async (req, res) => {
+export const jwtMiddleware: RequestHandler = async (req, res, next) => {
   const cookies = new Cookies(req, res);
   const jwt = await getJWTContextFromCookies(cookies);
 
-  const jwtReq = Object.assign(req, { jwt });
+  Object.assign(req, { jwt });
 
-  return [jwtReq, res];
+  next();
 };
