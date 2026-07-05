@@ -1,5 +1,6 @@
 minimumReleaseAge: 10080 # 7 days
 trustPolicy: "no-downgrade"
+trustPolicyIgnoreAfter: 259200 # 180 days
 allowBuilds:
   "@parcel/watcher": true
   esbuild: true
