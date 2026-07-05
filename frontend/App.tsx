@@ -5,7 +5,6 @@ import { Router } from '@solidjs/router';
 import { ErrorBoundary, isServer, Show, Suspense } from 'solid-js/web';
 import { AcrylicBackground } from '#components/AcrylicBackground';
 import { DevGrid } from '#components/DevGrid';
-import { PWAInitializer } from '#components/PWAInitializer';
 import { isDev } from '#flib/utils';
 import FatalErrorPage from '#pages/FatalErrorPage/FatalErrorPage';
 import { errors, GenericErrorPage } from '#pages/GenericErrorPage';
@@ -51,8 +50,6 @@ const App: Component<AppProps> = (props) => {
                           <Show when={isDev()}>
                             <DevGrid />
                           </Show>
-
-                          <PWAInitializer />
 
                           <Router
                             url={isServer ? props.url : ''}
