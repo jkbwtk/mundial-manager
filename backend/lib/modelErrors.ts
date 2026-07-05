@@ -103,6 +103,14 @@ export class NotFoundError extends ModelError {
   }
 }
 
+export class ConnectionError extends ModelError {
+  public constructor(message: string, fields: ModelErrorFields) {
+    super(message, fields, 'INTERNAL_SERVER_ERROR');
+
+    this.name = 'DatabaseConnectionError';
+  }
+}
+
 const DuplicateExtractRegex = /Key \((.+)\)=\((.+)\) already exists\./;
 const ForeignKeyExtractRegex =
   /Key \((.+)\)=\((.+)\) is not present in table "(.+)"\./;
@@ -196,6 +204,12 @@ export function ConvertDrizzleErrors() {
               const fields: ModelErrorFields = {};
 
               throw new FormatViolationError('Format violation error', fields);
+            }
+
+            case 'ECONNREFUSED': {
+              const fields: ModelErrorFields = {};
+
+              throw new ConnectionError('Database connection refused', fields);
             }
 
             default:
