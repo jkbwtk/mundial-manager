@@ -4,7 +4,6 @@
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import checker from 'vite-plugin-checker';
-import dts from 'vite-plugin-dts';
 import { VitePWA } from 'vite-plugin-pwa';
 import solid from 'vite-plugin-solid';
 import { environment, isDev } from './tools/constants';
@@ -24,21 +23,12 @@ export default defineConfig({
       skipRootIndex: true,
       watch: true,
     }),
-    dts({
-      include: ['frontend/**/*'],
-      exclude: ['frontend/**/*.test.*', 'frontend/**/*.spec.*'],
-      rollupTypes: true,
-      insertTypesEntry: true,
-    }),
     VitePWA({
-      registerType: 'prompt',
+      registerType: 'autoUpdate',
+      selfDestroying: true,
       includeAssets: ['favicon.ico', 'favicon.png'],
       injectRegister: null,
-      strategies: 'generateSW',
-      workbox: {
-        globPatterns: ['**/*.{js,css,ico,png,svg,gif,woff2}'],
-        cleanupOutdatedCaches: true,
-      },
+      strategies: 'injectManifest',
       manifest: {
         name: 'Mundial Manager',
         short_name: 'Mundial',

@@ -1,9 +1,8 @@
-import type { AnyRouter } from '@trpc/server';
 import { renderToStringAsync } from 'solid-js/web';
 import z from 'zod';
 import App from '#frontend/App';
 import { routes } from '#frontend/routes';
-import { type FetchEvent, provideRequestEvent } from '#shared/solidSSR';
+import { provideRequestEvent, type SSRRenderFunction } from '#shared/solidSSR';
 
 const responseStatusSchema = z
   .int()
@@ -14,11 +13,11 @@ const responseStatusSchema = z
 
 const titleSchema = z.string().regex(/^[a-zA-Z0-9\s\-_.]+$/);
 
-export async function render(
-  url: string,
-  trpcCaller: ReturnType<AnyRouter['createCaller']>,
-  fetchEvent: FetchEvent,
-) {
+export const render: SSRRenderFunction = async (
+  url,
+  trpcCaller,
+  fetchEvent,
+) => {
   let status: number | undefined;
   let title = 'Mundial Manager';
 
@@ -50,6 +49,6 @@ export async function render(
   );
 
   return { html, status, title };
-}
+};
 
 export { routes };

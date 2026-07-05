@@ -16,14 +16,17 @@ import {
   notFoundMiddleware,
   requestLogger,
 } from '#blib/middlewares';
-import { render } from '#dist/server/entryServer';
 import { logger } from '#shared/logger';
-import { createFetchEvent } from '#shared/solidSSR';
+import { createFetchEvent, type SSRRenderFunction } from '#shared/solidSSR';
 
 const maxAge = 365 * 24 * 60 * 60; // 7 days
 
 export async function createRouter() {
   const router = Router();
+
+  // @ts-expect-error
+  const render: SSRRenderFunction = (await import('#dist/server/entryServer'))
+    .render;
 
   const template = await readFile(
     join(environment.DIST_DIR, 'client/index.html'),

@@ -1,4 +1,5 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
+import type { AnyRouter } from '@trpc/server';
 import type { Request, Response } from 'express';
 import { RequestContext } from 'solid-js/web';
 
@@ -9,6 +10,18 @@ export interface FetchEvent {
   locals: Record<string, unknown>;
   nativeEvent: { req: Request; res: Response };
 }
+
+export interface SSRRenderReturn {
+  html: string;
+  status?: number;
+  title: string;
+}
+
+export type SSRRenderFunction = (
+  url: string,
+  trpcCaller: ReturnType<AnyRouter['createCaller']>,
+  fetchEvent: FetchEvent,
+) => Promise<SSRRenderReturn>;
 
 export function provideRequestEvent<T, R>(
   init: T,
