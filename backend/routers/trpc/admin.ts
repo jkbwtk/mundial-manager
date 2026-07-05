@@ -13,12 +13,16 @@ export const adminRouter = router({
   leagues: adminProcedure
     .input(Pagination.optional())
     .query(async ({ ctx, input }) => {
-      const leagues = LeagueModel.getAll(ctx.db, input?.limit, input?.offset);
-      const total = LeagueModel.count(ctx.db);
+      const count = runWithErrorConversion(() => LeagueModel.count(ctx.db));
+      const leagues = runWithErrorConversion(() =>
+        LeagueModel.getAll(ctx.db, input?.limit, input?.offset),
+      );
+
+      const [total, data] = await Promise.all([count, leagues]);
 
       return {
-        data: (await leagues).map((l) => l.serialize()),
-        total: await total,
+        data: data.map((l) => l.serialize()),
+        total,
       };
     }),
 
@@ -55,7 +59,9 @@ export const adminRouter = router({
   changeLeague$: adminProcedure
     .input(League.pick({ uuid: true }))
     .mutation(async ({ ctx, input }) => {
-      const league = await LeagueModel.getById(ctx.db, input.uuid);
+      const league = await runWithErrorConversion(() =>
+        LeagueModel.getById(ctx.db, input.uuid),
+      );
 
       if (league === null) {
         throw new TRPCError({
@@ -83,7 +89,9 @@ export const adminRouter = router({
   leagueLink: adminProcedure
     .input(League.pick({ uuid: true }))
     .query(async ({ ctx, input }) => {
-      const league = await LeagueModel.getById(ctx.db, input.uuid);
+      const league = await runWithErrorConversion(() =>
+        LeagueModel.getById(ctx.db, input.uuid),
+      );
 
       if (league === null) {
         throw new TRPCError({
