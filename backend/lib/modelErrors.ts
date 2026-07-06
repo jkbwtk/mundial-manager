@@ -211,7 +211,7 @@ export function ConvertDrizzleErrors() {
             }
 
             default:
-              logger.error('Unhandled DrizzleQueryError:', {
+              logger.error('Unhandled DrizzleQueryError', {
                 label: [label, target.name],
                 error: err,
               });
