@@ -1,14 +1,11 @@
-import type { Unsubscribable } from '@trpc/server/observable';
 import {
   batch,
   createContext,
   createMemo,
-  onCleanup,
   onMount,
   useContext,
 } from 'solid-js';
 import { createStore } from 'solid-js/store';
-import { isServer } from 'solid-js/web';
 import { calculateMatchData } from '#flib/matchDataUtils';
 import {
   cacheMatches,
@@ -143,15 +140,13 @@ const SheetsContext = createContext<SheetsContextValue>([
 export const SheetsProvider: ParentComponent = (props) => {
   const [state, setState] = createStore<SheetsContextState>(getDefaultState());
 
-  let onMatchAddedSubscription: Unsubscribable | null = null;
-
   const initialize = async () => {
     batch(() => {
       setState('createdMatches', loadCreatedMatches() ?? {});
       setState('matches', loadCachedMatches() ?? []);
     });
 
-    const [matches] = await Promise.all([trpcClient.sheets.matches.query()]);
+    const [matches] = await Promise.all([trpcClient.matches.getLegacy.query()]);
 
     cacheMatches(matches);
 
@@ -159,42 +154,7 @@ export const SheetsProvider: ParentComponent = (props) => {
       setState('matches', matches);
       setState('ready', true);
     });
-
-    subscribeToEvents();
   };
-
-  function subscribeToEvents() {
-    if (isServer) {
-      return;
-    }
-
-    if (onMatchAddedSubscription === null) {
-      onMatchAddedSubscription = trpcClient.sheets.onMatchAdded.subscribe(
-        {
-          lastEventId: latest().match.id,
-        },
-        {
-          onData: ({ data: match }) => {
-            setState('matches', state.matches.length, match);
-            cacheMatches(state.matches);
-          },
-
-          onError: (err) => {
-            console.error(
-              'SheetsProvider: onMatchAdded subscription error:',
-              err,
-            );
-          },
-        },
-      );
-    }
-  }
-
-  function unsubscribeFromEvents() {
-    if (onMatchAddedSubscription) {
-      onMatchAddedSubscription.unsubscribe();
-    }
-  }
 
   const matchData = createMemo(() => calculateMatchData(state.matches));
 
@@ -280,7 +240,7 @@ export const SheetsProvider: ParentComponent = (props) => {
   async function createMatch(match: MatchCreate): Promise<Match> {
     createLocalMatch(match);
 
-    const createdMatch = await trpcClient.sheets.createMatch.mutate(match);
+    const createdMatch = await trpcClient.matches.createLegacy.mutate(match);
 
     return createdMatch;
   }
@@ -294,7 +254,7 @@ export const SheetsProvider: ParentComponent = (props) => {
       throw new Error(`No created match found with hash: ${hash}`);
     }
 
-    return await trpcClient.sheets.createMatch.mutate(match);
+    return await trpcClient.matches.createLegacy.mutate(match);
   }
 
   async function syncCreatedMatches(hashes: string[]): Promise<Match[]> {
@@ -310,7 +270,11 @@ export const SheetsProvider: ParentComponent = (props) => {
       return match;
     });
 
-    return trpcClient.sheets.createMatches.mutate(matchesToCreate);
+    return Promise.all(
+      matchesToCreate.map((match) =>
+        trpcClient.matches.createLegacy.mutate(match),
+      ),
+    );
   }
 
   function removeCreatedMatch(hash: string) {
@@ -347,14 +311,6 @@ export const SheetsProvider: ParentComponent = (props) => {
     actions.initialize().catch((error) => {
       console.error('Failed to load sheet metadata:', error);
     });
-
-    window.addEventListener('beforeunload', () => {
-      unsubscribeFromEvents();
-    });
-  });
-
-  onCleanup(() => {
-    unsubscribeFromEvents();
   });
 
   return (
