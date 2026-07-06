@@ -52,7 +52,15 @@ export function ssrLink<
             observer.complete();
           })
           .catch((cause) => {
-            observer.error(TRPCClientError.from(cause));
+            const clientError = TRPCClientError.from(cause);
+
+            // @ts-expect-error
+            clientError.cause = undefined;
+            // @ts-expect-error
+            clientError.data = undefined;
+            clientError.stack = undefined;
+
+            observer.error(clientError);
           });
 
         return () => {};
