@@ -130,20 +130,21 @@ export function ConvertDrizzleErrors() {
       try {
         return await target.call(this, ...args);
       } catch (err) {
-        if (
-          err instanceof DrizzleQueryError &&
-          err.cause &&
-          'code' in err.cause
-        ) {
-          switch (err.cause.code) {
+        if (!(err instanceof Error)) throw err;
+
+        let dbError = err;
+
+        if (err instanceof DrizzleQueryError && err.cause) {
+          dbError = err.cause;
+        }
+
+        if ('code' in dbError) {
+          switch (dbError.code) {
             case '23505': {
               const fields: ModelErrorFields = {};
 
-              if (
-                'detail' in err.cause &&
-                typeof err.cause.detail === 'string'
-              ) {
-                const extracted = DuplicateExtractRegex.exec(err.cause.detail);
+              if ('detail' in dbError && typeof dbError.detail === 'string') {
+                const extracted = DuplicateExtractRegex.exec(dbError.detail);
 
                 if (extracted) {
                   const [, field, value] = extracted;
@@ -163,11 +164,8 @@ export function ConvertDrizzleErrors() {
             case '23503': {
               const fields: ModelErrorFields = {};
 
-              if (
-                'detail' in err.cause &&
-                typeof err.cause.detail === 'string'
-              ) {
-                const extracted = ForeignKeyExtractRegex.exec(err.cause.detail);
+              if ('detail' in dbError && typeof dbError.detail === 'string') {
+                const extracted = ForeignKeyExtractRegex.exec(dbError.detail);
 
                 if (extracted) {
                   const [, field, value, foreignTable] = extracted;
