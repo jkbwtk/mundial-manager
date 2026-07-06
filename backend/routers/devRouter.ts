@@ -40,10 +40,10 @@ export async function createDevRouter() {
         db,
       },
       {
-        onError: (err) => {
+        onError: (opts) => {
           logger.error('Error during TRPC call', {
-            label: ['ssr'],
-            error: err,
+            label: ['ssr', opts.path],
+            error: opts.error,
           });
         },
       },
