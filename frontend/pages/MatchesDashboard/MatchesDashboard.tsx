@@ -21,7 +21,7 @@ export const MatchesDashboard: Component = () => {
   const [limit, setLimit] = createSignal(50);
   const [page, setPage] = createSignal(0);
   const [sorting, setSorting] = createSignal<MatchQueryMeta['sorting']>({
-    direction: 'asc',
+    direction: 'desc',
     field: 'startDate',
   });
 
