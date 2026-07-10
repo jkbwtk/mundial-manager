@@ -1,10 +1,23 @@
 import { A } from '@solidjs/router';
+import type { JSX } from 'solid-js';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import style from './MobileNavBar.module.scss';
 
-export const MobileNavBar: Component = () => {
+interface MobileNavbarProps {
+  class?: string;
+  classList?: JSX.CustomAttributes<HTMLDivElement>['classList'];
+}
+
+export const MobileNavBar: Component<MobileNavbarProps> = (props) => {
   return (
-    <div class={style.container}>
+    <div
+      classList={{
+        [style.container]: true,
+        [props.class!]: !!props.class,
+
+        ...(props.classList ?? {}),
+      }}
+    >
       <A
         href="/seasons"
         classList={{
