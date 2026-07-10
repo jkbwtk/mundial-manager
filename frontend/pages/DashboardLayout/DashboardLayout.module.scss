@@ -25,6 +25,15 @@
   max-width: 100vw;
 
   overflow: hidden;
+
+  padding-bottom: ch(3);
+
+  .mobile-nav {
+    position: absolute;
+
+    left: 0;
+    bottom: 0;
+  }
 }
 
 .logo {
