@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { lazyObject } from '#blib/lazyObject';
 import { logger } from '#shared/logger';
 
 export const Environment = z.object({
@@ -41,21 +42,23 @@ export const Environment = z.object({
 
 export type Environment = z.infer<typeof Environment>;
 
-const parsedEnvironment = Environment.safeParse({
-  ...process.env,
-  PRODUCTION: String(process.env.NODE_ENV).toLowerCase() === 'production',
+export const environment = lazyObject(() => {
+  const parsedEnvironment = Environment.safeParse({
+    ...process.env,
+    PRODUCTION: String(process.env.NODE_ENV).toLowerCase() === 'production',
+  });
+
+  if (!parsedEnvironment.success) {
+    logger.error(
+      'Failed to parse environment variables:\n%s',
+      z.prettifyError(parsedEnvironment.error),
+      {
+        label: 'environment',
+      },
+    );
+
+    process.exit(1);
+  }
+
+  return parsedEnvironment.data;
 });
-
-if (!parsedEnvironment.success) {
-  logger.error(
-    'Failed to parse environment variables:\n%s',
-    z.prettifyError(parsedEnvironment.error),
-    {
-      label: 'environment',
-    },
-  );
-
-  process.exit(1);
-}
-
-export const environment = parsedEnvironment.data;

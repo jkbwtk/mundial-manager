@@ -33,7 +33,7 @@ import {
   shortUUID,
 } from '#shared/utils';
 
-const defaultSheetStoreOptions: RequiredDefaults<SheetStoreOptions> = {
+const defaultSheetStoreOptions = (): RequiredDefaults<SheetStoreOptions> => ({
   credentials: {
     email: environment.GOOGLE_DOCS_API_EMAIL,
     key: environment.GOOGLE_DOCS_API_KEY,
@@ -41,7 +41,7 @@ const defaultSheetStoreOptions: RequiredDefaults<SheetStoreOptions> = {
   },
   sheetIndex: 0,
   spreadsheetId: environment.GOOGLE_DOCS_SPREADSHEET_ID,
-};
+});
 
 class MatchesEmitter extends TypedEventEmitter<MatchesEmitterEvents> {}
 
@@ -95,7 +95,7 @@ export class SheetStore extends Store {
   constructor(userOptions: SheetStoreOptions = {}) {
     super();
 
-    this.options = mergeOptions(userOptions, defaultSheetStoreOptions);
+    this.options = mergeOptions(userOptions, defaultSheetStoreOptions());
 
     this.doc = this.getDoc();
   }
