@@ -45,6 +45,7 @@ COPY --from=build /build/static /app
 COPY --from=build /build/dist/client /app/private/client
 COPY --from=build /build/dist/server /app/private/server
 COPY --from=build /build/dist/backend /app/private/backend
+COPY --from=build /build/drizzle /app/private/backend/migrations
 
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
