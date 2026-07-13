@@ -1,20 +1,60 @@
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { Command } from 'commander';
+import { migrate } from 'drizzle-orm/pg-core';
 import express from 'express';
+import { db } from '#backend/db/database';
 import { environment } from '#backend/environment';
 import { createRouter } from '#backend/routers/router';
 import { logger } from '#shared/logger';
 
-const app = express();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-app.set('trust proxy', 'loopback');
+async function runServer() {
+  const app = express();
 
-app.use(await createRouter());
+  app.set('trust proxy', 'loopback');
 
-logger.info('Starting server on port %o...', environment.SERVER_PORT, {
-  label: ['prod-server'],
-});
+  app.use(await createRouter());
 
-app.listen(environment.SERVER_PORT).on('listening', () => {
-  logger.info('Server listening on port %o', environment.SERVER_PORT, {
+  logger.info('Starting server on port %o...', environment.SERVER_PORT, {
     label: ['prod-server'],
+  });
+
+  app.listen(environment.SERVER_PORT).on('listening', () => {
+    logger.info('Server listening on port %o', environment.SERVER_PORT, {
+      label: ['prod-server'],
+    });
+  });
+}
+
+async function runMigrations() {
+  logger.info('Running migrations...');
+
+  const migrationsFolder = join(__dirname, 'migrations');
+  await migrate([], db, { migrationsFolder });
+
+  logger.info('Migrations applied successfully');
+
+  await db.$client.end();
+}
+
+async function main() {
+  const program = new Command();
+
+  program.name('Mundial Manager');
+
+  program.action(runServer);
+
+  program.command('migrate').action(runMigrations);
+
+  await program.parseAsync();
+}
+
+main().catch((err) => {
+  logger.error('Mundial Manager error', {
+    label: ['server'],
+    error: err,
   });
 });
