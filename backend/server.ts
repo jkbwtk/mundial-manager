@@ -30,14 +30,24 @@ async function runServer() {
 }
 
 async function runMigrations() {
-  logger.info('Running migrations...');
+  try {
+    logger.info('Running migrations...');
 
-  const migrationsFolder = join(__dirname, 'migrations');
-  await migrate([], db, { migrationsFolder });
+    const migrationsFolder = join(__dirname, 'migrations');
+    await migrate([], db, { migrationsFolder });
 
-  logger.info('Migrations applied successfully');
+    logger.info('Migrations applied successfully');
 
-  await db.$client.end();
+    await db.$client.end();
+  } catch (err) {
+    logger.error('Failed to apply migrations', {
+      label: ['server', 'runMigrations'],
+      error: err
+    })
+
+    await db.$client.end();
+    return process.exit(1);
+  }
 }
 
 async function main() {
