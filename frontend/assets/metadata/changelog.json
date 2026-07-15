@@ -1,6 +1,24 @@
 {
   "versions": [
     {
+      "version": "0.9.1",
+      "releaseType": "patch",
+      "date": "2026-07-15",
+      "name": "Ricochet goals",
+      "changes": [
+        {
+          "type": "feature",
+          "change": "Add ricochet goal to the supported goal types"
+        }
+      ],
+      "commits": [
+        {
+          "hash": "582c5c2c39",
+          "message": "Add support for ricochet goal type"
+        }
+      ]
+    },
+    {
       "version": "0.9.0",
       "releaseType": "minor",
       "date": "2026-05-15",
