@@ -1,5 +1,25 @@
+# For development and testing
+
 services:
-  nginx:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mm_password}
+      POSTGRES_DB: ${POSTGRES_DB:-MM_DEV_DB}
+    ports:
+      - "${POSTGRES_EXTERNAL_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+    volumes:
+      - db_data:/var/lib/postgresql
+  
+  manager:
+    image: ${IMAGE_NAME}:${IMAGE_TAG}
     build:
       context: .
       dockerfile: Dockerfile
@@ -7,15 +27,58 @@ services:
         - VITE_CALCULATOR_URL=${VITE_CALCULATOR_URL:-http://localhost}
     ports:
       - ${NGINX_PORT:-8090}:80
-    environment:
-      - NGINX_PARAM_KEY=${NGINX_PARAM_KEY:-key}
-      - NGINX_SECRET=${NGINX_SECRET:-secret}
-      - DISCORD_WEBHOOK_ID=${DISCORD_WEBHOOK_ID:-}
-      - DISCORD_WEBHOOK_TOKEN=${DISCORD_WEBHOOK_TOKEN:-}
-      - MANAGER_ICON_URL=${MANAGER_ICON_URL:-}
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+      migrate:
+        condition: service_completed_successfully
+    environment: &node-env
+      - NGINX_PARAM_KEY=${NGINX_PARAM_KEY}
+      - NGINX_SECRET=${NGINX_SECRET}
+      - DISCORD_WEBHOOK_ID=${DISCORD_WEBHOOK_ID}
+      - DISCORD_WEBHOOK_TOKEN=${DISCORD_WEBHOOK_TOKEN}
+      - MANAGER_ICON_URL=${MANAGER_ICON_URL}
+      - GOOGLE_DOCS_API_EMAIL=${GOOGLE_DOCS_API_EMAIL}
+      - GOOGLE_DOCS_SPREADSHEET_ID=${GOOGLE_DOCS_SPREADSHEET_ID}
+      - GOOGLE_DOCS_API_KEY=${GOOGLE_DOCS_API_KEY}
+      - POSTGRES_HOST=${POSTGRES_HOST:-db}
+      - POSTGRES_PORT=${POSTGRES_PORT:-5432}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-mm_password}
+      - POSTGRES_DB=${POSTGRES_DB:-MM_DEV_DB}
+      - JWT_COOKIE_NAME=${JWT_COOKIE_NAME}
+      - KEY_PASSPHRASE=${KEY_PASSPHRASE}
+      - PUB_KEY_PATH=${PUB_KEY_PATH}
+      - PRIV_KEY_PATH=${PRIV_KEY_PATH}
+      - BASE_SITE_URL=${BASE_SITE_URL}
     volumes:
       - ./static/public:/app/public:ro
       - ./static/auth:/app/auth:ro
-      # - ./dist/static:/app/private/pages:ro
-      # - ./dist/client/assets:/app/private/assets:ro
       - ./nginx.conf:/etc/nginx/templates/nginx.conf.template:ro
+      - ./priv.pem:/app/private/priv.pem:ro
+      - ./pub.pem:/app/private/pub.pem:ro
+    restart: unless-stopped
+    develop:
+      watch:
+        - path: nginx.conf
+          action: restart
+
+  migrate:
+    image: ${IMAGE_NAME}:${IMAGE_TAG}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - VITE_CALCULATOR_URL=${VITE_CALCULATOR_URL:-http://localhost}
+    command: ["node", "/app/private/backend/server", "migrate"]
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+    environment: *node-env
+    restart: no
+
+
+volumes:
+  db_data:
