@@ -40,6 +40,7 @@ export const GoalTypeEnum = {
   GUARD_PIERCE_GOAL: 'GUARD_PIERCE_GOAL', // A goal scored in a way that spun opponent's unheld or weakly held rod out of the way
   PUSH_GOAL: 'PUSH_GOAL', // A goal scored by pushing the ball without making any audible sound or noticeable movement
   BERMUDA_TRIANGLE_GOAL: 'BERMUDA_TRIANGLE_GOAL', // A goal scored directly after the ball hits one or both goalposts of the scoring side's goal
+  RICOCHET_GOAL: 'RICOCHET_GOAL', // A goal scored by ricocheting the ball of table's side and/or multiple figurines
 } as const;
 
 export const GoalType = z.enum(GoalTypeEnum);

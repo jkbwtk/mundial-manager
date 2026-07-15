@@ -24,6 +24,7 @@ const goalTypeEmojiMap: Record<GoalType, string> = {
   GUARD_PIERCE_GOAL: '🎳',
   PUSH_GOAL: '🥷',
   BERMUDA_TRIANGLE_GOAL: '📐',
+  RICOCHET_GOAL: '⤴️',
 };
 
 export const GoalEvent: Component<GoalEventProps> = (props) => {
