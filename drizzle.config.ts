@@ -11,7 +11,7 @@ export default defineConfig({
     host: process.env.POSTGRES_HOST!,
     port: parseInt(process.env.POSTGRES_PORT!, 10),
     user: process.env.POSTGRES_USER!,
-    password: process.env.POSTGRES_PASSWORD!,
+    password: process.env.POSTGRES_PASS!,
     database: process.env.POSTGRES_DB!,
     ssl: false
   },

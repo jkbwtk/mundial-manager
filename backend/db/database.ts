@@ -10,7 +10,7 @@ export const db = lazyObject(() =>
       host: environment.POSTGRES_HOST,
       port: environment.POSTGRES_PORT,
       user: environment.POSTGRES_USER,
-      password: environment.POSTGRES_PASSWORD,
+      password: environment.POSTGRES_PASS,
       database: environment.POSTGRES_DB,
 
       allowExitOnIdle: false,

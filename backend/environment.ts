@@ -19,7 +19,7 @@ export const Environment = z.object({
   POSTGRES_HOST: z.string().min(1),
   POSTGRES_PORT: z.coerce.number().int().positive().max(65535),
   POSTGRES_USER: z.string().min(1),
-  POSTGRES_PASSWORD: z.string().min(1),
+  POSTGRES_PASS: z.string().min(1),
   POSTGRES_DB: z.string().min(1),
 
   JWT_COOKIE_NAME: z.string().min(1),
