@@ -38,6 +38,11 @@ export const Environment = z.object({
   DATABASE_LOGGING: z.coerce.boolean().default(false),
 
   VITE_CALCULATOR_URL: z.string(),
+
+  RABBITMQ_USER: z.string().min(1),
+  RABBITMQ_PASS: z.string().min(1),
+  RABBITMQ_HOST: z.string().min(1),
+  RABBITMQ_PORT: z.coerce.number().int().positive().max(65535),
 });
 
 export type Environment = z.infer<typeof Environment>;

@@ -20,11 +20,12 @@ export default defineConfig({
 
   plugins: [babel({ presets: [decoratorPreset({ version: '2023-11' })] })],
 
-  input: 'backend/server.ts',
+  input: {
+    server: 'backend/server.ts',
+    worker: 'backend/worker.ts',
+  },
   output: {
-    file: 'dist/backend/server.js',
-    codeSplitting: false,
-
+    dir: 'dist/backend',
     format: 'esm',
 
     minify: true,

@@ -33,6 +33,12 @@ services:
         restart: true
       migrate:
         condition: service_completed_successfully
+      rabbit:
+        condition: service_started
+        restart: true
+      worker:
+        condition: service_started
+        restart: true
     environment: &node-env
       - NGINX_PARAM_KEY=${NGINX_PARAM_KEY}
       - NGINX_SECRET=${NGINX_SECRET}
@@ -52,6 +58,10 @@ services:
       - PUB_KEY_PATH=${PUB_KEY_PATH}
       - PRIV_KEY_PATH=${PRIV_KEY_PATH}
       - BASE_SITE_URL=${BASE_SITE_URL}
+      - RABBITMQ_USER=${RABBITMQ_USER:-rabbit}
+      - RABBITMQ_PASS=${RABBITMQ_PASS:-rb_password}
+      - RABBITMQ_HOST=${RABBITMQ_HOST:-rabbit}
+      - RABBITMQ_PORT=${RABBITMQ_PORT:-5672}
     volumes:
       - ./static/public:/app/public:ro
       - ./static/auth:/app/auth:ro
@@ -63,6 +73,26 @@ services:
       watch:
         - path: nginx.conf
           action: restart
+
+  worker:
+    image: ${IMAGE_NAME}:${IMAGE_TAG}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - VITE_CALCULATOR_URL=${VITE_CALCULATOR_URL:-http://localhost}
+    command: ["node", "/app/private/backend/worker"]
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+      rabbit:
+        condition: service_started
+        restart: true
+    environment: *node-env
+    restart: unless-stopped
+    deploy:
+      replicas: 4
 
   migrate:
     image: ${IMAGE_NAME}:${IMAGE_TAG}
@@ -79,6 +109,14 @@ services:
     environment: *node-env
     restart: no
 
+  rabbit:
+    image: rabbitmq:4.3-management-alpine
+    ports:
+      - ${RABBITMQ_EXTERNAL_PORT:-5672}:5672
+      - ${RABBITMQ_MANAGEMENT_EXTERNAL_PORT:-15672}:15672
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS}
 
 volumes:
   db_data:
