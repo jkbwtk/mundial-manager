@@ -17,6 +17,9 @@ services:
       timeout: 10s
     volumes:
       - db_data:/var/lib/postgresql
+    profiles:
+      - local
+      - staging
   
   manager:
     image: ${IMAGE_NAME}:${IMAGE_TAG}
@@ -73,6 +76,8 @@ services:
       watch:
         - path: nginx.conf
           action: restart
+    profiles:
+      - staging
 
   worker:
     image: ${IMAGE_NAME}:${IMAGE_TAG}
@@ -93,6 +98,8 @@ services:
     restart: unless-stopped
     deploy:
       replicas: 4
+    profiles:
+      - staging
 
   migrate:
     image: ${IMAGE_NAME}:${IMAGE_TAG}
@@ -108,6 +115,8 @@ services:
         restart: true
     environment: *node-env
     restart: no
+    profiles:
+      - staging
 
   rabbit:
     image: rabbitmq:4.3-management-alpine
@@ -117,6 +126,9 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS}
+    profiles:
+      - local
+      - staging
 
 volumes:
   db_data:
