@@ -1,6 +1,7 @@
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Command } from 'commander';
+import { readMigrationFiles } from 'drizzle-orm/migrator';
 import { migrate } from 'drizzle-orm/pg-core';
 import express from 'express';
 import { db } from '#backend/db/database';
@@ -34,7 +35,9 @@ async function runMigrations() {
     logger.info('Running migrations...');
 
     const migrationsFolder = join(__dirname, 'migrations');
-    await migrate([], db, { migrationsFolder });
+    const migrations = readMigrationFiles({ migrationsFolder });
+
+    await migrate(migrations, db, { migrationsFolder });
 
     logger.info('Migrations applied successfully');
 
@@ -42,8 +45,8 @@ async function runMigrations() {
   } catch (err) {
     logger.error('Failed to apply migrations', {
       label: ['server', 'runMigrations'],
-      error: err
-    })
+      error: err,
+    });
 
     await db.$client.end();
     return process.exit(1);
