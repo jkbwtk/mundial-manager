@@ -7,6 +7,7 @@ import type { Labels } from '#shared/labels';
 import { MatchStatusEnum } from '#shared/types/api/match';
 import { MatchEventTypeEnum } from '#shared/types/api/matchEvent';
 import type { SeasonConfig } from '#shared/types/api/season';
+import type { StatsFrame } from '#shared/types/api/statsFrame';
 
 const commonFields = {
   uuid: uuid().primaryKey().defaultRandom(),
@@ -310,5 +311,34 @@ export const matchEventsTable = pgTable(
     index().on(r.time),
     index().on(r.$createdAt),
     index().on(r.$deletedAt).where(isNull(r.$deletedAt)),
+  ],
+);
+
+export const statsFramesTable = pgTable(
+  'statsFrames',
+  (t) => ({
+    leagueUuid: t
+      .uuid()
+      .references(() => leaguesTable.uuid, { onDelete: 'cascade' })
+      .notNull(),
+    matchUuid: t
+      .uuid()
+      .references(() => matchesTable.uuid, { onDelete: 'cascade' })
+      .notNull(),
+
+    time: t
+      .timestamp({ mode: 'date', withTimezone: true, precision: 6 })
+      .notNull(),
+    payload: t.jsonb().$type<StatsFrame>(),
+
+    labels: t.jsonb().$type<Labels>().notNull().default(sql`'{}'::jsonb`),
+
+    ...commonFields,
+  }),
+  (r) => [
+    index().on(r.leagueUuid),
+    index().on(r.matchUuid),
+    index().on(r.time),
+    index().on(r.$createdAt),
   ],
 );
