@@ -1,4 +1,11 @@
-import { connect, type Options } from 'amqplib';
+import {
+  type Channel as BaseChannel,
+  type ConsumeMessage,
+  connect,
+  type GetMessage,
+  type Options,
+  type Replies,
+} from 'amqplib';
 import { environment } from '#backend/environment';
 
 export type SupportedAMQPQueue = Options.AssertQueue & {
@@ -7,7 +14,7 @@ export type SupportedAMQPQueue = Options.AssertQueue & {
 
 export const AMQP_QUEUES = [
   {
-    name: 'DB_UPDATES',
+    name: 'MATCH_TABLE_UPDATES',
     arguments: {
       'x-queue-type': 'quorum',
     },
@@ -15,6 +22,60 @@ export const AMQP_QUEUES = [
 ] as const satisfies SupportedAMQPQueue[];
 
 export type AMQP_QUEUE_NAMES = (typeof AMQP_QUEUES)[number]['name'];
+
+export type Channel = Omit<
+  BaseChannel,
+  | 'assertQueue'
+  | 'checkQueue'
+  | 'deleteQueue'
+  | 'purgeQueue'
+  | 'bindQueue'
+  | 'unbindQueue'
+  | 'sendToQueue'
+  | 'consume'
+  | 'get'
+> & {
+  assertQueue(
+    queue?: AMQP_QUEUE_NAMES | (string & {}),
+    options?: Options.AssertQueue,
+  ): Promise<Replies.AssertQueue>;
+  checkQueue(queue: string): Promise<Replies.AssertQueue>;
+
+  deleteQueue(
+    queue: AMQP_QUEUE_NAMES | (string & {}),
+    options?: Options.DeleteQueue,
+  ): Promise<Replies.DeleteQueue>;
+  purgeQueue(queue: string): Promise<Replies.PurgeQueue>;
+
+  bindQueue(
+    queue: AMQP_QUEUE_NAMES | (string & {}),
+    source: string,
+    pattern: string,
+    // biome-ignore lint/suspicious/noExplicitAny: yeah
+    args?: any,
+  ): Promise<Replies.Empty>;
+  unbindQueue(
+    queue: AMQP_QUEUE_NAMES | (string & {}),
+    source: string,
+    pattern: string,
+    // biome-ignore lint/suspicious/noExplicitAny: yeah
+    args?: any,
+  ): Promise<Replies.Empty>;
+
+  sendToQueue(
+    queue: AMQP_QUEUE_NAMES | (string & {}),
+    content: Buffer,
+    options?: Options.Publish,
+  ): boolean;
+
+  consume(
+    queue: AMQP_QUEUE_NAMES | (string & {}),
+    onMessage: (msg: ConsumeMessage | null) => void,
+    options?: Options.Consume,
+  ): Promise<Replies.Consume>;
+
+  get(queue: string, options?: Options.Get): Promise<GetMessage | false>;
+};
 
 let amqpSingleton: ReturnType<typeof initializeAMQPChannel> | null = null;
 
@@ -35,7 +96,7 @@ async function initializeAMQPChannel() {
   return { amqpConnection, amqpChannel };
 }
 
-export async function getAMQPChannel() {
+export async function getAMQPChannel(): Promise<Channel> {
   if (amqpSingleton === null) {
     amqpSingleton = initializeAMQPChannel();
   }

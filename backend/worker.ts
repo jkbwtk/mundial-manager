@@ -1,4 +1,4 @@
-import { type AMQP_QUEUE_NAMES, getAMQPChannel } from '#backend/amqp/amqp';
+import { getAMQPChannel } from '#backend/amqp/amqp';
 import { logger } from '#shared/logger';
 
 async function main() {
@@ -11,8 +11,6 @@ async function main() {
   logger.info('Worker AMQP channel established', {
     label: ['worker'],
   });
-
-  console.log(await amqp.checkQueue('DB_UPDATES' satisfies AMQP_QUEUE_NAMES));
 }
 
 main().catch((err) => {
