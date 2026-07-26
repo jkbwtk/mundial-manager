@@ -11,6 +11,7 @@
   },
   "scripts": {
     "dev": "tsx watch --env-file-if-exists=.env ./backend/devServer",
+    "worker": "tsx watch --env-file-if-exists=.env ./backend/worker",
     "dev:static": "cross-env NODE_ENV=production tsx watch --env-file-if-exists=.env ./backend/server",
     "static": "cross-env NODE_ENV=production tsx --env-file-if-exists=.env ./dist/backend/server",
     "playground": "tsx watch --env-file-if-exists=.env ./backend/playground",
