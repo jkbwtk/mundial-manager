@@ -51,8 +51,8 @@ services:
       - GOOGLE_DOCS_API_EMAIL=${GOOGLE_DOCS_API_EMAIL}
       - GOOGLE_DOCS_SPREADSHEET_ID=${GOOGLE_DOCS_SPREADSHEET_ID}
       - GOOGLE_DOCS_API_KEY=${GOOGLE_DOCS_API_KEY}
-      - POSTGRES_HOST=${POSTGRES_HOST:-db}
-      - POSTGRES_PORT=${POSTGRES_PORT:-5432}
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
       - POSTGRES_PASS=${POSTGRES_PASS:-mm_password}
       - POSTGRES_DB=${POSTGRES_DB:-MM_DEV_DB}
@@ -63,8 +63,8 @@ services:
       - BASE_SITE_URL=${BASE_SITE_URL}
       - RABBITMQ_USER=${RABBITMQ_USER:-rabbit}
       - RABBITMQ_PASS=${RABBITMQ_PASS:-rb_password}
-      - RABBITMQ_HOST=${RABBITMQ_HOST:-rabbit}
-      - RABBITMQ_PORT=${RABBITMQ_PORT:-5672}
+      - RABBITMQ_HOST=rabbit
+      - RABBITMQ_PORT=5672
     volumes:
       - ./static/public:/app/public:ro
       - ./static/auth:/app/auth:ro
