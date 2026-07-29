@@ -126,6 +126,7 @@ export function ConvertDrizzleErrors() {
       ...args: unknown[]
     ) {
       const label = this.name ?? 'unknown';
+      const name = 'realName' in target ? target.realName : target.name;
 
       try {
         return await target.call(this, ...args);
@@ -212,7 +213,7 @@ export function ConvertDrizzleErrors() {
 
             default:
               logger.error('Unhandled DrizzleQueryError', {
-                label: [label, target.name],
+                label: [label, name],
                 error: err,
               });
 
@@ -223,6 +224,10 @@ export function ConvertDrizzleErrors() {
         throw err;
       }
     };
+
+    if (!('realName' in target)) {
+      wrappedMethod.realName = target.name;
+    }
 
     return wrappedMethod;
   };
