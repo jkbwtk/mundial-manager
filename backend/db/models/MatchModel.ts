@@ -1,5 +1,6 @@
 import { and, eq, isNull } from 'drizzle-orm';
 import z from 'zod';
+import { PublishResult } from '#backend/amqp/publishers';
 import type { DB, TX } from '#backend/db/database';
 import { MatchEventModel } from '#backend/db/models/MatchEventModel';
 import {
@@ -122,6 +123,7 @@ export class MatchModel extends ModelOps({
     };
   }
 
+  @PublishResult('MATCH_TABLE_UPDATES')
   @ConvertDrizzleErrors()
   public static async create(
     db: DB | TX,
@@ -173,6 +175,7 @@ export class MatchModel extends ModelOps({
     return instance;
   }
 
+  @PublishResult('MATCH_TABLE_UPDATES')
   @ConvertDrizzleErrors()
   public static async update(
     db: DB | TX,
@@ -302,6 +305,7 @@ export class MatchModel extends ModelOps({
     return mappedInstances;
   }
 
+  @PublishResult('MATCH_TABLE_UPDATES')
   @ConvertDrizzleErrors()
   public static async createFull(
     db: DB,
@@ -332,6 +336,12 @@ export class MatchModel extends ModelOps({
     });
 
     return instance;
+  }
+
+  @PublishResult('MATCH_TABLE_UPDATES')
+  @ConvertDrizzleErrors()
+  public static async delete(db: DB, leagueUuid: string, uuid: string) {
+    return super.delete(db, leagueUuid, uuid);
   }
 
   public static validationStrategies: ValidationStrategies<
