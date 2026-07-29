@@ -1,7 +1,10 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: yeah */
 
+import { randomUUID } from 'node:crypto';
 import z, { prettifyError } from 'zod';
+import { type AMQP_QUEUE_NAMES, getAMQPChannel } from '#backend/amqp/amqp';
 import { logger } from '#shared/logger';
+import { shortUUID } from '#shared/utils';
 
 interface AMQPMessage<T extends object> {
   data: T;
@@ -66,4 +69,38 @@ export function getTransportDelay(message: AMQPMessage<object>): number {
   const dt = message.timeOrigin - performance.timeOrigin;
 
   return message.deserializationTimestamp - message.serializationTimestamp - dt;
+}
+
+export function PublishResult(queue: AMQP_QUEUE_NAMES) {
+  return <T extends (...args: any[]) => any>(
+    target: T,
+    _ctx: ClassMemberDecoratorContext,
+  ) => {
+    const wrappedMethod = async function (this: any, ...args: unknown[]) {
+      const label = this.name ?? 'unknown';
+      const name = 'realName' in target ? target.realName : target.name;
+
+      const resp = await target.call(this, ...args);
+
+      try {
+        const amqp = await getAMQPChannel();
+        amqp.sendToQueue(queue, serializeAMQPMessage(resp), {
+          messageId: [label, name, shortUUID(randomUUID())].join(':'),
+        });
+      } catch (err) {
+        logger.warn('Failed to publish call result to %s queue', queue, {
+          label: [label, name],
+          error: err,
+        });
+      }
+
+      return resp;
+    };
+
+    if (!('realName' in target)) {
+      wrappedMethod.realName = target.name;
+    }
+
+    return wrappedMethod;
+  };
 }
