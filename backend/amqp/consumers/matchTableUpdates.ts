@@ -12,6 +12,12 @@ export function registerMatchTableUpdates(channel: Channel) {
       return;
     }
 
+    if (msg.properties.messageId) {
+      logger.debug('Consuming message %s', msg.properties.messageId, {
+        label: ['consumers', 'matchTableUpdates'],
+      });
+    }
+
     const message = deserializeAMQPMessage(Match, msg.content);
 
     if (message === null) {
@@ -25,7 +31,9 @@ export function registerMatchTableUpdates(channel: Channel) {
 
     const delay = getTransportDelay(message);
 
-    logger.debug('AMQP transport delay: %d', delay);
+    logger.debug('AMQP transport delay: %d', delay, {
+      label: ['consumers', 'matchTableUpdates'],
+    });
 
     channel.ack(msg);
   });

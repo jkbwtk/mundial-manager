@@ -84,8 +84,14 @@ export function PublishResult(queue: AMQP_QUEUE_NAMES) {
 
       try {
         const amqp = await getAMQPChannel();
+        const messageId = [label, name, shortUUID(randomUUID())].join(':');
+
+        logger.debug('Publishing message %s to queue %s', messageId, queue, {
+          label: [label, name],
+        });
+
         amqp.sendToQueue(queue, serializeAMQPMessage(resp), {
-          messageId: [label, name, shortUUID(randomUUID())].join(':'),
+          messageId,
         });
       } catch (err) {
         logger.warn('Failed to publish call result to %s queue', queue, {
