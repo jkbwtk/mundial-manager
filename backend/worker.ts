@@ -1,4 +1,5 @@
 import { getAMQPChannel } from '#backend/amqp/amqp';
+import { registerMatchTableUpdates } from '#backend/amqp/consumers/matchTableUpdates';
 import { logger } from '#shared/logger';
 
 async function main() {
@@ -11,6 +12,8 @@ async function main() {
   logger.info('Worker AMQP channel established', {
     label: ['worker'],
   });
+
+  registerMatchTableUpdates(amqp);
 }
 
 main().catch((err) => {
