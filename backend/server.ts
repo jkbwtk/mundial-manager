@@ -8,6 +8,7 @@ import { db } from '#backend/db/database';
 import { environment } from '#backend/environment';
 import { createRouter } from '#backend/routers/router';
 import { logger } from '#shared/logger';
+import registerImportCommand from '#tools/commands/import';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -61,6 +62,8 @@ async function main() {
   program.action(runServer);
 
   program.command('migrate').action(runMigrations);
+
+  registerImportCommand(program);
 
   await program.parseAsync();
 }
