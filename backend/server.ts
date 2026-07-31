@@ -1,17 +1,10 @@
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { Command } from 'commander';
-import { readMigrationFiles } from 'drizzle-orm/migrator';
-import { migrate } from 'drizzle-orm/pg-core';
 import express from 'express';
-import { db } from '#backend/db/database';
 import { environment } from '#backend/environment';
 import { createRouter } from '#backend/routers/router';
 import { logger } from '#shared/logger';
 import registerImportCommand from '#tools/commands/import';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import registerMigrateCommand from '#tools/commands/migrate';
 
 async function runServer() {
   const app = express();
@@ -31,29 +24,6 @@ async function runServer() {
   });
 }
 
-async function runMigrations() {
-  try {
-    logger.info('Running migrations...');
-
-    const migrationsFolder = join(__dirname, 'migrations');
-    const migrations = readMigrationFiles({ migrationsFolder });
-
-    await migrate(migrations, db, { migrationsFolder });
-
-    logger.info('Migrations applied successfully');
-
-    await db.$client.end();
-  } catch (err) {
-    logger.error('Failed to apply migrations', {
-      label: ['server', 'runMigrations'],
-      error: err,
-    });
-
-    await db.$client.end();
-    return process.exit(1);
-  }
-}
-
 async function main() {
   const program = new Command();
 
@@ -61,8 +31,7 @@ async function main() {
 
   program.action(runServer);
 
-  program.command('migrate').action(runMigrations);
-
+  registerMigrateCommand(program, '/app/private/backend/migrations');
   registerImportCommand(program);
 
   await program.parseAsync();
