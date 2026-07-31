@@ -1,3 +1,5 @@
+#!node
+
 import { Command } from 'commander';
 import express from 'express';
 import { environment } from '#backend/environment';
