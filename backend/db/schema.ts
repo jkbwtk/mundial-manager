@@ -329,7 +329,7 @@ export const statsFramesTable = pgTable(
     time: t
       .timestamp({ mode: 'date', withTimezone: true, precision: 6 })
       .notNull(),
-    payload: t.jsonb().$type<StatsFrame>(),
+    payload: t.jsonb().$type<StatsFrame>().notNull(),
 
     labels: t.jsonb().$type<Labels>().notNull().default(sql`'{}'::jsonb`),
 
