@@ -35,14 +35,16 @@ export const Environment = z.object({
 
   BASE_SITE_URL: z.url().transform((url) => new URL('/', url).toString()),
 
-  DATABASE_LOGGING: z.coerce.boolean().default(false),
+  DATABASE_LOGGING: z.stringbool().default(false),
 
   VITE_CALCULATOR_URL: z.string(),
 
-  RABBITMQ_USER: z.string().min(1),
-  RABBITMQ_PASS: z.string().min(1),
-  RABBITMQ_HOST: z.string().min(1),
-  RABBITMQ_PORT: z.coerce.number().int().positive().max(65535),
+  RABBITMQ_ENABLED: z.stringbool().default(true),
+
+  RABBITMQ_USER: z.string().min(1).optional(),
+  RABBITMQ_PASS: z.string().min(1).optional(),
+  RABBITMQ_HOST: z.string().min(1).optional(),
+  RABBITMQ_PORT: z.coerce.number().int().positive().max(65535).optional(),
 });
 
 export type Environment = z.infer<typeof Environment>;
@@ -58,6 +60,20 @@ export const environment = lazyObject(() => {
       `Failed to parse environment variables:\n${z.prettifyError(
         parsedEnvironment.error,
       )}`,
+    );
+  }
+
+  const env = parsedEnvironment.data;
+
+  if (
+    env.RABBITMQ_ENABLED &&
+    (env.RABBITMQ_HOST === undefined ||
+      env.RABBITMQ_PORT === undefined ||
+      env.RABBITMQ_USER === undefined ||
+      env.RABBITMQ_PASS === undefined)
+  ) {
+    throw new EnvironmentConfigurationError(
+      'Missing RabbitMQ configuration despite RABBITMQ_ENABLED being set to true',
     );
   }
 

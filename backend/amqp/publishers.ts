@@ -3,6 +3,7 @@
 import { randomUUID } from 'node:crypto';
 import z, { prettifyError } from 'zod';
 import { type AMQP_QUEUE_NAMES, getAMQPChannel } from '#backend/amqp/amqp';
+import { environment } from '#backend/environment';
 import { logger } from '#shared/logger';
 import { shortUUID } from '#shared/utils';
 
@@ -82,25 +83,27 @@ export function PublishResult(queue: AMQP_QUEUE_NAMES) {
 
       const resp = await target.call(this, ...args);
 
-      try {
-        const amqp = await getAMQPChannel();
-        const messageId = [label, name, shortUUID(randomUUID())].join(':');
+      if (environment.RABBITMQ_ENABLED) {
+        try {
+          const amqp = await getAMQPChannel();
+          const messageId = [label, name, shortUUID(randomUUID())].join(':');
 
-        logger.debug('Publishing message %s to queue %s', messageId, queue, {
-          label: [label, name],
-        });
+          logger.debug('Publishing message %s to queue %s', messageId, queue, {
+            label: [label, name],
+          });
 
-        amqp.sendToQueue(queue, serializeAMQPMessage(resp), {
-          messageId,
-        });
-      } catch (err) {
-        logger.warn('Failed to publish call result to %s queue', queue, {
-          label: [label, name],
-          error: err,
-        });
+          amqp.sendToQueue(queue, serializeAMQPMessage(resp), {
+            messageId,
+          });
+        } catch (err) {
+          logger.warn('Failed to publish call result to %s queue', queue, {
+            label: [label, name],
+            error: err,
+          });
+        }
+
+        return resp;
       }
-
-      return resp;
     };
 
     if (!('realName' in target)) {

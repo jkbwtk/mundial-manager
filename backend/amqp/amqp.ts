@@ -7,6 +7,7 @@ import {
   type Replies,
 } from 'amqplib';
 import { environment } from '#backend/environment';
+import { ConfigurationAssertionError } from '#backend/errors/configuration';
 
 export type SupportedAMQPQueue = Options.AssertQueue & {
   name: string;
@@ -80,6 +81,12 @@ export type Channel = Omit<
 let amqpSingleton: ReturnType<typeof initializeAMQPChannel> | null = null;
 
 async function initializeAMQPChannel() {
+  if (environment.RABBITMQ_ENABLED === false) {
+    throw new ConfigurationAssertionError(
+      'initializeAMQPChannel called despite RABBITMQ_ENABLED being set to false',
+    );
+  }
+
   const amqpConnection = await connect({
     hostname: environment.RABBITMQ_HOST,
     port: environment.RABBITMQ_PORT,
