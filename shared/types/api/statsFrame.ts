@@ -1,264 +1,224 @@
-import type { GoalType } from '#shared/types/api/matchEvent';
+import z from 'zod';
+import { GoalType } from '#shared/types/api/matchEvent';
 
-export interface BaseStats {
-  label: string;
+export const BaseStats = z.object({
+  label: z.string(),
 
-  averageTimeBetweenGoals: number | null;
-  averageTimeBetweenGoalsFormatted: string;
+  averageTimeBetweenGoals: z.number().nonnegative().nullable(),
+  // averageTimeBetweenGoalsFormatted: string;
 
-  longestTimeBetweenGoals: number | null;
-  longestTimeBetweenGoalsFormatted: string;
+  longestTimeBetweenGoals: z.number().nonnegative().nullable(),
+  // longestTimeBetweenGoalsFormatted: string;
 
-  shortestTimeBetweenGoals: number | null;
-  shortestTimeBetweenGoalsFormatted: string;
+  shortestTimeBetweenGoals: z.number().nonnegative().nullable(),
+  // shortestTimeBetweenGoalsFormatted: string;
 
-  goalsPerMinute: number | null;
+  goalsPerMinute: z.number().nonnegative().nullable(),
 
-  ballOutCount: number | null;
-  positionChangeCount: number | null;
-  ownGoalCount: number | null;
+  ballOutCount: z.number().int().nonnegative().nullable(),
+  positionChangeCount: z.number().int().nonnegative().nullable(),
+  ownGoalCount: z.number().int().nonnegative().nullable(),
 
-  goalTypesCount: Record<GoalType, number>;
+  goalTypesCount: z.record(GoalType, z.number().int().nonnegative()),
 
-  _matchCounter: number;
-  _goalsWithDuration: number;
-  _matchesWithDuration: number;
-  _matchesWithTimeline: number;
-  _matchesWithGoalTypes: number;
-}
+  _matchCounter: z.number().int().nonnegative(),
+  _goalsWithDuration: z.number().int().nonnegative(),
+  _matchesWithDuration: z.number().int().nonnegative(),
+  _matchesWithTimeline: z.number().int().nonnegative(),
+  _matchesWithGoalTypes: z.number().int().nonnegative(),
+});
+export type BaseStats = z.infer<typeof BaseStats>;
 
-export interface MatchStats extends BaseStats {}
+export const MatchStats = BaseStats;
+export type MatchStats = z.infer<typeof MatchStats>;
 
-export interface AggregateStats extends BaseStats {
+export const AggregateStats = BaseStats.extend({
   // players:   string[];
   // teams:   string[];
 
-  matches: number;
-  goals: number;
+  matches: z.number().int().nonnegative(),
+  goals: z.number().int().nonnegative(),
 
-  playtime: number;
+  playtime: z.number().nonnegative(),
   // playtimeFormatted: string;
 
-  individualPlaytime: number;
+  individualPlaytime: z.number().nonnegative(),
   // individualPlaytimeFormatted: string;
 
-  averageMatchDuration: number;
+  averageMatchDuration: z.number().nonnegative(),
   // averageMatchDurationFormatted: string;
 
-  averageGoals: number;
+  averageGoals: z.number().nonnegative(),
 
-  averageBallOutsPerMatch: number | null;
-  averagePositionChangesPerMatch: number | null;
-  averageOwnGoalsPerMatch: number | null;
+  averageBallOutsPerMatch: z.number().nonnegative().nullable(),
+  averagePositionChangesPerMatch: z.number().nonnegative().nullable(),
+  averageOwnGoalsPerMatch: z.number().nonnegative().nullable(),
 
   // floorMatchCount: Record<number, number>;
   // colorWinCount: Record<string, number>;
 
   // floors: number[];
   // colors: string[];
-}
+});
+export type AggregateStats = z.infer<typeof AggregateStats>;
 
-export interface SessionStats extends AggregateStats {
-  session: string;
-  humanSession: string;
-}
+export const SessionStats = AggregateStats.extend({
+  session: z.string(),
+  humanSession: z.string(),
+});
+export type SessionStats = z.infer<typeof SessionStats>;
 
-export interface DayStats extends AggregateStats {
-  date: number | null;
-  humanDate: string;
-}
+export const DayStats = AggregateStats.extend({
+  date: z.number().nullable(),
+  humanDate: z.string(),
+});
+export type DayStats = z.infer<typeof DayStats>;
 
-export interface WeekStats extends AggregateStats {
-  week: number | null;
-  humanWeek: string;
-}
+export const WeekStats = AggregateStats.extend({
+  week: z.number().nullable(),
+  humanWeek: z.string(),
+});
+export type WeekStats = z.infer<typeof WeekStats>;
 
-export interface MonthStats extends AggregateStats {
-  month: number | null;
-  humanMonth: string;
-}
+export const MonthStats = AggregateStats.extend({
+  month: z.number().nullable(),
+  humanMonth: z.string(),
+});
+export type MonthStats = z.infer<typeof MonthStats>;
 
-export interface SeasonStats extends AggregateStats {
-  season: string;
-}
+export const SeasonStats = AggregateStats.extend({
+  season: z.string(),
+});
+export type SeasonStats = z.infer<typeof SeasonStats>;
 
-export interface GeneralStats extends AggregateStats {
-  totalPlaytimeExtrapolated: number;
+export const GeneralStats = AggregateStats.extend({
+  totalPlaytimeExtrapolated: z.number().nonnegative(),
   // totalPlaytimeExtrapolatedFormatted: string;
 
-  totalIndividualPlaytimeExtrapolated: number;
+  totalIndividualPlaytimeExtrapolated: z.number().nonnegative(),
   // totalIndividualPlaytimeExtrapolatedFormatted: string;
-}
+});
+export type GeneralStats = z.infer<typeof GeneralStats>;
 
-export interface PlayerStats {
+export const PlayerStats = z.object({
   // name: string;
-  id: string;
+  id: z.string(),
 
-  playtime: number;
+  playtime: z.number().nonnegative(),
   // playtimeFormatted: string;
-  matches: number;
+  matches: z.number().int().nonnegative(),
 
-  averageMatchDuration: number;
+  averageMatchDuration: z.number().nonnegative(),
   // averageMatchDurationFormatted: string;
 
-  wins: number;
-  losses: number;
-  winRatio: number;
+  wins: z.number().int().nonnegative(),
+  losses: z.number().int().nonnegative(),
+  winRatio: z.number().nonnegative(),
 
-  goalsFor: number;
-  goalsAgainst: number;
+  goalsFor: z.number().int().nonnegative(),
+  goalsAgainst: z.number().int().nonnegative(),
 
-  goalDifference: number;
-  goalRatio: number;
+  goalDifference: z.number().int(),
+  goalRatio: z.number(),
 
-  ownGoals: number;
+  ownGoals: z.number().int().nonnegative(),
 
-  currentWinStreak: number;
-  longestWinStreak: number;
+  goalTypesCount: z.record(GoalType, z.number().int().nonnegative()),
 
-  currentLossStreak: number;
-  longestLossStreak: number;
+  currentWinStreak: z.number().int().nonnegative(),
+  longestWinStreak: z.number().int().nonnegative(),
 
-  lastMatchDate: number | null;
+  currentLossStreak: z.number().int().nonnegative(),
+  longestLossStreak: z.number().int().nonnegative(),
 
-  matchesInDay: number;
-  mostMatchesInDay: number;
+  lastMatchDate: z.number().nonnegative().nullable(),
 
-  matchesInSeason: number;
-  mostMatchesInSeason: number;
+  matchesInDay: z.number().int().nonnegative(),
+  mostMatchesInDay: z.number().int().nonnegative(),
 
-  matchesWonAgainst: Record<string, number>;
-  matchesLostAgainst: Record<string, number>;
+  matchesInSeason: z.number().int().nonnegative(),
+  mostMatchesInSeason: z.number().int().nonnegative(),
 
-  matchesWonAgainstSingles: Record<string, number>;
-  matchesLostAgainstSingles: Record<string, number>;
+  matchesWonAgainst: z.record(z.string(), z.number().int().nonnegative()),
+  matchesLostAgainst: z.record(z.string(), z.number().int().nonnegative()),
 
-  matchesWonAgainstDoubles: Record<string, number>;
-  matchesLostAgainstDoubles: Record<string, number>;
+  matchesWonAgainstSingles: z.record(
+    z.string(),
+    z.number().int().nonnegative(),
+  ),
+  matchesLostAgainstSingles: z.record(
+    z.string(),
+    z.number().int().nonnegative(),
+  ),
 
-  _matchesWithDuration: number;
-}
+  matchesWonAgainstDoubles: z.record(
+    z.string(),
+    z.number().int().nonnegative(),
+  ),
+  matchesLostAgainstDoubles: z.record(
+    z.string(),
+    z.number().int().nonnegative(),
+  ),
 
-export interface PlayerStats {
-  name: string;
+  _matchesWithDuration: z.number().int().nonnegative(),
+  _matchesWithTimeline: z.number().int().nonnegative(),
+  _matchesWithGoalTypes: z.number().int().nonnegative(),
+});
+export type PlayerStats = z.infer<typeof PlayerStats>;
 
-  playtime: number;
-  playtimeFormatted: string;
-  matches: number;
+export const EloRating = z.object({
+  matchId: z.string(),
 
-  averageMatchDuration: number;
-  averageMatchDurationFormatted: string;
+  rating: z.number(),
+  ratingChange: z.number(),
+});
+export type EloRating = z.infer<typeof EloRating>;
 
-  wins: number;
-  losses: number;
-  winRatio: number;
+export const Glicko2Rating = z.object({
+  matchId: z.string(),
 
-  goalsFor: number;
-  goalsAgainst: number;
+  rating: z.number(),
+  ratingChange: z.number(),
 
-  goalDifference: number;
-  goalRatio: number;
+  rd: z.number(),
+  rdChange: z.number(),
 
-  // ownGoals: number;
-  ballOutCount: number | null;
-  positionChangeCount: number | null;
-  ownGoalCount: number | null;
+  volatility: z.number(),
+  volatilityChange: z.number(),
+});
+export type Glicko2Rating = z.infer<typeof Glicko2Rating>;
 
-  goalTypesCount: Record<GoalType, number>;
+export const EloRatings = z.object({
+  playerElos: z.record(z.string(), EloRating),
+  teamElos: z.record(z.string(), EloRating),
+  teamIndividualElos: z.record(z.string(), EloRating),
+  hybridElos: z.record(z.string(), EloRating),
+});
+export type EloRatings = z.infer<typeof EloRatings>;
 
-  currentWinStreak: number;
-  longestWinStreak: number;
+export const Glicko2Ratings = z.object({
+  playerGlicko2: z.record(z.string(), Glicko2Rating),
+  teamGlicko2: z.record(z.string(), Glicko2Rating),
+  teamIndividualGlicko2: z.record(z.string(), Glicko2Rating),
+  hybridGlicko2: z.record(z.string(), Glicko2Rating),
+});
+export type Glicko2Ratings = z.infer<typeof Glicko2Ratings>;
 
-  currentLossStreak: number;
-  longestLossStreak: number;
-
-  lastMatchDate: number | null;
-
-  matchesInDay: number;
-  mostMatchesInDay: number;
-
-  matchesInSeason: number;
-  mostMatchesInSeason: number;
-
-  matchesWonAgainst: Record<string, number>;
-  matchesLostAgainst: Record<string, number>;
-
-  matchesWonAgainstSingles: Record<string, number>;
-  matchesLostAgainstSingles: Record<string, number>;
-
-  matchesWonAgainstDoubles: Record<string, number>;
-  matchesLostAgainstDoubles: Record<string, number>;
-
-  _matchesWithDuration: number;
-  _matchesWithTimeline: number;
-  _matchesWithGoalTypes: number;
-}
-
-export interface EloRating {
-  id: number;
-
-  rating: number;
-}
-
-export interface EloRatingDelta extends EloRating {
-  ratingChange: number;
-}
-
-export interface Glicko2Rating {
-  id: number;
-
-  rating: number;
-
-  rd: number;
-
-  volatility: number;
-}
-
-export interface Glicko2RatingDelta extends Glicko2Rating {
-  ratingChange: number;
-  rdChange: number;
-  volatilityChange: number;
-}
-
-export interface EloRatingsBase<T extends EloRating> {
-  playerElos: Record<string, T>;
-  teamElos: Record<string, T>;
-  teamIndividualElos: Record<string, T>;
-  hybridElos: Record<string, T>;
-}
-
-export interface EloRatings extends EloRatingsBase<EloRating> {}
-
-export interface EloRatingDeltas extends EloRatingsBase<EloRatingDelta> {}
-
-export interface Glicko2RatingsBase<T extends Glicko2Rating> {
-  playerGlicko2: Record<string, T>;
-  teamGlicko2: Record<string, T>;
-  teamIndividualGlicko2: Record<string, T>;
-  hybridGlicko2: Record<string, T>;
-}
-
-export interface Glicko2Ratings extends Glicko2RatingsBase<Glicko2Rating> {}
-
-export interface Glicko2RatingDeltas
-  extends Glicko2RatingsBase<Glicko2RatingDelta> {}
-
-export interface StatsFrame {
+export const StatsFrame = z.object({
   // match: Match;
   // season: Season;
 
-  matchStats: MatchStats;
-  sessionStats: SessionStats;
-  dayStats: DayStats;
-  weekStats: WeekStats;
-  monthStats: MonthStats;
-  seasonStats: SeasonStats;
-  generalStats: GeneralStats;
+  matchStats: MatchStats,
+  sessionStats: SessionStats,
+  dayStats: DayStats,
+  weekStats: WeekStats,
+  monthStats: MonthStats,
+  seasonStats: SeasonStats,
+  generalStats: GeneralStats,
 
-  playerStats: Record<string, PlayerStats>;
+  playerStats: z.record(z.string(), PlayerStats),
 
-  eloRatings: EloRatings;
-  glicko2Ratings: Glicko2Ratings;
-
-  previousFrame: StatsFrame | null;
-}
+  eloRatings: EloRatings,
+  glicko2Ratings: Glicko2Ratings,
+});
+export type StatsFrame = z.infer<typeof StatsFrame>;
