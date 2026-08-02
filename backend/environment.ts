@@ -1,6 +1,6 @@
 import { z } from 'zod';
+import { EnvironmentConfigurationError } from '#backend/errors/configuration';
 import { lazyObject } from '#blib/lazyObject';
-import { logger } from '#shared/logger';
 
 export const Environment = z.object({
   PRODUCTION: z.boolean().default(true),
@@ -54,15 +54,11 @@ export const environment = lazyObject(() => {
   });
 
   if (!parsedEnvironment.success) {
-    logger.error(
-      'Failed to parse environment variables:\n%s',
-      z.prettifyError(parsedEnvironment.error),
-      {
-        label: 'environment',
-      },
+    throw new EnvironmentConfigurationError(
+      `Failed to parse environment variables:\n${z.prettifyError(
+        parsedEnvironment.error,
+      )}`,
     );
-
-    process.exit(1);
   }
 
   return parsedEnvironment.data;
