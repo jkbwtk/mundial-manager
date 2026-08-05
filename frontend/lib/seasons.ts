@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
+import { isServer } from 'solid-js/web';
 import type { Season } from '#frontend/types';
 
 dayjs.extend(isBetween);
@@ -35,12 +36,17 @@ export const defaultSeason: Season = {
       9: 1.8,
       10: 2.0,
       default: 1,
-    }
+    },
   },
 
   startDate: dayjs('1970-01-01').startOf('day'),
   endDate: dayjs('2025-12-21').endOf('day'),
 };
+
+if (isServer === false) {
+  // @ts-expect-error
+  globalThis.defaultSeasonConfig = structuredClone(defaultSeason.config);
+}
 
 export const seasons: Season[] = [
   {
@@ -98,6 +104,9 @@ export const seasons: Season[] = [
   },
 ];
 
+// @ts-expect-error
+globalThis.seasonConfigOverride = null;
+
 export function getSeason(dateUnix: number | null): Season {
   if (dateUnix === null) {
     return defaultSeason;
@@ -107,7 +116,11 @@ export function getSeason(dateUnix: number | null): Season {
 
   for (const season of seasons) {
     if (date.isBetween(season.startDate, season.endDate, null, '[]')) {
-      return season;
+      return {
+        ...season,
+        // @ts-expect-error
+        config: globalThis.seasonConfigOverride ?? season.config,
+      };
     }
   }
 

@@ -9,6 +9,7 @@ import {
 } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import { isServer } from 'solid-js/web';
+import { defaultMatch } from '#flib/defaultStats';
 import { calculateMatchData } from '#flib/matchDataUtils';
 import {
   cacheMatches,
@@ -167,6 +168,15 @@ export const SheetsProvider: ParentComponent = (props) => {
     });
 
     subscribeToEvents();
+  };
+
+  // @ts-expect-error
+  globalThis.recalculate = () => {
+    setState('matches', (prev) => [defaultMatch, ...prev]);
+    setState('matches', (prev) => {
+      prev.shift();
+      return prev;
+    });
   };
 
   function subscribeToEvents() {
