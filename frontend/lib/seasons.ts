@@ -80,7 +80,32 @@ export const seasons: Season[] = [
     number: 1.4,
     label: 'Season 26Q4',
 
-    config: structuredClone(defaultSeason.config),
+    config: {
+      ...structuredClone(defaultSeason.config),
+
+      eloKFactorRanges: {
+        1600: 32,
+        1700: 28,
+        1800: 24,
+        1900: 20,
+        default: 16,
+      },
+
+      eloScoreMultipliers: {
+        0: 1.0,
+        1: 1.0,
+        2: 1.1,
+        3: 1.2,
+        4: 1.3,
+        5: 1.4,
+        6: 1.5,
+        7: 1.6,
+        8: 1.7,
+        9: 1.8,
+        10: 4.0,
+        default: 1,
+      },
+    },
 
     startDate: dayjs('2026-08-03').startOf('day'),
     endDate: dayjs('2026-10-11').endOf('day'),
