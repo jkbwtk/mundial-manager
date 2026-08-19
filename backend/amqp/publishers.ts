@@ -8,6 +8,7 @@ import { logger } from '#shared/logger';
 import { shortUUID } from '#shared/utils';
 
 interface AMQPMessage<T extends object> {
+  leagueUuid: string;
   data: T;
   timeOrigin: number;
   serializationTimestamp: number;
@@ -15,10 +16,12 @@ interface AMQPMessage<T extends object> {
 }
 
 export function serializeAMQPMessage<T extends object>(
+  leagueUuid: string,
   data: T,
 ): Buffer<ArrayBuffer> {
   return Buffer.from(
     JSON.stringify({
+      leagueUuid,
       data,
       timeOrigin: performance.timeOrigin,
       serializationTimestamp: performance.now(),
@@ -34,6 +37,7 @@ export function deserializeAMQPMessage<T extends z.ZodObject>(
   const raw = JSON.parse(data.toString());
   const parsed = z
     .object({
+      leagueUuid: z.string(),
       data: schema,
       timeOrigin: z.number(),
       serializationTimestamp: z.number(),
@@ -72,12 +76,15 @@ export function getTransportDelay(message: AMQPMessage<object>): number {
   return message.deserializationTimestamp - message.serializationTimestamp - dt;
 }
 
-export function PublishResult(queue: AMQP_QUEUE_NAMES) {
-  return <T extends (...args: any[]) => any>(
-    target: T,
-    _ctx: ClassMemberDecoratorContext,
-  ) => {
-    const wrappedMethod = async function (this: any, ...args: unknown[]) {
+export function PublishResult<T extends (...args: any[]) => any>(
+  queue: AMQP_QUEUE_NAMES,
+  leagueUuidExtractor: (data: {
+    args: Parameters<T>;
+    resp: ReturnType<T>;
+  }) => string,
+) {
+  return (target: T, _ctx: ClassMemberDecoratorContext) => {
+    const wrappedMethod = async function (this: any, ...args: Parameters<T>) {
       const label = this.name ?? 'unknown';
       const name = 'realName' in target ? target.realName : target.name;
 
@@ -85,6 +92,11 @@ export function PublishResult(queue: AMQP_QUEUE_NAMES) {
 
       if (environment.RABBITMQ_ENABLED) {
         try {
+          const leagueUuid = leagueUuidExtractor({
+            args,
+            resp,
+          });
+
           const amqp = await getAMQPChannel();
           const messageId = [label, name, shortUUID(randomUUID())].join(':');
 
@@ -92,7 +104,7 @@ export function PublishResult(queue: AMQP_QUEUE_NAMES) {
             label: [label, name],
           });
 
-          amqp.sendToQueue(queue, serializeAMQPMessage(resp), {
+          amqp.sendToQueue(queue, serializeAMQPMessage(leagueUuid, resp), {
             messageId,
           });
         } catch (err) {

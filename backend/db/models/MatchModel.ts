@@ -123,7 +123,7 @@ export class MatchModel extends ModelOps({
     };
   }
 
-  @PublishResult('MATCH_TABLE_UPDATES')
+  @PublishResult('MATCH_TABLE_UPDATES', ({ args }) => args[1])
   @ConvertDrizzleErrors()
   public static async create(
     db: DB | TX,
@@ -175,7 +175,7 @@ export class MatchModel extends ModelOps({
     return instance;
   }
 
-  @PublishResult('MATCH_TABLE_UPDATES')
+  @PublishResult('MATCH_TABLE_UPDATES', ({ args }) => args[1])
   @ConvertDrizzleErrors()
   public static async update(
     db: DB | TX,
@@ -305,7 +305,7 @@ export class MatchModel extends ModelOps({
     return mappedInstances;
   }
 
-  @PublishResult('MATCH_TABLE_UPDATES')
+  @PublishResult('MATCH_TABLE_UPDATES', ({ args }) => args[1])
   @ConvertDrizzleErrors()
   public static async createFull(
     db: DB,
@@ -338,7 +338,7 @@ export class MatchModel extends ModelOps({
     return instance;
   }
 
-  @PublishResult('MATCH_TABLE_UPDATES')
+  @PublishResult('MATCH_TABLE_UPDATES', ({ args }) => args[1])
   @ConvertDrizzleErrors()
   public static async delete(db: DB, leagueUuid: string, uuid: string) {
     return super.delete(db, leagueUuid, uuid);
