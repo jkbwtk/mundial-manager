@@ -1,5 +1,6 @@
 import { and, eq, isNull } from 'drizzle-orm';
 import z from 'zod';
+import { runWithAMQPDisabled } from '#backend/amqp/amqp';
 import { PublishResult } from '#backend/amqp/publishers';
 import type { DB, TX } from '#backend/db/database';
 import { MatchEventModel } from '#backend/db/models/MatchEventModel';
@@ -321,7 +322,9 @@ export class MatchModel extends ModelOps({
 
       const { events, ...matchData } = data;
 
-      const match = await this.create(tx, leagueUuid, matchData);
+      const match = await runWithAMQPDisabled(() =>
+        this.create(tx, leagueUuid, matchData),
+      );
 
       await Promise.all(
         events.map((event) =>
