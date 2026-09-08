@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from 'node:async_hooks';
 import {
   type Channel as BaseChannel,
   type ConsumeMessage,
@@ -109,4 +110,18 @@ export async function getAMQPChannel(): Promise<Channel> {
   }
 
   return (await amqpSingleton).amqpChannel;
+}
+
+const localStorage = new AsyncLocalStorage();
+
+export function isAMQPEnabled(): boolean {
+  const forceDisable = localStorage.getStore() ?? false;
+
+  if (forceDisable) return false;
+
+  return environment.RABBITMQ_ENABLED;
+}
+
+export function runWithAMQPDisabled<R>(callback: (...args: unknown[]) => R) {
+  return localStorage.run(true, callback) as R;
 }

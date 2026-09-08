@@ -2,8 +2,11 @@
 
 import { randomUUID } from 'node:crypto';
 import z, { prettifyError } from 'zod';
-import { type AMQP_QUEUE_NAMES, getAMQPChannel } from '#backend/amqp/amqp';
-import { environment } from '#backend/environment';
+import {
+  type AMQP_QUEUE_NAMES,
+  getAMQPChannel,
+  isAMQPEnabled,
+} from '#backend/amqp/amqp';
 import { logger } from '#shared/logger';
 import { shortUUID } from '#shared/utils';
 
@@ -90,7 +93,7 @@ export function PublishResult<T extends (...args: any[]) => any>(
 
       const resp = await target.call(this, ...args);
 
-      if (environment.RABBITMQ_ENABLED) {
+      if (isAMQPEnabled()) {
         try {
           const leagueUuid = leagueUuidExtractor({
             args,
@@ -113,9 +116,9 @@ export function PublishResult<T extends (...args: any[]) => any>(
             error: err,
           });
         }
-
-        return resp;
       }
+
+      return resp;
     };
 
     if (!('realName' in target)) {
