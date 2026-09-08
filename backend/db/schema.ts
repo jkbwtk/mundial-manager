@@ -337,7 +337,7 @@ export const statsFramesTable = pgTable(
   }),
   (r) => [
     index().on(r.leagueUuid),
-    index().on(r.matchUuid),
+    uniqueIndex().on(r.matchUuid),
     index().on(r.time),
     index().on(r.$createdAt),
   ],

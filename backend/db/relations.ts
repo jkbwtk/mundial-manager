@@ -115,9 +115,9 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.matchEventsTable.matchUuid,
       alias: 'events',
     }),
-    statsFrames: r.one.statsFramesTable({
+    statsFrame: r.one.statsFramesTable({
       from: r.matchesTable.uuid,
-      to: r.statsFramesTable.leagueUuid,
+      to: r.statsFramesTable.matchUuid,
       alias: 'statsFrame',
       optional: true,
     }),
