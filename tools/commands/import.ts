@@ -1,5 +1,6 @@
 import type { Command } from 'commander';
 import z from 'zod';
+import { getAMQPChannel, runWithAMQPDisabled } from '#backend/amqp/amqp';
 import { db } from '#backend/db/database';
 import { matchesTable } from '#backend/db/schema';
 import { SheetStore } from '#backend/SheetStore';
@@ -64,9 +65,12 @@ export function registerImportCommand(program: Command): void {
   importCmd.action(async (rawOptions: ImportOptions) => {
     const options = ImportOptions.parse(rawOptions);
 
-    await importData(options);
+    await runWithAMQPDisabled(() => importData(options));
 
     await db.$client.end();
+    await (await getAMQPChannel()).close();
+
+    process.exit();
   });
 }
 
