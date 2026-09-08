@@ -84,6 +84,7 @@ export function convertFromLegacyMatch(
   match: LegacyMatchCreate,
   tables: Record<string, Table>,
   players: Record<string, Player>,
+  id?: number,
 ): MatchFullCreate {
   const table = getMatchTable(match, tables);
   const swapRequired = table ? checkIfSwapRequired(match, table) : false;
@@ -91,7 +92,9 @@ export function convertFromLegacyMatch(
   return {
     tableUuid: table?.uuid,
 
-    startDate: new Date((match.date ?? 0) * 1000),
+    startDate: new Date(
+      (match.replayMetadata?.startedAt ?? match.date ?? id ?? 0) * 1000,
+    ),
 
     duration: match.duration ?? 0,
     pauseDuration: match.replayMetadata

@@ -26,7 +26,7 @@ export async function importLegacyMatches(
       label: ['cli', 'import', 'matches'],
     });
 
-    const converted = convertFromLegacyMatch(match, tables, players);
+    const converted = convertFromLegacyMatch(match, tables, players, match.id);
     await MatchModel.createFull(db, options.leagueUuid, converted);
   }
 
