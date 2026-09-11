@@ -21,7 +21,7 @@ export const jsonCodec = <T extends z.core.$ZodType>(schema: T) =>
 
 export const hexColor = z
   .string()
-  .regex(/^(#[0-9A-Fa-f]{6})|(0x[0-9A-Fa-f]{8})$/);
+  .regex(/^(#[0-9A-Fa-f]{6}|0x[0-9A-Fa-f]{8})$/);
 
 export const uuidArray = z
   .array(z.uuid())
