@@ -5,9 +5,7 @@
   justify-content: center;
 
   button {
-    transition:
-      filter 0.2s ease-in-out,
-      background-color 0.2s ease-in-out;
+    transition: filter 0.2s ease-in-out, background-color 0.2s ease-in-out;
 
     border-radius: $borderRadius;
 

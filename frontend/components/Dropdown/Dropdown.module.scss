@@ -14,9 +14,7 @@
   color: $textColor;
   border-radius: $borderRadius;
 
-  transition:
-    background-color 0.1s,
-    color 0.1s;
+  transition: background-color 0.1s, color 0.1s;
 
   &::before {
     content: '[';
@@ -92,9 +90,7 @@
   cursor: pointer;
   white-space: nowrap;
 
-  transition:
-    background-color 0.1s,
-    color 0.1s;
+  transition: background-color 0.1s, color 0.1s;
 
   padding: 0 cw(2);
 }

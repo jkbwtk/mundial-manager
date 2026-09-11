@@ -8,7 +8,10 @@
   }
 }
 
-@mixin symbolSize($iconSize: app.$defaultIconSize, $fontSize: app.$defaultFontSize) {
+@mixin symbolSize(
+  $iconSize: app.$defaultIconSize,
+  $fontSize: app.$defaultFontSize
+) {
   font-size: $iconSize;
   width: app.cw(2, $fontSize);
 

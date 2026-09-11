@@ -12,7 +12,11 @@
 %label-base {
   display: flex;
   max-width: 100%;
-  background-color: color-mix(in srgb, var(--widget-border-color) 10%, #101010 90%);
+  background-color: color-mix(
+    in srgb,
+    var(--widget-border-color) 10%,
+    #101010 90%
+  );
   font-weight: bold;
 
   border-radius: $borderRadius;
@@ -62,8 +66,10 @@
 
       bottom: calc(50% - $decoratorSize);
 
-      border-top: var(--widget-border-width) var(--widget-border-style) var(--widget-border-color);
-      border-right: var(--widget-border-width) var(--widget-border-style) var(--widget-border-color);
+      border-top: var(--widget-border-width) var(--widget-border-style)
+        var(--widget-border-color);
+      border-right: var(--widget-border-width) var(--widget-border-style)
+        var(--widget-border-color);
     }
   }
 
@@ -139,18 +145,25 @@
 
   &.color-start {
     &::before {
-      --divider-border-color: var(--widget-border-color, var(--divider-fallback-border-color));
+      --divider-border-color: var(
+        --widget-border-color,
+        var(--divider-fallback-border-color)
+      );
     }
   }
 
   &.color-end {
     &::after {
-      --divider-border-color: var(--widget-border-color, var(--divider-fallback-border-color));
+      --divider-border-color: var(
+        --widget-border-color,
+        var(--divider-fallback-border-color)
+      );
     }
   }
 
   &.horizontal {
-    border-top: var(--divider-border-style) var(--divider-border-color) var(--widget-border-width, $borderSize);
+    border-top: var(--divider-border-style) var(--divider-border-color)
+      var(--widget-border-width, $borderSize);
 
     margin-top: calc((ch(1) - var(--widget-border-width, $borderSize)) / 2);
     margin-bottom: calc((ch(1) - var(--widget-border-width, $borderSize)) / 2);
@@ -189,7 +202,8 @@
   }
 
   &.vertical {
-    border-left: var(--divider-border-style) var(--divider-border-color) var(--widget-border-width, $borderSize);
+    border-left: var(--divider-border-style) var(--divider-border-color)
+      var(--widget-border-width, $borderSize);
 
     margin-left: calc((cw(1) - var(--widget-border-width, $borderSize)) / 2);
     margin-right: calc((cw(1) - var(--widget-border-width, $borderSize)) / 2);

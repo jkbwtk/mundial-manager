@@ -49,7 +49,8 @@
   .track {
     will-change: transform;
 
-    animation: marquee-scroll var(--marquee-duration) steps(var(--marquee-steps)) infinite;
+    animation: marquee-scroll var(--marquee-duration)
+      steps(var(--marquee-steps)) infinite;
     animation-delay: var(--marquee-delay);
   }
 }

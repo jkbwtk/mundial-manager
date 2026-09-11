@@ -95,9 +95,7 @@ a {
     color: app.$primaryColor;
     font-weight: 500;
 
-    transition:
-      color 0.2s ease-in-out,
-      text-decoration 0.2s ease-in-out;
+    transition: color 0.2s ease-in-out, text-decoration 0.2s ease-in-out;
 
     &:visited {
       color: app.$primaryColor;

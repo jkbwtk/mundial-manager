@@ -4,7 +4,11 @@
   --widget-border-color: #{$gold};
   border-radius: $borderRadius;
 
-  background: linear-gradient(135deg, color-mix(in srgb, $primaryColor 20%, transparent), color-mix(in srgb, $blue 20%, transparent));
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, $primaryColor 20%, transparent),
+    color-mix(in srgb, $blue 20%, transparent)
+  );
 }
 
 .button {
