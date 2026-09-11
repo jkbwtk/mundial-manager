@@ -2,6 +2,12 @@ import dayjs from 'dayjs';
 import z from 'zod';
 import { getPlayersFromTeam } from '#flib/sheetUtils';
 import { getLabelValue } from '#shared/labels';
+import {
+  hasKnownStartDate,
+  START_DATE_PRECISION_LABEL,
+  type StartDatePrecision,
+  StartDatePrecisionEnum,
+} from '#shared/matchLabels';
 import { getPauseDuration } from '#shared/matchUtils';
 import type {
   MatchEvent,
@@ -80,6 +86,30 @@ function checkIfSwapRequired(match: LegacyMatchCreate, table?: Table): boolean {
   return false;
 }
 
+function resolveLegacyStartDate(
+  match: LegacyMatchCreate,
+  id?: number,
+): { startDate: Date; precision: StartDatePrecision } {
+  if (match.replayMetadata) {
+    return {
+      startDate: new Date(match.replayMetadata.startedAt * 1000),
+      precision: StartDatePrecisionEnum.EXACT,
+    };
+  }
+
+  if (match.date !== null) {
+    return {
+      startDate: new Date(match.date * 1000),
+      precision: StartDatePrecisionEnum.DAY,
+    };
+  }
+
+  return {
+    startDate: new Date((id ?? 0) * 1000),
+    precision: StartDatePrecisionEnum.NONE,
+  };
+}
+
 export function convertFromLegacyMatch(
   match: LegacyMatchCreate,
   tables: Record<string, Table>,
@@ -88,13 +118,12 @@ export function convertFromLegacyMatch(
 ): MatchFullCreate {
   const table = getMatchTable(match, tables);
   const swapRequired = table ? checkIfSwapRequired(match, table) : false;
+  const { startDate, precision } = resolveLegacyStartDate(match, id);
 
   return {
     tableUuid: table?.uuid,
 
-    startDate: new Date(
-      (match.replayMetadata?.startedAt ?? match.date ?? id ?? 0) * 1000,
-    ),
+    startDate,
 
     duration: match.duration ?? 0,
     pauseDuration: match.replayMetadata
@@ -135,7 +164,10 @@ export function convertFromLegacyMatch(
         ]
       : [],
 
-    labels: { legacyImportSwap: swapRequired },
+    labels: {
+      legacyImportSwap: swapRequired,
+      [START_DATE_PRECISION_LABEL]: precision,
+    },
   };
 }
 
@@ -260,10 +292,9 @@ export function convertToLegacyMatch(
     duration: match.duration,
     pauseDuration: match.pauseDuration ?? 0,
 
-    date:
-      match.startDate.getTime() === 0
-        ? null
-        : dayjs(match.startDate).startOf('day').unix(),
+    date: hasKnownStartDate(match)
+      ? dayjs(match.startDate).startOf('day').unix()
+      : null,
     hash: match.hash,
 
     replayMetadata:

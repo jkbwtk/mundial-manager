@@ -12,7 +12,7 @@ export const Labels = z.record(z.string(), LabelValueTypes);
 export type Labels = z.infer<typeof Labels>;
 
 export function getLabelValue<
-  T extends z.ZodNull | z.ZodNumber | z.ZodString | z.ZodBoolean,
+  T extends z.ZodNull | z.ZodNumber | z.ZodString | z.ZodBoolean | z.ZodEnum,
 >(
   instance: { labels: Labels },
   key: string,
