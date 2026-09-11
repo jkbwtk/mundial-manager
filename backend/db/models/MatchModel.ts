@@ -3,6 +3,7 @@ import z from 'zod';
 import { runWithAMQPDisabled } from '#backend/amqp/amqp';
 import { PublishResult } from '#backend/amqp/publishers';
 import type { DB, TX } from '#backend/db/database';
+import { matchOrderBy, matchOrderByDesc } from '#backend/db/matchOrder';
 import { MatchEventModel } from '#backend/db/models/MatchEventModel';
 import {
   ModelOps,
@@ -277,15 +278,9 @@ export class MatchModel extends ModelOps({
         },
       },
 
-      orderBy: meta.sorting
-        ? {
-            [meta.sorting?.field ?? '$createdAt']:
-              meta.sorting?.direction ?? 'asc',
-          }
-        : {
-            startDate: 'asc',
-            $createdAt: 'asc',
-          },
+      orderBy: (meta.sorting?.direction === 'desc'
+        ? matchOrderByDesc
+        : matchOrderBy)(meta.sorting?.field),
       limit: meta.pagination?.limit,
       offset: meta.pagination?.offset,
     });
