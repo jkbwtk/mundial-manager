@@ -9,6 +9,7 @@ import { useHandleButtonAction } from '#flib/index';
 import { actionDeleteMatch, queryMatches } from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
+import { getKnownStartDate } from '#shared/matchLabels';
 import { formatDate, formatDuration } from '#shared/timeUtils';
 import type { Match, MatchQueryMeta } from '#shared/types/api/match';
 import { shortUUID } from '#shared/utils';
@@ -83,7 +84,13 @@ export const MatchesDashboard: Component = () => {
       align: 'center',
       sortable: true,
       width: 14,
-      transform: (val: Date) => formatDate(val.getTime() / 1000),
+      transform: (_val, row: Match) => {
+        const startDate = getKnownStartDate(row);
+
+        return formatDate(
+          startDate === null ? null : startDate.getTime() / 1000,
+        );
+      },
     },
     {
       key: 'duration',
