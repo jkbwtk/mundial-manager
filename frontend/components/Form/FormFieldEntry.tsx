@@ -1,4 +1,5 @@
 import { Dynamic } from 'solid-js/web';
+import { CheckboxField } from './CheckboxField';
 import { ColorField } from './ColorField';
 import { DateField } from './DateField';
 import { DropdownField } from './DropdownField';
@@ -16,6 +17,7 @@ const getFieldComponent = (type: FormFieldType) => {
     text: TextField,
     textArea: TextAreaField,
     number: NumberField,
+    checkbox: CheckboxField,
     date: DateField,
     color: ColorField,
     dropdown: DropdownField,

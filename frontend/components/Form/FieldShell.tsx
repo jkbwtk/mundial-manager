@@ -8,12 +8,15 @@ export interface FieldShellProps {
   path: string;
   label: string;
   required: boolean;
+
+  inline?: boolean;
 }
 
 export const FieldShell: ParentComponent<FieldShellProps> = (props) => (
   <div
     classList={{
       [style.fieldContainer]: true,
+      [style.inline]: !!props.inline,
       [`form-field-${props.path}`]: true,
     }}
   >

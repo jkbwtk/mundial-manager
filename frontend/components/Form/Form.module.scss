@@ -3,28 +3,48 @@
 .container {
   display: flex;
   flex-direction: column;
+
+  gap: ch(1);
 }
 
 .field-container {
   display: flex;
   flex-direction: column;
 
-  // margin-bottom: ch(1);
-}
+  .field-label {
+    font-weight: bold;
 
-.field-label {
-  font-weight: bold;
-  margin: 0 cw(1);
-}
+    margin: 0 cw(1);
+  }
 
-.field-input {
-  width: 100%;
-  display: inline-flex;
-  align-items: center;
-
-  resize: vertical;
-
-  input {
+  .field-input {
     width: 100%;
+    display: inline-flex;
+    align-items: center;
+
+    resize: vertical;
+
+    & > input {
+      flex-grow: 1;
+      min-width: 0;
+    }
+  }
+
+  &.inline {
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+
+    gap: cw(1);
+
+    .field-label {
+      margin-right: 0;
+    }
+
+    .field-input {
+      flex-shrink: 0;
+
+      width: fit-content;
+    }
   }
 }

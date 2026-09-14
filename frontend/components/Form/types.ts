@@ -11,6 +11,7 @@ export const FormFieldTypes = [
   'text',
   'textArea',
   'number',
+  'checkbox',
   'date',
   'color',
   'dropdown',
@@ -39,6 +40,9 @@ export type FormField<Value> =
       step?: number | 'any';
       min?: number;
       max?: number;
+    })
+  | (BaseFormField<Value> & {
+      type: 'checkbox';
     })
   | (BaseFormField<Value> & {
       type: 'date';
