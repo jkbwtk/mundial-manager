@@ -73,12 +73,14 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
           type: 'number',
           placeholder: 'Match duration...',
           unit: 's',
+          min: 0,
         },
         pauseDuration: {
           label: 'Pause Duration',
           type: 'number',
           placeholder: 'Pause duration...',
           unit: 's',
+          min: 0,
         },
         startDate: {
           label: 'Start Date',
@@ -89,11 +91,15 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
           label: 'Side 1 Score',
           type: 'number',
           placeholder: 'Side 1 score...',
+          step: 1,
+          min: 0,
         },
         side2Score: {
           label: 'Side 2 Score',
           type: 'number',
           placeholder: 'Side 2 score...',
+          step: 1,
+          min: 0,
         },
         status: {
           label: 'Status',

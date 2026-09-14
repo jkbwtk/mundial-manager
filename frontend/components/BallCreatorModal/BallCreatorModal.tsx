@@ -64,12 +64,14 @@ export const BallCreatorModal: Component<BallCreatorModalProps> = (props) => {
           placeholder: 'Ball diameter...',
           type: 'number',
           unit: 'mm',
+          min: 0,
         },
         weight: {
           label: 'Weight',
           placeholder: 'Ball weight...',
           type: 'number',
           unit: 'g',
+          min: 0,
         },
         description: {
           label: 'Description',

@@ -35,6 +35,10 @@ export type FormField<Value> =
   | (BaseFormField<Value> & {
       type: 'number';
       unit?: string;
+
+      step?: number | 'any';
+      min?: number;
+      max?: number;
     })
   | (BaseFormField<Value> & {
       type: 'date';

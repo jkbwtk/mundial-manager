@@ -15,6 +15,9 @@ export const NumberField: Component<FormFieldProps<'number'>> = (props) => (
       placeholder={props.field.placeholder}
       name={props.path}
       value={(props.value as ComponentProps<typeof Input>['value']) ?? ''}
+      step={props.field.step ?? 'any'}
+      min={props.field.min}
+      max={props.field.max}
       required={props.required}
       useDirectives={props.directives}
       invalid={!!props.errors[props.path]}
