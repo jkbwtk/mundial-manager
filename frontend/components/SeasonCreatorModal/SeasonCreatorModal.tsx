@@ -5,6 +5,7 @@ import {
   SeasonCreate,
   SeasonUpdate,
 } from '#shared/types/api/season';
+import { defaultSeasonConfig } from '#shared/types/api/seasonDefaults';
 import style from './SeasonCreatorModal.module.scss';
 
 export interface SeasonCreatorModalProps {
@@ -36,6 +37,11 @@ export const SeasonCreatorModal: Component<SeasonCreatorModalProps> = (
     <ModalForm
       class={style.modal}
       instance={props.season}
+      initialValues={
+        isCreating
+          ? { config: structuredClone(defaultSeasonConfig) }
+          : undefined
+      }
       model={isCreating ? SeasonCreate : SeasonUpdate}
       // @ts-expect-error
       action={isCreating ? actionCreateSeason : actionUpdateSeason}
@@ -62,9 +68,46 @@ export const SeasonCreatorModal: Component<SeasonCreatorModalProps> = (
         },
         config: {
           label: 'Config',
-          type: 'text',
-          hidden: true,
-          implicitDefault: props.season?.config ?? {},
+          type: 'object',
+          fields: {
+            resetRatings: {
+              label: 'Reset Ratings',
+              type: 'checkbox',
+            },
+            defaultEloRating: {
+              label: 'Default Elo Rating',
+              placeholder: 'Default Elo rating...',
+              type: 'number',
+            },
+            defaultGlicko2Rating: {
+              label: 'Default Glicko-2 Rating',
+              placeholder: 'Default Glicko-2 rating...',
+              type: 'number',
+            },
+            defaultGlicko2RD: {
+              label: 'Default Glicko-2 RD',
+              placeholder: 'Default Glicko-2 RD...',
+              type: 'number',
+            },
+            defaultGlicko2Volatility: {
+              label: 'Default Glicko-2 Volatility',
+              placeholder: 'Default Glicko-2 volatility...',
+              type: 'number',
+              step: 'any',
+            },
+            eloKFactorRanges: {
+              label: 'Elo K-Factor Ranges',
+              type: 'record',
+              keyPlaceholder: 'Bound or "default"...',
+              valuePlaceholder: 'K-factor...',
+            },
+            eloScoreMultipliers: {
+              label: 'Elo Score Multipliers',
+              type: 'record',
+              keyPlaceholder: 'Diff or "default"...',
+              valuePlaceholder: 'Multiplier...',
+            },
+          },
         },
         labels: {
           label: 'Labels',

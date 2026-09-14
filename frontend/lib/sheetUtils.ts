@@ -26,7 +26,11 @@ import type {
   MatchEvent,
   MatchEventGoal,
 } from '#shared/types/Sheets';
-import { quickRangeSwitch, quickSwitch } from '#shared/utils';
+import {
+  type QuickSwitchCases,
+  quickRangeSwitch,
+  quickSwitch,
+} from '#shared/utils';
 
 dayjs.extend(duration);
 dayjs.extend(weekOfYear);
@@ -152,11 +156,17 @@ export function getPlayersFromMatch(match: Match): string[] {
 }
 
 function getKFactor(season: Season, rating: number): number {
-  return quickRangeSwitch<number>(rating, season.config.eloKFactorRanges);
+  return quickRangeSwitch<number>(
+    rating,
+    season.config.eloKFactorRanges as QuickSwitchCases<number, number>,
+  );
 }
 
 function getScoreMultiplier(season: Season, scoreDiff: number): number {
-  return quickSwitch<number>(scoreDiff, season.config.eloScoreMultipliers);
+  return quickSwitch<number>(
+    scoreDiff,
+    season.config.eloScoreMultipliers as QuickSwitchCases<number, string>,
+  );
 }
 
 export function calculateEloDiff(

@@ -30,7 +30,7 @@ export async function importLegacySeasons(options: ImportOptions) {
     legacySeasons.map((season) =>
       SeasonModel.create(db, options.leagueUuid, {
         name: season.label,
-        config: {},
+        config: season.config,
         startDate: season.startDate.toDate(),
         endDate: season.endDate.toDate(),
         labels: {},

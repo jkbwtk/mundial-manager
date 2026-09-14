@@ -3,7 +3,19 @@ import { createQueryMeta } from '#backend/types/trpc';
 import { Labels } from '#shared/labels';
 import { PaginatedResponse } from '#shared/zod';
 
-export const SeasonConfig = z.object({});
+export const SeasonConfig = z.object({
+  resetRatings: z.boolean(),
+
+  defaultEloRating: z.number(),
+
+  defaultGlicko2Rating: z.number(),
+  defaultGlicko2RD: z.number(),
+  defaultGlicko2Volatility: z.number(),
+
+  eloKFactorRanges: z.record(z.string(), z.number()),
+
+  eloScoreMultipliers: z.record(z.string(), z.number()),
+});
 export type SeasonConfig = z.infer<typeof SeasonConfig>;
 
 export const Season = z.object({
