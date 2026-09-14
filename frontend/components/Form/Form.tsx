@@ -44,9 +44,11 @@ export const Form = <
               path={fieldName}
               field={field}
               value={
-                (props.instance as Record<string, unknown> | undefined)?.[
-                  fieldName
-                ]
+                (
+                  (props.instance ?? props.initialValues) as
+                    | Record<string, unknown>
+                    | undefined
+                )?.[fieldName]
               }
               required={rootSchema.required?.includes(fieldName) ?? false}
               schemaNode={rootSchema.properties?.[fieldName]}

@@ -129,6 +129,7 @@ export const ModalForm = <
         model={props.model}
         action={props.action}
         instance={props.instance}
+        initialValues={props.initialValues}
         fields={props.fields}
         directives={[validate]}
         errors={errors}

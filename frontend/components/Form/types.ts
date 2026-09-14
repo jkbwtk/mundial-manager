@@ -129,6 +129,8 @@ export interface SharedFormProps<
 
   instance?: Instance;
 
+  initialValues?: Partial<z.infer<Model>>;
+
   fields: {
     [Field in keyof z.infer<Model>]: FormField<z.infer<Model>[Field]>;
   } & {
