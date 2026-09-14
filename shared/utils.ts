@@ -121,11 +121,14 @@ export const quickRangeSwitch = <T>(
   cases: QuickSwitchCases<T, number>,
   inclusive = false,
 ): T => {
-  const keys = Object.keys(cases) as unknown as number[];
+  const bounds = Object.keys(cases)
+    .map((key) => ({ key, bound: Number(key) }))
+    .filter(({ key, bound }) => key !== 'default' && Number.isFinite(bound))
+    .sort((a, b) => a.bound - b.bound);
 
-  for (const key of keys.sort()) {
-    if (value < key || (inclusive && value === key)) {
-      return cases[key]!;
+  for (const { key, bound } of bounds) {
+    if (value < bound || (inclusive && value === bound)) {
+      return cases[key as unknown as number]!;
     }
   }
 
