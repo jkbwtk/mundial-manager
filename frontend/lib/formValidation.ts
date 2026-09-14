@@ -53,6 +53,8 @@ export const useFormValidation = <T extends z.ZodObject>(
   schema: T,
   options: UseFormValidationOptions = {},
 ) => {
+  let validationSequence = 0;
+
   const fields: Record<string, Field> = {};
   const [errors, setErrors] = createStore<Partial<Record<string, string[]>>>(
     {},
@@ -147,9 +149,11 @@ export const useFormValidation = <T extends z.ZodObject>(
       })),
     );
 
-  const runValidation = async () => {
+  const runValidation = async ({ showErrors = true } = {}) => {
     const data = getFormData();
     const inputIssues = collectInputIssues();
+
+    const sequence = ++validationSequence;
 
     const parsed = await schema.safeParseAsync(data);
 
@@ -163,6 +167,8 @@ export const useFormValidation = <T extends z.ZodObject>(
               ...(parsed.success ? [] : parsed.error.issues),
             ]),
           } as typeof parsed);
+
+    if (sequence !== validationSequence) return result;
 
     if (result.success) {
       batch(() => {
@@ -178,14 +184,16 @@ export const useFormValidation = <T extends z.ZodObject>(
       const errorTree = treeifyError(result.error);
 
       batch(() => {
-        clearUnregisteredErrors();
+        if (showErrors) {
+          clearUnregisteredErrors();
 
-        for (const [path, field] of Object.entries(fields)) {
-          if (!field.dirty) {
-            continue;
+          for (const [path, field] of Object.entries(fields)) {
+            if (!field.dirty) {
+              continue;
+            }
+
+            setFieldErrors(field, getNestedErrors(errorTree, path.split('.')));
           }
-
-          setFieldErrors(field, getNestedErrors(errorTree, path.split('.')));
         }
 
         setCanSubmit(false);
@@ -230,9 +238,10 @@ export const useFormValidation = <T extends z.ZodObject>(
 
     ref.oninput = () => {
       clearTimeout(timeoutRef);
-      setCanSubmit(false);
 
       field.dirty = true;
+
+      runValidation({ showErrors: false });
 
       timeoutRef = setTimeout(() => {
         runValidation();
