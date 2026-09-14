@@ -118,6 +118,13 @@ export const ModalForm = <
           {props.submitButtonText}
         </Button>,
       ]}
+      footer={
+        <>
+          <Divider class={style.divider} />
+
+          <FormErrors errors={errors} fieldNames={fieldNames()} />
+        </>
+      }
     >
       <Form
         formId={formId}
@@ -131,10 +138,6 @@ export const ModalForm = <
         class={props.formClass}
         classList={props.formClassList}
       />
-
-      <Divider class={style.divider} />
-
-      <FormErrors errors={errors} fieldNames={fieldNames()} />
     </Modal>
   );
 };

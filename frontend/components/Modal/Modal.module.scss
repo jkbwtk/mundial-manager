@@ -33,12 +33,28 @@
 .modal {
   position: fixed;
 
+  display: flex;
+  flex-direction: column;
+
   left: calc(50% + var(--modal-offset-x));
   top: calc(50% + var(--modal-offset-y));
   transform: translate(-50%, -50%);
 
   background-color: $modalColor;
   width: max-content;
+
+  max-height: round(
+    down,
+    calc(
+      100dvh - var(--modal-padding-y-units) * var(--console-unit-height) * 2
+    ),
+    ch(1)
+  );
+  max-width: round(
+    down,
+    calc(100dvw - var(--modal-padding-x-units) * var(--console-unit-width) * 2),
+    cw(1)
+  );
 
   padding: ch(2) cw(1) ch(1) cw(1);
 
@@ -57,13 +73,26 @@
   }
 
   .content-container {
-    max-height: round(down, calc(100dvh - ch(3) - var(--modal-padding-y-units) * var(--console-unit-height) * 2), ch(1));
-    max-width: round(down, calc(100dvw - cw(2) - var(--modal-padding-x-units) * var(--console-unit-width) * 2), cw(1));
+    flex-grow: 1;
+    min-height: 0;
+    max-width: 100%;
+
     overflow-y: auto;
     overflow-x: hidden;
 
     height: var(--modal-height);
     width: var(--modal-width);
+  }
+
+  .footer {
+    flex-shrink: 0;
+
+    width: 0;
+    min-width: 100%;
+
+    max-height: ch(10);
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 
   .pre-decorator-bottom,

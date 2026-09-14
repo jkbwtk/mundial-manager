@@ -4,6 +4,7 @@ import {
   type JSX,
   onCleanup,
   onMount,
+  Show,
   splitProps,
 } from 'solid-js';
 import { Button } from '#components/Button';
@@ -13,7 +14,9 @@ import { useModalActions } from '#providers/ModalProvider';
 import { clamp } from '#shared/utils';
 import style from './Modal.module.scss';
 
-export type ModalProps = WidgetPropsWithoutComponent<'div'>;
+export type ModalProps = WidgetPropsWithoutComponent<'div'> & {
+  footer?: JSX.Element;
+};
 
 export const Modal: Component<ModalProps> = (userProps) => {
   const [props, modalProps] = splitProps(userProps, [
@@ -21,6 +24,7 @@ export const Modal: Component<ModalProps> = (userProps) => {
     'topRightLabels',
     'bottomLeftLabels',
     'bottomRightLabels',
+    'footer',
     'children',
     'class',
     'classList',
@@ -34,6 +38,8 @@ export const Modal: Component<ModalProps> = (userProps) => {
 
   const bottomLeftLabels = children(() => props.bottomLeftLabels);
   const bottomRightLabels = children(() => props.bottomRightLabels);
+
+  const footer = children(() => props.footer);
 
   // biome-ignore lint/style/useConst: yeah
   let modalRef: HTMLDivElement = null!;
@@ -165,6 +171,10 @@ export const Modal: Component<ModalProps> = (userProps) => {
       }}
     >
       <div class={style.contentContainer}>{props.children}</div>
+
+      <Show when={footer()}>
+        <div class={style.footer}>{footer()}</div>
+      </Show>
 
       <div
         classList={{
