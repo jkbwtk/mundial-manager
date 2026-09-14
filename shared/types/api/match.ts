@@ -26,8 +26,8 @@ export const Match = z.object({
   duration: z.number().nonnegative(),
   pauseDuration: z.number().nonnegative().nullish(),
 
-  side1Score: z.number().int().nonnegative().default(0),
-  side2Score: z.number().int().nonnegative().default(0),
+  side1Score: z.number().int().nonnegative(),
+  side2Score: z.number().int().nonnegative(),
 
   status: MatchStatus,
 
