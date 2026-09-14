@@ -84,8 +84,10 @@
 
       bottom: calc(50% - $decoratorSize);
 
-      border-top: var(--widget-border-width) var(--widget-border-style) var(--widget-border-color);
-      border-right: var(--widget-border-width) var(--widget-border-style) var(--widget-border-color);
+      border-top: var(--widget-border-width) var(--widget-border-style)
+        var(--widget-border-color);
+      border-right: var(--widget-border-width) var(--widget-border-style)
+        var(--widget-border-color);
     }
   }
 
@@ -135,7 +137,11 @@
 
   .bottom-left-label,
   .bottom-right-label {
-    background-color: color-mix(in srgb, var(--widget-border-color) 10%, #101010 90%);
+    background-color: color-mix(
+      in srgb,
+      var(--widget-border-color) 10%,
+      #101010 90%
+    );
 
     color: $textBrightColor;
     font-weight: bold;
