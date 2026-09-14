@@ -17,6 +17,7 @@ export const FormFieldTypes = [
   'dropdown',
   'resourcePicker',
   'multiResourcePicker',
+  'record',
 ] as const;
 
 export type FormFieldType = (typeof FormFieldTypes)[number];
@@ -61,6 +62,11 @@ export type FormField<Value> =
 
       // biome-ignore lint/suspicious/noExplicitAny: yeah
       queryById: (id: string) => Promise<any>;
+    })
+  | (BaseFormField<Value> & {
+      type: 'record';
+      keyPlaceholder?: string;
+      valuePlaceholder?: string;
     })
   | BaseFormField<Value>;
 
