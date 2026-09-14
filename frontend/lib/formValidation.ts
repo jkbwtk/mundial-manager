@@ -4,7 +4,12 @@ import { createStore, unwrap } from 'solid-js/store';
 import type z from 'zod';
 import { treeifyError } from 'zod';
 import { normalizeInputType } from '#flib/utils';
-import { ZodLikeError } from '#shared/zod';
+import {
+  getNestedErrors,
+  resolveSchemaField,
+  setPath,
+  ZodLikeError,
+} from '#shared/zod';
 
 export interface FormValidationCompatible {
   name: string;
@@ -29,15 +34,11 @@ export interface FormValidationCompatible {
   oninput: () => void;
 }
 
-export type UseFormValidationOptions<T extends z.ZodObject> = {
+export type UseFormValidationOptions = {
   debounceTime?: number;
   updateMode?: boolean;
 
-  /**
-   * Values used for fields that are not included in the form,
-   * but are required by the schema.
-   */
-  implicitDefaults?: Partial<z.infer<T>>;
+  implicitDefaults?: Record<string, unknown>;
 };
 
 export interface Field {
@@ -48,12 +49,12 @@ export interface Field {
 
 export const useFormValidation = <T extends z.ZodObject>(
   schema: T,
-  options: UseFormValidationOptions<T> = {},
+  options: UseFormValidationOptions = {},
 ) => {
-  const fields: Partial<Record<keyof z.infer<T>, Field>> = {};
-  const [errors, setErrors] = createStore<
-    Partial<Record<keyof z.infer<T>, string[]>>
-  >({});
+  const fields: Record<string, Field> = {};
+  const [errors, setErrors] = createStore<Partial<Record<string, string[]>>>(
+    {},
+  );
 
   const [canSubmit, setCanSubmit] = createSignal(options.updateMode ?? false);
 
@@ -88,24 +89,50 @@ export const useFormValidation = <T extends z.ZodObject>(
   };
 
   const getFormData = (): Record<string, unknown> => {
-    const entries = Object.entries(fields)
-      .map(
-        ([key, field]) =>
-          [key, field ? preprocessValue(field) : undefined] as const,
-      )
-      .map(
-        ([key, value]) =>
-          [key, options.updateMode ? (value ?? null) : value] as const,
-      );
+    const result: Record<string, unknown> = {};
 
-    return { ...options.implicitDefaults, ...Object.fromEntries(entries) };
+    for (const [path, value] of Object.entries(
+      options.implicitDefaults ?? {},
+    )) {
+      setPath(result, path.split('.'), value);
+    }
+
+    for (const [path, field] of Object.entries(fields)) {
+      const value = preprocessValue(field);
+
+      setPath(
+        result,
+        path.split('.'),
+        options.updateMode ? (value ?? null) : value,
+      );
+    }
+
+    return result;
   };
 
   const setFieldErrors = (field: Field, errors: string[] | undefined) => {
-    // @ts-expect-error
-    setErrors(field.ref.name as keyof z.infer<T>, errors);
+    setErrors(field.ref.name, errors);
     field.ref.setCustomValidity(errors?.join(', ') ?? '');
     field.ref.checkValidity();
+  };
+
+  const setPathErrors = (path: string, errors: string[] | undefined) => {
+    const field = fields[path];
+
+    if (field) {
+      setFieldErrors(field, errors);
+      return;
+    }
+
+    setErrors(path, errors);
+  };
+
+  const clearUnregisteredErrors = () => {
+    for (const path of Object.keys(errors)) {
+      if (!(path in fields)) {
+        setErrors(path, undefined);
+      }
+    }
   };
 
   const runValidation = async () => {
@@ -115,31 +142,26 @@ export const useFormValidation = <T extends z.ZodObject>(
 
     if (result.success) {
       batch(() => {
-        for (const field of Object.values(fields)) {
-          if (!field) continue;
+        clearUnregisteredErrors();
 
+        for (const field of Object.values(fields)) {
           setFieldErrors(field, undefined);
         }
 
         setCanSubmit(true);
       });
     } else {
-      const fieldErrors = treeifyError(result.error).properties ?? {};
+      const errorTree = treeifyError(result.error);
 
       batch(() => {
-        for (const [key, field] of Object.entries(fields)) {
-          const errorField = fieldErrors[key];
+        clearUnregisteredErrors();
 
-          if (!field) {
-            console.warn(`No field found for name ${key}`);
-            continue;
-          }
-
+        for (const [path, field] of Object.entries(fields)) {
           if (!field.dirty) {
             continue;
           }
 
-          setFieldErrors(field, errorField?.errors);
+          setFieldErrors(field, getNestedErrors(errorTree, path.split('.')));
         }
 
         setCanSubmit(false);
@@ -161,7 +183,7 @@ export const useFormValidation = <T extends z.ZodObject>(
       return;
     }
 
-    const schemaField = schema.shape[name];
+    const schemaField = resolveSchemaField(schema, name.split('.'));
 
     if (schemaField === undefined) {
       console.warn(
@@ -171,7 +193,7 @@ export const useFormValidation = <T extends z.ZodObject>(
     }
 
     const field = { ref, schemaField, dirty: options.updateMode ?? false };
-    fields[name as keyof z.infer<T>] = field;
+    fields[name] = field;
 
     let timeoutRef: ReturnType<typeof setTimeout> | undefined;
 
@@ -226,19 +248,14 @@ export const useFormValidation = <T extends z.ZodObject>(
         if (err instanceof TRPCClientError) {
           const parsedServerError = ZodLikeError.safeParse(err.message);
 
-          if (parsedServerError.success) {
-            const fieldErrors = parsedServerError.data.properties;
+          const fieldErrors = parsedServerError.success
+            ? Object.entries(parsedServerError.data.properties)
+            : [];
 
+          if (fieldErrors.length > 0) {
             batch(() => {
-              for (const [key, errors] of Object.entries(fieldErrors)) {
-                const field = fields[key as keyof z.infer<T>];
-
-                if (!field) {
-                  console.warn(`No field found for name ${key}`);
-                  continue;
-                }
-
-                setFieldErrors(field, errors.errors);
+              for (const [path, { errors }] of fieldErrors) {
+                setPathErrors(path, errors);
               }
             });
 
@@ -259,8 +276,6 @@ export const useFormValidation = <T extends z.ZodObject>(
 
   const forceValidate = () => {
     for (const field of Object.values(fields)) {
-      if (!field) continue;
-
       field.dirty = true;
     }
 

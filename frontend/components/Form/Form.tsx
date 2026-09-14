@@ -107,7 +107,7 @@ export interface FormProps<
   };
 
   directives: ComponentUseDirectiveHack<HTMLInputElement>[];
-  errors: Partial<Record<keyof z.infer<Model>, string[]>>;
+  errors: Partial<Record<string, string[]>>;
 
   class?: string;
   classList?: JSX.CustomAttributes<HTMLElement>['classList'];
