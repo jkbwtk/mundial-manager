@@ -1,0 +1,89 @@
+@use 'app' as *;
+@use 'backgrounds' as *;
+
+.container {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  width: 100%;
+  max-width: 100%;
+
+  &.invalid {
+    .list {
+      outline: $borderSize solid $red;
+      border-radius: $borderRadius;
+    }
+  }
+}
+
+.list {
+  @include stripedBackground;
+
+  width: 100%;
+  max-width: 100%;
+
+  padding: 0 cw(1);
+
+  overflow-x: auto;
+}
+
+.entry {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+
+  width: 100%;
+  min-width: 0;
+}
+
+.key-input,
+.value-input {
+  display: inline-flex;
+  align-items: center;
+
+  input {
+    flex-grow: 1;
+    min-width: 0;
+    width: auto;
+  }
+}
+
+.key-input {
+  flex-grow: 1;
+  flex-basis: cw(10);
+  min-width: cw(6);
+}
+
+.separator {
+  flex-shrink: 0;
+
+  padding: 0 cw(1);
+
+  color: $textDimColor;
+}
+
+.value-input {
+  flex-grow: 1;
+  flex-basis: cw(8);
+  min-width: cw(6);
+}
+
+.remove-button {
+  flex-shrink: 0;
+
+  margin-left: cw(1);
+
+  &:focus {
+    background-color: $textBrightColor;
+    border-radius: $borderRadius;
+  }
+}
+
+.add-trigger {
+  width: 100%;
+  min-width: cw(5);
+
+  text-align: center;
+  white-space: nowrap;
+}
