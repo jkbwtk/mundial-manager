@@ -623,7 +623,7 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
       />
 
       <Show when={props.dateMode !== 'date'}>
-        <span aria-hidden="true"> </span>
+        <span aria-hidden="true" class={style.gap} />
 
         <SegmentInput
           ref={(el) => {

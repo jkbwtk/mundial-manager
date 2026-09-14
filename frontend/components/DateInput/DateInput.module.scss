@@ -4,6 +4,8 @@
 .date-input {
   width: fit-content;
 
+  white-space: nowrap;
+
   &:not(.invalid):focus-within {
     color: $textBrightColor;
   }
@@ -75,13 +77,30 @@
   @extend %date-input;
 }
 
-.year {
-  width: cw(4);
-}
+.date-input {
+  .year {
+    width: cw(4);
+  }
 
-.month,
-.day {
-  width: cw(2);
+  .month,
+  .day {
+    width: cw(2);
+  }
+
+  .year,
+  .month,
+  .day {
+    flex: 0 0 auto;
+  }
+
+  .gap {
+    width: cw(1);
+    flex: 0 0 auto;
+  }
+
+  .trigger {
+    margin-left: auto;
+  }
 }
 
 .calendar {

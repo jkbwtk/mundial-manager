@@ -40,6 +40,8 @@
 .file,
 .checkbox,
 .color {
+  white-space: nowrap;
+
   &::before {
     content: '[';
 
