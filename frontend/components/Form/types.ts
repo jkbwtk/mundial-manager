@@ -17,6 +17,7 @@ export const FormFieldTypes = [
   'dropdown',
   'resourcePicker',
   'multiResourcePicker',
+  'object',
   'record',
 ] as const;
 
@@ -64,6 +65,12 @@ export type FormField<Value> =
       queryById: (id: string) => Promise<any>;
     })
   | (BaseFormField<Value> & {
+      type: 'object';
+      fields: Value extends Record<string, unknown>
+        ? { [Field in keyof Value]: FormField<Value[Field]> }
+        : never;
+    })
+  | (BaseFormField<Value> & {
       type: 'record';
       keyPlaceholder?: string;
       valuePlaceholder?: string;
@@ -87,11 +94,25 @@ export type FormFieldOfType<Type extends FormFieldType> = [
   ? BaseFormField<unknown>
   : SpecificFormField<Type>;
 
+export type FormFieldMap = Record<string, FormField<unknown>>;
+
+export interface FieldMeta {
+  names: Record<string, string>;
+  implicitDefaults: Record<string, unknown>;
+}
+
+export interface JSONSchemaNode {
+  properties?: Record<string, JSONSchemaNode | undefined>;
+  required?: string[];
+}
+
 export interface FormFieldProps<Type extends FormFieldType = FormFieldType> {
   path: string;
   field: FormFieldOfType<Type>;
   value: unknown;
   required: boolean;
+
+  schemaNode: JSONSchemaNode | undefined;
 
   directives: ComponentUseDirectiveHack<HTMLInputElement>[];
   errors: Partial<Record<string, string[]>>;

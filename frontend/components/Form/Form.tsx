@@ -5,7 +5,7 @@ import { toJSONSchema } from 'zod';
 import style from './Form.module.scss';
 import { FormFieldEntry } from './FormFieldEntry';
 import { getVisibleFields } from './fieldUtils';
-import type { FormProps } from './types';
+import type { FormProps, JSONSchemaNode } from './types';
 
 export const Form = <
   Model extends z.ZodObject,
@@ -17,8 +17,11 @@ export const Form = <
 ) => {
   const defaultFormId = createUniqueId();
 
-  const schema = createMemo(() =>
-    toJSONSchema(props.model, { unrepresentable: 'any' }),
+  const schema = createMemo(
+    () =>
+      toJSONSchema(props.model, {
+        unrepresentable: 'any',
+      }) as JSONSchemaNode,
   );
 
   return (
@@ -46,6 +49,7 @@ export const Form = <
                 ]
               }
               required={rootSchema.required?.includes(fieldName) ?? false}
+              schemaNode={rootSchema.properties?.[fieldName]}
               directives={props.directives}
               errors={props.errors}
             />

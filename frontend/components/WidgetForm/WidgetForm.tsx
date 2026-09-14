@@ -2,7 +2,7 @@ import { type Action, type CustomResponse, useAction } from '@solidjs/router';
 import { createUniqueId, type JSX } from 'solid-js';
 import type z from 'zod';
 import { Button } from '#components/Button';
-import { Form, type SharedFormProps } from '#components/Form';
+import { collectFieldMeta, Form, type SharedFormProps } from '#components/Form';
 import { FormErrors } from '#components/FormErrors';
 import { Divider } from '#components/Widget';
 import { Widget } from '#components/Widget/Widget';
@@ -44,21 +44,18 @@ export const WidgetForm = <
 
   const formId = createUniqueId();
 
-  const fieldNames = () =>
-    Object.fromEntries(
-      Object.entries(props.fields).map(([key, field]) => [key, field.label]),
-    );
+  const fieldMeta = () =>
+    // @ts-expect-error
+    collectFieldMeta(props.fields);
+
+  const fieldNames = () => fieldMeta().names;
 
   const { validate, errors, canSubmit, formSubmit } = useFormValidation(
     props.model,
     {
       updateMode: props.instance !== undefined,
 
-      implicitDefaults: Object.fromEntries(
-        Object.entries(props.fields)
-          .map(([fieldName, field]) => [fieldName, field.implicitDefault])
-          .filter(([, implicitDefault]) => implicitDefault !== undefined),
-      ),
+      implicitDefaults: fieldMeta().implicitDefaults,
     },
   );
 

@@ -5,6 +5,7 @@ import { DateField } from './DateField';
 import { DropdownField } from './DropdownField';
 import { MultiResourcePickerField } from './MultiResourcePickerField';
 import { NumberField } from './NumberField';
+import { ObjectField } from './ObjectField';
 import { RecordField } from './RecordField';
 import { ResourcePickerField } from './ResourcePickerField';
 import { TextAreaField } from './TextAreaField';
@@ -24,6 +25,7 @@ const getFieldComponent = (type: FormFieldType) => {
     dropdown: DropdownField,
     resourcePicker: ResourcePickerField,
     multiResourcePicker: MultiResourcePickerField,
+    object: ObjectField,
     record: RecordField,
   };
 

@@ -48,3 +48,20 @@
     }
   }
 }
+
+.field-group {
+  padding-top: ch(2);
+}
+
+.field-group-label {
+  display: flex;
+  align-items: center;
+
+  white-space: nowrap;
+}
+
+.field-group-content {
+  display: flex;
+  flex-direction: column;
+  gap: ch(1);
+}
