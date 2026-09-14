@@ -2,7 +2,7 @@ import { TRPCClientError } from '@trpc/client';
 import { batch, createSignal, type JSX } from 'solid-js';
 import { createStore, unwrap } from 'solid-js/store';
 import type z from 'zod';
-import { treeifyError } from 'zod';
+import { treeifyError, ZodError } from 'zod';
 import { normalizeInputType } from '#flib/utils';
 import {
   getNestedErrors,
@@ -30,6 +30,8 @@ export interface FormValidationCompatible {
   setCustomValidity: (message: string) => void;
   checkValidity: () => boolean;
 
+  getValidationErrors?: () => string[];
+
   onblur: () => void;
   oninput: () => void;
 }
@@ -42,7 +44,7 @@ export type UseFormValidationOptions = {
 };
 
 export interface Field {
-  ref: HTMLInputElement;
+  ref: HTMLInputElement & Pick<FormValidationCompatible, 'getValidationErrors'>;
   schemaField: z.ZodTypeAny;
   dirty: boolean;
 }
@@ -135,10 +137,32 @@ export const useFormValidation = <T extends z.ZodObject>(
     }
   };
 
+  const collectInputIssues = (): z.core.$ZodIssue[] =>
+    Object.entries(fields).flatMap(([path, field]) =>
+      (field.ref.getValidationErrors?.() ?? []).map((message) => ({
+        code: 'custom' as const,
+        path: path.split('.'),
+        message,
+        input: field.ref.value,
+      })),
+    );
+
   const runValidation = async () => {
     const data = getFormData();
+    const inputIssues = collectInputIssues();
 
-    const result = await schema.safeParseAsync(data);
+    const parsed = await schema.safeParseAsync(data);
+
+    const result =
+      inputIssues.length === 0
+        ? parsed
+        : ({
+            success: false,
+            error: new ZodError([
+              ...inputIssues,
+              ...(parsed.success ? [] : parsed.error.issues),
+            ]),
+          } as typeof parsed);
 
     if (result.success) {
       batch(() => {
