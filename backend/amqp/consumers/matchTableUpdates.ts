@@ -7,7 +7,7 @@ import type { DB } from '#backend/db/database';
 import { logger } from '#shared/logger';
 import { Match } from '#shared/types/api/match';
 
-export function registerMatchTableUpdates(channel: Channel, db: DB) {
+export function registerMatchTableUpdates(channel: Channel, _db: DB) {
   channel.consume('MATCH_TABLE_UPDATES', (msg) => {
     if (msg === null) {
       return;
