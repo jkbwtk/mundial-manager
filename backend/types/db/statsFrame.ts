@@ -12,20 +12,14 @@ export const StatsFrameInsertSchema = createInsertSchema(statsFramesTable, {
   $deletedAt: true,
   $updateCounter: true,
 });
-export type StatsFrameInsertSchema = ReturnType<
-  typeof StatsFrameInsertSchema.parse
->;
+export type StatsFrameInsertSchema = z.infer<typeof StatsFrameInsertSchema>;
 
 export const StatsFrameUpsertSchema = StatsFrameInsertSchema.extend({
   uuid: z.string().optional(),
 });
-export type StatsFrameUpsertSchema = ReturnType<
-  typeof StatsFrameUpsertSchema.parse
->;
+export type StatsFrameUpsertSchema = z.infer<typeof StatsFrameUpsertSchema>;
 
 export const StatsFrameSelectSchema = createSelectSchema(statsFramesTable, {
   payload: StatsFrame,
 });
-export type StatsFrameSelectSchema = ReturnType<
-  typeof StatsFrameSelectSchema.parse
->;
+export type StatsFrameSelectSchema = z.infer<typeof StatsFrameSelectSchema>;
