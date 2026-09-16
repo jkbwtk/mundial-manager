@@ -4,7 +4,7 @@ import type { matchesTable } from '#backend/db/schema';
 type MatchesTable = typeof matchesTable;
 
 export type MatchLike = {
-  startDate: Date;
+  startDate: Date | null;
   $createdAt: Date;
   uuid: string;
 };
@@ -17,7 +17,7 @@ export function matchOrderBy(
   column: keyof MatchesTable['_']['columns'] = 'startDate',
 ) {
   return (table: MatchesTable) => [
-    asc(table[column]),
+    sql`${table[column]} asc nulls last`,
     sql`${createdAtMs(table)} asc`,
     asc(table.uuid),
   ];
@@ -27,7 +27,7 @@ export function matchOrderByDesc(
   column: keyof MatchesTable['_']['columns'] = 'startDate',
 ) {
   return (table: MatchesTable) => [
-    desc(table[column]),
+    sql`${table[column]} desc nulls last`,
     sql`${createdAtMs(table)} desc`,
     desc(table.uuid),
   ];
