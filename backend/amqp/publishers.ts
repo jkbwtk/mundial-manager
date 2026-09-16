@@ -7,6 +7,7 @@ import {
   getAMQPChannel,
   isAMQPEnabled,
 } from '#backend/amqp/amqp';
+import { isTransaction } from '#backend/db/database';
 import { logger } from '#shared/logger';
 import { shortUUID } from '#shared/utils';
 
@@ -85,6 +86,10 @@ export function PublishResult<T extends (...args: any[]) => any>(
     args: Parameters<T>;
     resp: ReturnType<T>;
   }) => string,
+  payloadExtractor: (data: {
+    args: Parameters<T>;
+    resp: Awaited<ReturnType<T>>;
+  }) => object = ({ resp }) => resp,
 ) {
   return (target: T, _ctx: ClassMemberDecoratorContext) => {
     const wrappedMethod = async function (this: any, ...args: Parameters<T>) {
@@ -93,29 +98,33 @@ export function PublishResult<T extends (...args: any[]) => any>(
 
       const resp = await target.call(this, ...args);
 
-      if (isAMQPEnabled()) {
-        try {
-          const leagueUuid = leagueUuidExtractor({
-            args,
-            resp,
-          });
+      if (!isAMQPEnabled() || isTransaction(args[0])) {
+        return resp;
+      }
 
-          const amqp = await getAMQPChannel();
-          const messageId = [label, name, shortUUID(randomUUID())].join(':');
+      try {
+        const leagueUuid = leagueUuidExtractor({
+          args,
+          resp,
+        });
 
-          logger.debug('Publishing message %s to queue %s', messageId, queue, {
-            label: [label, name],
-          });
+        const amqp = await getAMQPChannel();
+        const messageId = [label, name, shortUUID(randomUUID())].join(':');
 
-          amqp.sendToQueue(queue, serializeAMQPMessage(leagueUuid, resp), {
-            messageId,
-          });
-        } catch (err) {
-          logger.warn('Failed to publish call result to %s queue', queue, {
-            label: [label, name],
-            error: err,
-          });
-        }
+        logger.debug('Publishing message %s to queue %s', messageId, queue, {
+          label: [label, name],
+        });
+
+        amqp.sendToQueue(
+          queue,
+          serializeAMQPMessage(leagueUuid, payloadExtractor({ args, resp })),
+          { messageId },
+        );
+      } catch (err) {
+        logger.warn('Failed to publish call result to %s queue', queue, {
+          label: [label, name],
+          error: err,
+        });
       }
 
       return resp;

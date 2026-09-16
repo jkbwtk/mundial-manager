@@ -1,4 +1,5 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
+import { PgAsyncTransaction } from 'drizzle-orm/pg-core';
 import { Pool } from 'pg';
 import { relations } from '#backend/db/relations';
 import { environment } from '#backend/environment';
@@ -28,3 +29,7 @@ export const db = lazyObject(() => {
 export type DB = typeof db;
 
 export type TX = Parameters<Parameters<DB['transaction']>[0]>[0];
+
+export function isTransaction(db: DB | TX): db is TX {
+  return db instanceof PgAsyncTransaction;
+}
