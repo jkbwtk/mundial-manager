@@ -24,10 +24,28 @@ export function formatDuration(seconds: number | null): string {
   return `${Math.floor(hours)}:${durationObj.format('mm:ss')}`;
 }
 
+export function formatDurationMs(ms: number | null): string {
+  return formatDuration(ms === null ? null : Math.round(msToSeconds(ms)));
+}
+
 export function formatDate(timestamp: number | null): string {
   if (timestamp === null) {
     return '----/--/--';
   }
 
   return dayjs.unix(timestamp).format('YYYY-MM-DD');
+}
+
+export function secondsToMs<T extends number | null | undefined>(
+  seconds: T,
+): T extends number ? number : T {
+  // biome-ignore lint/suspicious/noExplicitAny: yeah
+  return (seconds == null ? seconds : seconds * 1000) as any;
+}
+
+export function msToSeconds<T extends number | null | undefined>(
+  ms: T,
+): T extends number ? number : T {
+  // biome-ignore lint/suspicious/noExplicitAny: yeah
+  return (ms == null ? ms : ms / 1000) as any;
 }
