@@ -10,6 +10,14 @@ export const getVisibleFields = (fields: object) =>
     ([, field]) => !field.hidden,
   );
 
+export const formatFieldValue = (
+  field: FormField<unknown>,
+  value: unknown,
+): unknown =>
+  field.format === undefined || value === undefined || value === null
+    ? value
+    : field.format(value);
+
 export const collectFieldMeta = (
   fields: FormFieldMap,
   pathPrefix = '',
@@ -17,6 +25,7 @@ export const collectFieldMeta = (
 ): FieldMeta => {
   const names: Record<string, string> = {};
   const implicitDefaults: Record<string, unknown> = {};
+  const transforms: Record<string, (value: unknown) => unknown> = {};
 
   for (const [key, field] of Object.entries(fields)) {
     const path = pathPrefix ? `${pathPrefix}.${key}` : key;
@@ -28,6 +37,10 @@ export const collectFieldMeta = (
       implicitDefaults[path] = field.implicitDefault;
     }
 
+    if (field.transform !== undefined) {
+      transforms[path] = field.transform;
+    }
+
     if (field.type === 'object') {
       const nested = collectFieldMeta(
         (field as FormFieldOfType<'object'>).fields as FormFieldMap,
@@ -37,8 +50,9 @@ export const collectFieldMeta = (
 
       Object.assign(names, nested.names);
       Object.assign(implicitDefaults, nested.implicitDefaults);
+      Object.assign(transforms, nested.transforms);
     }
   }
 
-  return { names, implicitDefaults };
+  return { names, implicitDefaults, transforms };
 };

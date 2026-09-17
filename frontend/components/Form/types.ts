@@ -32,6 +32,7 @@ export interface BaseFormField<Value> {
   implicitDefault?: Value;
 
   transform?: (value: Value) => Value;
+  format?: (value: Value) => Value;
 }
 
 export type FormField<Value> =
@@ -99,6 +100,7 @@ export type FormFieldMap = Record<string, FormField<unknown>>;
 export interface FieldMeta {
   names: Record<string, string>;
   implicitDefaults: Record<string, unknown>;
+  transforms: Record<string, (value: unknown) => unknown>;
 }
 
 export interface JSONSchemaNode {

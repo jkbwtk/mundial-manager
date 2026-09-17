@@ -61,6 +61,7 @@ export const ModalForm = <
       updateMode: props.instance !== undefined,
 
       implicitDefaults: fieldMeta().implicitDefaults,
+      transforms: fieldMeta().transforms,
     },
   );
 

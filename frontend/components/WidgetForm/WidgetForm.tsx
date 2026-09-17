@@ -56,6 +56,7 @@ export const WidgetForm = <
       updateMode: props.instance !== undefined,
 
       implicitDefaults: fieldMeta().implicitDefaults,
+      transforms: fieldMeta().transforms,
     },
   );
 

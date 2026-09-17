@@ -3,6 +3,7 @@ import { CheckboxField } from './CheckboxField';
 import { ColorField } from './ColorField';
 import { DateField } from './DateField';
 import { DropdownField } from './DropdownField';
+import { formatFieldValue } from './fieldUtils';
 import { MultiResourcePickerField } from './MultiResourcePickerField';
 import { NumberField } from './NumberField';
 import { ObjectField } from './ObjectField';
@@ -33,5 +34,9 @@ const getFieldComponent = (type: FormFieldType) => {
 };
 
 export const FormFieldEntry: Component<FormFieldProps> = (props) => (
-  <Dynamic component={getFieldComponent(props.field.type)} {...props} />
+  <Dynamic
+    component={getFieldComponent(props.field.type)}
+    {...props}
+    value={formatFieldValue(props.field, props.value)}
+  />
 );

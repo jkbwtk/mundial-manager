@@ -41,6 +41,8 @@ export type UseFormValidationOptions = {
   updateMode?: boolean;
 
   implicitDefaults?: Record<string, unknown>;
+
+  transforms?: Record<string, (value: unknown) => unknown>;
 };
 
 export interface Field {
@@ -92,6 +94,16 @@ export const useFormValidation = <T extends z.ZodObject>(
     }
   };
 
+  const transformValue = (path: string, value: unknown) => {
+    const transform = options.transforms?.[path];
+
+    if (transform === undefined || value === undefined || value === null) {
+      return value;
+    }
+
+    return transform(value);
+  };
+
   const getFormData = (): Record<string, unknown> => {
     const result: Record<string, unknown> = {};
 
@@ -102,7 +114,7 @@ export const useFormValidation = <T extends z.ZodObject>(
     }
 
     for (const [path, field] of Object.entries(fields)) {
-      const value = preprocessValue(field);
+      const value = transformValue(path, preprocessValue(field));
 
       setPath(
         result,
