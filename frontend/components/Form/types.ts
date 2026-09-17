@@ -52,6 +52,8 @@ export type FormField<Value> =
   | (BaseFormField<Value> & {
       type: 'date';
       dateMode: DateMode;
+
+      steps?: number[];
     })
   | (BaseFormField<Value> & {
       type: 'dropdown';

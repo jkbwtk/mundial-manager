@@ -94,6 +94,7 @@
   }
 
   .gap {
+    display: inline-block;
     width: cw(1);
     flex: 0 0 auto;
   }
@@ -181,4 +182,19 @@
     background-color: $textBrightColor;
     border-radius: $borderRadius;
   }
+}
+
+.date-stepper {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+
+  gap: 0 cw(1);
+}
+
+.steps {
+  display: inline-flex;
+  flex-wrap: wrap;
+
+  gap: 0 cw(1);
 }
