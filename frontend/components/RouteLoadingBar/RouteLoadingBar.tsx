@@ -2,14 +2,14 @@ import { useIsRouting } from '@solidjs/router';
 import { batch, createEffect, createSignal, onCleanup, Show } from 'solid-js';
 import style from './RouteLoadingBar.module.scss';
 
+type Phase = 'idle' | 'slow' | 'fast';
+
 const SHOW_DELAY_MS = 100;
 const FADE_OUT_MS = 220;
 const SLOW_LOAD_CAP = 90;
 const MIN_START = 0;
 const SLOW_RATE = 1;
 const FAST_RATE = 8;
-
-type Phase = 'idle' | 'slow' | 'fast';
 
 export const RouteLoadingBar: Component = () => {
   const isRouting = useIsRouting();
