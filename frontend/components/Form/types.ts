@@ -1,6 +1,7 @@
 import type { Action, CustomResponse } from '@solidjs/router';
 import type { JSX } from 'solid-js';
 import type z from 'zod';
+import type { ButtonGroupOption } from '#components/ButtonGroup';
 import type { DateMode } from '#components/DateInput';
 import type { DropdownOption } from '#components/Dropdown';
 import type { PickerEntry, PickerQueryMeta } from '#components/ResourcePicker';
@@ -15,6 +16,7 @@ export const FormFieldTypes = [
   'date',
   'color',
   'dropdown',
+  'buttonGroup',
   'resourcePicker',
   'multiResourcePicker',
   'object',
@@ -55,6 +57,10 @@ export type FormField<Value> =
       type: 'dropdown';
       options: DropdownOption[];
       multiple?: boolean;
+    })
+  | (BaseFormField<Value> & {
+      type: 'buttonGroup';
+      options: ButtonGroupOption[];
     })
   | (BaseFormField<Value> & {
       type: 'resourcePicker' | 'multiResourcePicker';

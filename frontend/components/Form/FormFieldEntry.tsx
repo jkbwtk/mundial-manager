@@ -1,4 +1,5 @@
 import { Dynamic } from 'solid-js/web';
+import { ButtonGroupField } from './ButtonGroupField';
 import { CheckboxField } from './CheckboxField';
 import { ColorField } from './ColorField';
 import { DateField } from './DateField';
@@ -24,6 +25,7 @@ const getFieldComponent = (type: FormFieldType) => {
     date: DateField,
     color: ColorField,
     dropdown: DropdownField,
+    buttonGroup: ButtonGroupField,
     resourcePicker: ResourcePickerField,
     multiResourcePicker: MultiResourcePickerField,
     object: ObjectField,
