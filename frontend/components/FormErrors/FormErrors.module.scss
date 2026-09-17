@@ -47,3 +47,22 @@
     color: $textColor;
   }
 }
+
+.selectable {
+  width: fit-content;
+  text-align: left;
+
+  @media (hover: hover) {
+    &:hover {
+      text-decoration: dashed underline;
+    }
+  }
+
+  &:focus-visible {
+    text-decoration: dashed underline;
+  }
+}
+
+.warning-description {
+  color: $yellow;
+}

@@ -3,17 +3,33 @@ import style from './FormErrors.module.scss';
 
 export interface FormErrorsProps {
   errors: Partial<Record<string, string[]>>;
+  warnings?: Partial<Record<string, string[]>>;
 
   fieldNames?: Record<string, string>;
+
+  onFieldSelect?: (fieldName: string) => void;
 
   class?: string;
   classList?: JSX.CustomAttributes<HTMLElement>['classList'];
 }
 
 export const FormErrors: Component<FormErrorsProps> = (props) => {
-  const errorEntries = createMemo(() => Object.entries(props.errors));
+  const fieldEntries = createMemo(() => {
+    const fieldNames = new Set([
+      ...Object.keys(props.errors),
+      ...Object.keys(props.warnings ?? {}),
+    ]);
 
-  const hasValidationErrors = () => errorEntries().length > 0;
+    return [...fieldNames]
+      .map((fieldName) => ({
+        fieldName,
+        errors: props.errors[fieldName] ?? [],
+        warnings: props.warnings?.[fieldName] ?? [],
+      }))
+      .filter((entry) => entry.errors.length + entry.warnings.length > 0);
+  });
+
+  const hasValidationErrors = () => fieldEntries().length > 0;
 
   return (
     <div
@@ -29,19 +45,51 @@ export const FormErrors: Component<FormErrorsProps> = (props) => {
         fallback={<span class={style.noErrors}>No validation errors</span>}
       >
         <div class={style.errors}>
-          <For each={errorEntries()}>
-            {([fieldName, fieldErrors]) => {
+          <For each={fieldEntries()}>
+            {(entry) => {
               const displayFieldName =
-                props.fieldNames?.[fieldName] ?? fieldName;
+                props.fieldNames?.[entry.fieldName] ?? entry.fieldName;
 
               return (
                 <div class={style.error}>
-                  <div class={style.fieldName}>{displayFieldName}:</div>
+                  <Show
+                    when={props.onFieldSelect}
+                    fallback={
+                      <div class={style.fieldName}>{displayFieldName}:</div>
+                    }
+                  >
+                    {(onFieldSelect) => (
+                      <button
+                        type="button"
+                        classList={{
+                          [style.fieldName]: true,
+                          [style.selectable]: true,
+                        }}
+                        onClick={() => onFieldSelect()(entry.fieldName)}
+                      >
+                        {displayFieldName}:
+                      </button>
+                    )}
+                  </Show>
 
-                  <For each={fieldErrors}>
+                  <For each={entry.errors}>
                     {(error) => {
                       return <div class={style.errorDescription}> {error}</div>;
                     }}
+                  </For>
+
+                  <For each={entry.warnings}>
+                    {(warning) => (
+                      <div
+                        classList={{
+                          [style.errorDescription]: true,
+                          [style.warningDescription]: true,
+                        }}
+                      >
+                        {' '}
+                        {warning}
+                      </div>
+                    )}
                   </For>
                 </div>
               );
