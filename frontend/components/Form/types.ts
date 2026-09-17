@@ -54,6 +54,7 @@ export type FormField<Value> =
   | (BaseFormField<Value> & {
       type: 'dropdown';
       options: DropdownOption[];
+      multiple?: boolean;
     })
   | (BaseFormField<Value> & {
       type: 'resourcePicker' | 'multiResourcePicker';
