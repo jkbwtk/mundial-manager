@@ -306,7 +306,7 @@ export const Dropdown: DropdownSignature = <T = string>(
 
   createEffect(
     on(
-      [values],
+      values,
       (values) => {
         // @ts-expect-error
         props.onChange?.(props.multiple ? values : values[0]);
