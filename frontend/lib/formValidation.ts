@@ -4,6 +4,7 @@ import { createStore, unwrap } from 'solid-js/store';
 import type z from 'zod';
 import { treeifyError, ZodError } from 'zod';
 import { normalizeInputType } from '#flib/utils';
+import { getModelErrorMessage } from '#shared/modelErrors';
 import {
   getNestedErrors,
   resolveSchemaField,
@@ -49,6 +50,18 @@ export interface Field {
   ref: HTMLInputElement & Pick<FormValidationCompatible, 'getValidationErrors'>;
   schemaField: z.ZodTypeAny;
   dirty: boolean;
+}
+
+export function parseServerFieldErrors(err: unknown): [string, string[]][] {
+  if (!(err instanceof TRPCClientError)) return [];
+
+  const parsed = ZodLikeError.safeParse(err.message);
+  if (!parsed.success) return [];
+
+  return Object.entries(parsed.data.properties).map(([path, { errors }]) => [
+    path,
+    errors,
+  ]);
 }
 
 export const useFormValidation = <T extends z.ZodObject>(
@@ -290,22 +303,16 @@ export const useFormValidation = <T extends z.ZodObject>(
         const response = await handler(result.data);
         onSuccess?.(response);
       } catch (err) {
-        if (err instanceof TRPCClientError) {
-          const parsedServerError = ZodLikeError.safeParse(err.message);
+        const fieldErrors = parseServerFieldErrors(err);
 
-          const fieldErrors = parsedServerError.success
-            ? Object.entries(parsedServerError.data.properties)
-            : [];
+        if (fieldErrors.length > 0) {
+          batch(() => {
+            for (const [path, errors] of fieldErrors) {
+              setPathErrors(path, errors.map(getModelErrorMessage));
+            }
+          });
 
-          if (fieldErrors.length > 0) {
-            batch(() => {
-              for (const [path, { errors }] of fieldErrors) {
-                setPathErrors(path, errors);
-              }
-            });
-
-            return;
-          }
+          return;
         }
 
         onError?.(err);
