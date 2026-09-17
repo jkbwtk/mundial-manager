@@ -40,6 +40,7 @@ export type DateMode = (typeof DateModes)[number];
 
 export type DateInputProps = {
   invalid?: boolean;
+  required?: boolean;
   value?: Date | null;
   dateMode?: DateMode;
   onInput?: (value: Date | null) => void;
@@ -68,6 +69,7 @@ const DayNames = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 
 export const dateInputDefaultProps: RequiredDefaults<DateInputProps> = {
   invalid: false,
+  required: false,
   value: null,
   dateMode: 'date',
   onInput: () => {},
@@ -162,6 +164,10 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
   );
 
   const grid = createMemo(() => buildGrid(viewYear(), viewMonth()));
+
+  const validationErrors = createMemo(() =>
+    props.required && selectedDate() === null ? ['Date is required'] : [],
+  );
 
   const emitFromRefs = () => {
     if (props.dateMode === 'date') {
@@ -522,6 +528,8 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
     wrapRef.setCustomValidity = () => {};
     // @ts-expect-error
     wrapRef.checkValidity = () => true;
+    // @ts-expect-error
+    wrapRef.getValidationErrors = validationErrors;
 
     wrapRef.focus = (options: FocusOptions) => {
       yearRef.focus(options);
