@@ -156,6 +156,19 @@
   @include event-style($codeColor);
 }
 
+.ball-change {
+  @include event-style($blueBright);
+}
+
+.pause,
+.resume {
+  @include event-style($gray);
+}
+
+.cancel {
+  @include event-style($redBright);
+}
+
 .description {
   padding-left: cw(1);
 }
