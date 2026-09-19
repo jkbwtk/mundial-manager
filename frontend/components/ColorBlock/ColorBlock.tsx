@@ -14,6 +14,15 @@ export interface ColorBlockProps {
    */
   width?: string | number;
 
+  /**
+   * Height in console units
+   * @default 1
+   */
+  height?: string | number;
+
+  /** Fills the parent element, `width` and `height` are ignored */
+  fill?: boolean;
+
   class?: string;
   classList?: JSX.CustomAttributes<HTMLElement>['classList'];
 }
@@ -23,12 +32,14 @@ export const ColorBlock: Component<ColorBlockProps> = (props) => {
     <span
       classList={{
         [style.color]: true,
+        [style.fill]: !!props.fill,
         [props.class ?? '']: true,
         ...(props.classList ?? {}),
       }}
       style={{
         '--color': props.color,
         '--width': props.width,
+        '--height': props.height,
       }}
     />
   );
