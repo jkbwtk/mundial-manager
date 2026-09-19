@@ -80,3 +80,9 @@ export function normalizeInputType(
 
   return type;
 }
+
+export function capturePointer(element: Element, pointerId: number): void {
+  try {
+    element.setPointerCapture(pointerId);
+  } catch {}
+}
