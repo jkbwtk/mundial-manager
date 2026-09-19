@@ -63,6 +63,16 @@ export const MaterialSymbolCodepoints = {
   dashboard: 'e871',
   groups: 'f233',
   search: 'e8b6',
+  add: 'e145',
+  remove: 'e15b',
+  close: 'e5cd',
+  undo: 'e166',
+  redo: 'e15a',
+  content_copy: 'e14d',
+  drag_indicator: 'e945',
+  flag: 'f0c6',
+  cancel: 'e888',
+  change_circle: 'e2e7',
 } as const;
 
 export type SupportedMaterialSymbol = keyof typeof MaterialSymbolCodepoints;
