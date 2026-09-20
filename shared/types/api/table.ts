@@ -30,11 +30,6 @@ export type TableCreate = z.infer<typeof TableCreate>;
 export const TableUpdate = TableCreate.partial().extend({ uuid: z.uuid() });
 export type TableUpdate = z.infer<typeof TableUpdate>;
 
-export const TableStrategy = TableCreate.extend({
-  uuid: z.uuid().optional(),
-});
-export type TableStrategy = z.infer<typeof TableStrategy>;
-
 export const TableQueryMeta = createQueryMeta({
   sortFields: ['name', 'alias', 'description', 'location'] as const,
   searchAvailable: true,

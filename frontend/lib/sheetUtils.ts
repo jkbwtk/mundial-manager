@@ -12,7 +12,6 @@ import type {
   Season,
 } from '#frontend/types';
 import {
-  getMatchHash,
   getPauseDuration,
   getTeamColors,
   hasBeenCancelled,
@@ -780,7 +779,13 @@ export function loadCachedMatches(): Match[] | null {
   return null;
 }
 
-export function saveCreatedMatches(matches: Record<string, MatchCreate>) {
+export type LocalMatch = MatchCreate & { syncId: string };
+
+export function createSyncId(): string {
+  return `local:${crypto.randomUUID()}`;
+}
+
+export function saveCreatedMatches(matches: Record<string, LocalMatch>) {
   if (isServer) {
     return;
   }
@@ -791,7 +796,7 @@ export function saveCreatedMatches(matches: Record<string, MatchCreate>) {
   );
 }
 
-export function loadCreatedMatches(): Record<string, MatchCreate> | null {
+export function loadCreatedMatches(): Record<string, LocalMatch> | null {
   if (isServer) {
     return null;
   }
@@ -800,10 +805,10 @@ export function loadCreatedMatches(): Record<string, MatchCreate> | null {
 
   if (saved) {
     try {
-      const parsed = JSON.parse(saved) as Record<string, MatchCreate>;
+      const parsed = JSON.parse(saved) as LocalMatch[];
 
       if (Array.isArray(parsed)) {
-        return Object.fromEntries(parsed.map((m) => [getMatchHash(m), m]));
+        return Object.fromEntries(parsed.map((m) => [m.syncId, m]));
       }
     } catch {
       return null;

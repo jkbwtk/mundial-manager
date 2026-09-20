@@ -13,7 +13,7 @@ import type { MatchCreate } from '#shared/types/Sheets';
 import style from './CreatedMatchesTest.module.scss';
 
 interface MatchRow extends MatchCreate {
-  hash: string;
+  syncId: string;
   synced: boolean;
   [key: string]: unknown;
 }
@@ -23,7 +23,7 @@ const CreatedMatchesTest: Component = () => {
     state,
     {
       createLocalMatch,
-      matchHashMap,
+      matchSyncIdMap,
       syncCreatedMatch,
       syncCreatedMatches,
       clearCreatedMatches,
@@ -47,26 +47,26 @@ const CreatedMatchesTest: Component = () => {
     createLocalMatch(newMatch);
   };
 
-  const syncMatch = async (hash: string) => {
-    setSyncing(hash, true);
+  const syncMatch = async (syncId: string) => {
+    setSyncing(syncId, true);
 
     try {
-      await syncCreatedMatch(hash);
+      await syncCreatedMatch(syncId);
     } finally {
-      setSyncing(hash, false);
+      setSyncing(syncId, false);
     }
   };
 
   const syncAll = async () => {
-    const hashes = Object.keys(state.createdMatches);
-    const hashesToSync = hashes.filter((hash) => !matchHashMap()[hash]);
+    const syncIds = Object.keys(state.createdMatches);
+    const syncIdsToSync = syncIds.filter((syncId) => !matchSyncIdMap()[syncId]);
 
-    setSyncing(hashesToSync, true);
+    setSyncing(syncIdsToSync, true);
 
     try {
-      await syncCreatedMatches(hashesToSync);
+      await syncCreatedMatches(syncIdsToSync);
     } finally {
-      setSyncing(hashesToSync, false);
+      setSyncing(syncIdsToSync, false);
     }
   };
 
@@ -74,21 +74,22 @@ const CreatedMatchesTest: Component = () => {
     clearCreatedMatches();
   };
 
-  const removeMatch = (hash: string) => {
-    removeCreatedMatch(hash);
+  const removeMatch = (syncId: string) => {
+    removeCreatedMatch(syncId);
   };
 
   const matchesCount = () => Object.keys(state.createdMatches).length;
   const syncedCount = () =>
-    Object.keys(state.createdMatches).filter((hash) => matchHashMap()[hash])
-      .length;
+    Object.keys(state.createdMatches).filter(
+      (syncId) => matchSyncIdMap()[syncId],
+    ).length;
   const unsyncedCount = () => matchesCount() - syncedCount();
 
   const tableData = (): MatchRow[] => {
-    return Object.entries(state.createdMatches).map(([hash, match]) => ({
+    return Object.entries(state.createdMatches).map(([syncId, match]) => ({
       ...match,
-      hash,
-      synced: !!matchHashMap()[hash],
+      syncId,
+      synced: !!matchSyncIdMap()[syncId],
     }));
   };
 
@@ -102,14 +103,14 @@ const CreatedMatchesTest: Component = () => {
         if (value) {
           return <MaterialSymbol symbol="check_box" />;
         }
-        if (syncing[row.hash]) {
+        if (syncing[row.syncId]) {
           return <span>...</span>;
         }
         return (
           <InlineAction
             symbol="s"
             content="S"
-            onAction={() => syncMatch(row.hash)}
+            onAction={() => syncMatch(row.syncId)}
           />
         );
       },
@@ -162,12 +163,12 @@ const CreatedMatchesTest: Component = () => {
       transform: (value: number | null) => (value ? formatDate(value) : 'N/A'),
     },
     {
-      key: 'hash',
+      key: 'syncId',
       header: 'Actions',
       align: 'center',
       width: 10,
-      transform: (hash: string) => (
-        <Button onClick={() => removeMatch(hash)} severity="danger">
+      transform: (syncId: string) => (
+        <Button onClick={() => removeMatch(syncId)} severity="danger">
           Delete
         </Button>
       ),

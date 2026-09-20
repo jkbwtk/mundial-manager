@@ -6,11 +6,9 @@ import { MatchSaveConfirmModal } from '#components/MatchSaveConfirmModal';
 import { convertCalculatorFinishEventToMatch } from '#flib/sheetUtils';
 import {
   actionCreateMatch,
-  actionCreateMatchEvent,
   actionDeleteMatch,
-  actionDeleteMatchEvent,
+  actionSaveMatchTimeline,
   actionUpdateMatch,
-  actionUpdateMatchEvent,
   queryBalls,
   queryPlayers,
   queryTables,
@@ -45,9 +43,7 @@ const MundialCalculator: Component = () => {
   const updateMatch = useAction(actionUpdateMatch);
   const deleteMatch = useAction(actionDeleteMatch);
 
-  const createEvent = useAction(actionCreateMatchEvent);
-  const updateEvent = useAction(actionUpdateMatchEvent);
-  const deleteEvent = useAction(actionDeleteMatchEvent);
+  const saveMatchTimeline = useAction(actionSaveMatchTimeline);
 
   let messenger: WindowMessenger | undefined;
   let connection: Connection | undefined;
@@ -73,9 +69,7 @@ const MundialCalculator: Component = () => {
         updateMatch,
         deleteMatch,
 
-        createEvent,
-        updateEvent,
-        deleteEvent,
+        saveMatchTimeline,
       } satisfies CalculatorApi,
     });
 

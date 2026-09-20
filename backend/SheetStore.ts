@@ -15,11 +15,7 @@ import { AsyncCached, bypassCache } from '#blib/cache';
 import { TypedEventEmitter } from '#blib/utils';
 import { sendMatchSummaryWebhook } from '#blib/webhookUtils';
 import { logger } from '#shared/logger';
-import {
-  getMatchFloor,
-  getMatchHash,
-  getPauseDuration,
-} from '#shared/matchUtils';
+import { getMatchFloor, getPauseDuration } from '#shared/matchUtils';
 import {
   type Match,
   MatchCreate,
@@ -173,7 +169,7 @@ export class SheetStore extends Store {
     if (match.success) {
       return {
         id: row,
-        hash: getMatchHash(match.data),
+        syncId: null,
         pauseDuration: getPauseDuration(
           match.data.replayMetadata?.events ?? [],
         ),
@@ -235,15 +231,6 @@ export class SheetStore extends Store {
     return matches;
   }
 
-  public checkIfMatchExists(
-    match: Match | MatchWithoutMetadata | MatchCreate,
-    matches: Match[] = this.getLocalMatches(),
-  ): boolean {
-    const hash = getMatchHash(match);
-
-    return matches.some((m) => m.hash === hash);
-  }
-
   private findEmptyRows(count: number): number[] {
     const emptyRows: number[] = [];
 
@@ -274,10 +261,6 @@ export class SheetStore extends Store {
   public async createMatch(match: MatchCreate): Promise<Match> {
     await bypassCache(this.loadMatchesCells).call(this);
 
-    if (this.checkIfMatchExists(match)) {
-      throw new Error('Match already exists.');
-    }
-
     const emptyRow = this.findEmptyRow();
 
     if (emptyRow === undefined) {
@@ -302,30 +285,12 @@ export class SheetStore extends Store {
   public async createMatches(matches: MatchCreate[]): Promise<Match[]> {
     await bypassCache(this.loadMatchesCells).call(this);
 
-    const matchCache = this.getLocalMatches();
     const writtenRows: number[] = [];
-    const hashes = new Set<string>();
 
-    const uniqueMatches = matches.filter((match) => {
-      const hash = getMatchHash(match);
-
-      if (this.checkIfMatchExists(match, matchCache) || hashes.has(hash)) {
-        logger.warn('Match already exists, skipping creation.', {
-          label: ['SheetStore', shortUUID(this.uuid), 'createMatches'],
-          match,
-        });
-
-        return false;
-      }
-
-      hashes.add(hash);
-      return true;
-    });
-
-    const emptyRows = this.findEmptyRows(uniqueMatches.length);
+    const emptyRows = this.findEmptyRows(matches.length);
     let emptyRowIndex = 0;
 
-    for (const match of uniqueMatches) {
+    for (const match of matches) {
       const emptyRow = emptyRows[emptyRowIndex++];
 
       if (emptyRow === undefined) {

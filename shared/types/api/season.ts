@@ -40,11 +40,6 @@ export type SeasonCreate = z.infer<typeof SeasonCreate>;
 export const SeasonUpdate = SeasonCreate.partial().extend({ uuid: z.uuid() });
 export type SeasonUpdate = z.infer<typeof SeasonUpdate>;
 
-export const SeasonStrategy = SeasonCreate.extend({
-  uuid: z.uuid().optional(),
-});
-export type SeasonStrategy = z.infer<typeof SeasonStrategy>;
-
 export const SeasonQueryMeta = createQueryMeta({
   sortFields: ['name', 'startDate', 'endDate'] as const,
 });

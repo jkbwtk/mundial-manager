@@ -3,15 +3,15 @@ import z from 'zod';
 import { getPlayersFromTeam } from '#flib/sheetUtils';
 import { getLabelValue } from '#shared/labels';
 import {
-  hasKnownStartDate,
   START_DATE_PRECISION_LABEL,
   type StartDatePrecision,
   StartDatePrecisionEnum,
 } from '#shared/matchLabels';
 import { getPauseDuration } from '#shared/matchUtils';
+import { msToSeconds, secondsToMs } from '#shared/timeUtils';
 import type {
   MatchEvent,
-  MatchEventCreateWithoutMatch,
+  MatchEventCreate,
   MatchSide,
 } from '#shared/types/api/matchEvent';
 import type { MatchFull, MatchFullCreate } from '#shared/types/api/matchFull';
@@ -114,26 +114,27 @@ export function convertFromLegacyMatch(
   match: LegacyMatchCreate,
   tables: Record<string, Table>,
   players: Record<string, Player>,
-  id?: number,
+  syncId: string | null = null,
 ): MatchFullCreate {
   const table = getMatchTable(match, tables);
   const swapRequired = table ? checkIfSwapRequired(match, table) : false;
-  const { startDate, precision } = resolveLegacyStartDate(match, id);
+  const { startDate, precision } = resolveLegacyStartDate(match);
+  const replay = match.replayMetadata;
 
   return {
     tableUuid: table?.uuid,
 
     startDate,
 
-    duration: match.duration ?? 0,
-    pauseDuration: match.replayMetadata
-      ? getPauseDuration(match.replayMetadata.events)
-      : 0,
+    duration: secondsToMs(match.duration),
+    pauseDuration: replay ? secondsToMs(getPauseDuration(replay.events)) : 0,
 
     side1Score: swapRequired ? match.score2 : match.score1,
     side2Score: swapRequired ? match.score1 : match.score2,
 
     status: 'FINISHED',
+    hidden: false,
+    syncId,
 
     playersSide1: getPlayersFromTeam(
       swapRequired ? match.team2 : match.team1,
@@ -149,19 +150,18 @@ export function convertFromLegacyMatch(
     ),
 
     spectators: [],
-    events: match.replayMetadata
-      ? [
-          {
-            type: 'MATCH_START',
-            time: new Date(match.replayMetadata.startedAt * 1000),
-            labels: {},
-          },
-          ...match.replayMetadata.events
-            .map((event) =>
-              convertFromLegacyMatchEvent(match, event, players, swapRequired),
-            )
-            .filter((event) => event !== null),
-        ]
+    events: replay
+      ? replay.events
+          .map((event) =>
+            convertFromLegacyMatchEvent(
+              match,
+              event,
+              players,
+              replay.startedAt,
+              swapRequired,
+            ),
+          )
+          .filter((event) => event !== null)
       : [],
 
     labels: {
@@ -175,10 +175,11 @@ export function convertFromLegacyMatchEvent(
   match: LegacyMatchCreate,
   event: LegacyMatchEvent,
   players: Record<string, Player>,
+  startedAt: number,
   swapRequired = false,
-): MatchEventCreateWithoutMatch | null {
+): MatchEventCreate | null {
   const common = {
-    time: new Date(event.time * 1000),
+    offset: Math.round((event.time - startedAt) * 1000),
     labels: {},
   } as const;
 
@@ -289,18 +290,16 @@ export function convertToLegacyMatch(
       (match.side1Score > match.side2Score ? colors.at(0) : colors.at(1)) ??
       'unknown',
 
-    duration: match.duration,
-    pauseDuration: match.pauseDuration ?? 0,
+    duration: msToSeconds(match.duration),
+    pauseDuration: msToSeconds(match.pauseDuration ?? 0),
 
-    date: hasKnownStartDate(match)
-      ? dayjs(match.startDate).startOf('day').unix()
-      : null,
-    hash: match.hash,
+    date: match.startDate ? dayjs(match.startDate).startOf('day').unix() : null,
+    syncId: match.syncId,
 
     replayMetadata:
-      match.events.length !== 0 && match.events.at(0)?.type === 'MATCH_START'
+      match.events.length !== 0 && match.startDate !== null
         ? {
-            startedAt: (match.events.at(0)?.time.getTime() ?? 0) / 1000,
+            startedAt: match.startDate.getTime() / 1000,
             events: match.events
               .map((event) => convertToLegacyMatchEvent(match, event, players))
               .filter((event) => event !== null),
@@ -315,7 +314,7 @@ export function convertToLegacyMatchEvent(
   players: Record<string, Player>,
 ): LegacyMatchEvent | null {
   const common = {
-    time: event.time.getTime() / 1000,
+    time: ((match.startDate?.getTime() ?? 0) + event.offset) / 1000,
   } as const;
 
   const colors = match.table ? getLegacyColorsFromTable(match.table) : [];

@@ -48,7 +48,12 @@ export const actionUpdateMatch = action(async (match: MatchUpdate) => {
   const updatedMatch = await trpcClient.matches.update.mutate(match);
 
   return json(Match.parse(updatedMatch), {
-    revalidate: ['queryMatches', 'queryMatchById', 'queryLegacyMatches'],
+    revalidate: [
+      'queryMatches',
+      'queryMatchById',
+      'queryLegacyMatches',
+      'queryMatchTimeline',
+    ],
   });
 }, 'actionUpdateMatch');
 
@@ -56,7 +61,12 @@ export const actionDeleteMatch = action(async (uuid: string) => {
   const deletedMatch = await trpcClient.matches.delete.mutate({ uuid });
 
   return json(Match.parse(deletedMatch), {
-    revalidate: ['queryMatches', 'queryMatchById', 'queryLegacyMatches'],
+    revalidate: [
+      'queryMatches',
+      'queryMatchById',
+      'queryLegacyMatches',
+      'queryMatchTimeline',
+    ],
   });
 }, 'actionDeleteMatch');
 
@@ -67,8 +77,11 @@ export const queryLegacyMatches = query(async () => {
 }, 'queryLegacyMatches');
 
 export const actionCreateLegacyMatch = action(
-  async (match: LegacyMatchCreate) => {
-    const newMatch = await trpcClient.matches.createLegacy.mutate(match);
+  async (match: LegacyMatchCreate, syncId: string | null = null) => {
+    const newMatch = await trpcClient.matches.createLegacy.mutate({
+      match,
+      syncId,
+    });
 
     return json(LegacyMatch.parse(newMatch), {
       revalidate: ['queryMatches', 'queryMatchById', 'queryLegacyMatches'],

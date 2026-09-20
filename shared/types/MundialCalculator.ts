@@ -2,10 +2,9 @@ import z from 'zod';
 import type { Ball } from '#shared/types/api/ball';
 import type { Match, MatchCreate, MatchUpdate } from '#shared/types/api/match';
 import type {
-  MatchEvent,
-  MatchEventCreate,
-  MatchEventUpdate,
-} from '#shared/types/api/matchEvent';
+  MatchTimeline,
+  MatchTimelineSave,
+} from '#shared/types/api/matchTimeline';
 import type { Player } from '#shared/types/api/player';
 import type { Table } from '#shared/types/api/table';
 import { MatchEvent as LegacyMatchEvent } from '#shared/types/Sheets';
@@ -42,7 +41,5 @@ export type CalculatorApi = {
   updateMatch(match: MatchUpdate): Promise<Match>;
   deleteMatch(uuid: string): Promise<Match>;
 
-  createEvent(event: MatchEventCreate): Promise<MatchEvent>;
-  updateEvent(event: MatchEventUpdate): Promise<MatchEvent>;
-  deleteEvent(uuid: string): Promise<MatchEvent>;
+  saveMatchTimeline(timeline: MatchTimelineSave): Promise<MatchTimeline>;
 };

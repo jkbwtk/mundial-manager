@@ -110,10 +110,11 @@ export const relations = defineRelations(schema, (r) => ({
       alias: 'side2TeamConfiguration',
       optional: false,
     }),
-    events: r.many.matchEventsTable({
+    timeline: r.one.matchTimelinesTable({
       from: r.matchesTable.uuid,
-      to: r.matchEventsTable.matchUuid,
-      alias: 'events',
+      to: r.matchTimelinesTable.matchUuid,
+      alias: 'timeline',
+      optional: true,
     }),
     statsFrame: r.one.statsFramesTable({
       from: r.matchesTable.uuid,
@@ -122,15 +123,15 @@ export const relations = defineRelations(schema, (r) => ({
       optional: true,
     }),
   },
-  matchEventsTable: {
+  matchTimelinesTable: {
     league: r.one.leaguesTable({
-      from: r.matchEventsTable.leagueUuid,
+      from: r.matchTimelinesTable.leagueUuid,
       to: r.leaguesTable.uuid,
       alias: 'league',
       optional: false,
     }),
     match: r.one.matchesTable({
-      from: r.matchEventsTable.matchUuid,
+      from: r.matchTimelinesTable.matchUuid,
       to: r.matchesTable.uuid,
       alias: 'match',
       optional: false,

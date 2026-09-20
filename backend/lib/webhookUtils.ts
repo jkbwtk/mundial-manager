@@ -81,7 +81,7 @@ Position changes: **${getPositionChangeEvents(match)?.length ?? 0}**
 Own goals: **${getOwnGoalEvents(match)?.length ?? 0}**
 `,
         footer: {
-          text: `ID: #${match.id}, hash: ${match.hash.substring(0, 8)}`,
+          text: `ID: #${match.id}, Sync ID: ${match.syncId ?? 'N/A'}`,
           icon_url: environment.MANAGER_ICON_URL ?? undefined,
           proxy_icon_url: environment.MANAGER_ICON_URL ?? undefined,
         },

@@ -1,7 +1,5 @@
 import z from 'zod';
-import { createQueryMeta } from '#backend/types/trpc';
 import { Labels } from '#shared/labels';
-import { PaginatedResponse } from '#shared/zod';
 
 export const MatchSideEnum = {
   SIDE_1: 'SIDE_1',
@@ -12,7 +10,6 @@ export const MatchSide = z.enum(MatchSideEnum);
 export type MatchSide = z.infer<typeof MatchSide>;
 
 export const MatchEventTypeEnum = {
-  MATCH_START: 'MATCH_START',
   GOAL: 'GOAL',
   POSITION_CHANGE: 'POSITION_CHANGE',
   BALL_OUT: 'BALL_OUT',
@@ -28,8 +25,9 @@ export type MatchEventType = z.infer<typeof MatchEventType>;
 
 const MatchEventBase = z.object({
   uuid: z.uuid(),
-  matchUuid: z.uuid(),
-  time: z.coerce.date(),
+
+  offset: z.number().int(),
+
   labels: Labels,
 });
 
@@ -49,11 +47,6 @@ export const GoalTypeEnum = {
 
 export const GoalType = z.enum(GoalTypeEnum);
 export type GoalType = z.infer<typeof GoalType>;
-
-export const MatchEventStart = MatchEventBase.extend({
-  type: z.literal(MatchEventTypeEnum.MATCH_START),
-});
-export type MatchEventStart = z.infer<typeof MatchEventStart>;
 
 export const MatchEventGoal = MatchEventBase.extend({
   type: z.literal(MatchEventTypeEnum.GOAL),
@@ -107,10 +100,10 @@ export const MatchEventCancel = MatchEventBase.extend({
 export type MatchEventCancel = z.infer<typeof MatchEventCancel>;
 
 export const MatchEvent = z.discriminatedUnion('type', [
-  MatchEventStart,
   MatchEventGoal,
   MatchEventPositionChange,
   MatchEventBallOut,
+  MatchEventBallChange,
   MatchEventEquipmentFailure,
   MatchEventPause,
   MatchEventResume,
@@ -118,60 +111,14 @@ export const MatchEvent = z.discriminatedUnion('type', [
 ]);
 export type MatchEvent = z.infer<typeof MatchEvent>;
 
-export const MatchEventPaginated = PaginatedResponse(MatchEvent);
-export type MatchEventPaginated = z.infer<typeof MatchEventPaginated>;
-
-export const MatchEventNullable = MatchEvent.nullable();
-export type MatchEventNullable = z.infer<typeof MatchEventNullable>;
-
 export const MatchEventCreate = z.discriminatedUnion('type', [
-  MatchEventStart.omit({ uuid: true }),
   MatchEventGoal.omit({ uuid: true }),
   MatchEventPositionChange.omit({ uuid: true }),
   MatchEventBallOut.omit({ uuid: true }),
+  MatchEventBallChange.omit({ uuid: true }),
   MatchEventEquipmentFailure.omit({ uuid: true }),
   MatchEventPause.omit({ uuid: true }),
   MatchEventResume.omit({ uuid: true }),
   MatchEventCancel.omit({ uuid: true }),
 ]);
 export type MatchEventCreate = z.infer<typeof MatchEventCreate>;
-
-export const MatchEventUpdate = z.discriminatedUnion('type', [
-  MatchEventStart.omit({ uuid: true }).partial().extend({ uuid: z.uuid() }),
-  MatchEventGoal.omit({ uuid: true }).partial().extend({ uuid: z.uuid() }),
-  MatchEventPositionChange.omit({ uuid: true })
-    .partial()
-    .extend({ uuid: z.uuid() }),
-  MatchEventBallOut.omit({ uuid: true }).partial().extend({ uuid: z.uuid() }),
-  MatchEventEquipmentFailure.omit({ uuid: true })
-    .partial()
-    .extend({ uuid: z.uuid() }),
-  MatchEventPause.omit({ uuid: true }).partial().extend({ uuid: z.uuid() }),
-  MatchEventResume.omit({ uuid: true }).partial().extend({ uuid: z.uuid() }),
-  MatchEventCancel.omit({ uuid: true }).partial().extend({ uuid: z.uuid() }),
-]);
-export type MatchEventUpdate = z.infer<typeof MatchEventUpdate>;
-
-export const MatchEventQueryMeta = createQueryMeta({
-  sortFields: ['time'] as const,
-});
-export type MatchEventQueryMeta = z.infer<typeof MatchEventQueryMeta>;
-
-export const MatchEventByMatchId = MatchEventQueryMeta.extend({
-  matchUuid: z.uuid(),
-});
-export type MatchEventByMatchId = z.infer<typeof MatchEventByMatchId>;
-
-export const MatchEventCreateWithoutMatch = z.discriminatedUnion('type', [
-  MatchEventStart.omit({ uuid: true, matchUuid: true }),
-  MatchEventGoal.omit({ uuid: true, matchUuid: true }),
-  MatchEventPositionChange.omit({ uuid: true, matchUuid: true }),
-  MatchEventBallOut.omit({ uuid: true, matchUuid: true }),
-  MatchEventEquipmentFailure.omit({ uuid: true, matchUuid: true }),
-  MatchEventPause.omit({ uuid: true, matchUuid: true }),
-  MatchEventResume.omit({ uuid: true, matchUuid: true }),
-  MatchEventCancel.omit({ uuid: true, matchUuid: true }),
-]);
-export type MatchEventCreateWithoutMatch = z.infer<
-  typeof MatchEventCreateWithoutMatch
->;

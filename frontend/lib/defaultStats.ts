@@ -33,7 +33,7 @@ export const defaultMatch: Match = {
   floor: null,
   replayMetadata: null,
 
-  hash: '',
+  syncId: null,
 };
 
 export const defaultBaseStats: BaseStats = {

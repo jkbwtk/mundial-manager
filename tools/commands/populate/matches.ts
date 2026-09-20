@@ -2,7 +2,6 @@ import { randomInt } from 'node:crypto';
 import { faker } from '@faker-js/faker';
 import { db } from '#backend/db/database';
 import { BallModel } from '#backend/db/models/BallModel';
-import { MatchEventModel } from '#backend/db/models/MatchEventModel';
 import { MatchModel } from '#backend/db/models/MatchModel';
 import { PlayerModel } from '#backend/db/models/PlayerModel';
 import { TableModel } from '#backend/db/models/TableModel';
@@ -25,7 +24,6 @@ import { range } from '#shared/utils';
 import type { PopulateOptions } from '#tools/commands/populate';
 
 interface MatchEventContext {
-  startDate: Date;
   playersSide1: string[];
   playersSide2: string[];
 }
@@ -42,24 +40,17 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
   let side1Score = 0;
   let side2Score = 0;
 
-  let currentTime = ctx.startDate.getTime();
+  let offset = 0;
   let pauseDuration = 0;
 
-  const events: MatchEventCreate[] = [
-    {
-      time: new Date(currentTime),
-      type: 'MATCH_START',
-      matchUuid: '',
-      labels: {},
-    },
-  ];
+  const events: MatchEventCreate[] = [];
 
   while (
     (side1Score < 10 && side2Score < 10) ||
     side1Score === side2Score ||
     Math.abs(side1Score - side2Score) < 2
   ) {
-    currentTime += nonLinearRandomInt(10000, 120000, 5);
+    offset += nonLinearRandomInt(10000, 120000, 5);
 
     const eventType: MatchEventType = pickRandomWeighed([
       [0.85, 'GOAL'],
@@ -98,9 +89,8 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
           if (scoringSide === MatchSideEnum.SIDE_1) {
             side1Score += 1;
             events.push({
-              time: new Date(currentTime),
+              offset,
               type: 'GOAL',
-              matchUuid: '',
               ownGoal: false,
               side: 'SIDE_1',
               goalType: Array.from(goalTypes),
@@ -110,9 +100,8 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
           } else {
             side2Score += 1;
             events.push({
-              time: new Date(currentTime),
+              offset,
               type: 'GOAL',
-              matchUuid: '',
               ownGoal: false,
               side: 'SIDE_2',
               goalType: Array.from(goalTypes),
@@ -125,18 +114,16 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
 
       case 'BALL_OUT':
         events.push({
-          time: new Date(currentTime),
+          offset,
           type: 'BALL_OUT',
-          matchUuid: '',
           labels: {},
         });
         break;
 
       case 'POSITION_CHANGE':
         events.push({
-          time: new Date(currentTime),
+          offset,
           type: 'POSITION_CHANGE',
-          matchUuid: '',
           side: pickRandom([MatchSideEnum.SIDE_1, MatchSideEnum.SIDE_2]),
           labels: {},
         });
@@ -144,9 +131,8 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
 
       case 'EQUIPMENT_FAILURE':
         events.push({
-          time: new Date(currentTime),
+          offset,
           type: 'EQUIPMENT_FAILURE',
-          matchUuid: '',
           details:
             runWithProbability(0.7, () => faker.lorem.sentence()) ?? null,
           labels: {},
@@ -155,9 +141,8 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
 
       case 'PAUSE': {
         events.push({
-          time: new Date(currentTime),
+          offset,
           type: 'PAUSE',
-          matchUuid: '',
           details:
             runWithProbability(0.7, () => faker.lorem.sentence()) ?? null,
           labels: {},
@@ -165,13 +150,12 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
 
         const pause = nonLinearRandomInt(10000, 180000, 3);
 
-        currentTime += pause;
+        offset += pause;
         pauseDuration += pause;
 
         events.push({
-          time: new Date(currentTime),
+          offset,
           type: 'RESUME',
-          matchUuid: '',
           labels: {},
         });
         break;
@@ -182,14 +166,12 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
     }
   }
 
-  const duration = currentTime - ctx.startDate.getTime();
-
   return {
     events,
     side1Score,
     side2Score,
-    duration: Math.floor(duration / 1000),
-    pauseDuration: Math.floor(pauseDuration / 1000),
+    duration: offset - pauseDuration,
+    pauseDuration,
   };
 }
 
@@ -249,12 +231,11 @@ export async function populateMatches(options: PopulateOptions): Promise<void> {
       );
 
       const eventsResult = generateMatchEvents({
-        startDate,
         playersSide1,
         playersSide2,
       });
 
-      const match = await MatchModel.create(db, options.leagueUuid, {
+      await MatchModel.createFull(db, options.leagueUuid, {
         tableUuid,
         ballUuid,
         startDate,
@@ -266,15 +247,11 @@ export async function populateMatches(options: PopulateOptions): Promise<void> {
         playersSide2,
         spectators,
         status: 'FINISHED',
+        hidden: false,
+        syncId: null,
         labels: {},
+        events: eventsResult.events,
       });
-
-      for (const event of eventsResult.events) {
-        await MatchEventModel.create(db, options.leagueUuid, {
-          ...event,
-          matchUuid: match.uuid,
-        });
-      }
     }),
   );
 

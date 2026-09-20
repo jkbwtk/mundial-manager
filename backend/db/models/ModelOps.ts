@@ -4,6 +4,7 @@ import {
   desc,
   eq,
   getColumns,
+  inArray,
   isNull,
   type SQL,
 } from 'drizzle-orm';
@@ -12,8 +13,8 @@ import type { DB, TX } from '#backend/db/database';
 import type { BaseModelType } from '#backend/db/Instance';
 import type {
   ballsTable,
-  matchEventsTable,
   matchesTable,
+  matchTimelinesTable,
   playersTable,
   seasonsTable,
   tablesTable,
@@ -22,8 +23,10 @@ import type { QueryMetaSchema } from '#backend/types/trpc';
 import {
   ConvertDrizzleErrors,
   DatabaseError,
+  type ModelErrorFields,
   NotFoundError,
 } from '#blib/modelErrors';
+import { ModelErrorTypeEnum } from '#shared/modelErrors';
 
 export type LeagueScopedTablesUnion =
   | typeof seasonsTable
@@ -31,18 +34,45 @@ export type LeagueScopedTablesUnion =
   | typeof ballsTable
   | typeof playersTable
   | typeof matchesTable
-  | typeof matchEventsTable;
+  | typeof matchTimelinesTable;
 
-export type ValidationStrategy<T extends z.ZodObject> = (
-  db: DB | TX,
-  leagueUuid: string,
-  data: z.infer<T>,
-) => Promise<void> | void;
+export type StrategyContext<Fields> = {
+  db: DB | TX;
+  leagueUuid: string;
+} & Fields;
 
-export type ValidationStrategies<T extends z.ZodObject> = Record<
-  string,
-  ValidationStrategy<T>
->;
+export type Strategy<Context> = (context: Context) => Promise<void> | void;
+
+export type WriteContext<Data, Row> =
+  | StrategyContext<{ op: 'create'; next: Data; previous: null }>
+  | StrategyContext<{ op: 'update'; next: Data; previous: Row }>;
+
+export interface ModelStrategies<Data, Row> {
+  preWrite?: Record<string, Strategy<WriteContext<Data, Row>>>;
+
+  preCreate?: Record<string, Strategy<StrategyContext<{ next: Data }>>>;
+  postCreate?: Record<string, Strategy<StrategyContext<{ created: Row }>>>;
+
+  preUpdate?: Record<
+    string,
+    Strategy<StrategyContext<{ next: Data; previous: Row }>>
+  >;
+  postUpdate?: Record<
+    string,
+    Strategy<StrategyContext<{ updated: Row; previous: Row }>>
+  >;
+
+  preDelete?: Record<string, Strategy<StrategyContext<{ previous: Row }>>>;
+  postDelete?: Record<string, Strategy<StrategyContext<{ deleted: Row }>>>;
+}
+
+export type ModelStrategyKind = keyof ModelStrategies<unknown, unknown>;
+
+export type StrategyContextOf<
+  Data,
+  Row,
+  Kind extends ModelStrategyKind,
+> = Parameters<NonNullable<ModelStrategies<Data, Row>[Kind]>[string]>[0];
 
 export interface ModelOpsMetadata<
   Table extends LeagueScopedTablesUnion,
@@ -58,7 +88,6 @@ export interface ModelOpsMetadata<
     | z.ZodObject
     | z.ZodDiscriminatedUnion<z.ZodObject[], string>,
   QueryMetaSchemaType extends QueryMetaSchema,
-  StrategySchema extends z.ZodObject,
 > {
   table: Table;
   tableName: TableName;
@@ -67,7 +96,6 @@ export interface ModelOpsMetadata<
   createSchema: CreateSchema;
   updateSchema: UpdateSchema;
   queryMetaSchema: QueryMetaSchemaType;
-  strategySchema?: StrategySchema;
   searchSql?: {
     ranking: (search: string) => SQL;
     where: (search: string) => SQL;
@@ -88,7 +116,6 @@ export function ModelOps<
     | z.ZodObject
     | z.ZodDiscriminatedUnion<z.ZodObject[], string>,
   QueryMetaSchemaType extends QueryMetaSchema,
-  ValidationSchema extends z.ZodObject,
 >(
   metadata: ModelOpsMetadata<
     Table,
@@ -97,8 +124,7 @@ export function ModelOps<
     SelectSchema,
     CreateSchema,
     UpdateSchema,
-    QueryMetaSchemaType,
-    ValidationSchema
+    QueryMetaSchemaType
   >,
 ) {
   // biome-ignore lint/complexity/noStaticOnlyClass: yeah
@@ -112,7 +138,6 @@ export function ModelOps<
     protected static readonly createSchema = metadata.createSchema;
     protected static readonly updateSchema = metadata.updateSchema;
     protected static readonly queryMetaSchema = metadata.queryMetaSchema;
-    protected static readonly strategySchema = metadata.strategySchema;
     protected static readonly searchSql = metadata.searchSql;
 
     @ConvertDrizzleErrors()
@@ -200,29 +225,123 @@ export function ModelOps<
     }
 
     @ConvertDrizzleErrors()
+    public static async getByIdOrThrow(
+      db: DB | TX,
+      leagueUuid: string,
+      uuid: string,
+      errorFields: ModelErrorFields = ['uuid'],
+    ) {
+      const instance = await ModelOps.getById(db, leagueUuid, uuid);
+
+      if (!instance) {
+        throw new NotFoundError('Instance not found', errorFields);
+      }
+
+      return instance;
+    }
+
+    @ConvertDrizzleErrors()
+    public static async getByIds(
+      db: DB | TX,
+      leagueUuid: string,
+      uuids: Iterable<string>,
+    ) {
+      const uniqueUuids = [...new Set(uuids)];
+
+      if (uniqueUuids.length === 0) return [];
+
+      const instances = await db.query[ModelOps.tableName]
+        // @ts-expect-error
+        .findMany({
+          where: {
+            leagueUuid,
+            uuid: { in: uniqueUuids },
+
+            $deletedAt: {
+              isNull: true,
+            },
+          },
+        });
+
+      return instances as unknown as SelectSchema[];
+    }
+
+    protected static async runStrategies<Kind extends ModelStrategyKind>(
+      kind: Kind,
+      context: StrategyContextOf<z.infer<CreateSchema>, SelectSchema, Kind>,
+    ) {
+      const strategies = (this.strategies[kind] ?? {}) as Record<
+        string,
+        Strategy<typeof context>
+      >;
+
+      for (const strategy of Object.values(strategies)) {
+        await strategy(context);
+      }
+    }
+
+    protected static async prepareCreate(
+      _db: DB | TX,
+      _leagueUuid: string,
+      data: z.infer<CreateSchema>,
+    ): Promise<{ next: z.infer<CreateSchema>; row: object }> {
+      return { next: data, row: data };
+    }
+
+    protected static async prepareUpdate(
+      _db: DB | TX,
+      _leagueUuid: string,
+      previous: SelectSchema,
+      data: Record<string, unknown>,
+    ): Promise<{ next: z.infer<CreateSchema>; row: object }> {
+      return {
+        next: { ...previous, ...data } as z.infer<CreateSchema>,
+        row: data,
+      };
+    }
+
+    @ConvertDrizzleErrors()
     public static async create(
       db: DB | TX,
       leagueUuid: string,
       data: z.infer<CreateSchema>,
     ) {
-      for (const strategy of Object.values(this.validationStrategies)) {
-        // biome-ignore lint/suspicious/noExplicitAny: yeah
-        await strategy(db, leagueUuid, data as any);
-      }
+      const instance = await db.transaction(async (tx) => {
+        const { next, row } = await this.prepareCreate(tx, leagueUuid, data);
 
-      const [created] = await db
-        .insert(ModelOps.tableUnion)
-        .values({
-          ...data,
+        await this.runStrategies('preWrite', {
+          db: tx,
           leagueUuid,
-        })
-        .returning();
+          op: 'create',
+          next,
+          previous: null,
+        });
+        await this.runStrategies('preCreate', {
+          db: tx,
+          leagueUuid,
+          next,
+        });
 
-      if (!created) {
-        throw new DatabaseError('Failed to create instance', {});
-      }
+        const [created] = await tx
+          .insert(ModelOps.tableUnion)
+          // biome-ignore lint/suspicious/noExplicitAny: row shape is defined by the model
+          .values({ ...row, leagueUuid } as any)
+          .returning();
 
-      return created as unknown as SelectSchema;
+        if (!created) {
+          throw new DatabaseError('Failed to create instance', {});
+        }
+
+        await this.runStrategies('postCreate', {
+          db: tx,
+          leagueUuid,
+          created: created as unknown as SelectSchema,
+        });
+
+        return created;
+      });
+
+      return instance as unknown as SelectSchema;
     }
 
     @ConvertDrizzleErrors()
@@ -234,30 +353,36 @@ export function ModelOps<
       const { uuid, ...updateData } = data;
 
       const instance = await db.transaction(async (tx) => {
-        const existingInstance = await ModelOps.getById(
+        const previous = await ModelOps.getByIdOrThrow(
           tx,
           leagueUuid,
           uuid as string,
         );
-        if (!existingInstance) {
-          throw new NotFoundError('Instance not found for update', {
-            uuid: { value: uuid, errorType: 'Instance not found' },
-          });
-        }
 
-        const mergedData = {
-          ...existingInstance,
-          ...updateData,
-        } as z.infer<ValidationSchema>;
+        const { next, row } = await this.prepareUpdate(
+          tx,
+          leagueUuid,
+          previous,
+          updateData,
+        );
 
-        for (const strategy of Object.values(this.validationStrategies)) {
-          // biome-ignore lint/suspicious/noExplicitAny: yeah
-          await strategy(tx, leagueUuid, mergedData as any);
-        }
+        await this.runStrategies('preWrite', {
+          db: tx,
+          leagueUuid,
+          op: 'update',
+          next,
+          previous,
+        });
+        await this.runStrategies('preUpdate', {
+          db: tx,
+          leagueUuid,
+          next,
+          previous,
+        });
 
         const [updated] = await tx
           .update(ModelOps.tableUnion)
-          .set(updateData)
+          .set(row)
           .where(
             and(
               eq(ModelOps.tableUnion.leagueUuid, leagueUuid),
@@ -269,9 +394,16 @@ export function ModelOps<
 
         if (!updated) {
           throw new DatabaseError('Failed to update instance', {
-            uuid: { value: uuid, errorType: 'Instance not found' },
+            uuid: { value: uuid, errorType: ModelErrorTypeEnum.NOT_FOUND },
           });
         }
+
+        await this.runStrategies('postUpdate', {
+          db: tx,
+          leagueUuid,
+          updated: updated as unknown as SelectSchema,
+          previous,
+        });
 
         return updated;
       });
@@ -280,26 +412,114 @@ export function ModelOps<
     }
 
     @ConvertDrizzleErrors()
-    public static async delete(db: DB, leagueUuid: string, uuid: string) {
-      const [deleted] = await db
+    public static async delete(db: DB | TX, leagueUuid: string, uuid: string) {
+      const instance = await db.transaction(async (tx) => {
+        const previous = await ModelOps.getByIdOrThrow(tx, leagueUuid, uuid);
+
+        await this.runStrategies('preDelete', {
+          db: tx,
+          leagueUuid,
+          previous,
+        });
+
+        const [deleted] = await tx
+          .update(ModelOps.tableUnion)
+          .set({ $deletedAt: new Date() })
+          .where(
+            and(
+              eq(ModelOps.tableUnion.leagueUuid, leagueUuid),
+              eq(ModelOps.tableUnion.uuid, uuid),
+              isNull(ModelOps.tableUnion.$deletedAt),
+            ),
+          )
+          .returning();
+
+        if (!deleted) {
+          throw new DatabaseError('Failed to delete instance', {
+            uuid: { value: uuid, errorType: ModelErrorTypeEnum.NOT_FOUND },
+          });
+        }
+
+        await this.runStrategies('postDelete', {
+          db: tx,
+          leagueUuid,
+          deleted: deleted as unknown as SelectSchema,
+        });
+
+        return deleted;
+      });
+
+      return instance as unknown as SelectSchema;
+    }
+
+    @ConvertDrizzleErrors()
+    public static async createMany(
+      db: DB | TX,
+      leagueUuid: string,
+      data: z.infer<CreateSchema>[],
+    ) {
+      if (data.length === 0) return [];
+
+      const rows: object[] = [];
+
+      for (const item of data) {
+        const { row } = await this.prepareCreate(db, leagueUuid, item);
+
+        rows.push({ ...row, leagueUuid });
+      }
+
+      const created = await db
+        .insert(ModelOps.tableUnion)
+        // biome-ignore lint/suspicious/noExplicitAny :yeah
+        .values(rows as any)
+        .returning();
+
+      return created as unknown as SelectSchema[];
+    }
+
+    @ConvertDrizzleErrors()
+    public static async updateMany(
+      db: DB | TX,
+      leagueUuid: string,
+      updates: readonly { uuid: string; data: z.infer<CreateSchema> }[],
+    ) {
+      for (const { uuid, data } of updates) {
+        const { row } = await this.prepareCreate(db, leagueUuid, data);
+
+        await db
+          .update(ModelOps.tableUnion)
+          .set(row)
+          .where(
+            and(
+              eq(ModelOps.tableUnion.leagueUuid, leagueUuid),
+              eq(ModelOps.tableUnion.uuid, uuid),
+              isNull(ModelOps.tableUnion.$deletedAt),
+            ),
+          );
+      }
+    }
+
+    @ConvertDrizzleErrors()
+    public static async deleteMany(
+      db: DB | TX,
+      leagueUuid: string,
+      uuids: string[],
+    ) {
+      if (uuids.length === 0) return [];
+
+      const deleted = await db
         .update(ModelOps.tableUnion)
         .set({ $deletedAt: new Date() })
         .where(
           and(
             eq(ModelOps.tableUnion.leagueUuid, leagueUuid),
-            eq(ModelOps.tableUnion.uuid, uuid),
+            inArray(ModelOps.tableUnion.uuid, [...uuids]),
             isNull(ModelOps.tableUnion.$deletedAt),
           ),
         )
         .returning();
 
-      if (!deleted) {
-        throw new DatabaseError('Failed to delete instance', {
-          uuid: { value: uuid, errorType: 'Instance not found' },
-        });
-      }
-
-      return deleted as unknown as SelectSchema;
+      return deleted as unknown as SelectSchema[];
     }
 
     @ConvertDrizzleErrors()
@@ -310,8 +530,15 @@ export function ModelOps<
       return data as unknown as z.infer<PublicSchema>;
     }
 
-    public static validationStrategies: ValidationStrategies<ValidationSchema> =
-      {};
+    public static defineStrategies(
+      strategies: ModelStrategies<z.infer<CreateSchema>, SelectSchema>,
+      // biome-ignore lint/suspicious/noExplicitAny: yeah
+    ): ModelStrategies<any, any> {
+      return strategies;
+    }
+
+    // biome-ignore lint/suspicious/noExplicitAny: yeah
+    public static strategies: ModelStrategies<any, any> = {};
   }
 
   return ModelOps;

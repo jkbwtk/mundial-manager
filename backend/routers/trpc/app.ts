@@ -1,8 +1,8 @@
 import { adminRouter } from '#backend/routers/trpc/admin';
 import { ballsRouter } from '#backend/routers/trpc/balls';
 import { leaguesRouter } from '#backend/routers/trpc/leagues';
-import { matchEventsRouter } from '#backend/routers/trpc/matchEvents';
 import { matchesRouter } from '#backend/routers/trpc/matches';
+import { matchTimelinesRouter } from '#backend/routers/trpc/matchTimelines';
 import { playersRouter } from '#backend/routers/trpc/players';
 import { seasonsRouter } from '#backend/routers/trpc/seasons';
 import { systemRouter } from '#backend/routers/trpc/system';
@@ -17,7 +17,7 @@ export const appRouter = router({
   balls: ballsRouter,
   players: playersRouter,
   matches: matchesRouter,
-  matchEvents: matchEventsRouter,
+  matchTimelines: matchTimelinesRouter,
   admin: adminRouter,
 });
 

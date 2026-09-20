@@ -9,6 +9,8 @@ import { createStore } from 'solid-js/store';
 import { calculateMatchData } from '#flib/matchDataUtils';
 import {
   cacheMatches,
+  createSyncId,
+  type LocalMatch,
   loadCachedMatches,
   loadCreatedMatches,
   saveCreatedMatches,
@@ -24,14 +26,13 @@ import type {
   SessionStats,
   WeekStats,
 } from '#frontend/types';
-import { getMatchHash } from '#shared/matchUtils';
 import type { Match, MatchCreate, SheetMetadata } from '#shared/types/Sheets';
 
 export interface SheetsContextState {
   ready: boolean;
   metadata: SheetMetadata;
   matches: Match[];
-  createdMatches: Record<string, MatchCreate>;
+  createdMatches: Record<string, LocalMatch>;
 }
 
 export interface SheetsContextActions {
@@ -44,13 +45,13 @@ export interface SheetsContextActions {
   seasonStats: () => Record<string, SeasonStats>;
   matchData: () => MatchData;
   latest: () => MatchDataFrame;
-  matchHashMap: () => Record<string, Match>;
+  matchSyncIdMap: () => Record<string, Match>;
 
-  createLocalMatch: (match: MatchCreate) => void;
+  createLocalMatch: (match: MatchCreate) => LocalMatch;
   createMatch: (match: MatchCreate) => Promise<Match>;
-  syncCreatedMatch: (hash: string) => Promise<Match>;
-  syncCreatedMatches: (hashes: string[]) => Promise<Match[]>;
-  removeCreatedMatch: (hash: string) => void;
+  syncCreatedMatch: (syncId: string) => Promise<Match>;
+  syncCreatedMatches: (syncIds: string[]) => Promise<Match[]>;
+  removeCreatedMatch: (syncId: string) => void;
   clearCreatedMatches: () => void;
 }
 
@@ -104,8 +105,8 @@ const SheetsContext = createContext<SheetsContextValue>([
     matchData: () => {
       throw new Error('SheetsContext: matchData() called before provider');
     },
-    matchHashMap: () => {
-      throw new Error('SheetsContext: matchHashMap() called before provider');
+    matchSyncIdMap: () => {
+      throw new Error('SheetsContext: matchSyncIdMap() called before provider');
     },
 
     createLocalMatch: () => {
@@ -222,63 +223,65 @@ export const SheetsProvider: ParentComponent = (props) => {
     return matchData().latest;
   });
 
-  const matchHashMap = createMemo(() => {
+  const matchSyncIdMap = createMemo(() => {
     const map: Record<string, Match> = {};
 
     for (const match of state.matches) {
-      map[match.hash] = match;
+      if (match.syncId !== null) {
+        map[match.syncId] = match;
+      }
     }
 
     return map;
   });
 
-  function createLocalMatch(match: MatchCreate): void {
-    setState('createdMatches', getMatchHash(match), match);
+  function createLocalMatch(match: MatchCreate): LocalMatch {
+    const local: LocalMatch = { ...match, syncId: createSyncId() };
+
+    setState('createdMatches', local.syncId, local);
     saveCreatedMatches(state.createdMatches);
+
+    return local;
+  }
+
+  function uploadLocalMatch({ syncId, ...match }: LocalMatch): Promise<Match> {
+    return trpcClient.matches.createLegacy.mutate({ match, syncId });
   }
 
   async function createMatch(match: MatchCreate): Promise<Match> {
-    createLocalMatch(match);
-
-    const createdMatch = await trpcClient.matches.createLegacy.mutate(match);
-
-    return createdMatch;
+    return uploadLocalMatch(createLocalMatch(match));
   }
 
-  async function syncCreatedMatch(hash: string): Promise<Match> {
+  async function syncCreatedMatch(syncId: string): Promise<Match> {
     const createdMatches = state.createdMatches;
 
-    const match = createdMatches[hash];
+    const match = createdMatches[syncId];
 
     if (!match) {
-      throw new Error(`No created match found with hash: ${hash}`);
+      throw new Error(`No created match found with sync id: ${syncId}`);
     }
 
-    return await trpcClient.matches.createLegacy.mutate(match);
+    return uploadLocalMatch(match);
   }
 
-  async function syncCreatedMatches(hashes: string[]): Promise<Match[]> {
+  async function syncCreatedMatches(syncIds: string[]): Promise<Match[]> {
     const createdMatches = state.createdMatches;
 
-    const matchesToCreate = hashes.map((hash) => {
-      const match = createdMatches[hash];
+    const matchesToCreate = syncIds.map((syncId) => {
+      const match = createdMatches[syncId];
 
       if (!match) {
-        throw new Error(`No created match found with hash: ${hash}`);
+        throw new Error(`No created match found with sync id: ${syncId}`);
       }
 
       return match;
     });
 
-    return Promise.all(
-      matchesToCreate.map((match) =>
-        trpcClient.matches.createLegacy.mutate(match),
-      ),
-    );
+    return Promise.all(matchesToCreate.map(uploadLocalMatch));
   }
 
-  function removeCreatedMatch(hash: string) {
-    setState('createdMatches', hash, undefined!);
+  function removeCreatedMatch(syncId: string) {
+    setState('createdMatches', syncId, undefined!);
     saveCreatedMatches(state.createdMatches);
   }
 
@@ -297,7 +300,7 @@ export const SheetsProvider: ParentComponent = (props) => {
     monthStats,
     seasonStats,
     matchData,
-    matchHashMap,
+    matchSyncIdMap,
 
     createLocalMatch,
     createMatch,

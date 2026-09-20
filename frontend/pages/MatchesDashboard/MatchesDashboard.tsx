@@ -10,7 +10,7 @@ import { actionDeleteMatch, queryMatches } from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
 import { getKnownStartDate } from '#shared/matchLabels';
-import { formatDate, formatDuration } from '#shared/timeUtils';
+import { formatDate, formatDurationMs } from '#shared/timeUtils';
 import type { Match, MatchQueryMeta } from '#shared/types/api/match';
 import { shortUUID } from '#shared/utils';
 import style from './MatchesDashboard.module.scss';
@@ -98,7 +98,7 @@ export const MatchesDashboard: Component = () => {
       align: 'center',
       sortable: true,
       width: 10,
-      transform: (val) => formatDuration(val),
+      transform: (val) => formatDurationMs(val),
     },
     {
       key: 'pauseDuration',
@@ -106,7 +106,7 @@ export const MatchesDashboard: Component = () => {
       align: 'center',
       sortable: true,
       width: 18,
-      transform: (val) => formatDuration(val),
+      transform: (val) => formatDurationMs(val),
     },
     {
       key: 'spectators',

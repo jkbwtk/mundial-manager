@@ -12,6 +12,7 @@ import {
   queryTableById,
   queryTables,
 } from '#flib/trpcCalls';
+import { msToSeconds, secondsToMs } from '#shared/timeUtils';
 import type { Ball } from '#shared/types/api/ball';
 import {
   type Match,
@@ -74,6 +75,8 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
           placeholder: 'Match duration...',
           unit: 's',
           min: 0,
+          transform: secondsToMs,
+          format: msToSeconds,
         },
         pauseDuration: {
           label: 'Pause Duration',
@@ -81,6 +84,8 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
           placeholder: 'Pause duration...',
           unit: 's',
           min: 0,
+          transform: secondsToMs,
+          format: msToSeconds,
         },
         startDate: {
           label: 'Start Date',
@@ -104,7 +109,12 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
         status: {
           label: 'Status',
           type: 'dropdown',
+          // Overwritten by the lifecycle derived from a stored timeline
           options: statusMap,
+        },
+        hidden: {
+          label: 'Hidden',
+          type: 'checkbox',
         },
         tableUuid: {
           label: 'Table',

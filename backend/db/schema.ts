@@ -5,7 +5,7 @@ import { pgTable } from 'drizzle-orm/pg-core/table';
 import { tsvector } from '#backend/db/utils';
 import type { Labels } from '#shared/labels';
 import { MatchStatusEnum } from '#shared/types/api/match';
-import { MatchEventTypeEnum } from '#shared/types/api/matchEvent';
+import type { MatchEvent } from '#shared/types/api/matchEvent';
 import type { SeasonConfig } from '#shared/types/api/season';
 import type { StatsFrame } from '#shared/types/api/statsFrame';
 
@@ -224,12 +224,14 @@ export const matchesTable = pgTable(
       .uuid()
       .references(() => ballsTable.uuid, { onDelete: 'set null' }),
 
-    startDate: t
-      .timestamp({ mode: 'date', withTimezone: true, precision: 6 })
-      .notNull(),
+    startDate: t.timestamp({
+      mode: 'date',
+      withTimezone: true,
+      precision: 6,
+    }),
 
-    duration: t.doublePrecision().notNull(),
-    pauseDuration: t.doublePrecision().default(0),
+    duration: t.doublePrecision(),
+    pauseDuration: t.doublePrecision().notNull().default(0),
 
     side1Score: t.integer().notNull(),
     side2Score: t.integer().notNull(),
@@ -262,7 +264,9 @@ export const matchesTable = pgTable(
 
     status: matchStatusEnum().notNull(),
 
-    hash: t.text().notNull(),
+    hidden: t.boolean().notNull().default(false),
+
+    syncId: t.text(),
 
     labels: t.jsonb().$type<Labels>().notNull().default(sql`'{}'::jsonb`),
 
@@ -274,16 +278,16 @@ export const matchesTable = pgTable(
     index().on(r.ballUuid),
     index().on(r.startDate),
     index().on(r.status),
-    uniqueIndex().on(r.leagueUuid, r.hash),
+    // Null identifiers are distinct, and a deleted match frees its own so it
+    // can be uploaded again
+    uniqueIndex().on(r.leagueUuid, r.syncId).where(isNull(r.$deletedAt)),
     index().on(r.$createdAt),
     index().on(r.$deletedAt).where(isNull(r.$deletedAt)),
   ],
 );
 
-export const matchEventTypeEnum = pgEnum('matchEventType', MatchEventTypeEnum);
-
-export const matchEventsTable = pgTable(
-  'matchEvents',
+export const matchTimelinesTable = pgTable(
+  'matchTimelines',
   (t) => ({
     leagueUuid: t
       .uuid()
@@ -294,11 +298,7 @@ export const matchEventsTable = pgTable(
       .references(() => matchesTable.uuid, { onDelete: 'cascade' })
       .notNull(),
 
-    type: matchEventTypeEnum().notNull(),
-    time: t
-      .timestamp({ mode: 'date', withTimezone: true, precision: 6 })
-      .notNull(),
-    payload: t.jsonb(),
+    events: t.jsonb().$type<MatchEvent[]>().notNull().default(sql`'[]'::jsonb`),
 
     labels: t.jsonb().$type<Labels>().notNull().default(sql`'{}'::jsonb`),
 
@@ -306,9 +306,7 @@ export const matchEventsTable = pgTable(
   }),
   (r) => [
     index().on(r.leagueUuid),
-    index().on(r.matchUuid),
-    index().on(r.type),
-    index().on(r.time),
+    uniqueIndex().on(r.matchUuid),
     index().on(r.$createdAt),
     index().on(r.$deletedAt).where(isNull(r.$deletedAt)),
   ],

@@ -164,14 +164,15 @@ export const Match = z.object({
     },
   ),
   replayMetadata: jsonCodec(MatchReplayMetadata).nullable().catch(null),
-  hash: z.string(),
+
+  syncId: z.string().nullable().default(null).catch(null),
 });
 
 export type Match = z.infer<typeof Match>;
 
 export const MatchWithoutMetadata = Match.omit({
   id: true,
-  hash: true,
+  syncId: true,
   pauseDuration: true,
 });
 
@@ -180,7 +181,7 @@ export type MatchWithoutMetadata = z.infer<typeof MatchWithoutMetadata>;
 export const MatchCreate = Match.omit({
   id: true,
   floor: true,
-  hash: true,
+  syncId: true,
   pauseDuration: true,
 });
 

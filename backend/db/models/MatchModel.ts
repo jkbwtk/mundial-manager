@@ -1,127 +1,180 @@
-import { and, eq, isNull } from 'drizzle-orm';
-import z from 'zod';
-import { runWithAMQPDisabled } from '#backend/amqp/amqp';
 import { PublishResult } from '#backend/amqp/publishers';
 import type { DB, TX } from '#backend/db/database';
 import { matchOrderBy, matchOrderByDesc } from '#backend/db/matchOrder';
-import { MatchEventModel } from '#backend/db/models/MatchEventModel';
-import {
-  ModelOps,
-  type ValidationStrategies,
-} from '#backend/db/models/ModelOps';
+import { BallModel } from '#backend/db/models/BallModel';
+import { MatchTimelineModel } from '#backend/db/models/MatchTimelineModel';
+import { ModelOps } from '#backend/db/models/ModelOps';
+import { PlayerModel } from '#backend/db/models/PlayerModel';
+import { TableModel } from '#backend/db/models/TableModel';
 import { matchesTable, teamConfigurationsTable } from '#backend/db/schema';
 import { MatchSelectSchema } from '#backend/types/db/match';
+import { getMissingReferenceIssues } from '#blib/matchTimelineIssues';
 import {
   ConvertDrizzleErrors,
   DatabaseError,
   StrategyValidationError,
 } from '#blib/modelErrors';
+import { deriveMatchStatus } from '#shared/matchStatus';
+import {
+  getMatchTimelineContext,
+  getMatchTimelinePauseDuration,
+  getMatchTimelineReferences,
+  getMatchTimelineScore,
+  validateMatchTimeline,
+} from '#shared/matchTimeline';
 import {
   Match,
   MatchCreate,
   MatchQueryMeta,
-  type MatchStrategy,
   MatchUpdate,
 } from '#shared/types/api/match';
-import type {
-  MatchFull,
-  MatchFullCreate,
-  MatchFullStrategy,
-} from '#shared/types/api/matchFull';
-import { getValueHash } from '#shared/utils';
+import { MatchEvent, type MatchSide } from '#shared/types/api/matchEvent';
+import type { MatchFull, MatchFullCreate } from '#shared/types/api/matchFull';
+import {
+  MatchTimelineErrorTypeEnum,
+  type MatchTimelineSave,
+} from '#shared/types/api/matchTimeline';
 
-export class MatchModel extends ModelOps({
+const MatchOps = ModelOps({
   table: matchesTable,
   tableName: 'matchesTable',
   publicSchema: Match,
   selectSchema: MatchSelectSchema,
-  createSchema: MatchCreate.extend({
-    hash: z.string(),
-  }),
-  updateSchema: MatchUpdate.extend({
-    hash: z.string(),
-  }),
+  createSchema: MatchCreate,
+  updateSchema: MatchUpdate,
   queryMetaSchema: MatchQueryMeta,
-}) {
+});
+
+export class MatchModel extends MatchOps {
   @ConvertDrizzleErrors()
   protected static async getOrCreateTeamConfiguration(
+    db: DB | TX,
+    leagueUuid: string,
+    side: MatchSide,
+    players: string[],
+  ) {
+    const playerUuids = [...players].sort();
+
+    const instance =
+      (
+        await db
+          .insert(teamConfigurationsTable)
+          .values({ leagueUuid, playerUuids })
+          .onConflictDoNothing()
+          .returning()
+      ).at(0) ??
+      (await db.query.teamConfigurationsTable.findFirst({
+        where: {
+          leagueUuid,
+          playerUuids: {
+            arrayContains: playerUuids,
+            arrayContained: playerUuids,
+          },
+          $deletedAt: {
+            isNull: true,
+          },
+        },
+      }));
+
+    if (!instance) {
+      throw new DatabaseError(`Failed to process ${side} team configuration`, {
+        [side === 'SIDE_1' ? 'playersSide1' : 'playersSide2']: {
+          value: playerUuids,
+          errorType: 'TEAM_CONFIGURATION_ERROR',
+        },
+      });
+    }
+
+    return instance;
+  }
+
+  protected static async getTeamConfigurationColumns(
     db: DB | TX,
     leagueUuid: string,
     playersSide1: string[],
     playersSide2: string[],
   ) {
-    const sortedPlayersSide1 = [...playersSide1].sort();
-    const sortedPlayersSide2 = [...playersSide2].sort();
-
-    const side1Team =
-      (
-        await db
-          .insert(teamConfigurationsTable)
-          .values({
-            leagueUuid,
-            playerUuids: sortedPlayersSide1,
-          })
-          .onConflictDoNothing()
-          .returning()
-      ).at(0) ??
-      (await db.query.teamConfigurationsTable.findFirst({
-        where: {
-          leagueUuid,
-          playerUuids: {
-            arrayContains: sortedPlayersSide1,
-            arrayContained: sortedPlayersSide1,
-          },
-          $deletedAt: {
-            isNull: true,
-          },
-        },
-      }));
-
-    if (!side1Team) {
-      throw new DatabaseError('Failed to process SIDE_1 team configuration', {
-        playersSide1: {
-          value: sortedPlayersSide1,
-          errorType: 'TEAM_CONFIGURATION_ERROR',
-        },
-      });
-    }
-
-    const side2Team =
-      (
-        await db
-          .insert(teamConfigurationsTable)
-          .values({
-            leagueUuid,
-            playerUuids: sortedPlayersSide2,
-          })
-          .onConflictDoNothing()
-          .returning()
-      ).at(0) ??
-      (await db.query.teamConfigurationsTable.findFirst({
-        where: {
-          leagueUuid,
-          playerUuids: {
-            arrayContains: sortedPlayersSide2,
-            arrayContained: sortedPlayersSide2,
-          },
-          $deletedAt: {
-            isNull: true,
-          },
-        },
-      }));
-
-    if (!side2Team) {
-      throw new DatabaseError('Failed to process SIDE_2 team configuration', {
-        playersSide2: {
-          value: sortedPlayersSide2,
-          errorType: 'TEAM_CONFIGURATION_ERROR',
-        },
-      });
-    }
+    const side1Team = await this.getOrCreateTeamConfiguration(
+      db,
+      leagueUuid,
+      'SIDE_1',
+      playersSide1,
+    );
+    const side2Team = await this.getOrCreateTeamConfiguration(
+      db,
+      leagueUuid,
+      'SIDE_2',
+      playersSide2,
+    );
 
     return {
-      side1Team,
-      side2Team,
+      side1TeamConfigurationUuid: side1Team.uuid,
+      side2TeamConfigurationUuid: side2Team.uuid,
+    };
+  }
+
+  protected static override async prepareCreate(
+    db: DB | TX,
+    leagueUuid: string,
+    data: MatchCreate,
+  ) {
+    const next = {
+      ...data,
+      status: deriveMatchStatus(data.status, {
+        duration: data.duration,
+        events: [],
+      }),
+    } satisfies MatchCreate;
+
+    return {
+      next,
+      row: {
+        ...next,
+        ...(await this.getTeamConfigurationColumns(
+          db,
+          leagueUuid,
+          next.playersSide1,
+          next.playersSide2,
+        )),
+      },
+    };
+  }
+
+  protected static override async prepareUpdate(
+    db: DB | TX,
+    leagueUuid: string,
+    previous: MatchSelectSchema,
+    data: Record<string, unknown>,
+  ) {
+    const merged = {
+      ...previous,
+      ...data,
+    } as MatchCreate;
+
+    const next = {
+      ...merged,
+      status: deriveMatchStatus(merged.status, {
+        duration: merged.duration,
+        events: await MatchTimelineModel.getEventsByMatchId(
+          db,
+          leagueUuid,
+          previous.uuid,
+        ),
+      }),
+    } satisfies MatchCreate;
+
+    return {
+      next,
+      row: {
+        ...data,
+        status: next.status,
+        ...(await this.getTeamConfigurationColumns(
+          db,
+          leagueUuid,
+          next.playersSide1,
+          next.playersSide2,
+        )),
+      },
     };
   }
 
@@ -132,49 +185,7 @@ export class MatchModel extends ModelOps({
     leagueUuid: string,
     data: MatchCreate,
   ) {
-    const hash = getValueHash({
-      leagueUuid,
-      startDate: data.startDate,
-      duration: data.duration,
-      pauseDuration: data.pauseDuration,
-      status: data.status,
-      side1Score: data.side1Score,
-      side2Score: data.side2Score,
-      playersSide1: data.playersSide1,
-      playersSide2: data.playersSide2,
-    });
-
-    for (const strategy of Object.values(this.validationStrategies)) {
-      await strategy(db, leagueUuid, data);
-    }
-
-    const instance = await db.transaction(async (tx) => {
-      const { side1Team, side2Team } = await this.getOrCreateTeamConfiguration(
-        tx,
-        leagueUuid,
-        data.playersSide1,
-        data.playersSide2,
-      );
-
-      const [created] = await tx
-        .insert(matchesTable)
-        .values({
-          ...data,
-          leagueUuid,
-          side1TeamConfigurationUuid: side1Team.uuid,
-          side2TeamConfigurationUuid: side2Team.uuid,
-          hash,
-        })
-        .returning();
-
-      if (!created) {
-        throw new DatabaseError('Failed to create instance', {});
-      }
-
-      return created;
-    });
-
-    return instance;
+    return super.create(db, leagueUuid, data);
   }
 
   @PublishResult('MATCH_TABLE_UPDATES', ({ args }) => args[1])
@@ -184,67 +195,26 @@ export class MatchModel extends ModelOps({
     leagueUuid: string,
     data: MatchUpdate,
   ) {
-    const hash = getValueHash({
-      leagueUuid,
-      startDate: data.startDate,
-      duration: data.duration,
-      pauseDuration: data.pauseDuration,
-      status: data.status,
-    });
-    const { uuid, ...updateData } = data;
+    return super.update(db, leagueUuid, data);
+  }
 
-    const instance = await db.transaction(async (tx) => {
-      const existingInstance = await this.getById(tx, leagueUuid, uuid);
-
-      if (!existingInstance) {
-        throw new DatabaseError('Instance not found for update', {
-          uuid: { value: uuid, errorType: 'Instance not found' },
-        });
-      }
-
-      const mergedData = {
-        ...existingInstance,
-        ...updateData,
-        hash,
-      } as MatchStrategy;
-
-      for (const strategy of Object.values(this.validationStrategies)) {
-        await strategy(tx, leagueUuid, mergedData);
-      }
-
-      const { side1Team, side2Team } = await this.getOrCreateTeamConfiguration(
-        tx,
+  @ConvertDrizzleErrors()
+  public static async getBySyncId(
+    db: DB | TX,
+    leagueUuid: string,
+    syncId: string,
+  ) {
+    const instance = await db.query.matchesTable.findFirst({
+      where: {
         leagueUuid,
-        mergedData.playersSide1,
-        mergedData.playersSide2,
-      );
-
-      const [updated] = await tx
-        .update(matchesTable)
-        .set({
-          ...mergedData,
-          side1TeamConfigurationUuid: side1Team.uuid,
-          side2TeamConfigurationUuid: side2Team.uuid,
-        })
-        .where(
-          and(
-            eq(matchesTable.leagueUuid, leagueUuid),
-            eq(matchesTable.uuid, uuid as string),
-            isNull(matchesTable.$deletedAt),
-          ),
-        )
-        .returning();
-
-      if (!updated) {
-        throw new DatabaseError('Failed to update instance', {
-          uuid: { value: uuid, errorType: 'Instance not found' },
-        });
-      }
-
-      return updated;
+        syncId,
+        $deletedAt: {
+          isNull: true,
+        },
+      },
     });
 
-    return instance;
+    return instance ?? null;
   }
 
   @ConvertDrizzleErrors()
@@ -265,15 +235,12 @@ export class MatchModel extends ModelOps({
         ball: true,
         table: true,
 
-        events: {
+        timeline: {
           where: {
             leagueUuid,
             $deletedAt: {
               isNull: true,
             },
-          },
-          orderBy: {
-            time: 'asc',
           },
         },
       },
@@ -285,150 +252,243 @@ export class MatchModel extends ModelOps({
       offset: meta.pagination?.offset,
     });
 
-    const mappedInstances = await Promise.all(
-      instances.map(async (instance) => {
-        return {
-          ...instance,
-          events: await Promise.all(
-            instance.events.map((event) =>
-              MatchEventModel.mapToPublic(db, event),
-            ),
-          ),
-        };
-      }),
-    );
-
-    return mappedInstances;
+    return instances.map(({ timeline, ...instance }) => ({
+      ...instance,
+      events: MatchEvent.array().parse(timeline?.events ?? []),
+    }));
   }
 
   @PublishResult('MATCH_TABLE_UPDATES', ({ args }) => args[1])
   @ConvertDrizzleErrors()
   public static async createFull(
-    db: DB,
+    db: DB | TX,
     leagueUuid: string,
     data: MatchFullCreate,
   ) {
     const instance = await db.transaction(async (tx) => {
-      for (const strategy of Object.values(
-        this.fullCreateValidationStrategies,
-      )) {
-        await strategy(db, leagueUuid, data);
-      }
-
       const { events, ...matchData } = data;
 
-      const match = await runWithAMQPDisabled(() =>
-        this.create(tx, leagueUuid, matchData),
+      const match = await this.create(tx, leagueUuid, matchData);
+
+      if (events.length === 0) return match;
+
+      const stored = await MatchTimelineModel.saveForMatch(
+        tx,
+        leagueUuid,
+        match,
+        events,
       );
 
-      await Promise.all(
-        events.map((event) =>
-          MatchEventModel.create(tx, leagueUuid, {
-            ...event,
-            matchUuid: match.uuid,
-          }),
-        ),
-      );
-
-      return match;
+      return this.syncTimeline(tx, leagueUuid, match, stored);
     });
 
     return instance;
   }
 
+  @ConvertDrizzleErrors()
+  public static async getTimeline(
+    db: DB | TX,
+    leagueUuid: string,
+    matchUuid: string,
+  ) {
+    const match = await this.getByIdOrThrow(db, leagueUuid, matchUuid, {
+      matchUuid: { errorType: MatchTimelineErrorTypeEnum.MATCH_NOT_FOUND },
+    });
+
+    const events = await MatchTimelineModel.getEventsByMatchId(
+      db,
+      leagueUuid,
+      matchUuid,
+    );
+
+    const references = getMatchTimelineReferences(events);
+
+    const [table] = await TableModel.getByIds(
+      db,
+      leagueUuid,
+      match.tableUuid ? [match.tableUuid] : [],
+    );
+    const players = await PlayerModel.getByIds(db, leagueUuid, [
+      ...match.playersSide1,
+      ...match.playersSide2,
+      ...references.playerUuids,
+    ]);
+    const balls = await BallModel.getByIds(db, leagueUuid, [
+      ...(match.ballUuid ? [match.ballUuid] : []),
+      ...references.ballUuids,
+    ]);
+
+    return {
+      match,
+      table: table ?? null,
+      events,
+      players,
+      balls,
+      issues: [
+        ...validateMatchTimeline(events, getMatchTimelineContext(match)),
+        ...getMissingReferenceIssues(
+          events,
+          new Set(players.map((player) => player.uuid)),
+          new Set(balls.map((ball) => ball.uuid)),
+        ),
+      ],
+    };
+  }
+
+  @PublishResult(
+    'MATCH_TABLE_UPDATES',
+    ({ args }) => args[1],
+    ({ resp }) => resp.match,
+  )
+  @ConvertDrizzleErrors()
+  public static async saveTimeline(
+    db: DB,
+    leagueUuid: string,
+    data: MatchTimelineSave,
+  ) {
+    return db.transaction(async (tx) => {
+      const match = await this.getByIdOrThrow(tx, leagueUuid, data.matchUuid, {
+        matchUuid: { errorType: MatchTimelineErrorTypeEnum.MATCH_NOT_FOUND },
+      });
+
+      const events = await MatchTimelineModel.saveForMatch(
+        tx,
+        leagueUuid,
+        match,
+        data.events,
+      );
+
+      await this.syncTimeline(tx, leagueUuid, match, events);
+
+      return this.getTimeline(tx, leagueUuid, match.uuid);
+    });
+  }
+
+  @ConvertDrizzleErrors()
+  public static async syncTimeline(
+    db: DB | TX,
+    leagueUuid: string,
+    match: MatchSelectSchema,
+    events: MatchEvent[],
+  ) {
+    const [side1Score, side2Score] = getMatchTimelineScore(events);
+
+    return this.update(db, leagueUuid, {
+      uuid: match.uuid,
+      pauseDuration: getMatchTimelinePauseDuration(events),
+      side1Score,
+      side2Score,
+    });
+  }
+
   @PublishResult('MATCH_TABLE_UPDATES', ({ args }) => args[1])
   @ConvertDrizzleErrors()
-  public static async delete(db: DB, leagueUuid: string, uuid: string) {
+  public static async delete(db: DB | TX, leagueUuid: string, uuid: string) {
     return super.delete(db, leagueUuid, uuid);
   }
 
-  public static validationStrategies: ValidationStrategies<
-    typeof MatchStrategy
-  > = {
-    spectatorsExist: async (db, leagueUuid, data) => {
-      if (data.spectators.length === 0) return;
+  public static strategies = MatchOps.defineStrategies({
+    preWrite: {
+      spectatorsExist: async ({ db, leagueUuid, next }) => {
+        if (next.spectators.length === 0) return;
 
-      const users = await db.query.playersTable.findMany({
-        where: {
-          leagueUuid,
-          uuid: {
-            in: data.spectators,
-          },
-          $deletedAt: {
-            isNull: true,
-          },
-        },
-      });
-
-      if (users.length !== data.spectators.length) {
-        const existingUuids = new Set(users.map((u) => u.uuid));
-        const nonExistingUuids = data.spectators.filter(
-          (uuid) => !existingUuids.has(uuid),
-        );
-
-        throw new StrategyValidationError('Some spectators do not exist', {
-          spectators: {
-            value: nonExistingUuids,
-            errorType: 'SPECTATORS_NOT_FOUND',
-          },
-        });
-      }
-    },
-
-    playersExist: async (db, leagueUuid, data) => {
-      const allPlayers = [...data.playersSide1, ...data.playersSide2];
-
-      if (allPlayers.length === 0) return;
-
-      const players = await db.query.playersTable.findMany({
-        where: {
-          leagueUuid,
-          uuid: {
-            in: allPlayers,
-          },
-          $deletedAt: {
-            isNull: true,
-          },
-        },
-      });
-
-      if (players.length !== allPlayers.length) {
-        const existingUuids = new Set(players.map((p) => p.uuid));
-        const nonExistingUuids = allPlayers.filter(
-          (uuid) => !existingUuids.has(uuid),
-        );
-
-        throw new StrategyValidationError('Some players do not exist', {
-          players: {
-            value: nonExistingUuids,
-            errorType: 'PLAYERS_NOT_FOUND',
-          },
-        });
-      }
-    },
-  };
-
-  public static fullCreateValidationStrategies: ValidationStrategies<
-    typeof MatchFullStrategy
-  > = {
-    startsWithStartEvent: (_db, _leagueUuid, data) => {
-      if (data.events.length === 0) return;
-
-      const sorted = data.events.toSorted(
-        (a, b) => a.time.getTime() - b.time.getTime(),
-      );
-
-      if (sorted.at(0)?.type !== 'MATCH_START') {
-        throw new StrategyValidationError(
-          '"MATCH_START" event missing or at wrong chronological position',
-          {
-            events: {
-              value: sorted.at(0)?.type,
-              errorType: 'MATCH_START_EVENT_MISSING_OR_INVALID',
+        const users = await db.query.playersTable.findMany({
+          where: {
+            leagueUuid,
+            uuid: {
+              in: next.spectators,
+            },
+            $deletedAt: {
+              isNull: true,
             },
           },
-        );
-      }
+        });
+
+        if (users.length !== next.spectators.length) {
+          const existingUuids = new Set(users.map((u) => u.uuid));
+          const nonExistingUuids = next.spectators.filter(
+            (uuid) => !existingUuids.has(uuid),
+          );
+
+          throw new StrategyValidationError('Some spectators do not exist', {
+            spectators: {
+              value: nonExistingUuids,
+              errorType: 'SPECTATORS_NOT_FOUND',
+            },
+          });
+        }
+      },
+
+      playersExist: async ({ db, leagueUuid, next }) => {
+        const allPlayers = [...next.playersSide1, ...next.playersSide2];
+
+        if (allPlayers.length === 0) return;
+
+        const players = await db.query.playersTable.findMany({
+          where: {
+            leagueUuid,
+            uuid: {
+              in: allPlayers,
+            },
+            $deletedAt: {
+              isNull: true,
+            },
+          },
+        });
+
+        if (players.length !== allPlayers.length) {
+          const existingUuids = new Set(players.map((p) => p.uuid));
+          const nonExistingUuids = allPlayers.filter(
+            (uuid) => !existingUuids.has(uuid),
+          );
+
+          throw new StrategyValidationError('Some players do not exist', {
+            players: {
+              value: nonExistingUuids,
+              errorType: 'PLAYERS_NOT_FOUND',
+            },
+          });
+        }
+      },
     },
-  };
+
+    preUpdate: {
+      syncIdImmutable: ({ next, previous }) => {
+        if (next.syncId === previous.syncId) return;
+
+        throw new StrategyValidationError('Sync identifier cannot be changed', {
+          syncId: { value: next.syncId, errorType: 'SYNC_ID_IMMUTABLE' },
+        });
+      },
+    },
+
+    postUpdate: {
+      timelineConsistent: async ({ db, leagueUuid, updated }) => {
+        const events = await MatchTimelineModel.getEventsByMatchId(
+          db,
+          leagueUuid,
+          updated.uuid,
+        );
+
+        MatchTimelineModel.assertValidTimeline(updated, events);
+
+        const derived = deriveMatchStatus(updated.status, {
+          duration: updated.duration,
+          events,
+        });
+
+        if (derived !== updated.status) {
+          throw new StrategyValidationError(
+            'Match status does not match its timeline',
+            {
+              status: {
+                value: updated.status,
+                errorType: 'STATUS_DOES_NOT_MATCH_TIMELINE',
+              },
+            },
+          );
+        }
+      },
+    },
+  });
 }
