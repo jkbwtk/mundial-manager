@@ -1,10 +1,11 @@
-import { db } from '#backend/db/database';
+import type { TX } from '#backend/db/database';
 import { TableModel } from '#backend/db/models/TableModel';
 import { tablesTable } from '#backend/db/schema';
 import type { TableSelectSchema } from '#backend/types/db/table';
 import { logger } from '#shared/logger';
 import type { Match } from '#shared/types/Sheets';
 import type { ImportOptions } from '#tools/commands/import';
+import { importResources } from '#tools/commands/import/utils';
 
 interface LegacyFloor {
   floor: number;
@@ -12,6 +13,7 @@ interface LegacyFloor {
 }
 
 export async function importLegacyTables(
+  tx: TX,
   options: ImportOptions,
   legacyMatches: Match[],
 ): Promise<Record<string, TableSelectSchema>> {
@@ -39,7 +41,7 @@ export async function importLegacyTables(
       label: ['cli', 'import', 'tables'],
     });
 
-    const deletedTables = await db.delete(tablesTable).returning();
+    const deletedTables = await tx.delete(tablesTable).returning();
 
     logger.info('Deleted %d tables', deletedTables.length, {
       label: ['cli', 'import', 'tables'],
@@ -50,11 +52,15 @@ export async function importLegacyTables(
     label: ['cli', 'import', 'tables'],
   });
 
-  const tables = await Promise.all(
-    legacyFloors.values().map((floor) => {
+  const tables = await importResources({
+    name: 'tables',
+    label: ['cli', 'import', 'tables'],
+    sources: legacyFloors.values(),
+    describe: (floor) => `floor ${floor.floor}`,
+    create: (floor) => {
       const colors = Array.from(floor.colors).sort();
 
-      return TableModel.create(db, options.leagueUuid, {
+      return TableModel.create(tx, options.leagueUuid, {
         name: `Floor ${floor.floor}`,
         alias: String(floor.floor),
         side1Color: '#363636',
@@ -66,8 +72,8 @@ export async function importLegacyTables(
           legacyImportSide2Color: colors.at(1) ?? 'unknown',
         },
       });
-    }),
-  );
+    },
+  });
 
   logger.info('Successfully imported legacy tables', {
     label: ['cli', 'import', 'tables'],

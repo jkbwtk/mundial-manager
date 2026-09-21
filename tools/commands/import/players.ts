@@ -1,4 +1,4 @@
-import { db } from '#backend/db/database';
+import type { TX } from '#backend/db/database';
 import { PlayerModel } from '#backend/db/models/PlayerModel';
 import { playersTable } from '#backend/db/schema';
 import type { PlayerSelectSchema } from '#backend/types/db/player';
@@ -6,8 +6,10 @@ import { generateTeamColor, getPlayersFromTeam } from '#flib/sheetUtils';
 import { logger } from '#shared/logger';
 import type { Match } from '#shared/types/Sheets';
 import type { ImportOptions } from '#tools/commands/import';
+import { importResources } from '#tools/commands/import/utils';
 
 export async function importLegacyPlayers(
+  tx: TX,
   options: ImportOptions,
   legacyMatches: Match[],
 ): Promise<Record<string, PlayerSelectSchema>> {
@@ -29,7 +31,7 @@ export async function importLegacyPlayers(
       label: ['cli', 'import', 'players'],
     });
 
-    const deletedPlayers = await db.delete(playersTable).returning();
+    const deletedPlayers = await tx.delete(playersTable).returning();
 
     logger.info('Deleted %d players', deletedPlayers.length, {
       label: ['cli', 'import', 'players'],
@@ -40,9 +42,13 @@ export async function importLegacyPlayers(
     label: ['cli', 'import', 'players'],
   });
 
-  const players = await Promise.all(
-    legacyPlayers.map((player) =>
-      PlayerModel.create(db, options.leagueUuid, {
+  const players = await importResources({
+    name: 'players',
+    label: ['cli', 'import', 'players'],
+    sources: legacyPlayers,
+    describe: (player) => `player "${player}"`,
+    create: (player) =>
+      PlayerModel.create(tx, options.leagueUuid, {
         name: player,
         alias: player,
         color: generateTeamColor(player),
@@ -50,8 +56,7 @@ export async function importLegacyPlayers(
           legacyImportName: player,
         },
       }),
-    ),
-  );
+  });
 
   logger.info('Successfully imported legacy players', {
     label: ['cli', 'import', 'players'],
