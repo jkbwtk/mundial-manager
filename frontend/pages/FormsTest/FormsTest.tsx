@@ -1,3 +1,4 @@
+import { action } from '@solidjs/router';
 import hljs from 'highlight.js/lib/core';
 import json from 'highlight.js/lib/languages/json';
 import { createUniqueId } from 'solid-js';
@@ -13,8 +14,11 @@ import { DateInput } from '#components/DateInput';
 import { Required } from '#components/Required/Required';
 import { TextArea } from '#components/TextArea/TextArea';
 import { WidgetForm } from '#components/WidgetForm/WidgetForm';
+import { GoalTypeLabels } from '#flib/matchEvents';
 import { BallCreate } from '#shared/types/api/ball';
+import { GoalType, MatchSide } from '#shared/types/api/matchEvent';
 import { hexColor } from '#shared/zod';
+import variables from '#styles/variables.module.scss';
 import style from './FormsTest.module.scss';
 
 hljs.registerLanguage('json', json);
@@ -48,6 +52,21 @@ const FormSchema = z
         return path !== 'password' && path !== 'confirmPassword';
       }),
   });
+
+const FieldTypesSchema = z.object({
+  side: MatchSide,
+  goalType: z.array(GoalType).min(1),
+  time: z.date(),
+});
+
+const actionSubmitFieldTypes = action(
+  async (data: z.infer<typeof FieldTypesSchema>) => {
+    console.log('Field types form submitted with data:', data);
+
+    return data;
+  },
+  'actionSubmitFieldTypes',
+);
 
 const fakeSubmit = (data: z.infer<typeof FormSchema>) => {
   return new Promise((resolve) => {
@@ -262,6 +281,39 @@ export const FormsTest: Component = () => {
             type: 'text',
             hidden: true,
             implicitDefault: {},
+          },
+        }}
+      />
+
+      <Divider />
+
+      <WidgetForm
+        class={style.dynamicFormContainer}
+        model={FieldTypesSchema}
+        action={actionSubmitFieldTypes}
+        fields={{
+          side: {
+            label: 'Side',
+            type: 'buttonGroup',
+            options: [
+              { label: 'Side 1', value: 'SIDE_1', color: variables.red },
+              { label: 'Side 2', value: 'SIDE_2', color: variables.green },
+            ],
+          },
+          goalType: {
+            label: 'Goal type',
+            type: 'dropdown',
+            multiple: true,
+            options: GoalType.options.map((goalType) => ({
+              label: GoalTypeLabels[goalType],
+              value: goalType,
+            })),
+          },
+          time: {
+            label: 'Time',
+            type: 'date',
+            dateMode: 'dateTimeSeconds',
+            steps: [-10_000, -1000, 1000, 10_000],
           },
         }}
       />
