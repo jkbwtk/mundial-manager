@@ -5,7 +5,6 @@ import { environment } from '#backend/environment';
 import type { JWTContextCreate } from '#backend/types/auth';
 import { Pagination } from '#backend/types/trpc';
 import { sign } from '#blib/jwt';
-import { runWithErrorConversion } from '#blib/modelErrors';
 import { adminProcedure, router } from '#blib/trpc';
 import { League, LeagueCreate, LeagueUpdate } from '#shared/types/api/league';
 
@@ -13,10 +12,8 @@ export const adminRouter = router({
   leagues: adminProcedure
     .input(Pagination.optional())
     .query(async ({ ctx, input }) => {
-      const count = runWithErrorConversion(() => LeagueModel.count(ctx.db));
-      const leagues = runWithErrorConversion(() =>
-        LeagueModel.getAll(ctx.db, input?.limit, input?.offset),
-      );
+      const count = LeagueModel.count(ctx.db);
+      const leagues = LeagueModel.getAll(ctx.db, input?.limit, input?.offset);
 
       const [total, data] = await Promise.all([count, leagues]);
 
@@ -29,9 +26,7 @@ export const adminRouter = router({
   createLeague: adminProcedure
     .input(LeagueCreate)
     .mutation(async ({ ctx, input }) => {
-      const league = await runWithErrorConversion(() =>
-        LeagueModel.create(ctx.db, input),
-      );
+      const league = await LeagueModel.create(ctx.db, input);
 
       return league.serialize();
     }),
@@ -39,9 +34,7 @@ export const adminRouter = router({
   updateLeague: adminProcedure
     .input(LeagueUpdate)
     .mutation(async ({ ctx, input }) => {
-      const league = await runWithErrorConversion(() =>
-        LeagueModel.update(ctx.db, input),
-      );
+      const league = await LeagueModel.update(ctx.db, input);
 
       return league.serialize();
     }),
@@ -49,9 +42,7 @@ export const adminRouter = router({
   deleteLeague: adminProcedure
     .input(League.pick({ uuid: true }))
     .mutation(async ({ ctx, input }) => {
-      const league = await runWithErrorConversion(() =>
-        LeagueModel.delete(ctx.db, input.uuid),
-      );
+      const league = await LeagueModel.delete(ctx.db, input.uuid);
 
       return league.serialize();
     }),
@@ -59,9 +50,7 @@ export const adminRouter = router({
   changeLeague$: adminProcedure
     .input(League.pick({ uuid: true }))
     .mutation(async ({ ctx, input }) => {
-      const league = await runWithErrorConversion(() =>
-        LeagueModel.getById(ctx.db, input.uuid),
-      );
+      const league = await LeagueModel.getById(ctx.db, input.uuid);
 
       if (league === null) {
         throw new TRPCError({
@@ -89,9 +78,7 @@ export const adminRouter = router({
   leagueLink: adminProcedure
     .input(League.pick({ uuid: true }))
     .query(async ({ ctx, input }) => {
-      const league = await runWithErrorConversion(() =>
-        LeagueModel.getById(ctx.db, input.uuid),
-      );
+      const league = await LeagueModel.getById(ctx.db, input.uuid);
 
       if (league === null) {
         throw new TRPCError({

@@ -4,6 +4,7 @@ import Cookies from 'cookies';
 import { db } from '#backend/db/database';
 import { LeagueModel } from '#backend/db/models/LeagueModel';
 import { getJWTContextFromCookies } from '#blib/jwt';
+import { ModelError } from '#blib/modelErrors';
 import { logger } from '#shared/logger';
 
 export function createBaseContext(opts: CreateHTTPContextOptions) {
@@ -34,7 +35,16 @@ const t = initTRPC.context<BaseContext>().create({
 });
 
 export const router = t.router;
-export const baseProcedure = t.procedure;
+
+export const baseProcedure = t.procedure.use(async (opts) => {
+  const result = await opts.next();
+
+  if (!result.ok && result.error.cause instanceof ModelError) {
+    return { ...result, error: result.error.cause.toTRPCError() };
+  }
+
+  return result;
+});
 
 export const procedure = baseProcedure.use(async (opts) => {
   const t1 = performance.now();

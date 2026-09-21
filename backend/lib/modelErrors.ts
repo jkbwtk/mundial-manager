@@ -313,17 +313,3 @@ export function ConvertDrizzleErrors() {
     return wrappedMethod;
   };
 }
-
-export async function runWithErrorConversion<
-  // biome-ignore lint/suspicious/noExplicitAny: yeah
-  T extends (...args: unknown[]) => any,
->(fn: T): Promise<ReturnType<T>> {
-  try {
-    return await fn();
-  } catch (err) {
-    if (err instanceof ModelError) {
-      throw err.toTRPCError();
-    }
-    throw err;
-  }
-}

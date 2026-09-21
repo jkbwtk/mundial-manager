@@ -1,6 +1,5 @@
 import z from 'zod';
 import { SeasonModel } from '#backend/db/models/SeasonModel';
-import { runWithErrorConversion } from '#blib/modelErrors';
 import { leagueScopedProcedure, router } from '#blib/trpc';
 import { createCrudOps } from '#blib/trpcOps';
 import {
@@ -24,10 +23,6 @@ export const seasonsRouter = router({
     .input(z.object({ date: z.coerce.date() }))
     .output(SeasonNullable)
     .query(async ({ ctx, input }) => {
-      const season = await runWithErrorConversion(() =>
-        SeasonModel.getByDate(ctx.db, ctx.league.uuid, input.date),
-      );
-
-      return season;
+      return SeasonModel.getByDate(ctx.db, ctx.league.uuid, input.date);
     }),
 });

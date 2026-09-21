@@ -1,7 +1,6 @@
 import { type Command, Option } from 'commander';
 import z from 'zod';
 import { db } from '#backend/db/database';
-import { runWithErrorConversion } from '#blib/modelErrors';
 import { logger } from '#shared/logger';
 import { populateBalls } from '#tools/commands/populate/balls';
 import { populateMatches } from '#tools/commands/populate/matches';
@@ -38,7 +37,7 @@ async function populateTarget(
   });
 
   try {
-    await runWithErrorConversion(() => populateHandlers[target](options));
+    await populateHandlers[target](options);
   } catch (err) {
     logger.error('Failed to populate %s', target, {
       error: err,

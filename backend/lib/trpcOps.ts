@@ -1,8 +1,6 @@
-import { TRPCError } from '@trpc/server';
 import z from 'zod';
 import type { ModelOps } from '#backend/db/models/ModelOps';
 import type { QueryMetaSchema } from '#backend/types/trpc';
-import { runWithErrorConversion } from '#blib/modelErrors';
 import { leagueScopedProcedure } from '#blib/trpc';
 import { PaginatedResponse } from '#shared/zod';
 
@@ -47,22 +45,18 @@ export function createCrudOps<
       .input(metadata.queryMetaSchema.optional())
       .output(PaginatedResponse(metadata.publicSchema))
       .query(async ({ ctx, input }) => {
-        const instances = await runWithErrorConversion(() =>
+        const [instances, total] = await Promise.all([
           metadata.model.getAll(ctx.db, ctx.league.uuid, input),
-        );
-        const total = runWithErrorConversion(() =>
           metadata.model.count(ctx.db, ctx.league.uuid),
-        );
-
-        const mappedInstances = Promise.all(
-          instances.map((instance) =>
-            metadata.model.mapToPublic(ctx.db, instance),
-          ),
-        );
+        ]);
 
         return {
-          data: await mappedInstances,
-          total: await total,
+          data: await Promise.all(
+            instances.map((instance) =>
+              metadata.model.mapToPublic(ctx.db, instance),
+            ),
+          ),
+          total,
         };
       }),
 
@@ -71,16 +65,11 @@ export function createCrudOps<
       .output(metadata.publicSchema)
       // @ts-expect-error
       .query(async ({ ctx, input }) => {
-        const instance = await runWithErrorConversion(() =>
-          metadata.model.getById(ctx.db, ctx.league.uuid, input.uuid),
+        const instance = await metadata.model.getByIdOrThrow(
+          ctx.db,
+          ctx.league.uuid,
+          input.uuid,
         );
-
-        if (!instance) {
-          throw new TRPCError({
-            code: 'NOT_FOUND',
-            message: 'Instance not found',
-          });
-        }
 
         return metadata.model.mapToPublic(ctx.db, instance);
       }),
@@ -90,11 +79,13 @@ export function createCrudOps<
       .output(metadata.publicSchema)
       // @ts-expect-error
       .mutation(async ({ ctx, input }) => {
-        const instance = await runWithErrorConversion(() =>
-          metadata.model.create(ctx.db, ctx.league.uuid, input),
+        const instance = await metadata.model.create(
+          ctx.db,
+          ctx.league.uuid,
+          input,
         );
 
-        return instance;
+        return metadata.model.mapToPublic(ctx.db, instance);
       }),
 
     update: leagueScopedProcedure
@@ -102,11 +93,13 @@ export function createCrudOps<
       .output(metadata.publicSchema)
       // @ts-expect-error
       .mutation(async ({ ctx, input }) => {
-        const instance = await runWithErrorConversion(() =>
-          metadata.model.update(ctx.db, ctx.league.uuid, input),
+        const instance = await metadata.model.update(
+          ctx.db,
+          ctx.league.uuid,
+          input,
         );
 
-        return instance;
+        return metadata.model.mapToPublic(ctx.db, instance);
       }),
 
     delete: leagueScopedProcedure
@@ -114,11 +107,13 @@ export function createCrudOps<
       .output(metadata.publicSchema)
       // @ts-expect-error
       .mutation(async ({ ctx, input }) => {
-        const instance = await runWithErrorConversion(() =>
-          metadata.model.delete(ctx.db, ctx.league.uuid, input.uuid),
+        const instance = await metadata.model.delete(
+          ctx.db,
+          ctx.league.uuid,
+          input.uuid,
         );
 
-        return instance;
+        return metadata.model.mapToPublic(ctx.db, instance);
       }),
   };
 }

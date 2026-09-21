@@ -1,6 +1,5 @@
 import { TRPCError } from '@trpc/server';
 import { LeagueModel } from '#backend/db/models/LeagueModel';
-import { runWithErrorConversion } from '#blib/modelErrors';
 import { restrictedProcedure, router } from '#blib/trpc';
 
 export const leaguesRouter = router({
@@ -11,9 +10,7 @@ export const leaguesRouter = router({
       return null;
     }
 
-    const league = await runWithErrorConversion(() =>
-      LeagueModel.getById(ctx.db, leagueUuid),
-    );
+    const league = await LeagueModel.getById(ctx.db, leagueUuid);
 
     if (league === null) {
       throw new TRPCError({

@@ -39,9 +39,7 @@ export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
       .returning();
 
     if (!league) {
-      throw new NotFoundError('League not found', {
-        uuid: { value: uuid, errorType: 'League not found' },
-      }).toTRPCError();
+      throw new NotFoundError('League not found', ['uuid']);
     }
 
     return new LeagueModel(db, league);
@@ -56,9 +54,7 @@ export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
       .returning();
 
     if (!league) {
-      throw new NotFoundError('League not found', {
-        uuid: { value: uuid, errorType: 'League not found' },
-      }).toTRPCError();
+      throw new NotFoundError('League not found', ['uuid']);
     }
 
     return new LeagueModel(db, league);
