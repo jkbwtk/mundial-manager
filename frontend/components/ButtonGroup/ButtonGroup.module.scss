@@ -1,0 +1,15 @@
+@use 'app' as *;
+
+.button-group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+
+  gap: 0 cw(1);
+}
+
+.invalid {
+  button {
+    color: $red;
+  }
+}
