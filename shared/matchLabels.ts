@@ -1,5 +1,6 @@
 import z from 'zod';
 import { getLabelValue } from '#shared/labels';
+import { formatDate } from '#shared/timeUtils';
 import type { Match } from '#shared/types/api/match';
 
 export const StartDatePrecisionEnum = {
@@ -42,4 +43,10 @@ export function getKnownStartDate(match: Match): Date | null {
 
 export function getExactStartDate(match: Match): Date | null {
   return hasExactStartDate(match) ? match.startDate : null;
+}
+
+export function formatKnownStartDate(match: Match): string {
+  const startDate = getKnownStartDate(match);
+
+  return formatDate(startDate === null ? null : startDate.getTime() / 1000);
 }
