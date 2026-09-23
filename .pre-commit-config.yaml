@@ -13,6 +13,6 @@ repos:
     hooks:
       - id: local-biome-check
         name: biome check
-        entry: bun run --bun biome check --write --no-errors-on-unmatched
+        entry: pnpm exec biome check --write --no-errors-on-unmatched
         language: system
         types: [text]
