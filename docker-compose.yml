@@ -6,6 +6,7 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASS: ${POSTGRES_PASS:-mm_password}
+      POSTGRES_PASSWORD: ${POSTGRES_PASS:-mm_password}
       POSTGRES_DB: ${POSTGRES_DB:-MM_DEV_DB}
     ports:
       - "${POSTGRES_EXTERNAL_PORT:-5432}:5432"
@@ -61,6 +62,7 @@ services:
       - PUB_KEY_PATH=${PUB_KEY_PATH}
       - PRIV_KEY_PATH=${PRIV_KEY_PATH}
       - BASE_SITE_URL=${BASE_SITE_URL}
+      - RABBITMQ_ENABLED=${RABBITMQ_ENABLED:-}
       - RABBITMQ_USER=${RABBITMQ_USER:-rabbit}
       - RABBITMQ_PASS=${RABBITMQ_PASS:-rb_password}
       - RABBITMQ_HOST=rabbit
