@@ -57,7 +57,7 @@ export function autoIndexPlugin(options: AutoIndexPluginOptions = {}): Plugin {
     watch = true,
     pattern = DEFAULT_PATTERN,
     // ignorePatterns = DEFAULT_IGNORE_PATTERNS,
-    templatePath = resolve(__dirname, '..', 'templates/index.njk'),
+    templatePath = resolve(import.meta.dirname, '..', 'templates/index.njk'),
     skipRootIndex = false,
   } = options;
 

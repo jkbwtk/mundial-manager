@@ -6,9 +6,9 @@ import { defineConfig } from 'vite';
 import checker from 'vite-plugin-checker';
 import { VitePWA } from 'vite-plugin-pwa';
 import solid from 'vite-plugin-solid';
-import { environment, isDev } from './tools/constants';
-import { autoIndexPlugin } from './tools/plugins/auto-index';
-import { scssTypesPlugin } from './tools/plugins/scss-types';
+import { environment, isDev } from './tools/constants.ts';
+import { autoIndexPlugin } from './tools/plugins/auto-index.ts';
+import { scssTypesPlugin } from './tools/plugins/scss-types.ts';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -59,7 +59,7 @@ export default defineConfig({
           overlay: { initialIsOpen: false },
 
           typescript: {
-            root: __dirname,
+            root: import.meta.dirname,
           },
         })
       : undefined,
@@ -108,7 +108,7 @@ export default defineConfig({
     },
     preprocessorOptions: {
       scss: {
-        loadPaths: [resolve(__dirname, 'frontend/styles')],
+        loadPaths: [resolve(import.meta.dirname, 'frontend/styles')],
       },
     },
   },
