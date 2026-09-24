@@ -1,0 +1,34 @@
+name: mundial-manager-devcontainer
+
+services:
+  dev:
+    build:
+      context: .devcontainer
+    command: sleep infinity
+    init: true
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      RABBITMQ_HOST: rabbit
+      RABBITMQ_PORT: 5672
+      GIT_CONFIG_GLOBAL: /home/node/.config/git/config
+      CLAUDE_CONFIG_DIR: /home/node/.claude
+      pnpm_config_store_dir: /home/node/.local/share/pnpm/store
+    volumes:
+      - .:/workspaces/mundial-manager:cached
+      - node_modules:/workspaces/mundial-manager/node_modules
+      - pnpm_store:/home/node/.local/share/pnpm/store
+      - claude_config:/home/node/.claude
+      - command_history:/commandhistory
+
+  db:
+    ports: !reset []
+
+  rabbit:
+    ports: !reset []
+
+volumes:
+  node_modules:
+  pnpm_store:
+  claude_config:
+  command_history:

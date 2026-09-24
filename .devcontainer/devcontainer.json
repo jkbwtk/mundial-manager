@@ -1,0 +1,54 @@
+{
+  "name": "Mundial Manager",
+  
+  "dockerComposeFile": ["../docker-compose.yml", "docker-compose.yaml"],
+  
+  "service": "dev",
+  
+  "runServices": ["dev", "db", "rabbit"],
+  
+  "workspaceFolder": "/workspaces/mundial-manager",
+  "shutdownAction": "stopCompose",
+  "remoteUser": "node",
+
+  "features": {
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1": {}
+  },
+
+  "initializeCommand": {
+    "export-host-gitconfig": ["sh", ".devcontainer/scripts/export-host-gitconfig.sh"]
+  },
+  "postCreateCommand": {
+    "post-create": ["bash", ".devcontainer/scripts/post-create.sh"]
+  },
+
+  "forwardPorts": [4200, 5556, "db:5432", "rabbit:15672"],
+
+  "portsAttributes": {
+    "4200": { "label": "Dev server" },
+    "5556": { "label": "Vite HMR", "onAutoForward": "silent" },
+    "5432": { "label": "Postgres", "onAutoForward": "silent" },
+    "15672": { "label": "RabbitMQ management", "onAutoForward": "silent" }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "anthropic.claude-code",
+        "biomejs.biome",
+        "eamodio.gitlens",
+        "esbenp.prettier-vscode",
+        "humao.rest-client",
+        "meganrogge.template-string-converter",
+        "mrmlnc.vscode-scss",
+        "ms-azuretools.vscode-containers",
+        "streetsidesoftware.code-spell-checker",
+        "streetsidesoftware.code-spell-checker-polish",
+        "vitest.explorer"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "zsh"
+      }
+    }
+  }
+}

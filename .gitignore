@@ -41,3 +41,6 @@ frontend/**/index.ts
 materialSymbols.scss
 
 *.pem
+
+.claude/
+.devcontainer/.gitconfig.host

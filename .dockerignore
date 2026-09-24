@@ -31,6 +31,7 @@ frontend/assets/fonts/
 *Playground*
 
 .env
+.env.example
 .pre-commit-config.yaml
 playground.ts
 .gitignore
@@ -41,6 +42,7 @@ Dockerfile
 .github/
 .gitea/
 .vscode/
+.devcontainer/
 dist/
 node_modules/
 
