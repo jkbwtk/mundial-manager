@@ -2,6 +2,7 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 import type { AnyRouter } from '@trpc/server';
 import type { Request, Response } from 'express';
 import { RequestContext } from 'solid-js/web';
+import type { PageError } from '#shared/pageError';
 
 export interface FetchEvent {
   request: Request;
@@ -22,6 +23,10 @@ export type SSRRenderFunction = (
   trpcCaller: ReturnType<AnyRouter['createCaller']>,
   fetchEvent: FetchEvent,
 ) => Promise<SSRRenderReturn>;
+
+export type SSRRenderErrorFunction = (
+  pageError: PageError,
+) => Pick<SSRRenderReturn, 'html' | 'title'>;
 
 export function provideRequestEvent<T, R>(
   init: T,
