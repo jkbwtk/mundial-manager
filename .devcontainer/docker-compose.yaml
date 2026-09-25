@@ -22,9 +22,11 @@ services:
       - command_history:/commandhistory
 
   db:
+    profiles: !reset []
     ports: !reset []
 
   rabbit:
+    profiles: !reset []
     ports: !reset []
 
 volumes:
