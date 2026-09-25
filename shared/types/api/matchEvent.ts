@@ -9,6 +9,8 @@ export const MatchSideEnum = {
 export const MatchSide = z.enum(MatchSideEnum);
 export type MatchSide = z.infer<typeof MatchSide>;
 
+export const MatchSides = Object.values(MatchSideEnum);
+
 export const MatchEventTypeEnum = {
   GOAL: 'GOAL',
   POSITION_CHANGE: 'POSITION_CHANGE',
