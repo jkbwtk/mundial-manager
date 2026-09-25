@@ -1,6 +1,6 @@
 import { createEffect, createMemo } from 'solid-js';
 import { isServer } from 'solid-js/web';
-import { RouteLoadingBar } from '#components/RouteLoadingBar/RouteLoadingBar';
+import { RouteLoadingBar } from '#components/RouteLoadingBar';
 import { useCurrentExtendedMatches } from '#flib/solidHelpers';
 import { DashboardLayout } from '#pages/DashboardLayout';
 import { useSSRUtils } from '#providers/SSRUtilsProvider';

@@ -1,11 +1,11 @@
 import { createAsync, useAction } from '@solidjs/router';
 import { createSignal, getOwner, Show } from 'solid-js';
 import { AnchorButton, Button } from '#components/Button';
-import { MatchCreatorModal } from '#components/MatchCreatorModal/MatchCreatorModal';
+import { MatchCreatorModal } from '#components/MatchCreatorModal';
 import { Paginator } from '#components/Paginator';
 import { type Column, Table } from '#components/Table';
 import { Divider } from '#components/Widget';
-import { useHandleButtonAction } from '#flib/index';
+import { useHandleButtonAction } from '#flib/solidHelpers';
 import { actionDeleteMatch, queryMatches } from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';

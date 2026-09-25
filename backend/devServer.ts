@@ -1,7 +1,7 @@
 import express from 'express';
 import { environment } from '#backend/environment';
-import { createDevRouter } from '#backend/routers/devRouter';
 import { logger } from '#shared/logger';
+import { createDevRouter } from './routers/devRouter';
 
 const app = express();
 
