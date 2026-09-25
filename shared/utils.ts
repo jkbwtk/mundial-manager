@@ -1,4 +1,3 @@
-import crypto from 'crypto-js';
 import dayjs from 'dayjs';
 import stableHash from 'stable-hash';
 
@@ -208,10 +207,7 @@ export function objectToEntries<T extends object>(
 }
 
 export function getValueHash(value: unknown): string {
-  const preHash = stableHash(value);
-  const hash = crypto.SHA256(preHash).toString();
-
-  return hash;
+  return stableHash(value);
 }
 
 export type ArrayElement<ArrayType extends readonly unknown[]> =
