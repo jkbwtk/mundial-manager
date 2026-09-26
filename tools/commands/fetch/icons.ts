@@ -18,8 +18,9 @@ interface MaterialSymbolGroupFragment {
 const userAgent =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/150.0';
 
+// Only FILL is animated, pinning the other axes cuts the font to about an eighth
 const baseUrl =
-  'https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=';
+  'https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,0..1,0&icon_names=';
 
 function getCSSUrl(symbols: readonly string[]): string {
   return baseUrl + symbols.toSorted().join(',');
@@ -113,7 +114,8 @@ export async function fetchIcons(): Promise<void> {
       ({ name, index, codes }) => `@font-face {
   font-family: 'Material Symbols Rounded';
   font-style: normal;
-  font-weight: 100 700;
+  font-weight: 400;
+  font-display: block;
   src: url(/frontend/assets/fonts/${getFontName(name, index)}.woff2) format('woff2');\
 ${fragments.length > 1 ? `\n  unicode-range: ${codes.map((code) => `U+${code.toUpperCase()}`).join(', ')}` : ''}
 }
