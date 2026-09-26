@@ -1,12 +1,14 @@
 import { Argument, type Command } from 'commander';
 import { logger } from '#shared/logger';
+import { fetchFonts } from '#tools/commands/fetch/fonts';
 import { fetchIcons } from '#tools/commands/fetch/icons';
 
-const FetchTargets = ['icons'] as const;
+const FetchTargets = ['fonts', 'icons'] as const;
 
 type FetchTarget = (typeof FetchTargets)[number];
 
 const fetchHandlers: Record<FetchTarget, () => Promise<void>> = {
+  fonts: fetchFonts,
   icons: fetchIcons,
 };
 

@@ -18,8 +18,7 @@ ENV VITE_CALCULATOR_URL=${VITE_CALCULATOR_URL}
 
 COPY . .
 
-RUN cp resources/fonts frontend/assets -r && \
-  pnpm cli fetch && \
+RUN pnpm cli fetch && \
   pnpm prerender
 
 FROM nginx:alpine-slim AS runtime
