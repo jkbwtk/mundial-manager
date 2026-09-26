@@ -13,12 +13,18 @@ import { appRouter } from '#backend/routers/trpc/app';
 import { createTRPCRouter } from '#backend/routers/trpc/trpcRouter';
 import { getCookieSecurity } from '#blib/jwt';
 import {
+  createErrorMiddleware,
   jwtMiddleware,
   notFoundMiddleware,
   requestLogger,
 } from '#blib/middlewares';
 import { logger } from '#shared/logger';
-import { createFetchEvent, type SSRRenderFunction } from '#shared/solidSSR';
+import { pageErrorScript } from '#shared/pageError';
+import {
+  createFetchEvent,
+  type SSRRenderErrorFunction,
+  type SSRRenderFunction,
+} from '#shared/solidSSR';
 
 const maxAge = 365 * 24 * 60 * 60; // 7 days
 
@@ -26,8 +32,9 @@ export async function createRouter() {
   const router = Router();
 
   // @ts-expect-error
-  const render: SSRRenderFunction = (await import('#dist/server/entryServer'))
-    .render;
+  const entryServer = await import('#dist/server/entryServer');
+  const render: SSRRenderFunction = entryServer.render;
+  const renderError: SSRRenderErrorFunction = entryServer.renderError;
 
   const template = await readFile(
     join(environment.DIST_DIR, 'client/index.html'),
@@ -112,12 +119,26 @@ export async function createRouter() {
     const html = template
       .replace('<!--app-title-->', rendered.title)
       .replace('<!--app-head-->', head)
-      .replace('<!--app-html-->', rendered.html);
+      .replace('<!--app-html-->', () => rendered.html);
 
     const status = rendered.status ?? 200;
 
     res.status(status).set({ 'Content-Type': 'text/html' }).send(html);
   });
+
+  router.use(
+    createErrorMiddleware({
+      renderErrorPage: async (pageError) => {
+        const rendered = renderError(pageError);
+
+        return template
+          .replace('<!--app-title-->', rendered.title)
+          .replace('<!--app-head-->', pageErrorScript)
+          .replace('<!--app-html-->', () => rendered.html);
+      },
+      exposeDetails: !environment.PRODUCTION,
+    }),
+  );
 
   return router;
 }

@@ -1,4 +1,7 @@
 import { hydrate } from 'solid-js/web';
 import App from '#frontend/App';
+import { isPageError } from '#shared/pageError';
 
-hydrate(() => <App />, document.getElementById('root') as HTMLElement);
+if (!isPageError()) {
+  hydrate(() => <App />, document.getElementById('root') as HTMLElement);
+}

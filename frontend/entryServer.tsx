@@ -1,8 +1,17 @@
-import { renderToStringAsync } from 'solid-js/web';
+import { NoHydration, renderToString, renderToStringAsync } from 'solid-js/web';
 import z from 'zod';
+import { AcrylicBackground } from '#components/AcrylicBackground';
 import App from '#frontend/App';
 import { routes } from '#frontend/routes';
-import { provideRequestEvent, type SSRRenderFunction } from '#shared/solidSSR';
+import { GenericErrorPage } from '#pages/GenericErrorPage';
+import { SSRUtilsProvider } from '#providers/SSRUtilsProvider/SSRUtilsProvider';
+import {
+  provideRequestEvent,
+  type SSRRenderErrorFunction,
+  type SSRRenderFunction,
+} from '#shared/solidSSR';
+
+const DEFAULT_TITLE = 'Mundial Manager';
 
 const responseStatusSchema = z
   .int()
@@ -19,7 +28,7 @@ export const render: SSRRenderFunction = async (
   fetchEvent,
 ) => {
   let status: number | undefined;
-  let title = 'Mundial Manager';
+  let title = DEFAULT_TITLE;
 
   const userAgent = fetchEvent.request.header('user-agent');
 
@@ -49,6 +58,19 @@ export const render: SSRRenderFunction = async (
   );
 
   return { html, status, title };
+};
+
+export const renderError: SSRRenderErrorFunction = (pageError) => {
+  const html = renderToString(() => (
+    <NoHydration>
+      <SSRUtilsProvider>
+        <AcrylicBackground />
+        <GenericErrorPage config={pageError} error={pageError.error} />
+      </SSRUtilsProvider>
+    </NoHydration>
+  ));
+
+  return { html, title: DEFAULT_TITLE };
 };
 
 export { routes };

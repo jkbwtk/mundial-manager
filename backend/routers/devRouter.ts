@@ -8,9 +8,18 @@ import { createMagicRouter } from '#backend/routers/magic/magicRouter';
 import { appRouter } from '#backend/routers/trpc/app';
 import { createTRPCRouter } from '#backend/routers/trpc/trpcRouter';
 import { getCookieSecurity } from '#blib/jwt';
-import { jwtMiddleware, requestLogger } from '#blib/middlewares';
+import {
+  createErrorMiddleware,
+  jwtMiddleware,
+  requestLogger,
+} from '#blib/middlewares';
 import { logger } from '#shared/logger';
-import { createFetchEvent } from '#shared/solidSSR';
+import { pageErrorScript } from '#shared/pageError';
+import {
+  createFetchEvent,
+  type SSRRenderErrorFunction,
+  type SSRRenderFunction,
+} from '#shared/solidSSR';
 
 export async function createDevRouter() {
   const devRouter = Router();
@@ -53,34 +62,50 @@ export async function createDevRouter() {
 
     try {
       const transformedTemplate = await vite.transformIndexHtml(url, template);
-      const render = (await vite.ssrLoadModule('/frontend/entryServer.tsx'))
-        .render;
+      const render: SSRRenderFunction = (
+        await vite.ssrLoadModule('/frontend/entryServer.tsx')
+      ).render;
 
       const fetchEvent = createFetchEvent(req, res);
 
       const rendered = await render(url, trpcCaller, fetchEvent);
 
-      const head = (rendered.head ?? '') + generateHydrationScript();
-
       const html = transformedTemplate
         .replace('<!--app-title-->', rendered.title)
-        .replace('<!--app-head-->', head)
-        .replace('<!--app-html-->', rendered.html ?? '');
+        .replace('<!--app-head-->', generateHydrationScript())
+        .replace('<!--app-html-->', () => rendered.html);
 
       const status = rendered.status ?? 200;
 
       res.status(status).set({ 'Content-Type': 'text/html' }).send(html);
     } catch (err) {
-      if (err instanceof Error) {
-        vite.ssrFixStacktrace(err);
-      }
+      if (err instanceof Error) vite.ssrFixStacktrace(err);
 
-      logger.error('Error during SSR', {
-        label: ['dev-server'],
-        error: err,
-      });
+      throw err;
     }
   });
+
+  devRouter.use(
+    createErrorMiddleware({
+      renderErrorPage: async (pageError) => {
+        const transformedTemplate = await vite.transformIndexHtml(
+          '/',
+          template,
+        );
+        const renderError: SSRRenderErrorFunction = (
+          await vite.ssrLoadModule('/frontend/entryServer.tsx')
+        ).renderError;
+
+        const rendered = renderError(pageError);
+
+        return transformedTemplate
+          .replace('<!--app-title-->', rendered.title)
+          .replace('<!--app-head-->', pageErrorScript)
+          .replace('<!--app-html-->', () => rendered.html);
+      },
+      exposeDetails: true,
+    }),
+  );
 
   return devRouter;
 }
