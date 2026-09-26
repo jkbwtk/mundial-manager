@@ -35,6 +35,16 @@ export const Environment = z.object({
 
   BASE_SITE_URL: z.url().transform((url) => new URL('/', url).toString()),
 
+  INSECURE_COOKIE_HOSTS: z
+    .string()
+    .default('localhost,127.0.0.1,::1')
+    .transform((hosts) =>
+      hosts
+        .split(',')
+        .map((host) => host.trim().toLowerCase())
+        .filter((host) => host.length > 0),
+    ),
+
   DATABASE_LOGGING: z.stringbool().default(false),
 
   VITE_CALCULATOR_URL: z.string(),

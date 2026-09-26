@@ -11,6 +11,7 @@ import { environment } from '#backend/environment';
 import { createMagicRouter } from '#backend/routers/magic/magicRouter';
 import { appRouter } from '#backend/routers/trpc/app';
 import { createTRPCRouter } from '#backend/routers/trpc/trpcRouter';
+import { getCookieSecurity } from '#blib/jwt';
 import {
   jwtMiddleware,
   notFoundMiddleware,
@@ -89,6 +90,7 @@ export async function createRouter() {
     const trpcCaller = appRouter.createCaller(
       {
         cookies: new Cookies(req, res),
+        cookieSecurity: getCookieSecurity(req),
         // @ts-expect-error
         jwt: Promise.resolve(req.jwt ?? null),
         db,

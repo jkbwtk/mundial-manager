@@ -7,6 +7,7 @@ import { db } from '#backend/db/database';
 import { createMagicRouter } from '#backend/routers/magic/magicRouter';
 import { appRouter } from '#backend/routers/trpc/app';
 import { createTRPCRouter } from '#backend/routers/trpc/trpcRouter';
+import { getCookieSecurity } from '#blib/jwt';
 import { jwtMiddleware, requestLogger } from '#blib/middlewares';
 import { logger } from '#shared/logger';
 import { createFetchEvent } from '#shared/solidSSR';
@@ -35,6 +36,7 @@ export async function createDevRouter() {
     const trpcCaller = appRouter.createCaller(
       {
         cookies: new Cookies(req, res),
+        cookieSecurity: getCookieSecurity(req),
         // @ts-expect-error
         jwt: Promise.resolve(req.jwt ?? null),
         db,

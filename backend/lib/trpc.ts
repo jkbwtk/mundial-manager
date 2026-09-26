@@ -3,7 +3,8 @@ import type { CreateHTTPContextOptions } from '@trpc/server/adapters/standalone'
 import Cookies from 'cookies';
 import { db } from '#backend/db/database';
 import { LeagueModel } from '#backend/db/models/LeagueModel';
-import { getJWTContextFromCookies } from '#blib/jwt';
+import { HttpError } from '#backend/errors/http';
+import { getCookieSecurity, getJWTContextFromCookies } from '#blib/jwt';
 import { ModelError } from '#blib/modelErrors';
 import { logger } from '#shared/logger';
 
@@ -12,6 +13,7 @@ export function createBaseContext(opts: CreateHTTPContextOptions) {
 
   return {
     cookies,
+    cookieSecurity: getCookieSecurity(opts.req),
     jwt: getJWTContextFromCookies(cookies),
     db,
   };
@@ -39,7 +41,11 @@ export const router = t.router;
 export const baseProcedure = t.procedure.use(async (opts) => {
   const result = await opts.next();
 
-  if (!result.ok && result.error.cause instanceof ModelError) {
+  if (
+    !result.ok &&
+    (result.error.cause instanceof ModelError ||
+      result.error.cause instanceof HttpError)
+  ) {
     return { ...result, error: result.error.cause.toTRPCError() };
   }
 

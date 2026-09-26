@@ -4,7 +4,7 @@ import { LeagueModel } from '#backend/db/models/LeagueModel';
 import { environment } from '#backend/environment';
 import type { JWTContextCreate } from '#backend/types/auth';
 import { Pagination } from '#backend/types/trpc';
-import { sign } from '#blib/jwt';
+import { getJWTCookieOptions, sign } from '#blib/jwt';
 import { adminProcedure, router } from '#blib/trpc';
 import { League, LeagueCreate, LeagueUpdate } from '#shared/types/api/league';
 
@@ -64,13 +64,11 @@ export const adminRouter = router({
         leagueUuid: league.instance.uuid,
       });
 
-      ctx.cookies.set(environment.JWT_COOKIE_NAME, newJWT, {
-        httpOnly: true,
-        secure: environment.PRODUCTION,
-        sameSite: 'lax',
-        overwrite: true,
-        expires: new Date(ctx.jwt.exp * 1000),
-      });
+      ctx.cookies.set(
+        environment.JWT_COOKIE_NAME,
+        newJWT,
+        getJWTCookieOptions(ctx.cookieSecurity, new Date(ctx.jwt.exp * 1000)),
+      );
 
       return league.serialize();
     }),

@@ -1,13 +1,20 @@
 import { createPrivateKey, createPublicKey } from 'node:crypto';
 import { readFileSync } from 'node:fs';
+import type { IncomingMessage } from 'node:http';
 import { resolve } from 'node:path';
 import type Cookies from 'cookies';
 import type { DecryptOptions, EncryptOptions, JWTPayload } from 'jose';
 import * as jose from 'jose';
 import { environment } from '#backend/environment';
+import { InsecureConnectionError } from '#backend/errors/http';
 import { JWTContext } from '#backend/types/auth';
 import { memoized } from '#blib/memoized';
 import { logger } from '#shared/logger';
+
+export type CookieSecurity =
+  | { type: 'secure' }
+  | { type: 'insecure' }
+  | { type: 'forbidden'; host: string };
 
 const loadRSAKeys = memoized(() => {
   try {
@@ -91,4 +98,54 @@ export async function getJWTContextFromCookies(
   }
 
   return context;
+}
+
+function isSecureRequest(req: IncomingMessage): boolean {
+  return (
+    (req as IncomingMessage & { secure?: boolean }).secure === true ||
+    (req.socket as { encrypted?: boolean }).encrypted === true
+  );
+}
+
+function getRequestHost(req: IncomingMessage): string {
+  const hostname = (req as IncomingMessage & { hostname?: string }).hostname;
+  const host = hostname ?? req.headers.host ?? '';
+
+  try {
+    return new URL(`http://${host}`).hostname.replace(/^\[|\]$/g, '');
+  } catch {
+    return host;
+  }
+}
+
+export function getCookieSecurity(req: IncomingMessage): CookieSecurity {
+  if (isSecureRequest(req)) return { type: 'secure' };
+
+  const host = getRequestHost(req);
+
+  if (
+    !environment.PRODUCTION ||
+    environment.INSECURE_COOKIE_HOSTS.includes(host)
+  ) {
+    return { type: 'insecure' };
+  }
+
+  return { type: 'forbidden', host };
+}
+
+export function getJWTCookieOptions(
+  security: CookieSecurity,
+  expires: Date,
+): Cookies.SetOption {
+  if (security.type === 'forbidden') {
+    throw new InsecureConnectionError(security.host);
+  }
+
+  return {
+    httpOnly: true,
+    secure: environment.PRODUCTION && security.type === 'secure',
+    sameSite: 'lax',
+    overwrite: true,
+    expires,
+  };
 }
