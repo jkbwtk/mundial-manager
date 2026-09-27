@@ -5,7 +5,7 @@ import { Router } from '@solidjs/router';
 import { ErrorBoundary, isServer, Show, Suspense } from 'solid-js/web';
 import { AcrylicBackground } from '#components/AcrylicBackground';
 import { DevGrid } from '#components/DevGrid';
-import { isDev } from '#flib/utils';
+import { isDev, isMobile } from '#flib/utils';
 import FatalErrorPage from '#pages/FatalErrorPage/FatalErrorPage';
 import { errors, GenericErrorPage } from '#pages/GenericErrorPage';
 import { RootLayout } from '#pages/RootLayout';
@@ -54,6 +54,7 @@ const App: Component<AppProps> = (props) => {
                           <Router
                             url={isServer ? props.url : ''}
                             root={RootLayout}
+                            preload={!isMobile()}
                           >
                             {routes}
                           </Router>
