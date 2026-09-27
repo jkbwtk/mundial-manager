@@ -9,6 +9,7 @@ import {
 } from '@trpc/client';
 import { isServer } from 'solid-js/web';
 import type { AppRouter } from '#backend/routers/trpc/app';
+import { createTimeoutFetch } from '#flib/network';
 import { ssrLink } from '#flib/trpc';
 import { isDev } from '#flib/utils';
 
@@ -25,19 +26,21 @@ const sharedRetryLink = retryLink({
     }
 
     if (opts.attempts > 3) {
-      console.warn(`tRPC subscription max retries reached for ${opts.op.path}`);
+      console.warn(`tRPC max retries reached for ${opts.op.path}`);
 
       return false;
     }
 
     if (isDev()) {
-      console.log(`tRPC subscription reconnecting (attempt ${opts.attempts})`);
+      console.log(`tRPC retrying ${opts.op.path} (attempt ${opts.attempts})`);
     }
 
     return true;
   },
   retryDelayMs: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
 });
+
+const timeoutFetch = createTimeoutFetch();
 
 export const trpcClient = createTRPCClient<AppRouter>({
   links: [
@@ -61,9 +64,11 @@ export const trpcClient = createTRPCClient<AppRouter>({
             condition: (op) => op.path.endsWith('$'),
             true: httpBatchLink({
               url: '/trpc',
+              fetch: timeoutFetch,
             }),
             false: httpBatchStreamLink({
               url: '/trpc',
+              fetch: timeoutFetch,
             }),
           }),
         ],
