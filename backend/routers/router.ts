@@ -18,6 +18,7 @@ import {
   notFoundMiddleware,
   requestLogger,
 } from '#blib/middlewares';
+import { createModulePreloader } from '#blib/modulePreload';
 import { logger } from '#shared/logger';
 import { pageErrorScript } from '#shared/pageError';
 import {
@@ -41,6 +42,9 @@ export async function createRouter() {
     'utf-8',
   );
   const head = generateHydrationScript();
+  const getModulePreloads = await createModulePreloader(
+    join(environment.DIST_DIR, 'client/.vite/manifest.json'),
+  );
 
   const allowedRootExtensions = ['webmanifest', 'js', 'ico', 'png'];
   const allowedWithDots = allowedRootExtensions.map((ext) => `.${ext}`);
@@ -119,6 +123,7 @@ export async function createRouter() {
     const html = template
       .replace('<!--app-title-->', rendered.title)
       .replace('<!--app-head-->', head)
+      .replace('</head>', `${getModulePreloads(rendered.modules)}</head>`)
       .replace('<!--app-html-->', () => rendered.html);
 
     const status = rendered.status ?? 200;

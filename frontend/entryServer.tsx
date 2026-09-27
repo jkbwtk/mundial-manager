@@ -1,6 +1,7 @@
 import { NoHydration, renderToString, renderToStringAsync } from 'solid-js/web';
 import z from 'zod';
 import { AcrylicBackground } from '#components/AcrylicBackground';
+import { getRenderedModules } from '#flib/lazyRoute';
 import App from '#frontend/App';
 import { routes } from '#frontend/routes';
 import { GenericErrorPage } from '#pages/GenericErrorPage';
@@ -57,7 +58,12 @@ export const render: SSRRenderFunction = async (
     )),
   );
 
-  return { html, status, title };
+  return {
+    html,
+    status,
+    title,
+    modules: getRenderedModules(fetchEvent.locals),
+  };
 };
 
 export const renderError: SSRRenderErrorFunction = (pageError) => {

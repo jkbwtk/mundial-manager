@@ -16,6 +16,7 @@ export interface SSRRenderReturn {
   html: string;
   status?: number;
   title: string;
+  modules: string[];
 }
 
 export type SSRRenderFunction = (
