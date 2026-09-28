@@ -1,10 +1,11 @@
-import { createAsync, useAction } from '@solidjs/router';
+import { useAction } from '@solidjs/router';
 import { createSignal, getOwner, Show } from 'solid-js';
 import { AnchorButton, Button } from '#components/Button';
 import { MatchCreatorModal } from '#components/MatchCreatorModal';
 import { Paginator } from '#components/Paginator';
 import { type Column, Table } from '#components/Table';
 import { Divider } from '#components/Widget';
+import { createResilientAsync } from '#flib/resilientAsync';
 import { useHandleButtonAction } from '#flib/solidHelpers';
 import { actionDeleteMatch, queryMatches } from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
@@ -34,7 +35,7 @@ export const MatchesDashboard: Component = () => {
     sorting: sorting(),
   });
 
-  const matches = createAsync(() => queryMatches(queryMetaProp()));
+  const matches = createResilientAsync(queryMetaProp, queryMatches);
 
   const deleteMatch = useAction(actionDeleteMatch);
   const owner = getOwner();

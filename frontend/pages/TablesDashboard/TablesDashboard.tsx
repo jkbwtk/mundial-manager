@@ -1,4 +1,4 @@
-import { createAsync, useAction } from '@solidjs/router';
+import { useAction } from '@solidjs/router';
 import { createSignal, getOwner, Show } from 'solid-js';
 import { Button } from '#components/Button';
 import { ColorBlock } from '#components/ColorBlock';
@@ -6,6 +6,7 @@ import { Paginator } from '#components/Paginator';
 import { type Column, Table } from '#components/Table';
 import { TableCreatorModal } from '#components/TableCreatorModal';
 import { Divider } from '#components/Widget';
+import { createResilientAsync } from '#flib/resilientAsync';
 import { useHandleButtonAction } from '#flib/solidHelpers';
 import { actionDeleteTable, queryTables } from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
@@ -33,7 +34,7 @@ export const TablesDashboard: Component = () => {
     sorting: sorting(),
   });
 
-  const tables = createAsync(() => queryTables(queryMetaProp()));
+  const tables = createResilientAsync(queryMetaProp, queryTables);
 
   const deleteTable = useAction(actionDeleteTable);
   const owner = getOwner();

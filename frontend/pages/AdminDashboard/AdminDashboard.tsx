@@ -1,9 +1,10 @@
-import { createAsync, useAction } from '@solidjs/router';
+import { useAction } from '@solidjs/router';
 import { getOwner, Show } from 'solid-js';
 import { Button } from '#components/Button';
 import { LeagueCreatorModal } from '#components/LeagueCreatorModal';
 import { type Column, Table } from '#components/Table';
 import { Divider, Widget } from '#components/Widget';
+import { createResilientAsync } from '#flib/resilientAsync';
 import { useHandleButtonAction } from '#flib/solidHelpers';
 import {
   actionChangeLeague,
@@ -21,8 +22,8 @@ import style from './AdminDashboard.module.scss';
 export const AdminDashboard: Component = () => {
   const [, actions] = useToast();
   const [, { open }] = useModal();
-  const leagues = createAsync(() => queryLeagues());
-  const activeLeague = createAsync(() => queryActiveLeague());
+  const leagues = createResilientAsync(queryLeagues);
+  const activeLeague = createResilientAsync(queryActiveLeague);
 
   const changeLeague = useAction(actionChangeLeague);
   const deleteLeague = useAction(actionDeleteLeague);

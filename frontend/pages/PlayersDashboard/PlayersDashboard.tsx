@@ -1,4 +1,4 @@
-import { createAsync, useAction } from '@solidjs/router';
+import { useAction } from '@solidjs/router';
 import { createSignal, getOwner, Show } from 'solid-js';
 import { Button } from '#components/Button';
 import { ColorBlock } from '#components/ColorBlock';
@@ -6,6 +6,7 @@ import { Paginator } from '#components/Paginator';
 import { PlayerCreatorModal } from '#components/PlayerCreatorModal';
 import { type Column, Table } from '#components/Table';
 import { Divider } from '#components/Widget';
+import { createResilientAsync } from '#flib/resilientAsync';
 import { useHandleButtonAction } from '#flib/solidHelpers';
 import { actionDeletePlayer, queryPlayers } from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
@@ -30,7 +31,7 @@ export const PlayersDashboard: Component = () => {
     sorting: sorting(),
   });
 
-  const players = createAsync(() => queryPlayers(queryMetaProp()));
+  const players = createResilientAsync(queryMetaProp, queryPlayers);
 
   const deletePlayer = useAction(actionDeletePlayer);
   const owner = getOwner();

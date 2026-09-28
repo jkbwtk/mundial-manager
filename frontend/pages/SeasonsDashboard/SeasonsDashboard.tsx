@@ -1,10 +1,11 @@
-import { createAsync, useAction } from '@solidjs/router';
+import { useAction } from '@solidjs/router';
 import { createSignal, getOwner, Show } from 'solid-js';
 import { Button } from '#components/Button';
 import { Paginator } from '#components/Paginator';
 import { SeasonCreatorModal } from '#components/SeasonCreatorModal';
 import { type Column, Table } from '#components/Table';
 import { Divider } from '#components/Widget';
+import { createResilientAsync } from '#flib/resilientAsync';
 import { useHandleButtonAction } from '#flib/solidHelpers';
 import {
   actionDeleteSeason,
@@ -37,8 +38,8 @@ export const SeasonsDashboard: Component = () => {
     sorting: sorting(),
   });
 
-  const seasons = createAsync(() => querySeasons(queryMetaProp()));
-  const currentSeason = createAsync(() => queryCurrentSeason());
+  const seasons = createResilientAsync(queryMetaProp, querySeasons);
+  const currentSeason = createResilientAsync(queryCurrentSeason);
 
   const deleteSeason = useAction(actionDeleteSeason);
   const owner = getOwner();
