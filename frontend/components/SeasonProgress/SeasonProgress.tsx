@@ -1,11 +1,11 @@
-import { Cron } from 'croner';
 import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
-import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js';
+import { createMemo, createSignal } from 'solid-js';
 import { Dropdown, type DropdownOption } from '#components/Dropdown';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import { ProgressBar } from '#components/ProgresBar';
 import { Divider, Widget } from '#components/Widget';
+import { type ClockUnit, createNow } from '#flib/clock';
 import { getSeason } from '#flib/seasons';
 import { formatDate } from '#shared/timeUtils';
 import weekDayPlugin from '#shared/weekDayPlugin';
@@ -17,7 +17,7 @@ dayjs.extend(weekDayPlugin);
 type Granularity = 'second' | 'minute' | 'hour' | 'day' | 'workDay' | 'week';
 
 type GranularityOption = DropdownOption<Granularity> & {
-  cron: string;
+  tick: ClockUnit;
   unit: string;
   format: (value: number) => string;
   precision: number;
@@ -27,7 +27,7 @@ const granularityOptions = {
   second: {
     label: 'Second',
     value: 'second',
-    cron: '*/1 * * * * *',
+    tick: 'second',
     unit: 'second',
     format: (seconds) => `${seconds.toLocaleString()}`,
     precision: 4,
@@ -35,7 +35,7 @@ const granularityOptions = {
   minute: {
     label: 'Minute',
     value: 'minute',
-    cron: '*/1 * * * *',
+    tick: 'minute',
     unit: 'minute',
     format: (minutes) => `${minutes.toLocaleString()}`,
     precision: 3,
@@ -43,7 +43,7 @@ const granularityOptions = {
   hour: {
     label: 'Hour',
     value: 'hour',
-    cron: '0 */1 * * *',
+    tick: 'hour',
     unit: 'hour',
     format: (hours) => `${hours.toLocaleString()}`,
     precision: 2,
@@ -51,7 +51,7 @@ const granularityOptions = {
   day: {
     label: 'Day',
     value: 'day',
-    cron: '0 0 */1 * *',
+    tick: 'day',
     unit: 'day',
     format: (days) => `${days.toLocaleString()}`,
     precision: 1,
@@ -59,7 +59,7 @@ const granularityOptions = {
   workDay: {
     label: 'Work Day',
     value: 'workDay',
-    cron: '0 0 * * 1-5',
+    tick: 'day',
     unit: 'work day',
     format: (days) => `${days.toLocaleString()}`,
     precision: 1,
@@ -67,7 +67,7 @@ const granularityOptions = {
   week: {
     label: 'Week',
     value: 'week',
-    cron: '0 0 * * 0',
+    tick: 'day',
     unit: 'week',
     format: (weeks) => `${weeks.toLocaleString()}`,
     precision: 1,
@@ -77,7 +77,7 @@ const granularityOptions = {
 export const SeasonProgress: Component = () => {
   const [granularity, setGranularity] = createSignal<Granularity>('workDay');
   const config = createMemo(() => granularityOptions[granularity()]);
-  const [now, setNow] = createSignal(dayjs());
+  const now = createNow(() => config().tick);
 
   const season = createMemo(() => getSeason(now().unix()));
   const nextSeason = createMemo(() =>
@@ -112,18 +112,6 @@ export const SeasonProgress: Component = () => {
 
       daysUntilNextSeason,
     };
-  });
-
-  createEffect(() => {
-    const cron = new Cron(config().cron, () => {
-      setNow(dayjs());
-    });
-
-    cron.trigger();
-
-    onCleanup(() => {
-      cron.stop();
-    });
   });
 
   return (
