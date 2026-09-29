@@ -1,4 +1,4 @@
-import { createContext, runWithOwner, useContext } from 'solid-js';
+import { createContext, createRoot, onCleanup, useContext } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import type { ModalEntry } from '#frontend/types';
 import { useModal } from '#providers/ModalProvider/ModalProvider';
@@ -43,7 +43,17 @@ export const ModalInstanceProvider: ParentComponent<ModalEntry> = (props) => {
 
   const owner = props.owner();
 
-  return owner ? runWithOwner(owner, renderModal) : renderModal();
+  if (!owner) return renderModal();
+
+  let disposeModal!: () => void;
+
+  onCleanup(() => disposeModal());
+
+  return createRoot((dispose) => {
+    disposeModal = dispose;
+
+    return renderModal();
+  }, owner);
 };
 
 export const useModalActions = (): ModalInstanceContextActions =>
