@@ -8,6 +8,11 @@ import type {
   MatchSide,
 } from '#shared/types/api/matchEvent';
 
+export type MatchEventOfType<T extends MatchEventType> = Extract<
+  MatchEvent,
+  { type: T }
+>;
+
 export interface MatchEventDefaults {
   playersSide1: string[];
   playersSide2: string[];
@@ -67,6 +72,15 @@ export function getMatchEventLane(event: MatchEvent): MatchSide | null {
     default:
       return null;
   }
+}
+
+export function narrowMatchEvent<T extends MatchEventType>(
+  event: MatchEvent,
+  ...types: T[]
+): MatchEventOfType<T> | null {
+  if (!(types as MatchEventType[]).includes(event.type)) return null;
+
+  return event as MatchEventOfType<T>;
 }
 
 export function formatElapsed(ms: number): string {
