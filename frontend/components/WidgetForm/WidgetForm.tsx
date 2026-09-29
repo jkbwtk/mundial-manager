@@ -7,6 +7,7 @@ import { FormErrors } from '#components/FormErrors';
 import { Divider } from '#components/Widget';
 import { Widget } from '#components/Widget/Widget';
 import { useFormValidation } from '#flib/formValidation';
+import { useUnsavedChanges } from '#flib/unsavedChanges';
 import { useToast } from '#providers/ToastProvider';
 import style from './WidgetForm.module.scss';
 
@@ -50,7 +51,7 @@ export const WidgetForm = <
 
   const fieldNames = () => fieldMeta().names;
 
-  const { validate, errors, canSubmit, formSubmit } = useFormValidation(
+  const { validate, errors, canSubmit, edited, formSubmit } = useFormValidation(
     props.model,
     {
       updateMode: props.instance !== undefined,
@@ -59,6 +60,8 @@ export const WidgetForm = <
       transforms: fieldMeta().transforms,
     },
   );
+
+  useUnsavedChanges(edited);
 
   const handleSuccess = () => {
     actions.success(props.successMessage ?? 'Submitted successfully!');

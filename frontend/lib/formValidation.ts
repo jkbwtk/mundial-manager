@@ -76,6 +76,7 @@ export const useFormValidation = <T extends z.ZodObject>(
   );
 
   const [canSubmit, setCanSubmit] = createSignal(options.updateMode ?? false);
+  const [edited, setEdited] = createSignal(false);
 
   const preprocessValue = (field: Field) => {
     const { ref } = field;
@@ -265,6 +266,7 @@ export const useFormValidation = <T extends z.ZodObject>(
       clearTimeout(timeoutRef);
 
       field.dirty = true;
+      setEdited(true);
 
       runValidation({ showErrors: false });
 
@@ -301,6 +303,8 @@ export const useFormValidation = <T extends z.ZodObject>(
 
       try {
         const response = await handler(result.data);
+
+        setEdited(false);
         onSuccess?.(response);
       } catch (err) {
         const fieldErrors = parseServerFieldErrors(err);
@@ -338,6 +342,7 @@ export const useFormValidation = <T extends z.ZodObject>(
     validate,
     errors,
     canSubmit,
+    edited,
     formSubmit,
     forceValidate,
   };

@@ -7,6 +7,7 @@ import { FormErrors } from '#components/FormErrors';
 import { Modal } from '#components/Modal';
 import { Divider } from '#components/Widget';
 import { useFormValidation } from '#flib/formValidation';
+import { useUnsavedChanges } from '#flib/unsavedChanges';
 import { useModalActions } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
 import style from './ModalForm.module.scss';
@@ -55,7 +56,7 @@ export const ModalForm = <
 
   const fieldNames = () => fieldMeta().names;
 
-  const { validate, errors, canSubmit, formSubmit } = useFormValidation(
+  const { validate, errors, canSubmit, edited, formSubmit } = useFormValidation(
     props.model,
     {
       updateMode: props.instance !== undefined,
@@ -64,6 +65,8 @@ export const ModalForm = <
       transforms: fieldMeta().transforms,
     },
   );
+
+  useUnsavedChanges(edited);
 
   const handleSuccess = (data: Result) => {
     actions.success(props.successMessage);
