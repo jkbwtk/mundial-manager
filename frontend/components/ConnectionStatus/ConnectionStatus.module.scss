@@ -1,0 +1,12 @@
+@use 'app' as *;
+
+.container {
+  position: fixed;
+  // top: ch(1);
+  left: 50%;
+  translate: -50% 0;
+  z-index: 9999;
+
+  width: max-content;
+  max-width: calc(100% - cw(2));
+}

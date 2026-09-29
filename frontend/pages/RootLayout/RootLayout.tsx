@@ -1,5 +1,6 @@
 import { createEffect, createMemo } from 'solid-js';
 import { isServer } from 'solid-js/web';
+import { ConnectionStatus } from '#components/ConnectionStatus';
 import { RouteLoadingBar } from '#components/RouteLoadingBar';
 import { useCurrentExtendedMatches } from '#flib/solidHelpers';
 import { DashboardLayout } from '#pages/DashboardLayout';
@@ -34,6 +35,7 @@ export const RootLayout: ParentComponent = (props) => {
   return (
     <>
       <RouteLoadingBar />
+      <ConnectionStatus />
       <DashboardLayout>{props.children}</DashboardLayout>
     </>
   );
