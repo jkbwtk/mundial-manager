@@ -23,6 +23,7 @@ export interface ToastProps {
   index: number;
   toast: ToastInternalEntry;
   onRemove: () => void;
+  animateVertical?: boolean;
 }
 
 export const Toast: Component<ToastProps> = (props) => {
@@ -90,6 +91,7 @@ export const Toast: Component<ToastProps> = (props) => {
         [style[props.toast.severity ?? 'info']]: true,
         [style.leaving]: props.toast.isLeaving,
         [style.countdown]: countingDown(),
+        [style.animateVertical]: !!props.animateVertical,
       }}
       style={{
         '--toast-animation-duration': `${TOAST_ANIMATION_DURATION}ms`,
