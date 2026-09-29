@@ -5,6 +5,7 @@ import { RouteLoadingBar } from '#components/RouteLoadingBar';
 import { useCurrentExtendedMatches } from '#flib/solidHelpers';
 import { DashboardLayout } from '#pages/DashboardLayout';
 import { useSSRUtils } from '#providers/SSRUtilsProvider';
+import { RouteErrorBoundary } from './RouteErrorBoundary';
 
 export const RootLayout: ParentComponent = (props) => {
   const routeMatches = useCurrentExtendedMatches();
@@ -36,7 +37,9 @@ export const RootLayout: ParentComponent = (props) => {
     <>
       <RouteLoadingBar />
       <ConnectionStatus />
-      <DashboardLayout>{props.children}</DashboardLayout>
+      <DashboardLayout>
+        <RouteErrorBoundary>{props.children}</RouteErrorBoundary>
+      </DashboardLayout>
     </>
   );
 };
