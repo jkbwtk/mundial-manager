@@ -16,6 +16,10 @@ export type CookieSecurity =
   | { type: 'insecure' }
   | { type: 'forbidden'; host: string };
 
+const JWT_CONTEXT_CACHE_SIZE = 1_000;
+
+const jwtContextCache = new Map<string, JWTContext>();
+
 const loadRSAKeys = memoized(() => {
   try {
     const pubKeyPath = resolve(process.cwd(), environment.PUB_KEY_PATH);
@@ -67,11 +71,30 @@ export function verify(token: string, options?: DecryptOptions) {
     .then((result) => result.payload);
 }
 
+function cacheJWTContext(jwt: string, context: JWTContext): void {
+  jwtContextCache.set(jwt, context);
+
+  if (jwtContextCache.size <= JWT_CONTEXT_CACHE_SIZE) return;
+
+  const oldestJWT = jwtContextCache.keys().next().value;
+
+  if (oldestJWT !== undefined) jwtContextCache.delete(oldestJWT);
+}
+
 export async function getJWTContext(jwt: string): Promise<JWTContext | null> {
+  const cachedContext = jwtContextCache.get(jwt);
+
+  if (cachedContext !== undefined && cachedContext.exp * 1000 > Date.now()) {
+    return cachedContext;
+  }
+
   try {
     const rawData = await verify(jwt);
+    const context = JWTContext.parse(rawData);
 
-    return JWTContext.parse(rawData);
+    cacheJWTContext(jwt, context);
+
+    return context;
   } catch (err) {
     logger.error('Failed to verify JWT token', {
       label: ['jwt', 'getJWTContext'],
