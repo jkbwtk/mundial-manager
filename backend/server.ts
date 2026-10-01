@@ -4,6 +4,7 @@ import { Command } from 'commander';
 import express from 'express';
 import { environment } from '#backend/environment';
 import { createRouter } from '#backend/routers/router';
+import { applyKeepAliveTimeout } from '#blib/utils';
 import { logger } from '#shared/logger';
 import registerImportCommand from '#tools/commands/import';
 import registerMigrateCommand from '#tools/commands/migrate';
@@ -19,11 +20,14 @@ async function runServer() {
     label: ['prod-server'],
   });
 
-  app.listen(environment.SERVER_PORT).on('listening', () => {
-    logger.info('Server listening on port %o', environment.SERVER_PORT, {
-      label: ['prod-server'],
-    });
-  });
+  applyKeepAliveTimeout(app.listen(environment.SERVER_PORT)).on(
+    'listening',
+    () => {
+      logger.info('Server listening on port %o', environment.SERVER_PORT, {
+        label: ['prod-server'],
+      });
+    },
+  );
 }
 
 async function main() {
