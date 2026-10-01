@@ -20,7 +20,7 @@ async function runServer() {
     label: ['prod-server'],
   });
 
-  applyKeepAliveTimeout(app.listen(environment.SERVER_PORT)).on(
+  applyKeepAliveTimeout(app.listen(environment.SERVER_PORT, '127.0.0.1')).on(
     'listening',
     () => {
       logger.info('Server listening on port %o', environment.SERVER_PORT, {
