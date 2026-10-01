@@ -66,7 +66,7 @@ export async function createRouter() {
 
   router.use('/trpc', createTRPCRouter());
 
-  router.use(compression({ level: 9 }));
+  router.use(compression({ level: 6 }));
 
   router.use(requestLogger);
 
