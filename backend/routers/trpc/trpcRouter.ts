@@ -7,6 +7,12 @@ import { logger } from '#shared/logger';
 export function createTRPCRouter() {
   const trpcRouter = Router();
 
+  trpcRouter.use((_req, res, next) => {
+    res.set('X-Accel-Buffering', 'no');
+
+    next();
+  });
+
   trpcRouter.use(
     createExpressMiddleware({
       router: appRouter,
