@@ -1,4 +1,4 @@
-const UNINITIALIZED = Symbol('uninitialized');
+export const UNINITIALIZED = Symbol('uninitialized');
 
 // biome-ignore lint/suspicious/noExplicitAny: yeah
 export function memoized<T extends () => any>(originalMethod: T): T {
@@ -16,6 +16,10 @@ export function memoized<T extends () => any>(originalMethod: T): T {
 
   cachedMethod.originalMethod = originalMethod;
   cachedMethod.cache = cached;
+
+  cachedMethod.reset = () => {
+    cached.value = UNINITIALIZED;
+  };
 
   // @ts-expect-error
   return cachedMethod;
