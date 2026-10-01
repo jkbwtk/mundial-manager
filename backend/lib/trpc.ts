@@ -1,20 +1,37 @@
 import { initTRPC, TRPCError } from '@trpc/server';
 import type { CreateHTTPContextOptions } from '@trpc/server/adapters/standalone';
 import Cookies from 'cookies';
-import { db } from '#backend/db/database';
+import { type DB, db } from '#backend/db/database';
 import { LeagueModel } from '#backend/db/models/LeagueModel';
 import { HttpError } from '#backend/errors/http';
+import type { JWTContext } from '#backend/types/auth';
 import { getCookieSecurity, getJWTContextFromCookies } from '#blib/jwt';
+import { memoized } from '#blib/memoized';
 import { ModelError } from '#blib/modelErrors';
 import { logger } from '#shared/logger';
 
+export function createLeagueGetter(
+  db: DB,
+  jwt: Promise<JWTContext | null>,
+): () => Promise<LeagueModel | null> {
+  return memoized(async () => {
+    const context = await jwt;
+
+    if (!context?.leagueUuid) return null;
+
+    return LeagueModel.getById(db, context.leagueUuid);
+  });
+}
+
 export function createBaseContext(opts: CreateHTTPContextOptions) {
   const cookies = new Cookies(opts.req, opts.res);
+  const jwt = getJWTContextFromCookies(cookies);
 
   return {
     cookies,
     cookieSecurity: getCookieSecurity(opts.req),
-    jwt: getJWTContextFromCookies(cookies),
+    jwt,
+    getLeague: createLeagueGetter(db, jwt),
     db,
   };
 }
@@ -108,7 +125,7 @@ export const leagueScopedProcedure = restrictedProcedure.use(async (opts) => {
     });
   }
 
-  const league = await LeagueModel.getById(opts.ctx.db, jwt.leagueUuid);
+  const league = await opts.ctx.getLeague();
 
   if (!league) {
     throw new TRPCError({

@@ -13,6 +13,7 @@ import {
   jwtMiddleware,
   requestLogger,
 } from '#blib/middlewares';
+import { createLeagueGetter } from '#blib/trpc';
 import { logger } from '#shared/logger';
 import { pageErrorScript } from '#shared/pageError';
 import {
@@ -41,13 +42,15 @@ export async function createDevRouter() {
 
   devRouter.use('*splat', jwtMiddleware, async (req, res) => {
     const url = req.originalUrl;
+    // @ts-expect-error
+    const jwt = Promise.resolve(req.jwt ?? null);
 
     const trpcCaller = appRouter.createCaller(
       {
         cookies: new Cookies(req, res),
         cookieSecurity: getCookieSecurity(req),
-        // @ts-expect-error
-        jwt: Promise.resolve(req.jwt ?? null),
+        jwt,
+        getLeague: createLeagueGetter(db, jwt),
         db,
       },
       {
