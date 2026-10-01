@@ -16,7 +16,10 @@ export const db = lazyObject(() => {
 
     allowExitOnIdle: false,
     keepAlive: true,
-    connectionTimeoutMillis: 500,
+    max: 15,
+    min: 2,
+    idleTimeoutMillis: 60_000,
+    connectionTimeoutMillis: 5_000,
   });
 
   return drizzle({
