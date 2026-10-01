@@ -72,6 +72,14 @@ export default defineConfig({
     hmr: {
       port: environment.HMR_PORT,
     },
+    warmup: {
+      clientFiles: ['./frontend/entryClient.tsx'],
+      ssrFiles: [
+        './frontend/**/*.{ts,tsx}',
+        './frontend/**/*.module.scss',
+        '!./frontend/**/*.d.ts',
+      ],
+    },
   },
 
   publicDir: 'resources',
