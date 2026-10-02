@@ -72,6 +72,8 @@ export const Dropdown: DropdownSignature = <T = string>(
 
   const [values, setValues] = createSignal<T[]>(arrayFrom(props.value));
 
+  let syncedValues: T[] | null = null;
+
   const instanceId = createUniqueId();
   const menuId = `${instanceId}-menu`;
   const triggerId = `${instanceId}-trigger`;
@@ -294,20 +296,32 @@ export const Dropdown: DropdownSignature = <T = string>(
     }),
   );
 
-  // createEffect(
-  //   on(
-  //     () => props.value,
-  //     (newValue) => {
-  //       setValues(arrayFrom(newValue));
-  //     },
-  //     { defer: true },
-  //   ),
-  // );
+  createEffect(
+    on(
+      () => props.value,
+      (newValue) => {
+        const next = arrayFrom(newValue);
+        const current = values();
+
+        const isSame =
+          next.length === current.length &&
+          next.every((value, index) => value === current[index]);
+
+        if (isSame) return;
+
+        syncedValues = next;
+        setValues(next);
+      },
+      { defer: true },
+    ),
+  );
 
   createEffect(
     on(
       values,
       (values) => {
+        if (values === syncedValues) return;
+
         // @ts-expect-error
         props.onChange?.(props.multiple ? values : values[0]);
 
