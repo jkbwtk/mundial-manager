@@ -4,6 +4,7 @@ import { Button } from '#components/Button';
 import { LeagueCreatorModal } from '#components/LeagueCreatorModal';
 import { type Column, Table } from '#components/Table';
 import { Divider, Widget } from '#components/Widget';
+import { useCopyToClipboard } from '#flib/clipboard';
 import { createResilientAsync } from '#flib/resilientAsync';
 import { useHandleButtonAction } from '#flib/solidHelpers';
 import {
@@ -27,6 +28,7 @@ export const AdminDashboard: Component = () => {
 
   const changeLeague = useAction(actionChangeLeague);
   const deleteLeague = useAction(actionDeleteLeague);
+  const copyToClipboard = useCopyToClipboard();
   const owner = getOwner();
 
   const handleCreateLeague = () => {
@@ -49,16 +51,7 @@ export const AdminDashboard: Component = () => {
         return (
           <button
             type="button"
-            onClick={() =>
-              navigator.clipboard
-                .writeText(val)
-                .then(() => {
-                  actions.success(`UUID ${val} copied to clipboard`);
-                })
-                .catch(() => {
-                  actions.error('Failed to copy UUID to clipboard');
-                })
-            }
+            onClick={() => copyToClipboard(val, `UUID ${val}`)}
           >
             {shortUUID(val)}
           </button>
@@ -89,10 +82,7 @@ export const AdminDashboard: Component = () => {
         const handleGetLink = useHandleButtonAction(async (league: League) => {
           const link = await queryLeagueLink(item.uuid);
 
-          await navigator.clipboard.writeText(link);
-          actions.success(
-            `Magic link for ${league.alias} copied to the clipboard`,
-          );
+          await copyToClipboard(link, `Magic link for ${league.alias}`);
         });
 
         return (
