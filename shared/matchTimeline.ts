@@ -153,6 +153,13 @@ export function getGoalScoringSide(
   return event.ownGoal ? getOppositeSide(event.side) : event.side;
 }
 
+export function getMatchSidePlayers(
+  match: Pick<Match, 'playersSide1' | 'playersSide2'>,
+  side: MatchSide,
+): string[] {
+  return side === 'SIDE_1' ? match.playersSide1 : match.playersSide2;
+}
+
 function getTieBreakPriority(type: MatchEventType): number {
   return type === 'CANCEL' ? 1 : 0;
 }
@@ -411,7 +418,10 @@ export const matchTimelineValidationStrategies = {
     for (const event of events) {
       if (event.type !== 'GOAL') continue;
 
-      const sidePlayers = event.side === 'SIDE_1' ? playersSide1 : playersSide2;
+      const sidePlayers = getMatchSidePlayers(
+        { playersSide1, playersSide2 },
+        event.side,
+      );
 
       if (!sidePlayers.includes(event.player)) {
         report(
