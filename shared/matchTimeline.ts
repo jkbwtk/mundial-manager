@@ -39,6 +39,11 @@ export interface MatchTimelineStep<T extends MatchTimelineEntry> {
   pausedAfter: boolean;
 }
 
+export interface MatchTimelinePause {
+  from: number;
+  to: number | null;
+}
+
 export interface MatchTimelineStats {
   counts: Partial<Record<MatchEventType, number>>;
   ownGoals: number;
@@ -225,6 +230,34 @@ export function getMatchTimelinePauseDuration(
 
 export function hasOpenMatchPause(events: MatchTimelineEntry[]): boolean {
   return getMatchTimelineSteps(events).at(-1)?.pausedAfter ?? false;
+}
+
+export function getMatchTimelinePauses<T extends MatchTimelineEntry>(
+  steps: MatchTimelineStep<T>[],
+): MatchTimelinePause[] {
+  const pauses: MatchTimelinePause[] = [];
+
+  for (const { event, pausedBefore, pausedAfter } of steps) {
+    const current = pauses.at(-1);
+    const isOpen = current !== undefined && current.to === null;
+
+    if (!isOpen && !pausedBefore && pausedAfter) {
+      pauses.push({ from: event.offset, to: null });
+    } else if (isOpen && (!pausedAfter || event.type === 'CANCEL')) {
+      current.to = event.offset;
+    }
+  }
+
+  return pauses;
+}
+
+export function isMatchPausedAt(
+  pauses: MatchTimelinePause[],
+  offset: number,
+): boolean {
+  return pauses.some(
+    (pause) => pause.from <= offset && (pause.to === null || offset < pause.to),
+  );
 }
 
 export function getMatchTimelineStats(
