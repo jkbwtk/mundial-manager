@@ -1,6 +1,7 @@
 import type { SupportedMaterialSymbol } from '#flib/supportedMaterialSymbols';
-import { getGoalScoringSide } from '#shared/matchTimeline';
+import { getGoalScoringSide, getMatchSidePlayers } from '#shared/matchTimeline';
 import { formatDuration } from '#shared/timeUtils';
+import type { Match } from '#shared/types/api/match';
 import type {
   GoalType,
   MatchEvent,
@@ -13,11 +14,13 @@ export type MatchEventOfType<T extends MatchEventType> = Extract<
   { type: T }
 >;
 
-export interface MatchEventDefaults {
-  playersSide1: string[];
-  playersSide2: string[];
-  ballUuid?: string | null;
-}
+export type MatchEventDefaults = Pick<
+  Match,
+  'playersSide1' | 'playersSide2' | 'ballUuid'
+>;
+
+export const MATCH_EVENT_TIME_STEP_MS = 1000;
+export const MATCH_EVENT_COARSE_TIME_STEP_MS = 10_000;
 
 export const MatchEventTypeLabels: Record<MatchEventType, string> = {
   GOAL: 'Goal',
@@ -104,8 +107,7 @@ export function createMatchEvent(
     labels: {},
   };
 
-  const sidePlayers =
-    side === 'SIDE_1' ? defaults.playersSide1 : defaults.playersSide2;
+  const sidePlayers = getMatchSidePlayers(defaults, side);
 
   switch (type) {
     case 'GOAL':
