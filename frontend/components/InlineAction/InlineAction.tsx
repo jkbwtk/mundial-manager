@@ -1,5 +1,6 @@
 import { children, createSignal, onCleanup, onMount } from 'solid-js';
 import { isServer } from 'solid-js/web';
+import { isEditableTarget } from '#flib/utils';
 import { useModal, useModalActions } from '#providers/ModalProvider';
 import style from './InlineAction.module.scss';
 
@@ -11,8 +12,6 @@ export interface InlineActionProps {
   disabledTriggers?: TriggerType[];
 }
 
-const ignoredTargets = isServer ? [] : [HTMLInputElement];
-
 export const InlineAction: Component<InlineActionProps> = (props) => {
   const [, { isActive }] = useModal();
   const { isTop } = useModalActions();
@@ -23,11 +22,7 @@ export const InlineAction: Component<InlineActionProps> = (props) => {
   let timeoutRef: undefined | ReturnType<typeof setTimeout>;
 
   const handleKeyPress = (ev: KeyboardEvent) => {
-    for (const ignored of ignoredTargets) {
-      if (ev.target instanceof ignored) {
-        return;
-      }
-    }
+    if (isEditableTarget(ev.target)) return;
 
     if (ev.key === props.symbol) {
       if (isActive() && isTop() === false) {

@@ -1,6 +1,8 @@
 import type { JSX } from 'solid-js';
 import { useSSRUtils } from '#providers/SSRUtilsProvider';
 
+const EditableTagNames = ['INPUT', 'TEXTAREA', 'SELECT'];
+
 export const isDev = (): boolean => {
   try {
     return import.meta.env.DEV ?? false;
@@ -85,4 +87,11 @@ export function capturePointer(element: Element, pointerId: number): void {
   try {
     element.setPointerCapture(pointerId);
   } catch {}
+}
+
+export function isEditableTarget(target: EventTarget | null): boolean {
+  return (
+    target instanceof HTMLElement &&
+    (target.isContentEditable || EditableTagNames.includes(target.tagName))
+  );
 }
