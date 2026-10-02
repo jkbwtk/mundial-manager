@@ -210,5 +210,21 @@ export function getValueHash(value: unknown): string {
   return stableHash(value);
 }
 
+export function memoizeByObject<K extends object, V>(
+  compute: (key: K) => V,
+): (key: K) => V {
+  const cache = new WeakMap<K, V>();
+
+  return (key) => {
+    if (cache.has(key)) return cache.get(key) as V;
+
+    const value = compute(key);
+
+    cache.set(key, value);
+
+    return value;
+  };
+}
+
 export type ArrayElement<ArrayType extends readonly unknown[]> =
   ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
