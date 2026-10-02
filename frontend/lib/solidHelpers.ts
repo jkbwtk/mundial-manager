@@ -1,5 +1,5 @@
 import { useCurrentMatches } from '@solidjs/router';
-import { type Accessor, createSignal } from 'solid-js';
+import { type Accessor, createSignal, onCleanup } from 'solid-js';
 import type {
   ExtendedRouteDefinition,
   ExtendedRouteMatch,
@@ -44,6 +44,19 @@ export function applyDirectives<E extends HTMLElement>(
   for (const directive of directives) {
     directive(element);
   }
+}
+
+export function observeElementWidth(
+  element: HTMLElement,
+  onResize: (width: number) => void,
+): void {
+  const observer = new ResizeObserver(([entry]) => {
+    if (entry) onResize(entry.contentRect.width);
+  });
+
+  observer.observe(element);
+
+  onCleanup(() => observer.disconnect());
 }
 
 export const useCurrentExtendedMatches =
