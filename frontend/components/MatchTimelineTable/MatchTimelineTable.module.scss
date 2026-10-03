@@ -1,0 +1,290 @@
+@use 'app' as *;
+@use 'sass:color';
+
+$columns: max-content cw(2) cw(2) cw(2) minmax(0, 1fr) max-content;
+
+@mixin eventSymbol($fill, $text: $backgroundColor) {
+  color: $text;
+  background-color: $fill;
+  border-radius: $borderRadius;
+  box-shadow: 0 0 0.2rem color.adjust($fill, $lightness: 20%);
+}
+
+.table {
+  display: grid;
+  grid-template-columns: $columns;
+
+  margin: 0 cw(1);
+
+  &.editable {
+    grid-template-columns: cw(2) $columns;
+
+    &.issues {
+      grid-template-columns: cw(2) $columns cw(2);
+    }
+  }
+}
+
+.row {
+  grid-column: 1 / -1;
+
+  display: grid;
+  grid-template-columns: subgrid;
+  align-items: center;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+
+  text-align: center;
+  font-weight: bold;
+
+  color: $textBrightColor;
+  background-color: $backgroundColor;
+}
+
+.entry {
+  position: relative;
+
+  width: 100%;
+
+  text-align: left;
+
+  border-radius: $borderRadius;
+
+  &.interactive {
+    cursor: pointer;
+
+    @media (hover: hover) {
+      &:hover {
+        background-color: $stripeColor;
+      }
+    }
+
+    &:focus-visible {
+      background-color: $stripeColor;
+    }
+  }
+
+  &.selected {
+    color: $backgroundColor;
+    background-color: $textBrightColor;
+
+    @media (hover: hover) {
+      &:hover {
+        background-color: $textBrightColor;
+      }
+    }
+
+    &:focus-visible {
+      background-color: $textBrightColor;
+    }
+
+    strong,
+    .details,
+    .handle {
+      color: inherit;
+    }
+  }
+
+  &.paused:not(.selected) {
+    color: $textDimColor;
+  }
+
+  &.dragged {
+    z-index: 2;
+
+    transform: translateY(calc(var(--drag-offset, 0) * 1px));
+
+    opacity: 0.8;
+    box-shadow: 0 0 0.4rem $backgroundColor;
+  }
+
+  &.drop-before::before,
+  &.drop-after::after {
+    content: '';
+
+    position: absolute;
+    left: 0;
+    right: 0;
+
+    height: 0.2rem;
+
+    background-color: $primaryBrightColor;
+    border-radius: $borderRadius;
+  }
+
+  &.drop-before::before {
+    top: calc($borderSize / -1);
+  }
+
+  &.drop-after::after {
+    bottom: calc($borderSize / -1);
+  }
+}
+
+.handle {
+  display: flex;
+  justify-content: center;
+
+  color: $textDimColor;
+  opacity: 0;
+
+  cursor: grab;
+  touch-action: none;
+
+  .entry.selected &,
+  .entry.dragged &,
+  .entry:focus-visible & {
+    opacity: 1;
+  }
+
+  @media (hover: hover) {
+    .entry:hover & {
+      opacity: 1;
+    }
+  }
+
+  @media (hover: none) {
+    opacity: 1;
+  }
+}
+
+.time {
+  padding-right: cw(1);
+
+  white-space: nowrap;
+}
+
+.lane {
+  display: flex;
+  justify-content: center;
+  align-self: stretch;
+  align-items: center;
+}
+
+.center-line {
+  position: relative;
+
+  &::after {
+    content: '';
+
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+
+    width: $borderSize;
+    height: 100%;
+
+    background-color: $borderColor;
+  }
+}
+
+.description {
+  min-width: 0;
+  padding-left: cw(1);
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.score {
+  display: grid;
+  grid-template-columns: cw(2) min-content cw(2);
+
+  span:nth-child(1) {
+    text-align: right;
+  }
+}
+
+.issue {
+  display: flex;
+  justify-content: center;
+}
+
+.inspector {
+  grid-column: 1 / -1;
+
+  padding: ch(1) cw(1);
+  margin-bottom: ch(1);
+
+  border: $borderSize dashed $borderColor;
+  border-top: none;
+  border-radius: 0 0 $borderRadius $borderRadius;
+}
+
+.details {
+  color: $textDimColor;
+}
+
+.invalid-value {
+  color: $redBright;
+}
+
+.hint {
+  grid-column: 1 / -1;
+
+  font-style: italic;
+  color: $textDimColor;
+}
+
+.no-data {
+  width: 100%;
+
+  text-align: center;
+  font-style: italic;
+  color: $textDimColor;
+}
+
+.team-name {
+  padding: 0 cw(1);
+
+  font-weight: bold;
+
+  color: $backgroundColor;
+
+  :where(&) {
+    --team-color: #{$textBrightColor};
+  }
+
+  background-color: var(--team-color);
+  border-radius: $borderRadius;
+}
+
+.goal {
+  @include eventSymbol($green);
+}
+
+.own-goal {
+  @include eventSymbol($red);
+}
+
+.ball-out {
+  @include eventSymbol($yellow);
+}
+
+.position-change {
+  @include eventSymbol($blue);
+}
+
+.equipment-failure {
+  @include eventSymbol($codeColor);
+}
+
+.ball-change {
+  @include eventSymbol($blueBright);
+}
+
+.pause,
+.resume {
+  @include eventSymbol($gray);
+}
+
+.cancel {
+  @include eventSymbol($redBright);
+}
