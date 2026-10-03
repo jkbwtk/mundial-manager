@@ -1,5 +1,4 @@
-import { Show } from 'solid-js';
-import { ColorBlock } from '#components/ColorBlock';
+import { BallLabel } from '#components/BallLabel';
 import type { DropdownOption } from '#components/Dropdown';
 import { ModalForm, type ModalFormLabels } from '#components/ModalForm';
 import {
@@ -133,21 +132,7 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
           query: queryBalls,
           placeholder: 'Select a ball...',
           toEntry: (e: Ball) => {
-            return {
-              label: (
-                <>
-                  {e.name}{' '}
-                  <Show when={e.color}>
-                    {(color) => (
-                      <>
-                        (<ColorBlock color={color()} width={2} />)
-                      </>
-                    )}
-                  </Show>
-                </>
-              ),
-              value: e.uuid,
-            };
+            return { label: <BallLabel ball={e} />, value: e.uuid };
           },
         },
         playersSide1: {
