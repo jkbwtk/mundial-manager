@@ -89,6 +89,25 @@ export function capturePointer(element: Element, pointerId: number): void {
   } catch {}
 }
 
+export function getScrollParent(element: HTMLElement): HTMLElement {
+  let current: HTMLElement | null = element;
+
+  while (current !== null) {
+    const { overflowY } = getComputedStyle(current);
+
+    if (
+      (overflowY === 'auto' || overflowY === 'scroll') &&
+      current.scrollHeight > current.clientHeight
+    ) {
+      return current;
+    }
+
+    current = current.parentElement;
+  }
+
+  return document.scrollingElement as HTMLElement;
+}
+
 export function isEditableTarget(target: EventTarget | null): boolean {
   return (
     target instanceof HTMLElement &&
