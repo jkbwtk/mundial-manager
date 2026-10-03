@@ -22,7 +22,7 @@ export interface PersistDraftOptions<T> {
   base: Accessor<string>;
   snapshot: Accessor<T>;
 
-  onWriteError?: () => void;
+  onWrite?: (isWritten: boolean) => void;
 }
 
 export interface DraftPersistence {
@@ -152,7 +152,7 @@ export function persistDraft<T>(
       options.snapshot(),
     );
 
-    if (!isWritten) options.onWriteError?.();
+    options.onWrite?.(isWritten);
   };
 
   const schedule = (key: string) => {
