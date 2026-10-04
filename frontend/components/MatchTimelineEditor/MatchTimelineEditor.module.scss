@@ -1,0 +1,359 @@
+@use 'app' as *;
+@use 'layouts' as *;
+
+.dimmed {
+  color: $textDimColor;
+  font-style: italic;
+}
+
+.centered {
+  display: inline-block;
+  width: 100%;
+
+  text-align: center;
+}
+
+.invalid-value {
+  color: $redBright;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+
+  gap: 0 cw(1);
+}
+
+.scrubber {
+  display: flex;
+  flex-direction: column;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 0 cw(1);
+}
+
+.playhead-info {
+  display: flex;
+  align-items: center;
+
+  gap: cw(1);
+}
+
+.playhead-time {
+  color: $primaryBrightColor;
+}
+
+.zoom {
+  display: flex;
+  align-items: center;
+
+  gap: cw(1);
+}
+
+.viewport {
+  padding-top: ch(1);
+
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.track {
+  position: relative;
+
+  width: calc((100% - cw(6)) * var(--zoom, 1));
+  height: ch(7);
+  margin: 0 cw(3);
+
+  cursor: crosshair;
+  user-select: none;
+}
+
+.ruler {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+
+  height: ch(1);
+
+  border-bottom: $borderSize solid $borderColor;
+}
+
+.tick {
+  position: absolute;
+  top: 0;
+  left: calc(var(--position) * 1%);
+
+  transform: translateX(-50%);
+
+  white-space: nowrap;
+
+  color: $textDimColor;
+
+  pointer-events: none;
+
+  &::after {
+    content: '';
+
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+
+    width: $borderSize;
+    height: ch(0.25);
+
+    background-color: $borderColor;
+  }
+}
+
+.lane {
+  position: absolute;
+  left: 0;
+  right: 0;
+
+  height: ch(2);
+
+  pointer-events: none;
+
+  &.side1 {
+    top: ch(1);
+  }
+
+  &.side2 {
+    top: ch(5);
+  }
+}
+
+.lane-color {
+  position: sticky;
+  left: 0;
+}
+
+.center-line {
+  position: absolute;
+  top: calc(ch(4) - $borderSize / 2);
+  left: 0;
+  right: 0;
+
+  height: $borderSize;
+
+  background-color: $borderColor;
+
+  pointer-events: none;
+}
+
+.pause {
+  position: absolute;
+  top: ch(1);
+  bottom: 0;
+  left: calc(var(--position) * 1%);
+
+  width: calc(var(--size) * 1%);
+
+  opacity: 0.5;
+
+  pointer-events: none;
+}
+
+.match-end {
+  position: absolute;
+  top: ch(1);
+  bottom: 0;
+  left: calc(var(--position) * 1%);
+
+  border-left: $borderSize dashed $textColor;
+
+  pointer-events: none;
+}
+
+.playhead {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--position) * 1%);
+
+  width: $borderSize;
+
+  background-color: $primaryBrightColor;
+
+  cursor: grab;
+  touch-action: none;
+
+  &::before {
+    content: '';
+
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: cw(-0.5);
+    right: cw(-0.5);
+  }
+
+  &.grabbed {
+    cursor: grabbing;
+  }
+}
+
+.marker {
+  position: absolute;
+  left: calc(var(--position) * 1%);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transform: translateX(-50%);
+
+  height: ch(1);
+
+  border-radius: $borderRadius;
+
+  cursor: grab;
+  touch-action: none;
+
+  &::before {
+    content: '';
+
+    position: absolute;
+    top: ch(-0.5);
+    bottom: ch(-0.5);
+    left: cw(-0.5);
+    right: cw(-0.5);
+  }
+
+  &:focus-visible {
+    outline: $borderSize solid $textBrightColor;
+    outline-offset: $borderSize;
+  }
+
+  &.side1 {
+    top: ch(1.5);
+  }
+
+  &.neutral {
+    top: ch(3.5);
+  }
+
+  &.side2 {
+    top: ch(5.5);
+  }
+
+  &.selected {
+    z-index: 2;
+
+    outline: $borderSize solid $textBrightColor;
+    outline-offset: $borderSize;
+  }
+
+  &.grabbed {
+    z-index: 3;
+
+    cursor: grabbing;
+  }
+}
+
+.marker-issue {
+  position: absolute;
+  top: ch(-0.25);
+  right: cw(-0.5);
+
+  width: cw(1);
+  height: ch(0.5);
+
+  pointer-events: none;
+}
+
+.drag-label {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  padding: 0 cw(0.5);
+
+  white-space: nowrap;
+
+  color: $backgroundColor;
+  background-color: $textBrightColor;
+  border-radius: $borderRadius;
+
+  pointer-events: none;
+}
+
+.quick-add {
+  display: flex;
+  flex-direction: column;
+}
+
+.inspector {
+  display: flex;
+  flex-direction: column;
+
+  gap: ch(1);
+}
+
+.inspector-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: cw(1);
+}
+
+.inspector-title {
+  display: flex;
+  align-items: center;
+
+  gap: cw(1);
+
+  font-weight: bold;
+  color: $textBrightColor;
+}
+
+.inspector-time {
+  color: $primaryBrightColor;
+}
+
+.uuid {
+  color: $primaryColor;
+
+  @media (hover: hover) {
+    &:hover {
+      text-decoration: dashed underline;
+    }
+  }
+
+  &:focus-visible {
+    text-decoration: dashed underline;
+  }
+
+  &:active {
+    color: $primaryBrightColor;
+  }
+}
+
+.time-stepper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.stats {
+  @include statsGrid;
+}
+
+.event-counts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  gap: 0 cw(2);
+}

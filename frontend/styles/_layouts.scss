@@ -1,0 +1,14 @@
+@use 'app' as *;
+
+@mixin statsGrid {
+  display: grid;
+  grid-template-columns: auto auto;
+
+  align-items: end;
+
+  column-gap: cw(1);
+
+  & > span {
+    text-align: right;
+  }
+}
