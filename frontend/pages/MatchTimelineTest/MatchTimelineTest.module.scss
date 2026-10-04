@@ -2,7 +2,10 @@
 
 .container {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: flex-start;
+
+  gap: ch(1) cw(4);
 
   max-height: 100%;
 
@@ -17,4 +20,20 @@
 
     gap: cw(1);
   }
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal {
+  --modal-width: #{cw(50)};
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+
+  padding: ch(2) 0;
 }
