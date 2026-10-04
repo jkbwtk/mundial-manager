@@ -1,133 +1,310 @@
-import { createAsync, useParams } from '@solidjs/router';
-import hljs from 'highlight.js/lib/core';
-import json from 'highlight.js/lib/languages/json';
-import { createMemo, createSignal } from 'solid-js';
-import { HighlightedCode } from '#components/HighlightedCode';
-import { Paginator } from '#components/Paginator';
-import { type Column, Table } from '#components/Table';
-import { Divider } from '#components/Widget';
-import { queryMatchEventsByMatchId } from '#flib/trpcCalls';
-import { formatDate, formatDuration } from '#shared/timeUtils';
-import type {
-  MatchEvent,
-  MatchEventByMatchId,
-  MatchEventQueryMeta,
-} from '#shared/types/api/matchEvent';
-import { shortUUID } from '#shared/utils';
+import { useAction, useParams } from '@solidjs/router';
+import dayjs from 'dayjs';
+import { createSignal, getOwner, onMount, Show } from 'solid-js';
+import { AnchorButton, Button } from '#components/Button';
+import { MatchCreatorModal } from '#components/MatchCreatorModal';
+import {
+  MatchEventInspector,
+  MatchEventQuickAdd,
+  MatchEventScrubber,
+  MatchTimelineEditor,
+  MatchTimelineIssues,
+  MatchTimelineSummary,
+} from '#components/MatchTimelineEditor';
+import { MatchTimelineTable } from '#components/MatchTimelineTable';
+import { MaterialSymbol } from '#components/MaterialSymbol';
+import { Spinner } from '#components/Spinner';
+import { Divider, Widget } from '#components/Widget';
+import { createMatchTimelineDraft } from '#flib/matchTimelineDraft';
+import { persistMatchTimelineDraft } from '#flib/matchTimelineDraftStorage';
+import { createResilientAsync } from '#flib/resilientAsync';
+import { observeElementWidth, useHandleButtonAction } from '#flib/solidHelpers';
+import { actionSaveMatchTimeline, queryMatchTimeline } from '#flib/trpcCalls';
+import { useUnsavedChanges } from '#flib/unsavedChanges';
+import { isMobile } from '#flib/utils';
+import { useModal } from '#providers/ModalProvider';
+import { useToast } from '#providers/ToastProvider';
 import style from './MatchEventsDashboard.module.scss';
-import 'highlight.js/styles/gml.min.css';
-
-hljs.registerLanguage('json', json);
 
 export interface MatchEventsDashboardParams {
   matchUuid: string;
   [key: string]: string | undefined;
 }
 
+const NARROW_LAYOUT_WIDTH_PX = 800;
+
 export const MatchEventsDashboard: Component = () => {
   const params = useParams<MatchEventsDashboardParams>();
+  const [, actions] = useToast();
+  const [, { open }] = useModal();
 
-  const [limit, setLimit] = createSignal(50);
-  const [page, setPage] = createSignal(0);
-  const [sorting, setSorting] = createSignal<MatchEventQueryMeta['sorting']>({
-    field: 'time',
-    direction: 'asc',
-  });
+  let containerRef!: HTMLDivElement;
 
-  const queryMetaProp = (): MatchEventByMatchId => ({
-    matchUuid: params.matchUuid,
-    pagination: {
-      limit: limit(),
-      offset: page() * limit(),
-    },
-    sorting: sorting(),
-  });
+  const [narrow, setNarrow] = createSignal(isMobile());
 
-  const matchEvents = createAsync(() =>
-    queryMatchEventsByMatchId(queryMetaProp()),
+  const timeline = createResilientAsync(
+    () => params.matchUuid,
+    queryMatchTimeline,
+  );
+  const draft = createMatchTimelineDraft(() => timeline.latest);
+  const storedDraft = persistMatchTimelineDraft(
+    () => params.matchUuid,
+    draft,
+    () => timeline.latest !== undefined,
   );
 
-  const handleOnSort = (field: string, direction: 'asc' | 'desc') => {
-    setSorting({
-      field: field as NonNullable<MatchEventQueryMeta['sorting']>['field'],
-      direction,
+  useUnsavedChanges(draft.isDirty, {
+    message: 'Discard unsaved match timeline changes?',
+    onDiscard: storedDraft.clear,
+  });
+
+  const saveTimeline = useAction(actionSaveMatchTimeline);
+  const owner = getOwner();
+
+  const canSave = () => draft.isDirty() && !draft.hasErrors();
+
+  const changesLabel = () => {
+    if (!draft.isDirty()) return 'No unsaved changes';
+
+    const { created, updated, removed } = draft.changes();
+    const counts: [number, string][] = [
+      [created, 'added'],
+      [updated, 'changed'],
+      [removed, 'removed'],
+    ];
+
+    return counts
+      .flatMap(([count, label]) => (count > 0 ? [`${count} ${label}`] : []))
+      .join(', ');
+  };
+
+  const handleSave = useHandleButtonAction(
+    async () => {
+      const input = draft.toSaveInput();
+
+      if (input === null) return;
+
+      try {
+        const saved = await saveTimeline(input);
+
+        draft.rebase(input.events, saved);
+        actions.success('Match timeline saved successfully!');
+      } catch (err) {
+        if (draft.applyServerError(err)) {
+          actions.error('Match timeline contains validation errors');
+
+          return;
+        }
+
+        throw err;
+      }
+    },
+    (err) => {
+      actions.error(
+        'Failed to save the match timeline, changes are kept on this device. Please try again.',
+      );
+      console.error('Match timeline save error:', err);
+    },
+  );
+
+  const handleEditMatch = () => {
+    const source = timeline.latest;
+
+    if (source === undefined) return;
+
+    open({
+      props: {
+        component: MatchCreatorModal,
+        match: source.match,
+      },
+      owner,
+      closeOnBackgroundClick: false,
     });
   };
 
-  const matchStart = createMemo(() => {
-    const startEvent = matchEvents.latest?.data.find(
-      (event) => event.type === 'MATCH_START',
-    );
-    return startEvent?.time.getTime() ?? 0;
+  const handleDiscard = () => {
+    draft.discard();
+    storedDraft.dismissRestored();
+  };
+
+  onMount(() => {
+    observeElementWidth(containerRef, (width) => {
+      setNarrow(width <= NARROW_LAYOUT_WIDTH_PX);
+    });
   });
-
-  const column: Column[] = [
-    {
-      key: 'uuid',
-      header: 'UUID',
-      align: 'left',
-      width: 8,
-      transform: (val) => shortUUID(val),
-    },
-    {
-      key: 'time',
-      header: 'Date',
-      align: 'center',
-      width: 12,
-      sortable: true,
-      transform: (val: Date) => formatDate(val.getTime() / 1000),
-    },
-    {
-      key: 'deltaT',
-      header: 'T+',
-      align: 'center',
-      width: 8,
-      transform: (_val, row: MatchEvent) => {
-        const deltaT = row.time.getTime() - matchStart();
-
-        return formatDuration(deltaT / 1000);
-      },
-    },
-    {
-      key: 'type',
-      header: 'Type',
-      align: 'left',
-      width: 12,
-    },
-    {
-      key: 'details',
-      header: 'Details',
-      align: 'left',
-      transform: (_val, row: MatchEvent) => {
-        const { uuid, matchUuid, time, type, ...rest } = row;
-
-        return <HighlightedCode code={JSON.stringify(rest)} language="json" />;
-      },
-    },
-  ];
 
   return (
     <div class={style.outerContainer}>
-      <div class={style.controls} />
+      <div class={style.controls}>
+        <AnchorButton severity="secondary" href="/matches">
+          Matches
+        </AnchorButton>
 
-      <Paginator
-        total={matchEvents.latest?.total ?? 0}
-        limit={limit()}
-        setLimit={setLimit}
-        page={page()}
-        setPage={setPage}
-      />
+        <Button
+          severity="secondary"
+          disabled={!timeline.latest}
+          onPointerUp={handleEditMatch}
+        >
+          Edit Match
+        </Button>
+
+        <span class={style.spacer} />
+
+        <span
+          classList={{
+            [style.changes]: true,
+            [style.clean]: !draft.isDirty(),
+          }}
+        >
+          {changesLabel()}
+        </span>
+
+        <Button
+          severity="secondary"
+          padding={0}
+          title="Undo (Ctrl+Z)"
+          disabled={!draft.canUndo()}
+          onPointerUp={draft.undo}
+        >
+          <MaterialSymbol symbol="undo" />
+        </Button>
+
+        <Button
+          severity="secondary"
+          padding={0}
+          title="Redo (Ctrl+Y)"
+          disabled={!draft.canRedo()}
+          onPointerUp={draft.redo}
+        >
+          <MaterialSymbol symbol="redo" />
+        </Button>
+
+        <Button
+          severity="secondary"
+          disabled={!draft.isDirty()}
+          onPointerUp={handleDiscard}
+        >
+          Discard
+        </Button>
+
+        <Button
+          title="Save (Ctrl+S)"
+          disabled={!canSave()}
+          loading={handleSave.loading()}
+          onPointerUp={() => handleSave()}
+        >
+          Save
+        </Button>
+      </div>
+
+      <Show when={storedDraft.restored()}>
+        {(restored) => (
+          <div class={style.notice} role="status">
+            <span>
+              Restored unsaved changes from{' '}
+              {dayjs(restored().savedAt).format('DD.MM HH:mm')}
+              {restored().baseChanged
+                ? ', the match was changed elsewhere since'
+                : ''}
+            </span>
+
+            <span class={style.spacer} />
+
+            <Button severity="secondary" onPointerUp={handleDiscard}>
+              Discard
+            </Button>
+
+            <Button onPointerUp={storedDraft.dismissRestored}>Keep</Button>
+          </div>
+        )}
+      </Show>
+
+      <Show when={storedDraft.writeFailed()}>
+        <div class={style.notice} role="alert">
+          Changes cannot be stored on this device, save regularly
+        </div>
+      </Show>
 
       <Divider />
 
-      <div class={style.tableContainer}>
-        <Table
-          class={style.table}
-          columns={column}
-          data={matchEvents.latest?.data ?? []}
-          classic={false}
-          onSort={handleOnSort}
-        />
+      <div ref={containerRef} class={style.container}>
+        <Show
+          when={timeline.latest}
+          fallback={
+            <div class={style.loading}>
+              <Spinner />
+            </div>
+          }
+        >
+          {(source) => (
+            <MatchTimelineEditor
+              draft={draft}
+              timeline={source()}
+              onSave={() => {
+                if (canSave()) handleSave();
+              }}
+            >
+              <div
+                classList={{
+                  [style.dashboard]: true,
+                  [style.narrow]: narrow(),
+                }}
+              >
+                <Widget class={style.timelineWidget} topLeftLabels="Timeline">
+                  <MatchEventScrubber />
+
+                  <Divider />
+
+                  <MatchEventQuickAdd />
+                </Widget>
+
+                <Widget class={style.matchWidget} topLeftLabels="Match">
+                  <MatchTimelineSummary />
+                </Widget>
+
+                <Widget class={style.eventsWidget} topLeftLabels="Events">
+                  <MatchTimelineTable
+                    timeline={source()}
+                    draft={draft}
+                    renderInspector={
+                      narrow()
+                        ? (uuid) => <MatchEventInspector uuid={uuid} />
+                        : undefined
+                    }
+                  />
+                </Widget>
+
+                <Show when={!narrow()}>
+                  <div class={style.eventArea}>
+                    <Widget class={style.eventWidget} topLeftLabels="Event">
+                      <Show
+                        when={draft.selectedUuid()}
+                        fallback={
+                          <span class={style.noData}>
+                            Select an event to edit it
+                          </span>
+                        }
+                      >
+                        {(uuid) => <MatchEventInspector uuid={uuid()} />}
+                      </Show>
+                    </Widget>
+                  </div>
+                </Show>
+
+                <Widget
+                  class={style.validationWidget}
+                  topLeftLabels="Validation"
+                  topRightLabels={[
+                    `${draft.issueCounts().errors} errors`,
+                    `${draft.issueCounts().warnings} warnings`,
+                  ]}
+                >
+                  <MatchTimelineIssues />
+                </Widget>
+              </div>
+            </MatchTimelineEditor>
+          )}
+        </Show>
       </div>
     </div>
   );
