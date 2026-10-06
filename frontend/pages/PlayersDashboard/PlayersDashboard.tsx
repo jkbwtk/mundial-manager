@@ -19,14 +19,14 @@ export const PlayersDashboard: Component = () => {
   const [, actions] = useToast();
   const [, { open }] = useModal();
 
-  const [limit, setLimit] = createSignal(50);
-  const [page, setPage] = createSignal(0);
+  const [limit] = createSignal(50);
+  const [offset, setOffset] = createSignal(0);
   const [sorting, setSorting] = createSignal<PlayerQueryMeta['sorting']>();
 
   const queryMetaProp = (): PlayerQueryMeta => ({
     pagination: {
       limit: limit(),
-      offset: page() * limit(),
+      offset: offset(),
     },
     sorting: sorting(),
   });
@@ -142,9 +142,8 @@ export const PlayersDashboard: Component = () => {
       <Paginator
         total={players.latest?.total ?? 0}
         limit={limit()}
-        setLimit={setLimit}
-        page={page()}
-        setPage={setPage}
+        offset={offset()}
+        setOffset={setOffset}
       />
 
       <Divider />

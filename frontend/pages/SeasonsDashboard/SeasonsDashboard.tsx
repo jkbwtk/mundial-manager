@@ -23,8 +23,8 @@ export const SeasonsDashboard: Component = () => {
   const [, actions] = useToast();
   const [, { open }] = useModal();
 
-  const [limit, setLimit] = createSignal(50);
-  const [page, setPage] = createSignal(0);
+  const [limit] = createSignal(50);
+  const [offset, setOffset] = createSignal(0);
   const [sorting, setSorting] = createSignal<SeasonQueryMeta['sorting']>({
     direction: 'asc',
     field: 'startDate',
@@ -33,7 +33,7 @@ export const SeasonsDashboard: Component = () => {
   const queryMetaProp = (): SeasonQueryMeta => ({
     pagination: {
       limit: limit(),
-      offset: page() * limit(),
+      offset: offset(),
     },
     sorting: sorting(),
   });
@@ -166,9 +166,8 @@ export const SeasonsDashboard: Component = () => {
       <Paginator
         total={seasons.latest?.total ?? 0}
         limit={limit()}
-        setLimit={setLimit}
-        page={page()}
-        setPage={setPage}
+        offset={offset()}
+        setOffset={setOffset}
       />
 
       <Divider />

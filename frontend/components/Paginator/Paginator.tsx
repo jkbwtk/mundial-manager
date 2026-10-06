@@ -1,10 +1,4 @@
-import {
-  createMemo,
-  type JSX,
-  onCleanup,
-  onMount,
-  type Setter,
-} from 'solid-js';
+import { createMemo, type JSX, onCleanup, onMount } from 'solid-js';
 import { isServer } from 'solid-js/web';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import style from './Paginator.module.scss';
@@ -12,9 +6,8 @@ import style from './Paginator.module.scss';
 export interface PaginatorProps {
   total: number;
   limit: number;
-  setLimit: Setter<number>;
-  page: number;
-  setPage: Setter<number>;
+  offset: number;
+  setOffset: (offset: number) => void;
 
   keyboardNavigation?: boolean;
 
@@ -23,7 +16,12 @@ export interface PaginatorProps {
 }
 
 export const Paginator: Component<PaginatorProps> = (props) => {
-  const totalPages = createMemo(() => Math.ceil(props.total / props.limit));
+  const lastOffset = createMemo(
+    () => Math.max(Math.ceil(props.total / props.limit) - 1, 0) * props.limit,
+  );
+
+  const hasPrevious = () => props.offset > 0;
+  const hasNext = () => props.offset + props.limit < props.total;
 
   const handleKeyDown = (ev: KeyboardEvent) => {
     if (!props.keyboardNavigation) return;
@@ -33,22 +31,22 @@ export const Paginator: Component<PaginatorProps> = (props) => {
         ev.preventDefault();
 
         if (ev.ctrlKey || ev.shiftKey) {
-          props.setPage(0);
+          props.setOffset(0);
           break;
         }
 
-        props.setPage((p) => Math.max(p - 1, 0));
+        props.setOffset(Math.max(props.offset - props.limit, 0));
         break;
 
       case 'ArrowRight':
         ev.preventDefault();
 
         if (ev.ctrlKey || ev.shiftKey) {
-          props.setPage(totalPages() - 1);
+          props.setOffset(lastOffset());
           break;
         }
 
-        props.setPage((p) => Math.min(p + 1, totalPages() - 1));
+        props.setOffset(Math.min(props.offset + props.limit, lastOffset()));
         break;
     }
   };
@@ -75,34 +73,35 @@ export const Paginator: Component<PaginatorProps> = (props) => {
         <button
           type="button"
           title="First page"
-          onClick={() => props.setPage(0)}
-          disabled={props.page === 0}
+          onClick={() => props.setOffset(0)}
+          disabled={!hasPrevious()}
         >
           <MaterialSymbol
             symbol="keyboard_double_arrow_left"
             color="primary"
             highlightColor="primary"
-            interactive={props.page > 0}
+            interactive={hasPrevious()}
           />
         </button>
         <button
           type="button"
           title="Previous page"
-          onClick={() => props.setPage((p) => p - 1)}
-          disabled={props.page === 0}
+          onClick={() =>
+            props.setOffset(Math.max(props.offset - props.limit, 0))
+          }
+          disabled={!hasPrevious()}
         >
           <MaterialSymbol
             symbol="keyboard_arrow_left"
             color="primary"
             highlightColor="primary"
-            interactive={props.page > 0}
+            interactive={hasPrevious()}
           />
         </button>
       </span>
 
       <span>
-        {props.page * props.limit + 1}-
-        {Math.min(props.page * props.limit + props.limit, props.total)} /{' '}
+        {props.offset + 1}-{Math.min(props.offset + props.limit, props.total)} /{' '}
         {props.total}
       </span>
 
@@ -110,27 +109,27 @@ export const Paginator: Component<PaginatorProps> = (props) => {
         <button
           type="button"
           title="Next page"
-          onClick={() => props.setPage((p) => p + 1)}
-          disabled={props.page >= totalPages() - 1}
+          onClick={() => props.setOffset(props.offset + props.limit)}
+          disabled={!hasNext()}
         >
           <MaterialSymbol
             symbol="keyboard_arrow_right"
             color="primary"
             highlightColor="primary"
-            interactive={props.page < totalPages() - 1}
+            interactive={hasNext()}
           />
         </button>
         <button
           type="button"
           title="Last page"
-          onClick={() => props.setPage(totalPages() - 1)}
-          disabled={props.page >= totalPages() - 1}
+          onClick={() => props.setOffset(lastOffset())}
+          disabled={!hasNext()}
         >
           <MaterialSymbol
             symbol="keyboard_double_arrow_right"
             color="primary"
             highlightColor="primary"
-            interactive={props.page < totalPages() - 1}
+            interactive={hasNext()}
           />
         </button>{' '}
       </span>

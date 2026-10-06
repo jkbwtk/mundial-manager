@@ -55,15 +55,15 @@ export const ResourcePickerBase = <T, TE = unknown>(
 
   const [activeIndex, setActiveIndex] = createSignal(-1);
 
-  const [limit, setLimit] = createSignal(10);
-  const [page, setPage] = createSignal(0);
+  const [limit] = createSignal(10);
+  const [offset, setOffset] = createSignal(0);
   const [searchInput, setSearchInput] = createSignal('');
   const searchInputDebounce = debounce((v: string) => setSearchInput(v), 300);
 
   const queryMetaProp = (): PickerQueryMeta => ({
     pagination: {
       limit: limit(),
-      offset: page() * limit(),
+      offset: offset(),
     },
     search: searchInput().trim(),
   });
@@ -197,9 +197,8 @@ export const ResourcePickerBase = <T, TE = unknown>(
             class={style.paginator}
             total={resp.latest?.total ?? 0}
             limit={limit()}
-            setLimit={setLimit}
-            page={page()}
-            setPage={setPage}
+            offset={offset()}
+            setOffset={setOffset}
             keyboardNavigation
           />
         </Suspense>

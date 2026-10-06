@@ -20,8 +20,8 @@ export const MatchesDashboard: Component = () => {
   const [, actions] = useToast();
   const [, { open }] = useModal();
 
-  const [limit, setLimit] = createSignal(50);
-  const [page, setPage] = createSignal(0);
+  const [limit] = createSignal(50);
+  const [offset, setOffset] = createSignal(0);
   const [sorting, setSorting] = createSignal<MatchQueryMeta['sorting']>({
     direction: 'desc',
     field: 'startDate',
@@ -30,7 +30,7 @@ export const MatchesDashboard: Component = () => {
   const queryMetaProp = (): MatchQueryMeta => ({
     pagination: {
       limit: limit(),
-      offset: page() * limit(),
+      offset: offset(),
     },
     sorting: sorting(),
   });
@@ -193,9 +193,8 @@ export const MatchesDashboard: Component = () => {
       <Paginator
         total={matches.latest?.total ?? 0}
         limit={limit()}
-        setLimit={setLimit}
-        page={page()}
-        setPage={setPage}
+        offset={offset()}
+        setOffset={setOffset}
       />
 
       <Divider />
