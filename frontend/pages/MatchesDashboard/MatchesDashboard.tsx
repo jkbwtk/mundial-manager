@@ -50,11 +50,8 @@ export const MatchesDashboard: Component = () => {
     });
   };
 
-  const handleOnSort = (field: string, direction: 'asc' | 'desc') => {
-    setSorting({
-      field: field as NonNullable<MatchQueryMeta['sorting']>['field'],
-      direction,
-    });
+  const handleOnSort = (sorting: NonNullable<MatchQueryMeta['sorting']>) => {
+    setSorting(sorting);
   };
 
   const column: Column[] = [
@@ -209,6 +206,7 @@ export const MatchesDashboard: Component = () => {
           columns={column}
           data={matches.latest?.data ?? []}
           classic={false}
+          sorting={sorting()}
           onSort={handleOnSort}
         />
       </div>

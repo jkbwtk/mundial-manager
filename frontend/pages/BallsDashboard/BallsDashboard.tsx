@@ -46,11 +46,8 @@ export const BallsDashboard: Component = () => {
     });
   };
 
-  const handleOnSort = (field: string, direction: 'asc' | 'desc') => {
-    setSorting({
-      field: field as NonNullable<BallQueryMeta['sorting']>['field'],
-      direction,
-    });
+  const handleOnSort = (sorting: NonNullable<BallQueryMeta['sorting']>) => {
+    setSorting(sorting);
   };
 
   const column: Column[] = [
@@ -177,6 +174,7 @@ export const BallsDashboard: Component = () => {
           columns={column}
           data={balls.latest?.data ?? []}
           classic={false}
+          sorting={sorting()}
           onSort={handleOnSort}
         />
       </div>

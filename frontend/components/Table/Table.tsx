@@ -1,10 +1,11 @@
 import {
-  batch,
   children,
+  createEffect,
   createSignal,
   For,
   type JSX,
   mergeProps,
+  on,
   Show,
   splitProps,
 } from 'solid-js';
@@ -25,18 +26,22 @@ export type Column<T = string> = {
   transform?: ((value: any, row: any) => JSX.Element) | null;
 };
 
-export type TableBaseProps = {
+export interface TableSorting<S extends string = string> {
+  field: S;
+  direction: 'asc' | 'desc';
+}
+
+export type TableBaseProps<S extends string = string> = {
   columns: Column[];
   data: Record<string, unknown>[];
   classic?: boolean;
-  sortBy?: string | null;
-  sortDirection?: 'asc' | 'desc' | null;
-  onSort?: (column: string, direction: 'asc' | 'desc') => void;
+  sorting?: TableSorting<S> | null;
+  onSort?: (sorting: TableSorting<S>) => void;
 };
 
-export interface TableProps
+export interface TableProps<S extends string = string>
   extends Omit<JSX.HTMLAttributes<HTMLTableElement>, 'children'>,
-    TableBaseProps {}
+    TableBaseProps<S> {}
 
 const defaultColumn: RequiredDefaults<Column> = {
   align: 'left',
@@ -49,29 +54,36 @@ const defaultColumn: RequiredDefaults<Column> = {
 
 const defaultProps: RequiredDefaults<TableBaseProps> = {
   classic: true,
-  sortBy: null,
-  sortDirection: null,
+  sorting: null,
   onSort: () => {},
 };
 
-export const Table: Component<TableProps> = (userProps) => {
+export const Table = <S extends string = string>(
+  userProps: TableProps<S>,
+): JSX.Element => {
   const mergedProps = mergeProps(defaultProps, userProps);
   const [props, tableProps] = splitProps(mergedProps, [
     'columns',
     'data',
-    'sortBy',
-    'sortDirection',
+    'sorting',
     'onSort',
     'class',
     'classList',
     'classic',
   ]);
 
-  const [sortBy, setSortBy] = createSignal(props.sortBy);
-  const [sortDirection, setSortDirection] = createSignal(props.sortDirection);
+  const [sorting, setSorting] = createSignal(props.sorting ?? null);
+
+  createEffect(
+    on(
+      () => props.sorting,
+      (current) => setSorting(current ?? null),
+      { defer: true },
+    ),
+  );
 
   const sortSymbol = (): SupportedMaterialSymbol => {
-    switch (sortDirection()) {
+    switch (sorting()?.direction) {
       case 'asc':
         return 'arrow_upward';
 
@@ -88,16 +100,17 @@ export const Table: Component<TableProps> = (userProps) => {
       return;
     }
 
-    batch(() => {
-      const sortColumn = sortBy();
-      const direction =
-        sortDirection() === 'asc' && sortColumn === column.key ? 'desc' : 'asc';
+    const current = sorting();
+    const next: TableSorting<S> = {
+      field: column.key as S,
+      direction:
+        current?.direction === 'asc' && current.field === column.key
+          ? 'desc'
+          : 'asc',
+    };
 
-      setSortBy(column.key);
-      setSortDirection(direction);
-
-      props.onSort(column.key, direction);
-    });
+    setSorting(next);
+    props.onSort(next);
   };
 
   return (
@@ -138,7 +151,7 @@ export const Table: Component<TableProps> = (userProps) => {
                   <Show
                     when={
                       column.sortable &&
-                      (sortDirection() === null || sortBy() === column.key)
+                      (sorting() === null || sorting()?.field === column.key)
                     }
                   >
                     <MaterialSymbol symbol={sortSymbol()} interactive={true} />

@@ -1,4 +1,4 @@
-import { type Column, Table } from '#components/Table';
+import { type Column, Table, type TableSorting } from '#components/Table';
 import '#styles/TableTest.module.scss';
 import { createSignal } from 'solid-js';
 
@@ -20,10 +20,9 @@ const TableTest: Component = () => {
     { person: 'Karen', interest: 'Web performance', age: null },
   ]);
 
-  const onSort = (
-    key: keyof ReturnType<typeof data>[0],
-    direction: 'asc' | 'desc' | null,
-  ) => {
+  const onSort = (sorting: TableSorting<keyof ReturnType<typeof data>[0]>) => {
+    const key = sorting.field;
+
     setData((d) =>
       d.toSorted((a, b) => {
         if (a[key] === null) {
@@ -33,7 +32,7 @@ const TableTest: Component = () => {
           return -1;
         }
 
-        switch (direction) {
+        switch (sorting.direction) {
           case 'asc':
             return a[key] > b[key] ? 1 : -1;
 
@@ -47,8 +46,14 @@ const TableTest: Component = () => {
     );
   };
 
-  // @ts-expect-error
-  return <Table columns={columns} data={data()} sortBy="age" onSort={onSort} />;
+  return (
+    <Table
+      columns={columns}
+      data={data()}
+      sorting={{ field: 'age', direction: 'desc' }}
+      onSort={onSort}
+    />
+  );
 };
 
 export default TableTest;

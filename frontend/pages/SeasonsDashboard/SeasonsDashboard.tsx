@@ -54,11 +54,8 @@ export const SeasonsDashboard: Component = () => {
     });
   };
 
-  const handleOnSort = (field: string, direction: 'asc' | 'desc') => {
-    setSorting({
-      field: field as NonNullable<SeasonQueryMeta['sorting']>['field'],
-      direction,
-    });
+  const handleOnSort = (sorting: NonNullable<SeasonQueryMeta['sorting']>) => {
+    setSorting(sorting);
   };
 
   const column: Column[] = [
@@ -182,6 +179,7 @@ export const SeasonsDashboard: Component = () => {
           columns={column}
           data={seasons.latest?.data ?? []}
           classic={false}
+          sorting={sorting()}
           onSort={handleOnSort}
         />
       </div>

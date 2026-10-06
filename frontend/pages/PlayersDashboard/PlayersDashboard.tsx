@@ -46,11 +46,8 @@ export const PlayersDashboard: Component = () => {
     });
   };
 
-  const handleOnSort = (field: string, direction: 'asc' | 'desc') => {
-    setSorting({
-      field: field as NonNullable<PlayerQueryMeta['sorting']>['field'],
-      direction,
-    });
+  const handleOnSort = (sorting: NonNullable<PlayerQueryMeta['sorting']>) => {
+    setSorting(sorting);
   };
 
   const column: Column[] = [
@@ -158,6 +155,7 @@ export const PlayersDashboard: Component = () => {
           columns={column}
           data={players.latest?.data ?? []}
           classic={false}
+          sorting={sorting()}
           onSort={handleOnSort}
         />
       </div>

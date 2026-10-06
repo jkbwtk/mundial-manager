@@ -5,7 +5,7 @@ import json from 'highlight.js/lib/languages/json';
 import { batch, createSignal, For } from 'solid-js';
 import { AnimatedText } from '#components/AnimatedText';
 import { HighlightedCode } from '#components/HighlightedCode';
-import { type Column, Table } from '#components/Table';
+import { type Column, Table, type TableSorting } from '#components/Table';
 import { Widget } from '#components/Widget';
 import { toJson } from '#flib/utils';
 import { useSheets } from '#providers/SheetsProvider';
@@ -139,11 +139,11 @@ export const SheetsTest: Component = () => {
     });
   };
 
-  function onSort(column: string, direction: 'asc' | 'desc') {
+  function onSort(sorting: TableSorting) {
     batch(() => {
       // @ts-expect-error
-      setSortColumn(column);
-      setSortDirection(direction);
+      setSortColumn(sorting.field);
+      setSortDirection(sorting.direction);
     });
   }
 

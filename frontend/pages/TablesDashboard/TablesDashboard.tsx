@@ -49,11 +49,8 @@ export const TablesDashboard: Component = () => {
     });
   };
 
-  const handleOnSort = (field: string, direction: 'asc' | 'desc') => {
-    setSorting({
-      field: field as NonNullable<TableQueryMeta['sorting']>['field'],
-      direction,
-    });
+  const handleOnSort = (sorting: NonNullable<TableQueryMeta['sorting']>) => {
+    setSorting(sorting);
   };
 
   const column: Column[] = [
@@ -179,6 +176,7 @@ export const TablesDashboard: Component = () => {
           columns={column}
           data={tables.latest?.data ?? []}
           classic={false}
+          sorting={sorting()}
           onSort={handleOnSort}
         />
       </div>
