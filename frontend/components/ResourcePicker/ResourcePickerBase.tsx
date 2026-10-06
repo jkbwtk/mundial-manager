@@ -1,5 +1,6 @@
 import { debounce } from '@solid-primitives/scheduled';
 import {
+  batch,
   createEffect,
   createResource,
   createSignal,
@@ -58,7 +59,15 @@ export const ResourcePickerBase = <T, TE = unknown>(
   const [limit] = createSignal(10);
   const [offset, setOffset] = createSignal(0);
   const [searchInput, setSearchInput] = createSignal('');
-  const searchInputDebounce = debounce((v: string) => setSearchInput(v), 300);
+
+  const updateSearch = (value: string) => {
+    batch(() => {
+      setSearchInput(value);
+      setOffset(0);
+    });
+  };
+
+  const searchInputDebounce = debounce(updateSearch, 300);
 
   const queryMetaProp = (): PickerQueryMeta => ({
     pagination: {
@@ -132,7 +141,7 @@ export const ResourcePickerBase = <T, TE = unknown>(
   createEffect(
     on([() => props.open], ([open]) => {
       if (open) {
-        setSearchInput('');
+        updateSearch('');
 
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
