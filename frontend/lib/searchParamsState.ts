@@ -1,8 +1,18 @@
 import { trackDeep } from '@solid-primitives/deep';
-import { type SearchParams, useSearchParams } from '@solidjs/router';
+import {
+  type SearchParams,
+  useLocation,
+  useSearchParams,
+} from '@solidjs/router';
 import { type Accessor, createEffect, createMemo, on } from 'solid-js';
-import { createStore, type SetStoreFunction, unwrap } from 'solid-js/store';
+import {
+  createStore,
+  reconcile,
+  type SetStoreFunction,
+  unwrap,
+} from 'solid-js/store';
 import type z from 'zod';
+import { getValueHash } from '#shared/utils';
 
 export interface SearchParamsStateOptions<T extends z.ZodObject> {
   schema: T;
@@ -14,11 +24,20 @@ export interface SearchParamsStateOptions<T extends z.ZodObject> {
 
 const MAX_SEARCH_PARAM_DEPTH = 5;
 const DEFAULT_SEARCH_PARAM_SEPARATOR = '.';
+const SEARCH_PARAMS_STATE_MARKER = 'searchParamsState';
 
 function isSearchParamPrimitive(
   value: unknown,
 ): value is string | number | boolean {
   return ['string', 'number', 'boolean'].includes(typeof value);
+}
+
+function isSearchParamsStateNavigation(state: unknown): boolean {
+  return (
+    typeof state === 'object' &&
+    state !== null &&
+    SEARCH_PARAMS_STATE_MARKER in state
+  );
 }
 
 function flattenEntries(
@@ -114,22 +133,42 @@ export function useSearchParamsState<T extends z.ZodObject>(
   state: z.infer<T>,
   setState: SetStoreFunction<z.infer<T>>,
 ] {
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const separator = options.separator ?? DEFAULT_SEARCH_PARAM_SEPARATOR;
   const scope = options.prefix ? `${options.prefix}${separator}` : '';
 
-  const [store, setStore] = createStore<z.infer<T>>(
-    parseSearchParams(treeify(searchParams, scope, separator), options),
-  );
+  const readSearchParams = () =>
+    parseSearchParams(treeify(searchParams, scope, separator), options);
+
+  const [store, setStore] = createStore<z.infer<T>>(readSearchParams());
 
   const snapshot = createMemo(() => structuredClone(unwrap(trackDeep(store))));
 
   createEffect(
     on(
       snapshot,
-      (current) =>
-        setSearchParams(flatten(current, scope, separator), { replace: true }),
+      (current) => {
+        if (getValueHash(readSearchParams()) === getValueHash(current)) return;
+
+        setSearchParams(flatten(current, scope, separator), {
+          replace: true,
+          state: { [SEARCH_PARAMS_STATE_MARKER]: true },
+        });
+      },
+      { defer: true },
+    ),
+  );
+
+  createEffect(
+    on(
+      () => location.search,
+      () => {
+        if (isSearchParamsStateNavigation(location.state)) return;
+
+        setStore(reconcile(readSearchParams()));
+      },
       { defer: true },
     ),
   );
