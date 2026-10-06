@@ -1,17 +1,18 @@
 import { useAction } from '@solidjs/router';
-import { createSignal, getOwner, Show } from 'solid-js';
+import { batch, getOwner, Show } from 'solid-js';
 import { Button } from '#components/Button';
 import { ColorBlock } from '#components/ColorBlock';
-import { Paginator } from '#components/Paginator';
+import { PAGINATOR_DEFAULT_LIMIT, Paginator } from '#components/Paginator';
 import { PlayerCreatorModal } from '#components/PlayerCreatorModal';
 import { type Column, Table } from '#components/Table';
 import { Divider } from '#components/Widget';
 import { createResilientAsync } from '#flib/resilientAsync';
+import { useSearchParamsState } from '#flib/searchParamsState';
 import { useHandleButtonAction } from '#flib/solidHelpers';
 import { actionDeletePlayer, queryPlayers } from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
-import type { Player, PlayerQueryMeta } from '#shared/types/api/player';
+import { type Player, PlayerQueryMeta } from '#shared/types/api/player';
 import { shortUUID } from '#shared/utils';
 import style from './PlayersDashboard.module.scss';
 
@@ -19,19 +20,17 @@ export const PlayersDashboard: Component = () => {
   const [, actions] = useToast();
   const [, { open }] = useModal();
 
-  const [limit] = createSignal(50);
-  const [offset, setOffset] = createSignal(0);
-  const [sorting, setSorting] = createSignal<PlayerQueryMeta['sorting']>();
-
-  const queryMetaProp = (): PlayerQueryMeta => ({
-    pagination: {
-      limit: limit(),
-      offset: offset(),
+  const [queryMeta, queryMetaState, setQueryMeta] = useSearchParamsState({
+    schema: PlayerQueryMeta.required({ pagination: true }),
+    defaultState: {
+      pagination: {
+        limit: PAGINATOR_DEFAULT_LIMIT,
+        offset: 0,
+      },
     },
-    sorting: sorting(),
   });
 
-  const players = createResilientAsync(queryMetaProp, queryPlayers);
+  const players = createResilientAsync(queryMeta, queryPlayers);
 
   const deletePlayer = useAction(actionDeletePlayer);
   const owner = getOwner();
@@ -47,7 +46,10 @@ export const PlayersDashboard: Component = () => {
   };
 
   const handleOnSort = (sorting: NonNullable<PlayerQueryMeta['sorting']>) => {
-    setSorting(sorting);
+    batch(() => {
+      setQueryMeta('sorting', sorting);
+      setQueryMeta('pagination', 'offset', 0);
+    });
   };
 
   const column: Column[] = [
@@ -141,9 +143,9 @@ export const PlayersDashboard: Component = () => {
 
       <Paginator
         total={players.latest?.total ?? 0}
-        limit={limit()}
-        offset={offset()}
-        setOffset={setOffset}
+        limit={queryMetaState.pagination.limit}
+        offset={queryMetaState.pagination.offset}
+        setOffset={(offset) => setQueryMeta('pagination', 'offset', offset)}
       />
 
       <Divider />
@@ -154,7 +156,7 @@ export const PlayersDashboard: Component = () => {
           columns={column}
           data={players.latest?.data ?? []}
           classic={false}
-          sorting={sorting()}
+          sorting={queryMetaState.sorting}
           onSort={handleOnSort}
         />
       </div>

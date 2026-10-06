@@ -1,18 +1,19 @@
 import { useAction } from '@solidjs/router';
-import { createSignal, getOwner, Show } from 'solid-js';
+import { batch, getOwner, Show } from 'solid-js';
 import { AnchorButton, Button } from '#components/Button';
 import { MatchCreatorModal } from '#components/MatchCreatorModal';
-import { Paginator } from '#components/Paginator';
+import { PAGINATOR_DEFAULT_LIMIT, Paginator } from '#components/Paginator';
 import { type Column, Table } from '#components/Table';
 import { Divider } from '#components/Widget';
 import { createResilientAsync } from '#flib/resilientAsync';
+import { useSearchParamsState } from '#flib/searchParamsState';
 import { useHandleButtonAction } from '#flib/solidHelpers';
 import { actionDeleteMatch, queryMatches } from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
 import { formatKnownStartDate } from '#shared/matchLabels';
 import { formatDurationMs } from '#shared/timeUtils';
-import type { Match, MatchQueryMeta } from '#shared/types/api/match';
+import { type Match, MatchQueryMeta } from '#shared/types/api/match';
 import { shortUUID } from '#shared/utils';
 import style from './MatchesDashboard.module.scss';
 
@@ -20,22 +21,21 @@ export const MatchesDashboard: Component = () => {
   const [, actions] = useToast();
   const [, { open }] = useModal();
 
-  const [limit] = createSignal(50);
-  const [offset, setOffset] = createSignal(0);
-  const [sorting, setSorting] = createSignal<MatchQueryMeta['sorting']>({
-    direction: 'desc',
-    field: 'startDate',
-  });
-
-  const queryMetaProp = (): MatchQueryMeta => ({
-    pagination: {
-      limit: limit(),
-      offset: offset(),
+  const [queryMeta, queryMetaState, setQueryMeta] = useSearchParamsState({
+    schema: MatchQueryMeta.required({ pagination: true }),
+    defaultState: {
+      pagination: {
+        limit: PAGINATOR_DEFAULT_LIMIT,
+        offset: 0,
+      },
+      sorting: {
+        direction: 'desc',
+        field: 'startDate',
+      },
     },
-    sorting: sorting(),
   });
 
-  const matches = createResilientAsync(queryMetaProp, queryMatches);
+  const matches = createResilientAsync(queryMeta, queryMatches);
 
   const deleteMatch = useAction(actionDeleteMatch);
   const owner = getOwner();
@@ -51,7 +51,10 @@ export const MatchesDashboard: Component = () => {
   };
 
   const handleOnSort = (sorting: NonNullable<MatchQueryMeta['sorting']>) => {
-    setSorting(sorting);
+    batch(() => {
+      setQueryMeta('sorting', sorting);
+      setQueryMeta('pagination', 'offset', 0);
+    });
   };
 
   const column: Column[] = [
@@ -192,9 +195,9 @@ export const MatchesDashboard: Component = () => {
 
       <Paginator
         total={matches.latest?.total ?? 0}
-        limit={limit()}
-        offset={offset()}
-        setOffset={setOffset}
+        limit={queryMetaState.pagination.limit}
+        offset={queryMetaState.pagination.offset}
+        setOffset={(offset) => setQueryMeta('pagination', 'offset', offset)}
       />
 
       <Divider />
@@ -205,7 +208,7 @@ export const MatchesDashboard: Component = () => {
           columns={column}
           data={matches.latest?.data ?? []}
           classic={false}
-          sorting={sorting()}
+          sorting={queryMetaState.sorting}
           onSort={handleOnSort}
         />
       </div>

@@ -1,11 +1,12 @@
 import { useAction } from '@solidjs/router';
-import { createSignal, getOwner, Show } from 'solid-js';
+import { batch, getOwner, Show } from 'solid-js';
 import { Button } from '#components/Button';
-import { Paginator } from '#components/Paginator';
+import { PAGINATOR_DEFAULT_LIMIT, Paginator } from '#components/Paginator';
 import { SeasonCreatorModal } from '#components/SeasonCreatorModal';
 import { type Column, Table } from '#components/Table';
 import { Divider } from '#components/Widget';
 import { createResilientAsync } from '#flib/resilientAsync';
+import { useSearchParamsState } from '#flib/searchParamsState';
 import { useHandleButtonAction } from '#flib/solidHelpers';
 import {
   actionDeleteSeason,
@@ -15,7 +16,7 @@ import {
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
 import { formatDate } from '#shared/timeUtils';
-import type { Season, SeasonQueryMeta } from '#shared/types/api/season';
+import { type Season, SeasonQueryMeta } from '#shared/types/api/season';
 import { shortUUID } from '#shared/utils';
 import style from './SeasonsDashboard.module.scss';
 
@@ -23,22 +24,21 @@ export const SeasonsDashboard: Component = () => {
   const [, actions] = useToast();
   const [, { open }] = useModal();
 
-  const [limit] = createSignal(50);
-  const [offset, setOffset] = createSignal(0);
-  const [sorting, setSorting] = createSignal<SeasonQueryMeta['sorting']>({
-    direction: 'asc',
-    field: 'startDate',
-  });
-
-  const queryMetaProp = (): SeasonQueryMeta => ({
-    pagination: {
-      limit: limit(),
-      offset: offset(),
+  const [queryMeta, queryMetaState, setQueryMeta] = useSearchParamsState({
+    schema: SeasonQueryMeta.required({ pagination: true }),
+    defaultState: {
+      pagination: {
+        limit: PAGINATOR_DEFAULT_LIMIT,
+        offset: 0,
+      },
+      sorting: {
+        direction: 'asc',
+        field: 'startDate',
+      },
     },
-    sorting: sorting(),
   });
 
-  const seasons = createResilientAsync(queryMetaProp, querySeasons);
+  const seasons = createResilientAsync(queryMeta, querySeasons);
   const currentSeason = createResilientAsync(queryCurrentSeason);
 
   const deleteSeason = useAction(actionDeleteSeason);
@@ -55,7 +55,10 @@ export const SeasonsDashboard: Component = () => {
   };
 
   const handleOnSort = (sorting: NonNullable<SeasonQueryMeta['sorting']>) => {
-    setSorting(sorting);
+    batch(() => {
+      setQueryMeta('sorting', sorting);
+      setQueryMeta('pagination', 'offset', 0);
+    });
   };
 
   const column: Column[] = [
@@ -165,9 +168,9 @@ export const SeasonsDashboard: Component = () => {
 
       <Paginator
         total={seasons.latest?.total ?? 0}
-        limit={limit()}
-        offset={offset()}
-        setOffset={setOffset}
+        limit={queryMetaState.pagination.limit}
+        offset={queryMetaState.pagination.offset}
+        setOffset={(offset) => setQueryMeta('pagination', 'offset', offset)}
       />
 
       <Divider />
@@ -178,7 +181,7 @@ export const SeasonsDashboard: Component = () => {
           columns={column}
           data={seasons.latest?.data ?? []}
           classic={false}
-          sorting={sorting()}
+          sorting={queryMetaState.sorting}
           onSort={handleOnSort}
         />
       </div>

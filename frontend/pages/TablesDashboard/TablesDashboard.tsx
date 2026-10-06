@@ -1,19 +1,20 @@
 import { useAction } from '@solidjs/router';
-import { createSignal, getOwner, Show } from 'solid-js';
+import { batch, getOwner, Show } from 'solid-js';
 import { Button } from '#components/Button';
 import { ColorBlock } from '#components/ColorBlock';
-import { Paginator } from '#components/Paginator';
+import { PAGINATOR_DEFAULT_LIMIT, Paginator } from '#components/Paginator';
 import { type Column, Table } from '#components/Table';
 import { TableCreatorModal } from '#components/TableCreatorModal';
 import { Divider } from '#components/Widget';
 import { createResilientAsync } from '#flib/resilientAsync';
+import { useSearchParamsState } from '#flib/searchParamsState';
 import { useHandleButtonAction } from '#flib/solidHelpers';
 import { actionDeleteTable, queryTables } from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
-import type {
+import {
   TableQueryMeta,
-  Table as TableType,
+  type Table as TableType,
 } from '#shared/types/api/table';
 import { shortUUID } from '#shared/utils';
 import style from './TablesDashboard.module.scss';
@@ -22,19 +23,17 @@ export const TablesDashboard: Component = () => {
   const [, actions] = useToast();
   const [, { open }] = useModal();
 
-  const [limit] = createSignal(50);
-  const [offset, setOffset] = createSignal(0);
-  const [sorting, setSorting] = createSignal<TableQueryMeta['sorting']>();
-
-  const queryMetaProp = (): TableQueryMeta => ({
-    pagination: {
-      limit: limit(),
-      offset: offset(),
+  const [queryMeta, queryMetaState, setQueryMeta] = useSearchParamsState({
+    schema: TableQueryMeta.required({ pagination: true }),
+    defaultState: {
+      pagination: {
+        limit: PAGINATOR_DEFAULT_LIMIT,
+        offset: 0,
+      },
     },
-    sorting: sorting(),
   });
 
-  const tables = createResilientAsync(queryMetaProp, queryTables);
+  const tables = createResilientAsync(queryMeta, queryTables);
 
   const deleteTable = useAction(actionDeleteTable);
   const owner = getOwner();
@@ -50,7 +49,10 @@ export const TablesDashboard: Component = () => {
   };
 
   const handleOnSort = (sorting: NonNullable<TableQueryMeta['sorting']>) => {
-    setSorting(sorting);
+    batch(() => {
+      setQueryMeta('sorting', sorting);
+      setQueryMeta('pagination', 'offset', 0);
+    });
   };
 
   const column: Column[] = [
@@ -162,9 +164,9 @@ export const TablesDashboard: Component = () => {
 
       <Paginator
         total={tables.latest?.total ?? 0}
-        limit={limit()}
-        offset={offset()}
-        setOffset={setOffset}
+        limit={queryMetaState.pagination.limit}
+        offset={queryMetaState.pagination.offset}
+        setOffset={(offset) => setQueryMeta('pagination', 'offset', offset)}
       />
 
       <Divider />
@@ -175,7 +177,7 @@ export const TablesDashboard: Component = () => {
           columns={column}
           data={tables.latest?.data ?? []}
           classic={false}
-          sorting={sorting()}
+          sorting={queryMetaState.sorting}
           onSort={handleOnSort}
         />
       </div>

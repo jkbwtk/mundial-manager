@@ -15,6 +15,8 @@ export interface PaginatorProps {
   classList?: JSX.CustomAttributes<HTMLElement>['classList'];
 }
 
+export const PAGINATOR_DEFAULT_LIMIT = 50;
+
 export const Paginator: Component<PaginatorProps> = (props) => {
   const lastOffset = createMemo(
     () => Math.max(Math.ceil(props.total / props.limit) - 1, 0) * props.limit,

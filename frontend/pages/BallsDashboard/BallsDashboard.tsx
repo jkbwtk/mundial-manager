@@ -1,17 +1,18 @@
 import { useAction } from '@solidjs/router';
-import { createSignal, getOwner, Show } from 'solid-js';
+import { batch, getOwner, Show } from 'solid-js';
 import { BallCreatorModal } from '#components/BallCreatorModal';
 import { Button } from '#components/Button';
 import { ColorBlock } from '#components/ColorBlock';
-import { Paginator } from '#components/Paginator';
+import { PAGINATOR_DEFAULT_LIMIT, Paginator } from '#components/Paginator';
 import { type Column, Table } from '#components/Table';
 import { Divider } from '#components/Widget';
 import { createResilientAsync } from '#flib/resilientAsync';
+import { useSearchParamsState } from '#flib/searchParamsState';
 import { useHandleButtonAction } from '#flib/solidHelpers';
 import { actionDeleteBall, queryBalls } from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
-import type { Ball, BallQueryMeta } from '#shared/types/api/ball';
+import { type Ball, BallQueryMeta } from '#shared/types/api/ball';
 import { shortUUID } from '#shared/utils';
 import style from './BallsDashboard.module.scss';
 
@@ -19,19 +20,17 @@ export const BallsDashboard: Component = () => {
   const [, actions] = useToast();
   const [, { open }] = useModal();
 
-  const [limit] = createSignal(50);
-  const [offset, setOffset] = createSignal(0);
-  const [sorting, setSorting] = createSignal<BallQueryMeta['sorting']>();
-
-  const queryMetaProp = (): BallQueryMeta => ({
-    pagination: {
-      limit: limit(),
-      offset: offset(),
+  const [queryMeta, queryMetaState, setQueryMeta] = useSearchParamsState({
+    schema: BallQueryMeta.required({ pagination: true }),
+    defaultState: {
+      pagination: {
+        limit: PAGINATOR_DEFAULT_LIMIT,
+        offset: 0,
+      },
     },
-    sorting: sorting(),
   });
 
-  const balls = createResilientAsync(queryMetaProp, queryBalls);
+  const balls = createResilientAsync(queryMeta, queryBalls);
 
   const deleteBall = useAction(actionDeleteBall);
   const owner = getOwner();
@@ -47,7 +46,10 @@ export const BallsDashboard: Component = () => {
   };
 
   const handleOnSort = (sorting: NonNullable<BallQueryMeta['sorting']>) => {
-    setSorting(sorting);
+    batch(() => {
+      setQueryMeta('sorting', sorting);
+      setQueryMeta('pagination', 'offset', 0);
+    });
   };
 
   const column: Column[] = [
@@ -160,9 +162,9 @@ export const BallsDashboard: Component = () => {
 
       <Paginator
         total={balls.latest?.total ?? 0}
-        limit={limit()}
-        offset={offset()}
-        setOffset={setOffset}
+        limit={queryMetaState.pagination.limit}
+        offset={queryMetaState.pagination.offset}
+        setOffset={(offset) => setQueryMeta('pagination', 'offset', offset)}
       />
 
       <Divider />
@@ -173,7 +175,7 @@ export const BallsDashboard: Component = () => {
           columns={column}
           data={balls.latest?.data ?? []}
           classic={false}
-          sorting={sorting()}
+          sorting={queryMetaState.sorting}
           onSort={handleOnSort}
         />
       </div>
