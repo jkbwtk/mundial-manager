@@ -5,8 +5,11 @@
 
 :root {
   font-size: app.$baseFontSize;
-  scrollbar-color: app.$borderColor app.$widgetColor;
-  scrollbar-width: thin;
+
+  @supports (-moz-appearance: none) {
+    scrollbar-color: app.$borderColor app.$widgetColor;
+    scrollbar-width: thin;
+  }
 }
 
 body {
@@ -43,7 +46,8 @@ body {
 }
 
 ::-webkit-scrollbar {
-  width: 0.7rem;
+  width: 0.8rem;
+  height: 0.8rem;
 }
 
 ::-webkit-scrollbar-track {
