@@ -13,6 +13,9 @@ export const League = z.object({
 
 export type League = z.infer<typeof League>;
 
+export const LeagueNullable = League.nullable();
+export type LeagueNullable = z.infer<typeof LeagueNullable>;
+
 export const LeagueCreate = League.omit({ uuid: true }).extend({
   timezone: League.shape.timezone.default('UTC'),
 });
@@ -23,3 +26,10 @@ export const LeagueUpdate = League.omit({ uuid: true })
   .partial()
   .extend({ uuid: z.uuid() });
 export type LeagueUpdate = z.infer<typeof LeagueUpdate>;
+
+export const LeagueSettingsUpdate = League.pick({
+  name: true,
+  description: true,
+  timezone: true,
+}).partial();
+export type LeagueSettingsUpdate = z.infer<typeof LeagueSettingsUpdate>;
