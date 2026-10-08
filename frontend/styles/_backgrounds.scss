@@ -1,5 +1,11 @@
 @use 'app' as *;
 
+$backgroundPixel: 0.1rem;
+
+@function snapToPixel($length) {
+  @return round(nearest, $length, $backgroundPixel);
+}
+
 @mixin stripedBackground($color: $stripeColor) {
   border-radius: $borderRadius;
 
@@ -11,4 +17,112 @@
   background-color: $color;
 
   mask: url('/frontend/assets/images/braille.svg') 0 0 / cw(1) ch(1);
+}
+
+@mixin shadeBackground($color: $textDimColor) {
+  $width: snapToPixel(cw(0.5));
+  $height: snapToPixel(ch(0.25));
+
+  background-image:
+    radial-gradient(circle at 25% 25%, $color 0.05rem, transparent 0.12rem),
+    radial-gradient(circle at 75% 75%, $color 0.05rem, transparent 0.12rem);
+  background-size: $width $height;
+}
+
+@mixin checkerBackground($color: $textDimColor) {
+  $size: round(nearest, cw(0.5), $backgroundPixel * 2);
+
+  background-image: repeating-conic-gradient($color 0 25%, transparent 0 50%);
+  background-size: $size $size;
+}
+
+@mixin scanlineBackground($color: $textDimColor) {
+  $period: snapToPixel(ch(0.25));
+
+  background-image: repeating-linear-gradient(to bottom, $color 0 $backgroundPixel, transparent $backgroundPixel $period);
+}
+
+@mixin textLineBackground($color: $textDimColor) {
+  $top: snapToPixel(ch(0.25));
+  $bottom: snapToPixel(ch(0.75));
+
+  background-image: linear-gradient(to bottom, transparent $top, $color $top $bottom, transparent $bottom);
+  background-size: 100% ch(1);
+}
+
+@mixin cellBackground($color: $textDimColor) {
+  $width: snapToPixel(cw(1));
+
+  background-color: $color;
+
+  mask:
+    linear-gradient(to right, #000 calc(100% - $backgroundPixel), transparent 0) 0 0 / $width ch(1),
+    linear-gradient(to bottom, #000 calc(100% - $backgroundPixel), transparent 0) 0 0 / $width ch(1);
+  mask-composite: intersect;
+}
+
+@mixin dashBackground($color: $textDimColor) {
+  $top: snapToPixel(ch(0.4));
+  $bottom: snapToPixel(ch(0.6));
+
+  background-color: $color;
+
+  mask:
+    linear-gradient(to right, transparent 15%, #000 calc(15% + $backgroundPixel) calc(85% - $backgroundPixel), transparent 85%) 0 0 / cw(1)
+      ch(1),
+    linear-gradient(to bottom, transparent $top, #000 $top $bottom, transparent $bottom) 0 0 / 100% ch(1);
+  mask-composite: intersect;
+}
+
+@mixin wordBackground($color: $textDimColor) {
+  $top: snapToPixel(ch(0.25));
+  $bottom: snapToPixel(ch(0.75));
+
+  background-color: $color;
+
+  mask:
+    linear-gradient(to bottom, transparent $top, #000 $top $bottom, transparent $bottom) 0 0 / 100% ch(1),
+    linear-gradient(to right, #000 calc(cw(6) - $backgroundPixel), transparent cw(6)) 0 0 / cw(7) 100%,
+    linear-gradient(to right, #000 calc(cw(10) - $backgroundPixel), transparent cw(10)) cw(3) 0 / cw(11) 100%;
+  mask-composite: intersect;
+}
+
+@mixin lowerBlockBackground($color: $textDimColor) {
+  $top: snapToPixel(ch(0.5));
+
+  background-image: linear-gradient(to bottom, transparent $top, $color $top);
+  background-size: 100% ch(1);
+}
+
+@mixin leaderBackground($color: $textDimColor) {
+  background-image: radial-gradient(circle at 50% 75%, $color 0.06rem, transparent 0.16rem);
+  background-size: cw(1) ch(1);
+}
+
+@mixin crosshatchBackground($color: $textDimColor) {
+  $period: snapToPixel(cw(0.75));
+
+  background-image:
+    repeating-linear-gradient(45deg, transparent 0, $color $backgroundPixel, transparent $backgroundPixel * 2, transparent $period),
+    repeating-linear-gradient(-45deg, transparent 0, $color $backgroundPixel, transparent $backgroundPixel * 2, transparent $period);
+}
+
+@mixin noiseBackground($color: $textDimColor) {
+  background-image:
+    radial-gradient(circle, $color 0.05rem, transparent 0.12rem), radial-gradient(circle, $color 0.05rem, transparent 0.12rem),
+    radial-gradient(circle, $color 0.05rem, transparent 0.12rem);
+  background-position:
+    0 0,
+    snapToPixel(cw(0.3)) snapToPixel(ch(0.2)),
+    snapToPixel(cw(0.7)) snapToPixel(ch(0.55));
+  background-size:
+    snapToPixel(cw(0.7)) snapToPixel(ch(0.3)),
+    snapToPixel(cw(1.1)) snapToPixel(ch(0.45)),
+    snapToPixel(cw(1.3)) snapToPixel(ch(0.7));
+}
+
+@mixin gridBackground($color: $textDimColor) {
+  background-image:
+    linear-gradient(to right, $color $backgroundPixel, transparent 0), linear-gradient(to bottom, $color $backgroundPixel, transparent 0);
+  background-size: snapToPixel(cw(1)) ch(1);
 }
