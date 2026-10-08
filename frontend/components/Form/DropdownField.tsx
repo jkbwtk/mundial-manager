@@ -16,6 +16,8 @@ export const DropdownField: Component<FormFieldProps<'dropdown'>> = (props) => (
           classList={fieldInputClassList}
           name={props.path}
           options={props.field.options}
+          searchable={props.field.searchable}
+          isPreselected={props.field.isPreselected}
           value={(props.value as string | undefined) ?? ''}
           useDirectives={props.directives}
           invalid={!!props.errors[props.path]}
@@ -27,6 +29,8 @@ export const DropdownField: Component<FormFieldProps<'dropdown'>> = (props) => (
         classList={fieldInputClassList}
         name={props.path}
         options={props.field.options}
+        searchable={props.field.searchable}
+        isPreselected={props.field.isPreselected}
         value={(props.value as string[] | undefined) ?? []}
         useDirectives={props.directives}
         invalid={!!props.errors[props.path]}

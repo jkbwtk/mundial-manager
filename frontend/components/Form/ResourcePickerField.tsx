@@ -17,6 +17,7 @@ export const ResourcePickerField: Component<
       queryById={props.field.queryById}
       query={props.field.query}
       toEntry={props.field.toEntry}
+      isPreselected={props.field.isPreselected}
       value={(props.value as string | undefined) ?? undefined}
       useDirectives={props.directives}
       invalid={!!props.errors[props.path]}

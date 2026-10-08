@@ -59,6 +59,8 @@ export type FormField<Value> =
       type: 'dropdown';
       options: DropdownOption[];
       multiple?: boolean;
+      searchable?: boolean;
+      isPreselected?: (value: string) => boolean;
     })
   | (BaseFormField<Value> & {
       type: 'buttonGroup';
@@ -73,6 +75,7 @@ export type FormField<Value> =
 
       // biome-ignore lint/suspicious/noExplicitAny: yeah
       queryById: (id: string) => Promise<any>;
+      isPreselected?: (value: string) => boolean;
     })
   | (BaseFormField<Value> & {
       type: 'object';
