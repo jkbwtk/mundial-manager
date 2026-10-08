@@ -1,4 +1,5 @@
 import {
+  batch,
   createEffect,
   createMemo,
   createSignal,
@@ -14,6 +15,7 @@ import {
 import { AnchoredPopup } from '#components/AnchoredPopup';
 import { Button } from '#components/Button';
 import { MaterialSymbol } from '#components/MaterialSymbol';
+import { MenuSearch } from '#components/MenuSearch';
 import { TextMarquee } from '#components/TextMarquee';
 import {
   applyDirectives,
@@ -37,6 +39,7 @@ type DropdownCommonProps<T> = {
   invalid?: boolean;
   name?: string;
   anchor?: DropdownAnchor;
+  searchable?: boolean;
   class?: string;
   classList?: JSX.CustomAttributes<HTMLElement>['classList'];
   useDirectives?: ComponentUseDirectiveHack<HTMLInputElement>[];
@@ -80,6 +83,7 @@ export const Dropdown: DropdownSignature = <T = string>(
   const [open, setOpen] = createSignal(false);
   const [activeIndex, setActiveIndex] = createSignal(-1);
   const [typeaheadQuery, setTypeaheadQuery] = createSignal('');
+  const [searchInput, setSearchInput] = createSignal('');
 
   let ref!: HTMLDivElement;
   let triggerRef: HTMLButtonElement | undefined;
@@ -104,8 +108,18 @@ export const Dropdown: DropdownSignature = <T = string>(
     () => Math.min(...props.options.map((o) => o.label.length)) * unit.width,
   );
 
+  const visibleOptions = createMemo(() => {
+    const query = searchInput().trim().toLowerCase();
+
+    if (query === '') return props.options;
+
+    return props.options.filter((option) =>
+      option.label.toLowerCase().includes(query),
+    );
+  });
+
   const normalizedOptions = createMemo(() =>
-    props.options.map((option) => option.label.toLowerCase()),
+    visibleOptions().map((option) => option.label.toLowerCase()),
   );
 
   const getOptionId = (index: number) => `${instanceId}-option-${index}`;
@@ -114,6 +128,7 @@ export const Dropdown: DropdownSignature = <T = string>(
     initialIndex = props.multiple ? -1 : (selectedIndices().at(0) ?? -1),
   ) => {
     if (!canOpen()) return;
+    setSearchInput('');
     setActiveIndex(initialIndex);
     setOpen(true);
   };
@@ -124,7 +139,7 @@ export const Dropdown: DropdownSignature = <T = string>(
   };
 
   const moveActiveIndex = (delta: 1 | -1) => {
-    const count = props.options.length;
+    const count = visibleOptions().length;
     if (count === 0) return;
 
     const currentIndex = activeIndex();
@@ -140,7 +155,7 @@ export const Dropdown: DropdownSignature = <T = string>(
     ev.key.length === 1 && !ev.altKey && !ev.ctrlKey && !ev.metaKey;
 
   const updateTypeahead = (key: string) => {
-    if (props.options.length === 0) return;
+    if (visibleOptions().length === 0) return;
 
     const query = `${typeaheadQuery()}${key.toLowerCase()}`;
     const labels = normalizedOptions();
@@ -191,13 +206,15 @@ export const Dropdown: DropdownSignature = <T = string>(
   const selectAll = () => {
     if (!props.multiple) return;
 
-    const allValues = props.options.map((option) => option.value);
-    setValues(allValues);
+    const visibleValues = visibleOptions().map((option) => option.value);
+    setValues([...new Set([...values(), ...visibleValues])]);
   };
 
   const deselectAll = () => {
     if (!props.multiple) return;
-    setValues([]);
+
+    const visibleValues = visibleOptions().map((option) => option.value);
+    setValues(values().filter((value) => !visibleValues.includes(value)));
   };
 
   const handleClickOutside = () => {
@@ -234,8 +251,15 @@ export const Dropdown: DropdownSignature = <T = string>(
     openMenu();
   };
 
+  const updateSearch = (value: string) => {
+    batch(() => {
+      setSearchInput(value);
+      setActiveIndex(-1);
+    });
+  };
+
   const handleMenuKeyDown = (ev: KeyboardEvent) => {
-    const count = props.options.length;
+    const count = visibleOptions().length;
 
     if (count === 0) {
       if (ev.key === 'Escape') {
@@ -265,7 +289,7 @@ export const Dropdown: DropdownSignature = <T = string>(
       case 'Enter':
       case ' ': {
         ev.preventDefault();
-        const option = props.options[activeIndex()];
+        const option = visibleOptions()[activeIndex()];
         if (option) selectOption(option.value);
         break;
       }
@@ -406,6 +430,14 @@ export const Dropdown: DropdownSignature = <T = string>(
         matchTriggerWidth
         onKeyDown={handleMenuKeyDown}
       >
+        <Show when={props.searchable}>
+          <MenuSearch
+            value={searchInput()}
+            open={open()}
+            onSearch={updateSearch}
+          />
+        </Show>
+
         <Show when={props.multiple}>
           <div class={style.selectionControls}>
             <Button severity="secondary" padding={0} onPointerUp={selectAll}>
@@ -418,7 +450,7 @@ export const Dropdown: DropdownSignature = <T = string>(
           </div>
         </Show>
 
-        <For each={props.options}>
+        <For each={visibleOptions()}>
           {(option, index) => (
             <div
               ref={(el) => {
