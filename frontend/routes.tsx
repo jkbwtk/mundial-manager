@@ -83,6 +83,9 @@ const BlankTestPage = lazyRoute(
 const ResourcePickerTest = lazyRoute(
   import.meta.glob('#pages/ResourcePickerTest/ResourcePickerTest.tsx'),
 );
+const LoadingTest = lazyRoute(
+  import.meta.glob('#pages/LoadingTest/LoadingTest.tsx'),
+);
 
 const NotFoundPage = () => <GenericErrorPage config={errors.pageNotFound} />;
 
@@ -283,6 +286,11 @@ export const testRoutes: ExtendedRouteDefinition[] = [
     path: '/resource-picker-test',
     info: { name: 'Resource Picker Test' },
     component: ResourcePickerTest,
+  },
+  {
+    path: '/loading-test',
+    info: { name: 'Loading Test' },
+    component: LoadingTest,
   },
 ];
 
