@@ -48,7 +48,7 @@ export function createCrudOps<
       .query(async ({ ctx, input }) => {
         const [instances, total] = await Promise.all([
           metadata.model.getAll(ctx.db, ctx.league.uuid, input),
-          metadata.model.count(ctx.db, ctx.league.uuid),
+          metadata.model.count(ctx.db, ctx.league.uuid, input),
         ]);
 
         return {

@@ -143,7 +143,11 @@ export function ModelOps<
     protected static readonly searchSql = metadata.searchSql;
 
     @ConvertDrizzleErrors()
-    public static async count(db: DB | TX, leagueUuid: string) {
+    public static async count(
+      db: DB | TX,
+      leagueUuid: string,
+      meta: z.infer<QueryMetaSchemaType> = {} as z.infer<QueryMetaSchemaType>,
+    ) {
       const request = await db
         .select({
           count: count(),
@@ -153,6 +157,9 @@ export function ModelOps<
           and(
             eq(ModelOps.tableUnion.leagueUuid, leagueUuid),
             isNull(ModelOps.tableUnion.$deletedAt),
+            ModelOps.searchSql && meta.search
+              ? ModelOps.searchSql.where(meta.search)
+              : undefined,
           ),
         );
 
