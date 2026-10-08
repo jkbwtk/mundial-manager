@@ -13,7 +13,7 @@ import { useHandleButtonAction } from '#flib/solidHelpers';
 import { actionDeleteMatch, queryMatches } from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
-import { formatKnownStartDate } from '#shared/matchLabels';
+import { formatKnownStartDatetime } from '#shared/matchLabels';
 import { PermissionEnum } from '#shared/permissions';
 import { formatDurationMs } from '#shared/timeUtils';
 import { type Match, MatchQueryMeta } from '#shared/types/api/match';
@@ -89,8 +89,8 @@ export const MatchesDashboard: Component = () => {
       header: 'Start Date',
       align: 'center',
       sortable: true,
-      width: 14,
-      transform: (_val, row: Match) => formatKnownStartDate(row),
+      width: 23,
+      transform: (_val, row: Match) => formatKnownStartDatetime(row),
     },
     {
       key: 'duration',

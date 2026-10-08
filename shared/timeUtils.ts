@@ -36,6 +36,14 @@ export function formatDate(timestamp: number | null): string {
   return dayjs.unix(timestamp).format('YYYY-MM-DD');
 }
 
+export function formatDatetime(timestamp: number | null): string {
+  if (timestamp === null) {
+    return '----/--/-- --:--:--';
+  }
+
+  return dayjs.unix(timestamp).format('YYYY-MM-DD HH:mm:ss');
+}
+
 export function secondsToMs<T extends number | null | undefined>(
   seconds: T,
 ): T extends number ? number : T {
