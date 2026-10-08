@@ -1,0 +1,26 @@
+@use 'app' as *;
+
+.modal {
+  --modal-width: #{cw(40)};
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  margin-bottom: ch(1);
+
+  text-align: center;
+}
+
+.divider {
+  --divider-border-style: dashed;
+
+  width: cw(3);
+}
+
+.subject {
+  color: $textBrightColor;
+  overflow-wrap: anywhere;
+}
