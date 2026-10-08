@@ -1,5 +1,6 @@
 import { convertFromLegacyMatch } from '#backend/adapters/matchAdapter';
 import type { TX } from '#backend/db/database';
+import { GoalTypeModel } from '#backend/db/models/GoalTypeModel';
 import { MatchModel } from '#backend/db/models/MatchModel';
 import type { PlayerSelectSchema } from '#backend/types/db/player';
 import type { TableSelectSchema } from '#backend/types/db/table';
@@ -15,6 +16,11 @@ export async function importLegacyMatches(
   tables: Record<string, TableSelectSchema>,
   players: Record<string, PlayerSelectSchema>,
 ) {
+  const goalTypes = await GoalTypeModel.createDefaults(tx, options.leagueUuid);
+  const goalTypesByKey = Object.fromEntries(
+    goalTypes.map((goalType) => [goalType.key, goalType]),
+  );
+
   logger.info('Importing legacy matches...', {
     label: ['cli', 'import', 'matches'],
   });
@@ -32,7 +38,7 @@ export async function importLegacyMatches(
       MatchModel.createFull(
         tx,
         options.leagueUuid,
-        convertFromLegacyMatch(match, tables, players),
+        convertFromLegacyMatch(match, tables, players, goalTypesByKey),
       ),
   });
 

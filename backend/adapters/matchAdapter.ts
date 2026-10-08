@@ -9,6 +9,7 @@ import {
 } from '#shared/matchLabels';
 import { getPauseDuration } from '#shared/matchUtils';
 import { msToSeconds, secondsToMs } from '#shared/timeUtils';
+import type { GoalType } from '#shared/types/api/goalType';
 import type {
   MatchEvent,
   MatchEventCreate,
@@ -17,10 +18,11 @@ import type {
 import type { MatchFull, MatchFullCreate } from '#shared/types/api/matchFull';
 import type { Player } from '#shared/types/api/player';
 import type { Table } from '#shared/types/api/table';
-import type {
-  Match as LegacyMatch,
-  MatchCreate as LegacyMatchCreate,
-  MatchEvent as LegacyMatchEvent,
+import {
+  GoalType as LegacyGoalType,
+  type Match as LegacyMatch,
+  type MatchCreate as LegacyMatchCreate,
+  type MatchEvent as LegacyMatchEvent,
 } from '#shared/types/Sheets';
 
 export function getLegacyColorsFromTable(table?: Table): string[] {
@@ -114,6 +116,7 @@ export function convertFromLegacyMatch(
   match: LegacyMatchCreate,
   tables: Record<string, Table>,
   players: Record<string, Player>,
+  goalTypes: Record<string, GoalType>,
   syncId: string | null = null,
 ): MatchFullCreate {
   const table = getMatchTable(match, tables);
@@ -157,6 +160,7 @@ export function convertFromLegacyMatch(
               match,
               event,
               players,
+              goalTypes,
               replay.startedAt,
               swapRequired,
             ),
@@ -175,6 +179,7 @@ export function convertFromLegacyMatchEvent(
   match: LegacyMatchCreate,
   event: LegacyMatchEvent,
   players: Record<string, Player>,
+  goalTypes: Record<string, GoalType>,
   startedAt: number,
   swapRequired = false,
 ): MatchEventCreate | null {
@@ -196,7 +201,11 @@ export function convertFromLegacyMatchEvent(
         ...common,
 
         type: 'GOAL',
-        goalType: event.goalType,
+        goalType: event.goalType.flatMap((key) => {
+          const goalType = goalTypes[key];
+
+          return goalType ? [goalType.uuid] : [];
+        }),
         player: players[event.player ?? '']?.uuid ?? '',
         ownGoal: event.for !== event.by,
         side,
@@ -266,6 +275,7 @@ export function convertFromLegacyMatchEvent(
 export function convertToLegacyMatch(
   match: MatchFull,
   players: Record<string, Player>,
+  goalTypes: Record<string, GoalType>,
   index?: number,
 ): LegacyMatch {
   const colors = getLegacyColorsFromTable(match.table ?? undefined);
@@ -301,7 +311,9 @@ export function convertToLegacyMatch(
         ? {
             startedAt: match.startDate.getTime() / 1000,
             events: match.events
-              .map((event) => convertToLegacyMatchEvent(match, event, players))
+              .map((event) =>
+                convertToLegacyMatchEvent(match, event, players, goalTypes),
+              )
               .filter((event) => event !== null),
           }
         : null,
@@ -312,6 +324,7 @@ export function convertToLegacyMatchEvent(
   match: MatchFull,
   event: MatchEvent,
   players: Record<string, Player>,
+  goalTypes: Record<string, GoalType>,
 ): LegacyMatchEvent | null {
   const common = {
     time: ((match.startDate?.getTime() ?? 0) + event.offset) / 1000,
@@ -334,7 +347,11 @@ export function convertToLegacyMatchEvent(
 
           type: 'GOAL',
           player: players[event.player]?.name ?? null,
-          goalType: event.goalType,
+          goalType: event.goalType.flatMap((uuid) => {
+            const key = LegacyGoalType.safeParse(goalTypes[uuid]?.key);
+
+            return key.success ? [key.data] : [];
+          }),
           by: teamColor,
           for: event.ownGoal ? opponentColor : teamColor,
         };

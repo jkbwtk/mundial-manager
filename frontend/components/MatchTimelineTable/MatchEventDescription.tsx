@@ -1,5 +1,5 @@
 import { Match, Show, Switch } from 'solid-js';
-import { GoalTypeLabels, narrowMatchEvent } from '#flib/matchEvents';
+import { narrowMatchEvent } from '#flib/matchEvents';
 import type { MatchTimelineLookup } from '#flib/matchTimelineLookup';
 import type { MatchEvent } from '#shared/types/api/matchEvent';
 import { MatchSideName } from './MatchSideName';
@@ -31,9 +31,7 @@ export const MatchEventDescription: Component<MatchEventDescriptionProps> = (
           Goal by <strong>{props.lookup.getPlayerName(goal().player)}</strong>
           <Details text={goal().ownGoal ? 'own goal' : null} />
           <Details
-            text={goal()
-              .goalType.map((goalType) => GoalTypeLabels[goalType])
-              .join(', ')}
+            text={goal().goalType.map(props.lookup.getGoalTypeLabel).join(', ')}
           />
         </>
       )}

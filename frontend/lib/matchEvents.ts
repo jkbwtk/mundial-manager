@@ -3,7 +3,6 @@ import { getGoalScoringSide, getMatchSidePlayers } from '#shared/matchTimeline';
 import { formatDuration } from '#shared/timeUtils';
 import type { Match } from '#shared/types/api/match';
 import type {
-  GoalType,
   MatchEvent,
   MatchEventType,
   MatchSide,
@@ -45,20 +44,6 @@ export const MatchEventTypeSymbols: Record<
   PAUSE: 'pause',
   RESUME: 'play_arrow',
   CANCEL: 'cancel',
-};
-
-export const GoalTypeLabels: Record<GoalType, string> = {
-  AERIAL_GOAL: 'Aerial',
-  BACK_STAB_GOAL: 'Back stab',
-  PARRY_GOAL: 'Parry',
-  RETURN_TO_FIELD_GOAL: 'Return to field',
-  TRICK_SHOT_GOAL: 'Trick shot',
-  LONG_SHOT_GOAL: 'Long shot',
-  SLOW_GOAL: 'Slow',
-  FAST_GOAL: 'Fast',
-  GUARD_PIERCE_GOAL: 'Guard pierce',
-  PUSH_GOAL: 'Push',
-  BERMUDA_TRIANGLE_GOAL: 'Bermuda triangle',
 };
 
 export const MatchSideLabels: Record<MatchSide, string> = {

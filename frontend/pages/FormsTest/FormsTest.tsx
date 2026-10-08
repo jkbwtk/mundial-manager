@@ -14,9 +14,9 @@ import { DateInput } from '#components/DateInput';
 import { Required } from '#components/Required/Required';
 import { TextArea } from '#components/TextArea/TextArea';
 import { WidgetForm } from '#components/WidgetForm/WidgetForm';
-import { GoalTypeLabels } from '#flib/matchEvents';
 import { BallCreate } from '#shared/types/api/ball';
-import { GoalType, MatchSide } from '#shared/types/api/matchEvent';
+import { defaultGoalTypes } from '#shared/types/api/goalTypeDefaults';
+import { MatchSide } from '#shared/types/api/matchEvent';
 import { hexColor } from '#shared/zod';
 import variables from '#styles/variables.module.scss';
 import style from './FormsTest.module.scss';
@@ -55,7 +55,7 @@ const FormSchema = z
 
 const FieldTypesSchema = z.object({
   side: MatchSide,
-  goalType: z.array(GoalType).min(1),
+  goalType: z.array(z.string()).min(1),
   time: z.date(),
 });
 
@@ -304,9 +304,11 @@ export const FormsTest: Component = () => {
             label: 'Goal type',
             type: 'dropdown',
             multiple: true,
-            options: GoalType.options.map((goalType) => ({
-              label: GoalTypeLabels[goalType],
-              value: goalType,
+            searchable: true,
+            isPreselected: (value) => value === defaultGoalTypes[0]?.key,
+            options: defaultGoalTypes.map((goalType) => ({
+              label: goalType.name,
+              value: goalType.key,
             })),
           },
           time: {

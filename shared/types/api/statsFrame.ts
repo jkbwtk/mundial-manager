@@ -1,5 +1,4 @@
 import z from 'zod';
-import { GoalType } from '#shared/types/api/matchEvent';
 
 export const BaseStats = z.object({
   label: z.string(),
@@ -19,7 +18,7 @@ export const BaseStats = z.object({
   positionChangeCount: z.number().int().nonnegative().nullable(),
   ownGoalCount: z.number().int().nonnegative().nullable(),
 
-  goalTypesCount: z.record(GoalType, z.number().int().nonnegative()),
+  goalTypesCount: z.record(z.uuid(), z.number().int().nonnegative()),
 
   _matchCounter: z.number().int().nonnegative(),
   _goalsWithDuration: z.number().int().nonnegative(),
@@ -123,7 +122,7 @@ export const PlayerStats = z.object({
 
   ownGoals: z.number().int().nonnegative(),
 
-  goalTypesCount: z.record(GoalType, z.number().int().nonnegative()),
+  goalTypesCount: z.record(z.uuid(), z.number().int().nonnegative()),
 
   currentWinStreak: z.number().int().nonnegative(),
   longestWinStreak: z.number().int().nonnegative(),

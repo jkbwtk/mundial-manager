@@ -2,6 +2,7 @@ import { randomInt } from 'node:crypto';
 import { faker } from '@faker-js/faker';
 import { db } from '#backend/db/database';
 import { BallModel } from '#backend/db/models/BallModel';
+import { GoalTypeModel } from '#backend/db/models/GoalTypeModel';
 import { MatchModel } from '#backend/db/models/MatchModel';
 import { PlayerModel } from '#backend/db/models/PlayerModel';
 import { TableModel } from '#backend/db/models/TableModel';
@@ -15,7 +16,6 @@ import {
   runWithProbability,
 } from '#shared/random';
 import type {
-  GoalType,
   MatchEventCreate,
   MatchEventType,
 } from '#shared/types/api/matchEvent';
@@ -26,7 +26,26 @@ import type { PopulateOptions } from '#tools/commands/populate';
 interface MatchEventContext {
   playersSide1: string[];
   playersSide2: string[];
+
+  goalTypeProbabilities: [probability: number, uuid: string][];
 }
+
+const GoalTypeKeyProbabilities: Record<string, number> = {
+  LONG_SHOT_GOAL: 0.1533,
+  PARRY_GOAL: 0.0967,
+  RICOCHET_GOAL: 0.0515,
+  FAST_GOAL: 0.0514,
+  TRICK_SHOT_GOAL: 0.0324,
+  SLOW_GOAL: 0.0318,
+  BACK_STAB_GOAL: 0.0297,
+  GUARD_PIERCE_GOAL: 0.0257,
+  PUSH_GOAL: 0.0176,
+  AERIAL_GOAL: 0.0068,
+  RETURN_TO_FIELD_GOAL: 0.0058,
+  BERMUDA_TRIANGLE_GOAL: 0.0032,
+};
+
+const DEFAULT_GOAL_TYPE_PROBABILITY = 0.01;
 
 interface MatchEventsResult {
   events: MatchEventCreate[];
@@ -34,6 +53,14 @@ interface MatchEventsResult {
   side2Score: number;
   duration: number;
   pauseDuration: number;
+}
+
+function pickGoalTypes(
+  probabilities: [probability: number, uuid: string][],
+): string[] {
+  return probabilities.flatMap(([probability, uuid]) =>
+    Math.random() < probability ? [uuid] : [],
+  );
 }
 
 function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
@@ -68,23 +95,7 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
             MatchSideEnum.SIDE_2,
           ]);
 
-          const goalTypes: Set<GoalType> = new Set(
-            range(nonLinearRandomInt(0, 4, 2)).map(() =>
-              pickRandomWeighed([
-                [0.25, 'LONG_SHOT_GOAL'],
-                [0.25, 'FAST_GOAL'],
-                [0.15, 'PARRY_GOAL'],
-                [0.1, 'GUARD_PIERCE_GOAL'],
-                [0.1, 'TRICK_SHOT_GOAL'],
-                [0.05, 'SLOW_GOAL'],
-                [0.03, 'BACK_STAB_GOAL'],
-                [0.02, 'AERIAL_GOAL'],
-                [0.01, 'BERMUDA_TRIANGLE_GOAL'],
-                [0.02, 'RETURN_TO_FIELD_GOAL'],
-                [0.02, 'PUSH_GOAL'],
-              ]),
-            ),
-          );
+          const goalTypes = pickGoalTypes(ctx.goalTypeProbabilities);
 
           if (scoringSide === MatchSideEnum.SIDE_1) {
             side1Score += 1;
@@ -93,7 +104,7 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
               type: 'GOAL',
               ownGoal: false,
               side: 'SIDE_1',
-              goalType: Array.from(goalTypes),
+              goalType: goalTypes,
               player: pickRandom(ctx.playersSide1),
               labels: {},
             });
@@ -104,7 +115,7 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
               type: 'GOAL',
               ownGoal: false,
               side: 'SIDE_2',
-              goalType: Array.from(goalTypes),
+              goalType: goalTypes,
               player: pickRandom(ctx.playersSide2),
               labels: {},
             });
@@ -198,6 +209,14 @@ export async function populateMatches(options: PopulateOptions): Promise<void> {
   const availableBalls = await BallModel.getAll(db, options.leagueUuid);
   const ballUuids = availableBalls.map((b) => b.uuid);
 
+  const availableGoalTypes = await GoalTypeModel.getAll(db, options.leagueUuid);
+  const goalTypeProbabilities = availableGoalTypes.map(
+    (goalType): [number, string] => [
+      GoalTypeKeyProbabilities[goalType.key] ?? DEFAULT_GOAL_TYPE_PROBABILITY,
+      goalType.uuid,
+    ],
+  );
+
   const availablePlayers = await PlayerModel.getAll(db, options.leagueUuid);
   const playerUuids = availablePlayers.map((p) => p.uuid);
 
@@ -233,6 +252,7 @@ export async function populateMatches(options: PopulateOptions): Promise<void> {
       const eventsResult = generateMatchEvents({
         playersSide1,
         playersSide2,
+        goalTypeProbabilities,
       });
 
       await MatchModel.createFull(db, options.leagueUuid, {

@@ -4,6 +4,7 @@ import {
   convertToLegacyMatch,
   getLegacyFloorFromTable,
 } from '#backend/adapters/matchAdapter';
+import { GoalTypeModel } from '#backend/db/models/GoalTypeModel';
 import { MatchModel } from '#backend/db/models/MatchModel';
 import { MatchTimelineModel } from '#backend/db/models/MatchTimelineModel';
 import { PlayerModel } from '#backend/db/models/PlayerModel';
@@ -53,9 +54,13 @@ export const matchesRouter = router({
     const playersDict = Object.fromEntries(
       players.map((player) => [player.uuid, player]),
     );
+    const goalTypes = await GoalTypeModel.getAll(ctx.db, ctx.league.uuid);
+    const goalTypesDict = Object.fromEntries(
+      goalTypes.map((goalType) => [goalType.uuid, goalType]),
+    );
 
     return matches.map((match, index) =>
-      convertToLegacyMatch(match, playersDict, index + 1),
+      convertToLegacyMatch(match, playersDict, goalTypesDict, index + 1),
     );
   }),
 
@@ -79,10 +84,15 @@ export const matchesRouter = router({
         tables.map((table) => [getLegacyFloorFromTable(table), table]),
       );
 
+      const goalTypes = await GoalTypeModel.getAll(ctx.db, ctx.league.uuid);
+
       const matchFullCreate = convertFromLegacyMatch(
         match,
         tablesDict,
         playersDict,
+        Object.fromEntries(
+          goalTypes.map((goalType) => [goalType.key, goalType]),
+        ),
         syncId ?? null,
       );
 
@@ -97,6 +107,12 @@ export const matchesRouter = router({
         instance.uuid,
       );
 
-      return convertToLegacyMatch({ ...instance, events }, playersDict);
+      return convertToLegacyMatch(
+        { ...instance, events },
+        Object.fromEntries(players.map((player) => [player.uuid, player])),
+        Object.fromEntries(
+          goalTypes.map((goalType) => [goalType.uuid, goalType]),
+        ),
+      );
     }),
 });

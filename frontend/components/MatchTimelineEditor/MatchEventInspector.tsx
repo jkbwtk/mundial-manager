@@ -14,7 +14,6 @@ import { useCopyToClipboard } from '#flib/clipboard';
 import {
   convertMatchEvent,
   formatElapsed,
-  GoalTypeLabels,
   MATCH_EVENT_COARSE_TIME_STEP_MS,
   MATCH_EVENT_TIME_STEP_MS,
   MatchEventTypeLabels,
@@ -22,12 +21,14 @@ import {
   narrowMatchEvent,
 } from '#flib/matchEvents';
 import { queryBallById, queryBalls } from '#flib/trpcCalls';
+import {
+  formatGoalTypeLabel,
+  normalizeGoalTypeSelection,
+} from '#shared/goalTypes';
 import { getGoalScoringSide } from '#shared/matchTimeline';
 import { msToSeconds, secondsToMs } from '#shared/timeUtils';
 import type { Ball } from '#shared/types/api/ball';
 import {
-  type GoalType,
-  GoalTypeEnum,
   type MatchEventType,
   MatchEventTypeEnum,
   type MatchSide,
@@ -49,10 +50,6 @@ const TypeOptions: DropdownOption<MatchEventType>[] = Object.values(
   MatchEventTypeEnum,
 ).map((type) => ({ label: MatchEventTypeLabels[type], value: type }));
 
-const GoalTypeOptions: DropdownOption<GoalType>[] = Object.values(
-  GoalTypeEnum,
-).map((goalType) => ({ label: GoalTypeLabels[goalType], value: goalType }));
-
 const TimeSteps = [
   -MATCH_EVENT_COARSE_TIME_STEP_MS,
   -MATCH_EVENT_TIME_STEP_MS,
@@ -64,6 +61,13 @@ export const MatchEventInspector: Component<MatchEventInspectorProps> = (
   props,
 ) => {
   const [draft, lookup] = useMatchTimelineEditor();
+
+  const goalTypeOptions = createMemo((): DropdownOption[] =>
+    lookup.goalTypes().map((goalType) => ({
+      label: `${goalType.parentUuid ? '↳ ' : ''}${formatGoalTypeLabel(goalType)}`,
+      value: goalType.uuid,
+    })),
+  );
   const copyToClipboard = useCopyToClipboard();
 
   const removeEvent = useRemoveMatchEvent(draft);
@@ -292,12 +296,19 @@ export const MatchEventInspector: Component<MatchEventInspectorProps> = (
                   >
                     <Dropdown
                       multiple
+                      searchable
                       classList={fieldInputClassList}
-                      options={GoalTypeOptions}
+                      options={goalTypeOptions()}
                       value={goal().goalType}
                       invalid={isInvalid('goalType')}
                       onChange={(goalType) =>
-                        draft.patchEvent(props.uuid, { goalType })
+                        draft.patchEvent(props.uuid, {
+                          goalType: normalizeGoalTypeSelection(
+                            goal().goalType,
+                            goalType,
+                            lookup.goalTypes(),
+                          ),
+                        })
                       }
                     />
                   </FieldShell>
