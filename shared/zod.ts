@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { isValidTimeZone } from '#shared/timeUtils';
 
 export const jsonCodec = <T extends z.core.SomeType>(schema: T) =>
   z.codec(z.string(), schema, {
@@ -134,3 +135,6 @@ export const getNestedErrors = (
 
   return node?.errors;
 };
+
+export const TimeZone = z.string().refine(isValidTimeZone, 'TIMEZONE_INVALID');
+export type TimeZone = z.infer<typeof TimeZone>;

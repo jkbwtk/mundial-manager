@@ -1,4 +1,5 @@
 import { ModalForm, type ModalFormLabels } from '#components/ModalForm';
+import { getBrowserTimeZone, timeZoneOptions } from '#flib/timeZones';
 import { actionCreateLeague, actionUpdateLeague } from '#flib/trpcCalls';
 import {
   type League,
@@ -6,6 +7,7 @@ import {
   LeagueUpdate,
 } from '#shared/types/api/league';
 import style from './LeagueCreatorModal.module.scss';
+
 export interface LeagueCreatorModalProps {
   league?: League;
 }
@@ -35,6 +37,9 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
     <ModalForm
       class={style.modal}
       instance={props.league}
+      initialValues={
+        isCreating ? { timezone: getBrowserTimeZone() } : undefined
+      }
       model={isCreating ? LeagueCreate : LeagueUpdate}
       // @ts-expect-error
       action={isCreating ? actionCreateLeague : actionUpdateLeague}
@@ -60,6 +65,12 @@ export const LeagueCreatorModal: Component<LeagueCreatorModalProps> = (
           label: 'Description',
           placeholder: 'League description...',
           type: 'textArea',
+        },
+        timezone: {
+          label: 'Timezone',
+          type: 'dropdown',
+          options: timeZoneOptions,
+          searchable: true,
         },
       }}
     />

@@ -49,3 +49,13 @@ export function msToSeconds<T extends number | null | undefined>(
   // biome-ignore lint/suspicious/noExplicitAny: yeah
   return (ms == null ? ms : ms / 1000) as any;
 }
+
+export function isValidTimeZone(timeZone: string): boolean {
+  try {
+    new Intl.DateTimeFormat('en', { timeZone });
+
+    return true;
+  } catch {
+    return false;
+  }
+}

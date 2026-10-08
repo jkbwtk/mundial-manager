@@ -38,6 +38,8 @@ export const leaguesTable = pgTable(
 
     rules: t.text(),
 
+    timezone: t.text().notNull().default('UTC'),
+
     ...commonFields,
   }),
   (r) => [
