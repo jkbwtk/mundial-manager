@@ -12,6 +12,16 @@ export const DropdownTest: Component = () => {
   const [manyOptionsDropdownValue] = createSignal('item1');
   const [labelDropdownValue, setLabelDropdownValue] = createSignal('day');
   const [multipleChoiceValue, setMultipleChoiceValue] = createSignal(['day']);
+  const [searchableDropdownValue, setSearchableDropdownValue] =
+    createSignal('item1');
+  const [searchableMultipleValue, setSearchableMultipleValue] = createSignal([
+    'item1',
+  ]);
+  const [preselectedDropdownValue, setPreselectedDropdownValue] =
+    createSignal('option1');
+  const [preselectedMultipleValue, setPreselectedMultipleValue] = createSignal<
+    string[]
+  >([]);
 
   const aggregateLabels: DropdownOption[] = [
     { label: 'Day', value: 'day' },
@@ -20,6 +30,17 @@ export const DropdownTest: Component = () => {
     { label: 'Season', value: 'season' },
     { label: 'Long Label to test anchor positions', value: 'long' },
   ];
+
+  const manyOptions: DropdownOption[] = Array.from({ length: 40 }).map(
+    (_, i) => ({
+      label: `Item ${i + 1}`,
+      value: `item${i + 1}`,
+    }),
+  );
+
+  const preselectedOptions = ['option2', 'option3'];
+
+  const isPreselected = (value: string) => preselectedOptions.includes(value);
 
   return (
     <div class={style.outerContainer}>
@@ -100,6 +121,29 @@ export const DropdownTest: Component = () => {
             }))}
           />
           <Divider />
+          Searchable dropdown:{' '}
+          <Dropdown
+            searchable
+            value={searchableDropdownValue()}
+            onChange={setSearchableDropdownValue}
+            options={manyOptions}
+          />{' '}
+          Selected: {searchableDropdownValue()}
+          <Divider />
+          Preselected options (Option 2, Option 3):{' '}
+          <Dropdown
+            value={preselectedDropdownValue()}
+            onChange={setPreselectedDropdownValue}
+            isPreselected={isPreselected}
+            options={[
+              { label: 'Option 1', value: 'option1' },
+              { label: 'Option 2', value: 'option2' },
+              { label: 'Option 3', value: 'option3' },
+              { label: 'Option 4', value: 'option4' },
+            ]}
+          />{' '}
+          Selected: {preselectedDropdownValue()}
+          <Divider />
           Multiple side by side:{' '}
           <Dropdown
             value={'test'}
@@ -124,6 +168,36 @@ export const DropdownTest: Component = () => {
           anchor="left"
           multiple
         />
+        <Divider />
+        Searchable multi choice picker (select all/none applies to the filtered
+        options){' '}
+        <Dropdown
+          class={style.forcedDropdownWidth}
+          options={manyOptions}
+          value={searchableMultipleValue()}
+          onChange={setSearchableMultipleValue}
+          anchor="left"
+          multiple
+          searchable
+        />{' '}
+        Selected: {searchableMultipleValue().join(', ')}
+        <Divider />
+        Preselected multi choice picker (Option 2, Option 3){' '}
+        <Dropdown
+          class={style.forcedDropdownWidth}
+          options={[
+            { label: 'Option 1', value: 'option1' },
+            { label: 'Option 2', value: 'option2' },
+            { label: 'Option 3', value: 'option3' },
+            { label: 'Option 4', value: 'option4' },
+          ]}
+          value={preselectedMultipleValue()}
+          onChange={setPreselectedMultipleValue}
+          isPreselected={isPreselected}
+          anchor="left"
+          multiple
+        />{' '}
+        Selected: {preselectedMultipleValue().join(', ')}
       </Widget>
 
       <Widget
