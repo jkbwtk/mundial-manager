@@ -2,12 +2,14 @@ import { createSignal, For, Show } from 'solid-js';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import style from '#components/Sidebar/Sidebar.module.scss';
 import { SidebarSwitch } from '#components/Sidebar/SidebarSwitch';
-import { isPublicRoute, useCurrentExtendedMatches } from '#flib/solidHelpers';
+import { useIsVisibleRoute } from '#flib/identity';
+import { useCurrentExtendedMatches } from '#flib/solidHelpers';
 import { SidebarBase } from './SidebarBase';
 import type { SidebarSimpleProps } from './SidebarSimple';
 
 export const SidebarNested: Component<SidebarSimpleProps> = (props) => {
   const activeRoutes = useCurrentExtendedMatches();
+  const isVisibleRoute = useIsVisibleRoute();
 
   const isActive = () =>
     activeRoutes().some(
@@ -45,7 +47,7 @@ export const SidebarNested: Component<SidebarSimpleProps> = (props) => {
             [style.nestedContainer]: true,
           }}
         >
-          <For each={(props.route.children ?? []).filter(isPublicRoute)}>
+          <For each={(props.route.children ?? []).filter(isVisibleRoute)}>
             {(child) => (
               <SidebarSwitch
                 route={child}

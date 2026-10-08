@@ -1,7 +1,9 @@
 import { lazyRoute } from '#flib/lazyRoute';
+import { guardRoute } from '#flib/routeGuard';
 import type { ExtendedRouteDefinition } from '#frontend/types';
 import { errors, GenericErrorPage } from '#pages/GenericErrorPage';
 import { preloadMatchEventsDashboard } from '#preloaders/MatchEventsDashboard';
+import { MatchRecordingPermissions, PermissionEnum } from '#shared/permissions';
 
 const Homepage = lazyRoute(import.meta.glob('#pages/Homepage/Homepage.tsx'));
 const MundialCalculator = lazyRoute(
@@ -79,6 +81,8 @@ const ResourcePickerTest = lazyRoute(
   import.meta.glob('#pages/ResourcePickerTest/ResourcePickerTest.tsx'),
 );
 
+const NotFoundPage = () => <GenericErrorPage config={errors.pageNotFound} />;
+
 export const dashboardRoutes: ExtendedRouteDefinition[] = [
   {
     path: '/',
@@ -88,43 +92,76 @@ export const dashboardRoutes: ExtendedRouteDefinition[] = [
   {
     path: '/mundial-calculator',
     component: MundialCalculator,
-    info: { name: 'Mundial Calculator', icon: 'timer_play' },
+    info: {
+      name: 'Mundial Calculator',
+      icon: 'timer_play',
+      permission: MatchRecordingPermissions,
+    },
   },
   {
     path: '/admin',
     component: AdminDashboard,
-    info: { name: 'Admin', icon: 'admin_panel_settings' },
+    info: {
+      name: 'Admin',
+      icon: 'admin_panel_settings',
+      permission: PermissionEnum.LEAGUES_READ,
+    },
   },
   {
     path: '/seasons',
     component: SeasonsDashboard,
-    info: { name: 'Seasons', icon: 'date_range' },
+    info: {
+      name: 'Seasons',
+      icon: 'date_range',
+      permission: PermissionEnum.SEASONS_READ,
+    },
   },
   {
     path: '/tables',
     component: TablesDashboard,
-    info: { name: 'Tables', icon: 'table_restaurant' },
+    info: {
+      name: 'Tables',
+      icon: 'table_restaurant',
+      permission: PermissionEnum.TABLES_READ,
+    },
   },
   {
     path: '/balls',
     component: BallsDashboard,
-    info: { name: 'Balls', icon: 'sports_soccer' },
+    info: {
+      name: 'Balls',
+      icon: 'sports_soccer',
+      permission: PermissionEnum.BALLS_READ,
+    },
   },
   {
     path: '/players',
     component: PlayersDashboard,
-    info: { name: 'Players', icon: 'groups' },
+    info: {
+      name: 'Players',
+      icon: 'groups',
+      permission: PermissionEnum.PLAYERS_READ,
+    },
   },
   {
     path: '/matches',
     component: MatchesDashboard,
-    info: { name: 'Matches', icon: 'gps_fixed' },
+    info: {
+      name: 'Matches',
+      icon: 'gps_fixed',
+      permission: PermissionEnum.MATCHES_READ,
+    },
   },
   {
     path: '/match-events/:matchUuid',
     component: MatchEventsDashboard,
     preload: preloadMatchEventsDashboard,
-    info: { name: 'Match Events', icon: 'atr', public: false },
+    info: {
+      name: 'Match Events',
+      icon: 'atr',
+      public: false,
+      permission: PermissionEnum.MATCHES_READ,
+    },
   },
 ];
 
@@ -237,7 +274,7 @@ export const testRoutes: ExtendedRouteDefinition[] = [
   },
 ];
 
-export const routes: ExtendedRouteDefinition[] = [
+const rootRoutes: ExtendedRouteDefinition[] = [
   {
     path: '',
     children: dashboardRoutes,
@@ -245,17 +282,25 @@ export const routes: ExtendedRouteDefinition[] = [
   },
   {
     path: '/tests',
-    info: { name: 'Tests', icon: 'science' },
+    info: {
+      name: 'Tests',
+      icon: 'science',
+      permission: PermissionEnum.DEV_TOOLS_VIEW,
+    },
     children: testRoutes,
   },
   {
     path: '/404',
     info: { name: 'Not Found', public: false },
-    component: () => <GenericErrorPage config={errors.pageNotFound} />,
+    component: NotFoundPage,
   },
   {
     path: '*404',
     info: { name: 'Not Found', public: false },
-    component: () => <GenericErrorPage config={errors.pageNotFound} />,
+    component: NotFoundPage,
   },
 ];
+
+export const routes = rootRoutes.map((route) =>
+  guardRoute(route, NotFoundPage),
+);
