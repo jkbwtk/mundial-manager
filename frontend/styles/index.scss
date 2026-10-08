@@ -33,6 +33,10 @@ body {
   touch-action: manipulation;
 }
 
+:where(:not(td, th, sup, sub)) {
+  vertical-align: top;
+}
+
 #root {
   min-height: inherit;
   position: relative;
