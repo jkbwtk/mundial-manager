@@ -1,6 +1,7 @@
 import { useAction } from '@solidjs/router';
 import { batch, getOwner, Show } from 'solid-js';
 import { AnchorButton, Button } from '#components/Button';
+import { useConfirmModal } from '#components/ConfirmModal';
 import { MatchCreatorModal } from '#components/MatchCreatorModal';
 import { PAGINATOR_DEFAULT_LIMIT, Paginator } from '#components/Paginator';
 import { type Column, Table } from '#components/Table';
@@ -40,6 +41,7 @@ export const MatchesDashboard: Component = () => {
   const matches = createResilientAsync(queryMeta, queryMatches);
 
   const deleteMatch = useAction(actionDeleteMatch);
+  const openConfirmModal = useConfirmModal();
   const owner = getOwner();
   const can = useCan();
 
@@ -175,6 +177,16 @@ export const MatchesDashboard: Component = () => {
       transform: (_, item) => {
         const handleDeleteMatch = useHandleButtonAction(
           async (match: Match) => {
+            const confirmed = await openConfirmModal({
+              title: 'Delete Match',
+              message: 'Delete this match?',
+              subject: shortUUID(match.uuid),
+              confirmText: 'Delete',
+              severity: 'danger',
+            });
+
+            if (!confirmed) return;
+
             await deleteMatch(match.uuid);
 
             actions.success(`Deleted match: ${shortUUID(match.uuid)}`);

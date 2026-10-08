@@ -2,6 +2,7 @@ import { useAction } from '@solidjs/router';
 import { batch, getOwner, Show } from 'solid-js';
 import { Button } from '#components/Button';
 import { ColorBlock } from '#components/ColorBlock';
+import { useConfirmModal } from '#components/ConfirmModal';
 import { PAGINATOR_DEFAULT_LIMIT, Paginator } from '#components/Paginator';
 import { PlayerCreatorModal } from '#components/PlayerCreatorModal';
 import { type Column, Table } from '#components/Table';
@@ -35,6 +36,7 @@ export const PlayersDashboard: Component = () => {
   const players = createResilientAsync(queryMeta, queryPlayers);
 
   const deletePlayer = useAction(actionDeletePlayer);
+  const openConfirmModal = useConfirmModal();
   const owner = getOwner();
   const can = useCan();
 
@@ -123,6 +125,16 @@ export const PlayersDashboard: Component = () => {
       transform: (_, item) => {
         const handleDeletePlayer = useHandleButtonAction(
           async (player: Player) => {
+            const confirmed = await openConfirmModal({
+              title: 'Delete Player',
+              message: 'Delete this player?',
+              subject: player.name,
+              confirmText: 'Delete',
+              severity: 'danger',
+            });
+
+            if (!confirmed) return;
+
             await deletePlayer(player.uuid);
 
             actions.success(`Deleted player: ${player.name}`);

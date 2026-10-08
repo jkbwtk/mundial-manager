@@ -1,6 +1,7 @@
 import { useAction } from '@solidjs/router';
 import { getOwner, Show } from 'solid-js';
 import { Button } from '#components/Button';
+import { useConfirmModal } from '#components/ConfirmModal';
 import { LeagueCreatorModal } from '#components/LeagueCreatorModal';
 import { type Column, Table } from '#components/Table';
 import { Divider, Widget } from '#components/Widget';
@@ -28,6 +29,7 @@ export const AdminDashboard: Component = () => {
 
   const changeLeague = useAction(actionChangeLeague);
   const deleteLeague = useAction(actionDeleteLeague);
+  const openConfirmModal = useConfirmModal();
   const copyToClipboard = useCopyToClipboard();
   const owner = getOwner();
 
@@ -163,6 +165,16 @@ export const AdminDashboard: Component = () => {
       transform: (_, item) => {
         const handleDeleteLeague = useHandleButtonAction(
           async (league: League) => {
+            const confirmed = await openConfirmModal({
+              title: 'Delete League',
+              message: 'Delete this league?',
+              subject: league.name,
+              confirmText: 'Delete',
+              severity: 'danger',
+            });
+
+            if (!confirmed) return;
+
             await deleteLeague(league.uuid);
 
             actions.success(`Deleted league: ${league.name}`);

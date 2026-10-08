@@ -1,6 +1,7 @@
 import { useAction } from '@solidjs/router';
 import { batch, getOwner, Show } from 'solid-js';
 import { Button } from '#components/Button';
+import { useConfirmModal } from '#components/ConfirmModal';
 import { PAGINATOR_DEFAULT_LIMIT, Paginator } from '#components/Paginator';
 import { SeasonCreatorModal } from '#components/SeasonCreatorModal';
 import { type Column, Table } from '#components/Table';
@@ -44,6 +45,7 @@ export const SeasonsDashboard: Component = () => {
   const currentSeason = createResilientAsync(queryCurrentSeason);
 
   const deleteSeason = useAction(actionDeleteSeason);
+  const openConfirmModal = useConfirmModal();
   const owner = getOwner();
   const can = useCan();
 
@@ -134,6 +136,16 @@ export const SeasonsDashboard: Component = () => {
       transform: (_, item) => {
         const handleDeleteSeason = useHandleButtonAction(
           async (season: Season) => {
+            const confirmed = await openConfirmModal({
+              title: 'Delete Season',
+              message: 'Delete this season?',
+              subject: season.name,
+              confirmText: 'Delete',
+              severity: 'danger',
+            });
+
+            if (!confirmed) return;
+
             await deleteSeason(season.uuid);
 
             actions.success(`Deleted season: ${season.name}`);

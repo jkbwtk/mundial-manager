@@ -2,6 +2,7 @@ import { useAction } from '@solidjs/router';
 import { batch, getOwner, Show } from 'solid-js';
 import { Button } from '#components/Button';
 import { ColorBlock } from '#components/ColorBlock';
+import { useConfirmModal } from '#components/ConfirmModal';
 import { PAGINATOR_DEFAULT_LIMIT, Paginator } from '#components/Paginator';
 import { type Column, Table } from '#components/Table';
 import { TableCreatorModal } from '#components/TableCreatorModal';
@@ -38,6 +39,7 @@ export const TablesDashboard: Component = () => {
   const tables = createResilientAsync(queryMeta, queryTables);
 
   const deleteTable = useAction(actionDeleteTable);
+  const openConfirmModal = useConfirmModal();
   const owner = getOwner();
   const can = useCan();
 
@@ -144,6 +146,16 @@ export const TablesDashboard: Component = () => {
       transform: (_, item) => {
         const handleDeleteTable = useHandleButtonAction(
           async (table: TableType) => {
+            const confirmed = await openConfirmModal({
+              title: 'Delete Table',
+              message: 'Delete this table?',
+              subject: table.name,
+              confirmText: 'Delete',
+              severity: 'danger',
+            });
+
+            if (!confirmed) return;
+
             await deleteTable(table.uuid);
 
             actions.success(`Deleted table: ${table.name}`);

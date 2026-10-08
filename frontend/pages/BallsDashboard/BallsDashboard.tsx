@@ -3,6 +3,7 @@ import { batch, getOwner, Show } from 'solid-js';
 import { BallCreatorModal } from '#components/BallCreatorModal';
 import { Button } from '#components/Button';
 import { ColorBlock } from '#components/ColorBlock';
+import { useConfirmModal } from '#components/ConfirmModal';
 import { PAGINATOR_DEFAULT_LIMIT, Paginator } from '#components/Paginator';
 import { type Column, Table } from '#components/Table';
 import { Divider } from '#components/Widget';
@@ -35,6 +36,7 @@ export const BallsDashboard: Component = () => {
   const balls = createResilientAsync(queryMeta, queryBalls);
 
   const deleteBall = useAction(actionDeleteBall);
+  const openConfirmModal = useConfirmModal();
   const owner = getOwner();
   const can = useCan();
 
@@ -142,6 +144,16 @@ export const BallsDashboard: Component = () => {
       transform: (_, item) => {
         const handleDeleteBall = useHandleButtonAction(
           async (ball: Ball) => {
+            const confirmed = await openConfirmModal({
+              title: 'Delete Ball',
+              message: 'Delete this ball?',
+              subject: ball.name,
+              confirmText: 'Delete',
+              severity: 'danger',
+            });
+
+            if (!confirmed) return;
+
             await deleteBall(ball.uuid);
 
             actions.success(`Deleted ball: ${ball.name}`);
