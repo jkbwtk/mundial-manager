@@ -1,11 +1,13 @@
 import type { PathMatch, RouteDefinition } from '@solidjs/router';
 import type { SupportedMaterialSymbol } from '#flib/supportedMaterialSymbols';
+import type { PermissionRequirement } from '#shared/permissions';
 
 export interface RouteInfo {
   name: string;
   title?: string;
   icon?: SupportedMaterialSymbol;
   public?: boolean;
+  permission?: PermissionRequirement;
 }
 
 export interface ExtendedRouteDefinition<
