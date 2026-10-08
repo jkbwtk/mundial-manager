@@ -30,6 +30,11 @@
     width: calc(100% - cw(2));
     margin: 0 auto;
 
+    th,
+    td {
+      white-space: nowrap;
+    }
+
     td:global(.data-column-uuid) {
       color: $primaryColor;
     }
