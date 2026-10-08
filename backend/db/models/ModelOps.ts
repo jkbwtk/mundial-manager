@@ -14,6 +14,7 @@ import type { DB, TX } from '#backend/db/database';
 import type { BaseModelType } from '#backend/db/Instance';
 import type {
   ballsTable,
+  goalTypesTable,
   matchesTable,
   matchTimelinesTable,
   playersTable,
@@ -33,6 +34,7 @@ export type LeagueScopedTablesUnion =
   | typeof seasonsTable
   | typeof tablesTable
   | typeof ballsTable
+  | typeof goalTypesTable
   | typeof playersTable
   | typeof matchesTable
   | typeof matchTimelinesTable;

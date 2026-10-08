@@ -1,4 +1,5 @@
 import { isNull, type SQL, sql } from 'drizzle-orm';
+import type { AnyPgColumn } from 'drizzle-orm/pg-core';
 import { integer, pgEnum, timestamp, uuid } from 'drizzle-orm/pg-core/columns';
 import { index, uniqueIndex } from 'drizzle-orm/pg-core/indexes';
 import { pgTable } from 'drizzle-orm/pg-core/table';
@@ -203,6 +204,38 @@ export const teamConfigurationsTable = pgTable(
     index().on(r.leagueUuid),
     uniqueIndex().on(r.leagueUuid, r.playerUuids),
     index().using('gin', r.playerUuids),
+    index().on(r.$createdAt),
+    index().on(r.$deletedAt).where(isNull(r.$deletedAt)),
+  ],
+);
+
+export const goalTypesTable = pgTable(
+  'goalTypes',
+  (t) => ({
+    leagueUuid: t
+      .uuid()
+      .references(() => leaguesTable.uuid, { onDelete: 'cascade' })
+      .notNull(),
+    parentUuid: t.uuid().references((): AnyPgColumn => goalTypesTable.uuid, {
+      onDelete: 'set null',
+    }),
+
+    key: t.text().notNull(),
+    name: t.text().notNull(),
+    description: t.text(),
+
+    icon: t.text(), // emoji
+    color: t.text(), // #RRGGBBAA
+    stylePoints: t.integer().notNull().default(0),
+
+    labels: t.jsonb().$type<Labels>().notNull().default(sql`'{}'::jsonb`),
+
+    ...commonFields,
+  }),
+  (r) => [
+    index().on(r.leagueUuid),
+    index().on(r.parentUuid),
+    uniqueIndex().on(r.leagueUuid, r.key).where(isNull(r.$deletedAt)),
     index().on(r.$createdAt),
     index().on(r.$deletedAt).where(isNull(r.$deletedAt)),
   ],

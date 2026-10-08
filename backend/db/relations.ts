@@ -23,10 +23,34 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.matchesTable.leagueUuid,
       alias: 'matches',
     }),
+    goalTypes: r.many.goalTypesTable({
+      from: r.leaguesTable.uuid,
+      to: r.goalTypesTable.leagueUuid,
+      alias: 'goalTypes',
+    }),
     statsFrames: r.many.statsFramesTable({
       from: r.leaguesTable.uuid,
       to: r.statsFramesTable.leagueUuid,
       alias: 'statsFrames',
+    }),
+  },
+  goalTypesTable: {
+    league: r.one.leaguesTable({
+      from: r.goalTypesTable.leagueUuid,
+      to: r.leaguesTable.uuid,
+      alias: 'league',
+      optional: false,
+    }),
+    parent: r.one.goalTypesTable({
+      from: r.goalTypesTable.parentUuid,
+      to: r.goalTypesTable.uuid,
+      alias: 'parent',
+      optional: true,
+    }),
+    children: r.many.goalTypesTable({
+      from: r.goalTypesTable.uuid,
+      to: r.goalTypesTable.parentUuid,
+      alias: 'children',
     }),
   },
   seasonsTable: {
