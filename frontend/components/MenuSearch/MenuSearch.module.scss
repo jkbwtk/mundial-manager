@@ -9,6 +9,12 @@
   width: 100%;
 
   background-color: $backgroundColor;
+  border-radius: $borderRadius $borderRadius 0 0;
+
+  box-shadow:
+    inset 0 0.1rem 0 0 $textDimColor,
+    inset 0.1rem 0 0 0 $textDimColor,
+    inset -0.1rem 0 0 0 $textDimColor;
 
   input {
     flex-grow: 1;
