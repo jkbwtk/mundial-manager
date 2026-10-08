@@ -62,6 +62,7 @@ export const MaterialSymbolCodepoints = {
   admin_panel_settings: 'ef3d',
   dashboard: 'e871',
   groups: 'f233',
+  visibility: 'e8f4',
   search: 'e8b6',
   add: 'e145',
   remove: 'e15b',
