@@ -1,7 +1,8 @@
 import z from 'zod';
 import type { ModelOps } from '#backend/db/models/ModelOps';
 import type { QueryMetaSchema } from '#backend/types/trpc';
-import { leagueScopedProcedure } from '#blib/trpc';
+import { leaguePermissionProcedure } from '#blib/trpc';
+import type { PermissionRequirement } from '#shared/permissions';
 import { PaginatedResponse } from '#shared/zod';
 
 const InstanceWithId = z.object({
@@ -9,6 +10,13 @@ const InstanceWithId = z.object({
 });
 
 type UnionWithId = z.ZodDiscriminatedUnion<(typeof InstanceWithId)[], string>;
+
+export interface CrudPermissions {
+  read: PermissionRequirement;
+  create: PermissionRequirement;
+  update: PermissionRequirement;
+  delete: PermissionRequirement;
+}
 
 export interface CreateCrudOpsMetadata<
   PublicSchema extends typeof InstanceWithId | UnionWithId,
@@ -23,6 +31,7 @@ export interface CreateCrudOpsMetadata<
   updateSchema: UpdateSchema;
   model: Model;
   queryMetaSchema: QueryMetaSchema;
+  permissions: CrudPermissions;
 }
 
 export function createCrudOps<
@@ -40,8 +49,10 @@ export function createCrudOps<
     Model
   >,
 ) {
+  const readProcedure = leaguePermissionProcedure(metadata.permissions.read);
+
   return {
-    getAll: leagueScopedProcedure
+    getAll: readProcedure
       .input(metadata.queryMetaSchema.optional())
       .output(PaginatedResponse(metadata.publicSchema))
       // @ts-expect-error
@@ -61,7 +72,7 @@ export function createCrudOps<
         };
       }),
 
-    getById: leagueScopedProcedure
+    getById: readProcedure
       .input(InstanceWithId)
       .output(metadata.publicSchema)
       // @ts-expect-error
@@ -75,7 +86,7 @@ export function createCrudOps<
         return metadata.model.mapToPublic(ctx.db, instance);
       }),
 
-    create: leagueScopedProcedure
+    create: leaguePermissionProcedure(metadata.permissions.create)
       .input(metadata.createSchema)
       .output(metadata.publicSchema)
       // @ts-expect-error
@@ -89,7 +100,7 @@ export function createCrudOps<
         return metadata.model.mapToPublic(ctx.db, instance);
       }),
 
-    update: leagueScopedProcedure
+    update: leaguePermissionProcedure(metadata.permissions.update)
       .input(metadata.updateSchema)
       .output(metadata.publicSchema)
       // @ts-expect-error
@@ -103,7 +114,7 @@ export function createCrudOps<
         return metadata.model.mapToPublic(ctx.db, instance);
       }),
 
-    delete: leagueScopedProcedure
+    delete: leaguePermissionProcedure(metadata.permissions.delete)
       .input(InstanceWithId)
       .output(metadata.publicSchema)
       // @ts-expect-error

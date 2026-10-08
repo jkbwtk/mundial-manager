@@ -1,6 +1,7 @@
 import { BallModel } from '#backend/db/models/BallModel';
 import { router } from '#blib/trpc';
 import { createCrudOps } from '#blib/trpcOps';
+import { PermissionEnum } from '#shared/permissions';
 import {
   Ball,
   BallCreate,
@@ -15,5 +16,11 @@ export const ballsRouter = router({
     updateSchema: BallUpdate,
     model: BallModel,
     queryMetaSchema: BallQueryMeta,
+    permissions: {
+      read: PermissionEnum.BALLS_READ,
+      create: PermissionEnum.BALLS_CREATE,
+      update: PermissionEnum.BALLS_UPDATE,
+      delete: PermissionEnum.BALLS_DELETE,
+    },
   }),
 });

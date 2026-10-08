@@ -1,6 +1,7 @@
 import { PlayerModel } from '#backend/db/models/PlayerModel';
 import { router } from '#blib/trpc';
 import { createCrudOps } from '#blib/trpcOps';
+import { PermissionEnum } from '#shared/permissions';
 import {
   Player,
   PlayerCreate,
@@ -15,5 +16,11 @@ export const playersRouter = router({
     updateSchema: PlayerUpdate,
     model: PlayerModel,
     queryMetaSchema: PlayerQueryMeta,
+    permissions: {
+      read: PermissionEnum.PLAYERS_READ,
+      create: PermissionEnum.PLAYERS_CREATE,
+      update: PermissionEnum.PLAYERS_UPDATE,
+      delete: PermissionEnum.PLAYERS_DELETE,
+    },
   }),
 });

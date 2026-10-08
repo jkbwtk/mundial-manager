@@ -8,9 +8,10 @@ import { MatchModel } from '#backend/db/models/MatchModel';
 import { MatchTimelineModel } from '#backend/db/models/MatchTimelineModel';
 import { PlayerModel } from '#backend/db/models/PlayerModel';
 import { TableModel } from '#backend/db/models/TableModel';
-import { leagueScopedProcedure, router } from '#blib/trpc';
+import { leaguePermissionProcedure, router } from '#blib/trpc';
 import { createCrudOps } from '#blib/trpcOps';
 import { zodEncode } from '#blib/utils';
+import { PermissionEnum } from '#shared/permissions';
 import {
   Match,
   MatchCreate,
@@ -28,16 +29,25 @@ export const matchesRouter = router({
     updateSchema: MatchUpdate,
     model: MatchModel,
     queryMetaSchema: MatchQueryMeta,
+    permissions: {
+      read: PermissionEnum.MATCHES_READ,
+      create: PermissionEnum.MATCHES_CREATE,
+      update: PermissionEnum.MATCHES_UPDATE,
+      delete: PermissionEnum.MATCHES_DELETE,
+    },
   }),
 
-  createFull: leagueScopedProcedure
+  createFull: leaguePermissionProcedure(PermissionEnum.MATCHES_CREATE)
     .input(MatchFullCreate)
     .output(Match)
     .mutation(async ({ ctx, input }) => {
       return MatchModel.createFull(ctx.db, ctx.league.uuid, input);
     }),
 
-  getLegacy: leagueScopedProcedure.query(async ({ ctx }) => {
+  getLegacy: leaguePermissionProcedure([
+    PermissionEnum.MATCHES_READ,
+    PermissionEnum.PLAYERS_READ,
+  ]).query(async ({ ctx }) => {
     const matches = await MatchModel.getAllFull(ctx.db, ctx.league.uuid);
     const players = await PlayerModel.getAll(ctx.db, ctx.league.uuid);
     const playersDict = Object.fromEntries(
@@ -49,7 +59,7 @@ export const matchesRouter = router({
     );
   }),
 
-  createLegacy: leagueScopedProcedure
+  createLegacy: leaguePermissionProcedure(PermissionEnum.MATCHES_CREATE)
     .input(
       zodEncode(
         z.object({
