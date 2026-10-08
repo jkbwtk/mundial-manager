@@ -1,0 +1,52 @@
+@use 'app' as *;
+@use 'backgrounds' as *;
+
+.skeleton {
+  display: block;
+
+  width: cw(var(--skeleton-width));
+  height: ch(var(--skeleton-lines));
+
+  :where(&) {
+    --skeleton-width: 1;
+    --skeleton-lines: 1;
+    --skeleton-delay: 200ms;
+  }
+
+  @include textLineBackground($textDimColor);
+
+  animation:
+    skeleton-reveal 0.2s ease-in-out var(--skeleton-delay) both,
+    skeleton-pulse 1.2s ease-in-out calc(var(--skeleton-delay) + 0.2s) infinite
+      alternate;
+
+  &.fill {
+    width: round(down, 100%, cw(1));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: skeleton-reveal 0s var(--skeleton-delay) both;
+  }
+}
+
+@keyframes skeleton-reveal {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 0.6;
+  }
+}
+
+@keyframes skeleton-pulse {
+  from {
+    opacity: 0.6;
+  }
+
+  to {
+    opacity: 0.3;
+  }
+}
