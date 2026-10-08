@@ -1,6 +1,6 @@
-import { sql } from 'drizzle-orm';
 import { ModelOps } from '#backend/db/models/ModelOps';
 import { ballsTable } from '#backend/db/schema';
+import { createTextSearchSql } from '#backend/db/utils';
 import { BallSelectSchema } from '#backend/types/db/ball';
 import {
   Ball,
@@ -17,17 +17,8 @@ export class BallModel extends ModelOps({
   createSchema: BallCreate,
   updateSchema: BallUpdate,
   queryMetaSchema: BallQueryMeta,
-  searchSql: {
-    ranking: (
-      search,
-    ) => sql`setweight(to_tsvector('english', ${ballsTable.name}), 'A') || \
-          setweight(to_tsvector('english', ${ballsTable.alias}), 'B') || \
-          setweight(to_tsvector('english', coalesce(${ballsTable.description}, '')), 'C'), to_tsquery('english', ${search})`,
-    where: (
-      search,
-    ) => sql`setweight(to_tsvector('english', ${ballsTable.name}), 'A') || \
-          setweight(to_tsvector('english', ${ballsTable.alias}), 'B') || \
-          setweight(to_tsvector('english', coalesce(${ballsTable.description}, '')), 'C') \
-          @@ to_tsquery('english', ${search})`,
-  },
+  searchSql: createTextSearchSql({
+    vector: ballsTable.searchVectors,
+    text: [ballsTable.name, ballsTable.alias],
+  }),
 }) {}

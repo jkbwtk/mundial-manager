@@ -1,6 +1,6 @@
-import { sql } from 'drizzle-orm';
 import { ModelOps } from '#backend/db/models/ModelOps';
 import { tablesTable } from '#backend/db/schema';
+import { createTextSearchSql } from '#backend/db/utils';
 import { TableSelectSchema } from '#backend/types/db/table';
 import { StrategyValidationError } from '#blib/modelErrors';
 import {
@@ -18,19 +18,10 @@ const TableOps = ModelOps({
   createSchema: TableCreate,
   updateSchema: TableUpdate,
   queryMetaSchema: TableQueryMeta,
-  searchSql: {
-    ranking: (
-      search,
-    ) => sql`setweight(to_tsvector('english', ${tablesTable.name}), 'A') || \
-          setweight(to_tsvector('english', ${tablesTable.alias}), 'B') || \
-          setweight(to_tsvector('english', coalesce(${tablesTable.description}, '')), 'C'), to_tsquery('english', ${search})`,
-    where: (
-      search,
-    ) => sql`setweight(to_tsvector('english', ${tablesTable.name}), 'A') || \
-          setweight(to_tsvector('english', ${tablesTable.alias}), 'B') || \
-          setweight(to_tsvector('english', coalesce(${tablesTable.description}, '')), 'C') \
-          @@ to_tsquery('english', ${search})`,
-  },
+  searchSql: createTextSearchSql({
+    vector: tablesTable.searchVectors,
+    text: [tablesTable.name, tablesTable.alias],
+  }),
 });
 
 export class TableModel extends TableOps {

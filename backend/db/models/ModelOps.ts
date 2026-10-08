@@ -1,5 +1,6 @@
 import {
   and,
+  asc,
   count,
   desc,
   eq,
@@ -99,6 +100,7 @@ export interface ModelOpsMetadata<
   searchSql?: {
     ranking: (search: string) => SQL;
     where: (search: string) => SQL;
+    orderBy: SQL[];
   };
 }
 
@@ -164,9 +166,9 @@ export function ModelOps<
       meta: z.infer<QueryMetaSchemaType> = {} as z.infer<QueryMetaSchemaType>,
     ) {
       if (ModelOps.searchSql && meta.search) {
-        const { ranking, where } = ModelOps.searchSql;
+        const { ranking, where, orderBy } = ModelOps.searchSql;
 
-        const instances = await db
+        const instances = db
           .select({
             ...getColumns(ModelOps.tableUnion),
             rank: ranking(meta.search),
@@ -179,11 +181,18 @@ export function ModelOps<
               where(meta.search),
             ),
           )
-          .orderBy((t) => desc(t.rank))
-          .limit(meta.pagination?.limit ?? 0)
-          .offset(meta.pagination?.offset ?? 0);
+          .orderBy((t) => [
+            desc(t.rank),
+            ...orderBy,
+            asc(ModelOps.tableUnion.uuid),
+          ])
+          .$dynamic();
 
-        return instances as unknown as SelectSchema[];
+        if (meta.pagination) {
+          instances.limit(meta.pagination.limit).offset(meta.pagination.offset);
+        }
+
+        return (await instances) as unknown as SelectSchema[];
       }
 
       const instances = await db.query[ModelOps.tableName]
