@@ -1,7 +1,15 @@
-import { createContext, createRoot, onCleanup, useContext } from 'solid-js';
+import {
+  createContext,
+  createRoot,
+  onCleanup,
+  Suspense,
+  useContext,
+} from 'solid-js';
 import { Dynamic } from 'solid-js/web';
+import { LoadingIndicator } from '#components/LoadingIndicator';
 import type { ModalEntry } from '#frontend/types';
 import { useModal } from '#providers/ModalProvider/ModalProvider';
+import style from './ModalProvider.module.scss';
 
 export interface ModalInstanceContextActions {
   inModal: () => boolean;
@@ -37,7 +45,13 @@ export const ModalInstanceProvider: ParentComponent<ModalEntry> = (props) => {
 
   const renderModal = () => (
     <ModalInstanceContext.Provider value={actions}>
-      <Dynamic {...props.props} />
+      <Suspense
+        fallback={
+          <LoadingIndicator class={style.modalLoading} label="Loading..." />
+        }
+      >
+        <Dynamic {...props.props} />
+      </Suspense>
     </ModalInstanceContext.Provider>
   );
 
