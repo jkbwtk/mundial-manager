@@ -44,6 +44,7 @@ export function createCrudOps<
     getAll: leagueScopedProcedure
       .input(metadata.queryMetaSchema.optional())
       .output(PaginatedResponse(metadata.publicSchema))
+      // @ts-expect-error
       .query(async ({ ctx, input }) => {
         const [instances, total] = await Promise.all([
           metadata.model.getAll(ctx.db, ctx.league.uuid, input),

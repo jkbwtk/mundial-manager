@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const jsonCodec = <T extends z.core.$ZodType>(schema: T) =>
+export const jsonCodec = <T extends z.core.SomeType>(schema: T) =>
   z.codec(z.string(), schema, {
     decode: (jsonString, ctx) => {
       try {
@@ -42,7 +42,7 @@ export const ZodLikeError = jsonCodec(
 
 export type ZodLikeError = z.infer<typeof ZodLikeError>;
 
-export const PaginatedResponse = <T extends z.core.$ZodType>(schema: T) => {
+export const PaginatedResponse = <T extends z.core.SomeType>(schema: T) => {
   return z.object({
     data: z.array(schema),
     total: z.number().nonnegative(),
