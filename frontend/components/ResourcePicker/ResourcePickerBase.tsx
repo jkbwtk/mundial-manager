@@ -12,8 +12,7 @@ import {
   Suspense,
 } from 'solid-js';
 import { AnchoredPopup } from '#components/AnchoredPopup';
-import { Input } from '#components/Input';
-import { MaterialSymbol } from '#components/MaterialSymbol';
+import { MenuSearch } from '#components/MenuSearch';
 import { Paginator } from '#components/Paginator';
 import { Spinner } from '#components/Spinner';
 import type { PaginatedResponse } from '#shared/zod';
@@ -51,7 +50,6 @@ interface ResourcePickerBaseProps<T, TE> {
 export const ResourcePickerBase = <T, TE = unknown>(
   props: ResourcePickerBaseProps<T, TE>,
 ) => {
-  let inputRef!: HTMLInputElement;
   const owner = getOwner();
 
   const [activeIndex, setActiveIndex] = createSignal(-1);
@@ -140,15 +138,7 @@ export const ResourcePickerBase = <T, TE = unknown>(
 
   createEffect(
     on([() => props.open], ([open]) => {
-      if (open) {
-        updateSearch('');
-
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            inputRef.focus();
-          });
-        });
-      }
+      if (open) updateSearch('');
     }),
   );
 
@@ -163,19 +153,11 @@ export const ResourcePickerBase = <T, TE = unknown>(
       onKeyDown={handleMenuKeyDown}
       matchTriggerWidth
     >
-      <Input
-        ref={inputRef}
-        class={style.input}
+      <MenuSearch
         value={searchInput()}
-        placeholder="Search..."
-        autocomplete="off"
-        onInput={(ev) => {
-          const target = ev.target as HTMLInputElement;
-          searchInputDebounce(target.value);
-        }}
-      >
-        <MaterialSymbol symbol="search" />
-      </Input>
+        open={props.open}
+        onSearch={searchInputDebounce}
+      />
 
       <div class={style.optionContainer}>
         <Suspense fallback={<Spinner />}>
