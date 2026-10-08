@@ -99,6 +99,15 @@
   padding: 0 cw(2);
 }
 
+.option-preselected {
+  padding-left: 0;
+
+  &::before {
+    content: '# ';
+    color: $primaryColor;
+  }
+}
+
 .option-selected {
   color: $textBrightColor;
   padding-left: 0;

@@ -33,6 +33,7 @@ export interface MultiResourcePickerProps<T, TE> {
   toEntry: (data: T) => PickerEntry<TE>;
 
   queryById: (id: TE) => Promise<T>;
+  isPreselected?: (value: TE) => boolean;
 
   name?: string;
   disabled?: boolean;
@@ -221,6 +222,7 @@ export const MultiResourcePicker = <T, TE = unknown>(
         onSelect={selectOption}
         onClose={closeMenu}
         isPicked={isPicked}
+        isPreselected={props.isPreselected}
       />
     </div>
   );

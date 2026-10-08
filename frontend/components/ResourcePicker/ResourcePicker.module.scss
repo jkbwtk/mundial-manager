@@ -115,6 +115,15 @@
   }
 }
 
+.preselected {
+  padding-left: 0;
+
+  &::before {
+    content: '# ';
+    color: $primaryColor;
+  }
+}
+
 .picked {
   color: $textBrightColor;
   padding-left: 0;

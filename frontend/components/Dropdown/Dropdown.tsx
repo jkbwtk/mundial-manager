@@ -40,6 +40,7 @@ type DropdownCommonProps<T> = {
   name?: string;
   anchor?: DropdownAnchor;
   searchable?: boolean;
+  isPreselected?: (value: T) => boolean;
   class?: string;
   classList?: JSX.CustomAttributes<HTMLElement>['classList'];
   useDirectives?: ComponentUseDirectiveHack<HTMLInputElement>[];
@@ -462,6 +463,8 @@ export const Dropdown: DropdownSignature = <T = string>(
               aria-selected={values().includes(option.value)}
               classList={{
                 [style.option]: true,
+                [style.optionPreselected]:
+                  props.isPreselected?.(option.value) ?? false,
                 [style.optionSelected]: values().includes(option.value),
                 [style.optionActive]: index() === activeIndex(),
               }}

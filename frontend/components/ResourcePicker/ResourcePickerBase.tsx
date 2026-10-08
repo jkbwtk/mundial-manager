@@ -45,6 +45,7 @@ interface ResourcePickerBaseProps<T, TE> {
   onClose(): void;
 
   isPicked: (value: TE) => boolean;
+  isPreselected?: (value: TE) => boolean;
 }
 
 export const ResourcePickerBase = <T, TE = unknown>(
@@ -174,6 +175,8 @@ export const ResourcePickerBase = <T, TE = unknown>(
                     [style.option]: true,
                     [style.active]: index() === activeIndex(),
                     [style.picked]: props.isPicked(entry.value),
+                    [style.preselected]:
+                      props.isPreselected?.(entry.value) ?? false,
                   }}
                   onPointerUp={() => props.onSelect(entry)}
                   onPointerEnter={() => setActiveIndex(index())}

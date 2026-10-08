@@ -30,6 +30,7 @@ export interface ResourcePickerProps<T = unknown, TE = string> {
   toEntry: (data: T) => PickerEntry<TE>;
 
   queryById: (id: TE) => Promise<T>;
+  isPreselected?: (value: TE) => boolean;
 
   name?: string;
   disabled?: boolean;
@@ -254,6 +255,7 @@ export const ResourcePicker = <T, TE = string>(
         onSelect={selectOption}
         onClose={closeMenu}
         isPicked={isPicked}
+        isPreselected={props.isPreselected}
       />
     </>
   );
