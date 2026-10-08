@@ -6,12 +6,14 @@ import { PAGINATOR_DEFAULT_LIMIT, Paginator } from '#components/Paginator';
 import { type Column, Table } from '#components/Table';
 import { TableCreatorModal } from '#components/TableCreatorModal';
 import { Divider } from '#components/Widget';
+import { useCan } from '#flib/identity';
 import { createResilientAsync } from '#flib/resilientAsync';
 import { useSearchParamsState } from '#flib/searchParamsState';
 import { useHandleButtonAction } from '#flib/solidHelpers';
 import { actionDeleteTable, queryTables } from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
+import { PermissionEnum } from '#shared/permissions';
 import {
   TableQueryMeta,
   type Table as TableType,
@@ -37,6 +39,7 @@ export const TablesDashboard: Component = () => {
 
   const deleteTable = useAction(actionDeleteTable);
   const owner = getOwner();
+  const can = useCan();
 
   const handleCreateTable = () => {
     open({
@@ -123,7 +126,12 @@ export const TablesDashboard: Component = () => {
 
         return (
           <Show when={item.uuid}>
-            <Button onPointerUp={() => handleEditTable(item)}>Edit</Button>
+            <Button
+              disabled={!can(PermissionEnum.TABLES_UPDATE)}
+              onPointerUp={() => handleEditTable(item)}
+            >
+              Edit
+            </Button>
           </Show>
         );
       },
@@ -146,6 +154,7 @@ export const TablesDashboard: Component = () => {
         return (
           <Button
             severity="danger"
+            disabled={!can(PermissionEnum.TABLES_DELETE)}
             onPointerUp={() => handleDeleteTable(item)}
             loading={handleDeleteTable.loading()}
           >
@@ -159,7 +168,9 @@ export const TablesDashboard: Component = () => {
   return (
     <div class={style.outerContainer}>
       <div class={style.controls}>
-        <Button onPointerUp={handleCreateTable}>Create Table</Button>
+        <Show when={can(PermissionEnum.TABLES_CREATE)}>
+          <Button onPointerUp={handleCreateTable}>Create Table</Button>
+        </Show>
       </div>
 
       <Paginator

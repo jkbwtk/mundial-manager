@@ -6,12 +6,14 @@ import { ColorBlock } from '#components/ColorBlock';
 import { PAGINATOR_DEFAULT_LIMIT, Paginator } from '#components/Paginator';
 import { type Column, Table } from '#components/Table';
 import { Divider } from '#components/Widget';
+import { useCan } from '#flib/identity';
 import { createResilientAsync } from '#flib/resilientAsync';
 import { useSearchParamsState } from '#flib/searchParamsState';
 import { useHandleButtonAction } from '#flib/solidHelpers';
 import { actionDeleteBall, queryBalls } from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
+import { PermissionEnum } from '#shared/permissions';
 import { type Ball, BallQueryMeta } from '#shared/types/api/ball';
 import { shortUUID } from '#shared/utils';
 import style from './BallsDashboard.module.scss';
@@ -34,6 +36,7 @@ export const BallsDashboard: Component = () => {
 
   const deleteBall = useAction(actionDeleteBall);
   const owner = getOwner();
+  const can = useCan();
 
   const handleCreateBall = () => {
     open({
@@ -121,7 +124,12 @@ export const BallsDashboard: Component = () => {
 
         return (
           <Show when={item.uuid}>
-            <Button onPointerUp={() => handleEditBall(item)}>Edit</Button>
+            <Button
+              disabled={!can(PermissionEnum.BALLS_UPDATE)}
+              onPointerUp={() => handleEditBall(item)}
+            >
+              Edit
+            </Button>
           </Show>
         );
       },
@@ -144,6 +152,7 @@ export const BallsDashboard: Component = () => {
         return (
           <Button
             severity="danger"
+            disabled={!can(PermissionEnum.BALLS_DELETE)}
             onPointerUp={() => handleDeleteBall(item)}
             loading={handleDeleteBall.loading()}
           >
@@ -157,7 +166,9 @@ export const BallsDashboard: Component = () => {
   return (
     <div class={style.outerContainer}>
       <div class={style.controls}>
-        <Button onPointerUp={handleCreateBall}>Create Ball</Button>
+        <Show when={can(PermissionEnum.BALLS_CREATE)}>
+          <Button onPointerUp={handleCreateBall}>Create Ball</Button>
+        </Show>
       </div>
 
       <Paginator

@@ -15,6 +15,7 @@ import { MatchTimelineTable } from '#components/MatchTimelineTable';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import { Spinner } from '#components/Spinner';
 import { Divider, Widget } from '#components/Widget';
+import { useCan } from '#flib/identity';
 import { createMatchTimelineDraft } from '#flib/matchTimelineDraft';
 import { persistMatchTimelineDraft } from '#flib/matchTimelineDraftStorage';
 import { createResilientAsync } from '#flib/resilientAsync';
@@ -24,6 +25,7 @@ import { useUnsavedChanges } from '#flib/unsavedChanges';
 import { isMobile } from '#flib/utils';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
+import { PermissionEnum } from '#shared/permissions';
 import style from './MatchEventsDashboard.module.scss';
 
 export interface MatchEventsDashboardParams {
@@ -60,8 +62,10 @@ export const MatchEventsDashboard: Component = () => {
 
   const saveTimeline = useAction(actionSaveMatchTimeline);
   const owner = getOwner();
+  const can = useCan();
 
-  const canSave = () => draft.isDirty() && !draft.hasErrors();
+  const canSave = () =>
+    can(PermissionEnum.MATCHES_UPDATE) && draft.isDirty() && !draft.hasErrors();
 
   const changesLabel = () => {
     if (!draft.isDirty()) return 'No unsaved changes';
@@ -142,7 +146,7 @@ export const MatchEventsDashboard: Component = () => {
 
         <Button
           severity="secondary"
-          disabled={!timeline.latest}
+          disabled={!timeline.latest || !can(PermissionEnum.MATCHES_UPDATE)}
           onPointerUp={handleEditMatch}
         >
           Edit Match

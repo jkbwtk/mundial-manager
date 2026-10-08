@@ -5,6 +5,7 @@ import { MatchCreatorModal } from '#components/MatchCreatorModal';
 import { PAGINATOR_DEFAULT_LIMIT, Paginator } from '#components/Paginator';
 import { type Column, Table } from '#components/Table';
 import { Divider } from '#components/Widget';
+import { useCan } from '#flib/identity';
 import { createResilientAsync } from '#flib/resilientAsync';
 import { useSearchParamsState } from '#flib/searchParamsState';
 import { useHandleButtonAction } from '#flib/solidHelpers';
@@ -12,6 +13,7 @@ import { actionDeleteMatch, queryMatches } from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
 import { formatKnownStartDate } from '#shared/matchLabels';
+import { PermissionEnum } from '#shared/permissions';
 import { formatDurationMs } from '#shared/timeUtils';
 import { type Match, MatchQueryMeta } from '#shared/types/api/match';
 import { shortUUID } from '#shared/utils';
@@ -39,6 +41,7 @@ export const MatchesDashboard: Component = () => {
 
   const deleteMatch = useAction(actionDeleteMatch);
   const owner = getOwner();
+  const can = useCan();
 
   const handleCreateMatch = () => {
     open({
@@ -154,7 +157,12 @@ export const MatchesDashboard: Component = () => {
 
         return (
           <Show when={item.uuid}>
-            <Button onPointerUp={() => handleEditMatch(item)}>Edit</Button>
+            <Button
+              disabled={!can(PermissionEnum.MATCHES_UPDATE)}
+              onPointerUp={() => handleEditMatch(item)}
+            >
+              Edit
+            </Button>
           </Show>
         );
       },
@@ -177,6 +185,7 @@ export const MatchesDashboard: Component = () => {
         return (
           <Button
             severity="danger"
+            disabled={!can(PermissionEnum.MATCHES_DELETE)}
             onPointerUp={() => handleDeleteMatch(item)}
             loading={handleDeleteMatch.loading()}
           >
@@ -190,7 +199,9 @@ export const MatchesDashboard: Component = () => {
   return (
     <div class={style.outerContainer}>
       <div class={style.controls}>
-        <Button onPointerUp={handleCreateMatch}>Create Match</Button>
+        <Show when={can(PermissionEnum.MATCHES_CREATE)}>
+          <Button onPointerUp={handleCreateMatch}>Create Match</Button>
+        </Show>
       </div>
 
       <Paginator

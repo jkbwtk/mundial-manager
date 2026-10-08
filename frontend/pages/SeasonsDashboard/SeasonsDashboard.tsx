@@ -5,6 +5,7 @@ import { PAGINATOR_DEFAULT_LIMIT, Paginator } from '#components/Paginator';
 import { SeasonCreatorModal } from '#components/SeasonCreatorModal';
 import { type Column, Table } from '#components/Table';
 import { Divider } from '#components/Widget';
+import { useCan } from '#flib/identity';
 import { createResilientAsync } from '#flib/resilientAsync';
 import { useSearchParamsState } from '#flib/searchParamsState';
 import { useHandleButtonAction } from '#flib/solidHelpers';
@@ -15,6 +16,7 @@ import {
 } from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
+import { PermissionEnum } from '#shared/permissions';
 import { formatDate } from '#shared/timeUtils';
 import { type Season, SeasonQueryMeta } from '#shared/types/api/season';
 import { shortUUID } from '#shared/utils';
@@ -43,6 +45,7 @@ export const SeasonsDashboard: Component = () => {
 
   const deleteSeason = useAction(actionDeleteSeason);
   const owner = getOwner();
+  const can = useCan();
 
   const handleCreateSeason = () => {
     open({
@@ -114,6 +117,7 @@ export const SeasonsDashboard: Component = () => {
         return (
           <Button
             severity="secondary"
+            disabled={!can(PermissionEnum.SEASONS_UPDATE)}
             onPointerUp={() => handleEditSeason(item)}
             loading={handleEditSeason.loading()}
           >
@@ -140,6 +144,7 @@ export const SeasonsDashboard: Component = () => {
         return (
           <Button
             severity="danger"
+            disabled={!can(PermissionEnum.SEASONS_DELETE)}
             onPointerUp={() => handleDeleteSeason(item)}
             loading={handleDeleteSeason.loading()}
           >
@@ -163,7 +168,9 @@ export const SeasonsDashboard: Component = () => {
           </Show>
         </div>
 
-        <Button onPointerUp={handleCreateSeason}>Create Season</Button>
+        <Show when={can(PermissionEnum.SEASONS_CREATE)}>
+          <Button onPointerUp={handleCreateSeason}>Create Season</Button>
+        </Show>
       </div>
 
       <Paginator

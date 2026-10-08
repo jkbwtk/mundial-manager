@@ -6,12 +6,14 @@ import { PAGINATOR_DEFAULT_LIMIT, Paginator } from '#components/Paginator';
 import { PlayerCreatorModal } from '#components/PlayerCreatorModal';
 import { type Column, Table } from '#components/Table';
 import { Divider } from '#components/Widget';
+import { useCan } from '#flib/identity';
 import { createResilientAsync } from '#flib/resilientAsync';
 import { useSearchParamsState } from '#flib/searchParamsState';
 import { useHandleButtonAction } from '#flib/solidHelpers';
 import { actionDeletePlayer, queryPlayers } from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
+import { PermissionEnum } from '#shared/permissions';
 import { type Player, PlayerQueryMeta } from '#shared/types/api/player';
 import { shortUUID } from '#shared/utils';
 import style from './PlayersDashboard.module.scss';
@@ -34,6 +36,7 @@ export const PlayersDashboard: Component = () => {
 
   const deletePlayer = useAction(actionDeletePlayer);
   const owner = getOwner();
+  const can = useCan();
 
   const handleCreatePlayer = () => {
     open({
@@ -102,7 +105,12 @@ export const PlayersDashboard: Component = () => {
 
         return (
           <Show when={item.uuid}>
-            <Button onPointerUp={() => handleEditPlayer(item)}>Edit</Button>
+            <Button
+              disabled={!can(PermissionEnum.PLAYERS_UPDATE)}
+              onPointerUp={() => handleEditPlayer(item)}
+            >
+              Edit
+            </Button>
           </Show>
         );
       },
@@ -125,6 +133,7 @@ export const PlayersDashboard: Component = () => {
         return (
           <Button
             severity="danger"
+            disabled={!can(PermissionEnum.PLAYERS_DELETE)}
             onPointerUp={() => handleDeletePlayer(item)}
             loading={handleDeletePlayer.loading()}
           >
@@ -138,7 +147,9 @@ export const PlayersDashboard: Component = () => {
   return (
     <div class={style.outerContainer}>
       <div class={style.controls}>
-        <Button onPointerUp={handleCreatePlayer}>Create Player</Button>
+        <Show when={can(PermissionEnum.PLAYERS_CREATE)}>
+          <Button onPointerUp={handleCreatePlayer}>Create Player</Button>
+        </Show>
       </div>
 
       <Paginator
