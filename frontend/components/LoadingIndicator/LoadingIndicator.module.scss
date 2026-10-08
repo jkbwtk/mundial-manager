@@ -1,0 +1,46 @@
+@use 'app' as *;
+
+.loading-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: cw(1);
+
+  color: $textColor;
+
+  user-select: none;
+
+  :where(&) {
+    --loading-delay: 200ms;
+  }
+
+  animation: loading-reveal 0.2s ease-in-out var(--loading-delay) both;
+}
+
+.spinner-slot {
+  position: relative;
+
+  width: cw(1);
+  height: ch(1);
+
+  color: $textBrightColor;
+}
+
+.label {
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-indicator {
+    animation-duration: 0s;
+  }
+}
+
+@keyframes loading-reveal {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
