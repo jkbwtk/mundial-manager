@@ -2,6 +2,7 @@ import { PublishResult } from '#backend/amqp/publishers';
 import type { DB, TX } from '#backend/db/database';
 import { matchOrderBy, matchOrderByDesc } from '#backend/db/matchOrder';
 import { BallModel } from '#backend/db/models/BallModel';
+import { GoalTypeModel } from '#backend/db/models/GoalTypeModel';
 import { MatchTimelineModel } from '#backend/db/models/MatchTimelineModel';
 import { ModelOps } from '#backend/db/models/ModelOps';
 import { PlayerModel } from '#backend/db/models/PlayerModel';
@@ -317,6 +318,7 @@ export class MatchModel extends MatchOps {
       ...(match.ballUuid ? [match.ballUuid] : []),
       ...references.ballUuids,
     ]);
+    const goalTypes = await GoalTypeModel.getAll(db, leagueUuid);
 
     return {
       match,
@@ -324,13 +326,14 @@ export class MatchModel extends MatchOps {
       events,
       players,
       balls,
+      goalTypes,
       issues: [
         ...validateMatchTimeline(events, getMatchTimelineContext(match)),
-        ...getMissingReferenceIssues(
-          events,
-          new Set(players.map((player) => player.uuid)),
-          new Set(balls.map((ball) => ball.uuid)),
-        ),
+        ...getMissingReferenceIssues(events, {
+          players: new Set(players.map((player) => player.uuid)),
+          balls: new Set(balls.map((ball) => ball.uuid)),
+          goalTypes: new Set(goalTypes.map((goalType) => goalType.uuid)),
+        }),
       ],
     };
   }

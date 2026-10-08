@@ -92,6 +92,7 @@ const MatchTimelineErrorMessages: Record<MatchTimelineErrorType, string> = {
   GOAL_TYPE_DUPLICATE: 'Goal type is listed more than once',
   PLAYERS_NOT_FOUND: 'Player no longer exists',
   BALL_NOT_FOUND: 'Ball no longer exists',
+  GOAL_TYPE_NOT_FOUND: 'Goal type no longer exists',
   MATCH_NOT_FOUND: 'Match does not exist',
 };
 
@@ -126,16 +127,25 @@ export function hasMatchTimelineErrors(
 export function getMatchTimelineReferences(events: MatchTimelineEntry[]): {
   playerUuids: Set<string>;
   ballUuids: Set<string>;
+  goalTypeUuids: Set<string>;
 } {
   const playerUuids = new Set<string>();
   const ballUuids = new Set<string>();
+  const goalTypeUuids = new Set<string>();
 
   for (const event of events) {
-    if (event.type === 'GOAL') playerUuids.add(event.player);
+    if (event.type === 'GOAL') {
+      playerUuids.add(event.player);
+
+      for (const uuid of event.goalType) {
+        goalTypeUuids.add(uuid);
+      }
+    }
+
     if (event.type === 'BALL_CHANGE') ballUuids.add(event.ball);
   }
 
-  return { playerUuids, ballUuids };
+  return { playerUuids, ballUuids, goalTypeUuids };
 }
 
 export function getMatchTimelineContext(

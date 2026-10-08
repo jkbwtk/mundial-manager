@@ -1,6 +1,7 @@
 import z from 'zod';
 import { createQueryMeta } from '#backend/types/trpc';
 import { Ball } from '#shared/types/api/ball';
+import { GoalType } from '#shared/types/api/goalType';
 import { Match } from '#shared/types/api/match';
 import { MatchEvent } from '#shared/types/api/matchEvent';
 import { Player } from '#shared/types/api/player';
@@ -32,6 +33,7 @@ export const MatchTimelineErrorTypeEnum = {
   GOAL_TYPE_DUPLICATE: 'GOAL_TYPE_DUPLICATE',
   PLAYERS_NOT_FOUND: 'PLAYERS_NOT_FOUND',
   BALL_NOT_FOUND: 'BALL_NOT_FOUND',
+  GOAL_TYPE_NOT_FOUND: 'GOAL_TYPE_NOT_FOUND',
   MATCH_NOT_FOUND: 'MATCH_NOT_FOUND',
 } as const;
 
@@ -55,6 +57,7 @@ export const MatchTimeline = z.object({
 
   players: Player.array(),
   balls: Ball.array(),
+  goalTypes: GoalType.array(),
 
   issues: MatchTimelineIssue.array(),
 });

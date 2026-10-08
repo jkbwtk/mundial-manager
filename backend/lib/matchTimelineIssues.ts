@@ -1,6 +1,7 @@
 import type { ModelErrorField, ModelErrorFieldMap } from '#blib/modelErrors';
 import type { MatchTimelineEntry } from '#shared/matchTimeline';
 import {
+  type MatchTimelineErrorType,
   MatchTimelineErrorTypeEnum,
   type MatchTimelineIssue,
   MatchTimelineIssueSeverityEnum,
@@ -27,37 +28,64 @@ export function convertTimelineIssuesToFields(
   return fields;
 }
 
+export interface MatchTimelineReferenceSets {
+  players: Set<string>;
+  balls: Set<string>;
+  goalTypes: Set<string>;
+}
+
+function getMissingReference(
+  event: MatchTimelineEntry,
+  available: MatchTimelineReferenceSets,
+): { errorType: MatchTimelineErrorType; field: string } | null {
+  switch (event.type) {
+    case 'GOAL':
+      if (!available.players.has(event.player)) {
+        return {
+          errorType: MatchTimelineErrorTypeEnum.PLAYERS_NOT_FOUND,
+          field: 'player',
+        };
+      }
+
+      if (event.goalType.some((uuid) => !available.goalTypes.has(uuid))) {
+        return {
+          errorType: MatchTimelineErrorTypeEnum.GOAL_TYPE_NOT_FOUND,
+          field: 'goalType',
+        };
+      }
+
+      return null;
+
+    case 'BALL_CHANGE':
+      if (available.balls.has(event.ball)) return null;
+
+      return {
+        errorType: MatchTimelineErrorTypeEnum.BALL_NOT_FOUND,
+        field: 'ball',
+      };
+
+    default:
+      return null;
+  }
+}
+
 export function getMissingReferenceIssues(
   events: MatchTimelineEntry[],
-  availablePlayers: Set<string>,
-  availableBalls: Set<string>,
+  available: MatchTimelineReferenceSets,
 ): MatchTimelineIssue[] {
-  const issues: MatchTimelineIssue[] = [];
+  return events.flatMap((event, index) => {
+    const missing = getMissingReference(event, available);
 
-  for (const [index, event] of events.entries()) {
-    const missing =
-      event.type === 'GOAL' && !availablePlayers.has(event.player)
-        ? {
-            errorType: MatchTimelineErrorTypeEnum.PLAYERS_NOT_FOUND,
-            field: 'player',
-          }
-        : event.type === 'BALL_CHANGE' && !availableBalls.has(event.ball)
-          ? {
-              errorType: MatchTimelineErrorTypeEnum.BALL_NOT_FOUND,
-              field: 'ball',
-            }
-          : null;
+    if (missing === null) return [];
 
-    if (missing === null) continue;
-
-    issues.push({
-      severity: MatchTimelineIssueSeverityEnum.WARNING,
-      errorType: missing.errorType,
-      eventUuid: event.uuid ?? null,
-      eventIndex: index,
-      field: missing.field,
-    });
-  }
-
-  return issues;
+    return [
+      {
+        severity: MatchTimelineIssueSeverityEnum.WARNING,
+        errorType: missing.errorType,
+        eventUuid: event.uuid ?? null,
+        eventIndex: index,
+        field: missing.field,
+      },
+    ];
+  });
 }
