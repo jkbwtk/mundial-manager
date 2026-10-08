@@ -1,0 +1,17 @@
+@use 'app' as *;
+
+.menu-search {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+
+  display: inline-flex;
+  width: 100%;
+
+  background-color: $backgroundColor;
+
+  input {
+    flex-grow: 1;
+    width: 0;
+  }
+}
