@@ -11,6 +11,7 @@ import {
   sign,
 } from '#blib/jwt';
 import { logger } from '#shared/logger';
+import { RoleEnum } from '#shared/permissions';
 
 const MAGIC_LINK_TOKEN_KEY = 'token';
 
@@ -20,7 +21,7 @@ async function createAdminMagicLink() {
 
     origin: 'magic-router-admin-jwt',
 
-    admin: true,
+    role: RoleEnum.ADMIN,
     leagueUuid: null,
 
     redirectTo: '/admin',

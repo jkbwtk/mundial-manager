@@ -5,11 +5,12 @@ import { environment } from '#backend/environment';
 import type { JWTContextCreate } from '#backend/types/auth';
 import { Pagination } from '#backend/types/trpc';
 import { getJWTCookieOptions, sign } from '#blib/jwt';
-import { adminProcedure, router } from '#blib/trpc';
+import { permissionProcedure, router } from '#blib/trpc';
+import { PermissionEnum, RoleEnum } from '#shared/permissions';
 import { League, LeagueCreate, LeagueUpdate } from '#shared/types/api/league';
 
 export const adminRouter = router({
-  leagues: adminProcedure
+  leagues: permissionProcedure(PermissionEnum.LEAGUES_READ)
     .input(Pagination.optional())
     .query(async ({ ctx, input }) => {
       const count = LeagueModel.count(ctx.db);
@@ -23,7 +24,7 @@ export const adminRouter = router({
       };
     }),
 
-  createLeague: adminProcedure
+  createLeague: permissionProcedure(PermissionEnum.LEAGUES_CREATE)
     .input(LeagueCreate)
     .mutation(async ({ ctx, input }) => {
       const league = await LeagueModel.create(ctx.db, input);
@@ -31,7 +32,7 @@ export const adminRouter = router({
       return league.serialize();
     }),
 
-  updateLeague: adminProcedure
+  updateLeague: permissionProcedure(PermissionEnum.LEAGUES_UPDATE)
     .input(LeagueUpdate)
     .mutation(async ({ ctx, input }) => {
       const league = await LeagueModel.update(ctx.db, input);
@@ -39,7 +40,7 @@ export const adminRouter = router({
       return league.serialize();
     }),
 
-  deleteLeague: adminProcedure
+  deleteLeague: permissionProcedure(PermissionEnum.LEAGUES_DELETE)
     .input(League.pick({ uuid: true }))
     .mutation(async ({ ctx, input }) => {
       const league = await LeagueModel.delete(ctx.db, input.uuid);
@@ -47,7 +48,7 @@ export const adminRouter = router({
       return league.serialize();
     }),
 
-  changeLeague$: adminProcedure
+  changeLeague$: permissionProcedure(PermissionEnum.LEAGUES_SWITCH)
     .input(League.pick({ uuid: true }))
     .mutation(async ({ ctx, input }) => {
       const league = await LeagueModel.getById(ctx.db, input.uuid);
@@ -73,7 +74,7 @@ export const adminRouter = router({
       return league.serialize();
     }),
 
-  leagueLink: adminProcedure
+  leagueLink: permissionProcedure(PermissionEnum.LEAGUES_INVITE)
     .input(League.pick({ uuid: true }))
     .query(async ({ ctx, input }) => {
       const league = await LeagueModel.getById(ctx.db, input.uuid);
@@ -90,7 +91,7 @@ export const adminRouter = router({
 
         origin: 'admin-league-link',
 
-        admin: false,
+        role: RoleEnum.MEMBER,
         leagueUuid: league.instance.uuid,
 
         redirectTo: '/',

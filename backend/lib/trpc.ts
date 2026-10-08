@@ -9,6 +9,11 @@ import { getCookieSecurity, getJWTContextFromCookies } from '#blib/jwt';
 import { memoized } from '#blib/memoized';
 import { ModelError } from '#blib/modelErrors';
 import { logger } from '#shared/logger';
+import {
+  hasPermissions,
+  type PermissionRequirement,
+  RolePermissions,
+} from '#shared/permissions';
 
 export function createLeagueGetter(
   db: DB,
@@ -54,6 +59,18 @@ const t = initTRPC.context<BaseContext>().create({
 });
 
 export const router = t.router;
+
+function assertPermissions(
+  jwt: JWTContext,
+  required: PermissionRequirement,
+): void {
+  if (hasPermissions(RolePermissions[jwt.role], required)) return;
+
+  throw new TRPCError({
+    code: 'FORBIDDEN',
+    message: 'You do not have permission to perform this action',
+  });
+}
 
 export const baseProcedure = t.procedure.use(async (opts) => {
   const result = await opts.next();
@@ -102,18 +119,13 @@ export const restrictedProcedure = procedure.use(async (opts) => {
   });
 });
 
-export const adminProcedure = restrictedProcedure.use(async (opts) => {
-  const { jwt } = opts.ctx;
+export function permissionProcedure(required: PermissionRequirement) {
+  return restrictedProcedure.use(async (opts) => {
+    assertPermissions(opts.ctx.jwt, required);
 
-  if (!jwt.admin) {
-    throw new TRPCError({
-      code: 'FORBIDDEN',
-      message: 'You do not have permission to perform this action',
-    });
-  }
-
-  return opts.next();
-});
+    return opts.next();
+  });
+}
 
 export const leagueScopedProcedure = restrictedProcedure.use(async (opts) => {
   const { jwt } = opts.ctx;
@@ -140,3 +152,11 @@ export const leagueScopedProcedure = restrictedProcedure.use(async (opts) => {
     },
   });
 });
+
+export function leaguePermissionProcedure(required: PermissionRequirement) {
+  return leagueScopedProcedure.use(async (opts) => {
+    assertPermissions(opts.ctx.jwt, required);
+
+    return opts.next();
+  });
+}

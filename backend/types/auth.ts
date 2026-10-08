@@ -1,11 +1,12 @@
 import z from 'zod';
+import { Role, RoleEnum } from '#shared/permissions';
 
 export const JWTContext = z.object({
   uuid: z.uuid(),
 
   origin: z.string().min(1).default('unknown'),
 
-  admin: z.boolean().default(false),
+  role: Role.default(RoleEnum.MEMBER),
   leagueUuid: z.uuid().nullable().default(null),
 
   redirectTo: z.string().nullable().default(null),
@@ -16,4 +17,4 @@ export const JWTContext = z.object({
 export type JWTContext = z.infer<typeof JWTContext>;
 
 export const JWTContextCreate = JWTContext.partial({ iat: true, exp: true });
-export type JWTContextCreate = z.infer<typeof JWTContextCreate>;
+export type JWTContextCreate = z.input<typeof JWTContextCreate>;
