@@ -31,3 +31,7 @@ export function applyKeepAliveTimeout(server: Server): Server {
 
   return server;
 }
+
+export function escapeLikePattern(value: string): string {
+  return value.replace(/[\\%_]/g, '\\$&');
+}
