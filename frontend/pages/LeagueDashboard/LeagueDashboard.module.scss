@@ -1,0 +1,45 @@
+@use 'app' as *;
+@use 'layouts' as *;
+
+.container {
+  width: round(down, 100%, cw(1));
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: ch(1);
+}
+
+.details {
+  @include statsGrid;
+
+  justify-content: start;
+}
+
+.no-description {
+  font-weight: normal;
+  font-style: italic;
+  color: $textDimColor;
+}
+
+.table-container {
+  max-height: 100%;
+  overflow: auto;
+
+  .table {
+    width: calc(100% - cw(2));
+    margin: 0 auto;
+
+    td {
+      white-space: nowrap;
+    }
+
+    td:global(.data-column-uuid) {
+      color: $primaryColor;
+    }
+
+    td:global(.data-column-description) {
+      white-space: normal;
+    }
+  }
+}

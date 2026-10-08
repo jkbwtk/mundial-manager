@@ -102,6 +102,17 @@ export const MobileNavBar: Component<MobileNavbarProps> = (props) => {
           <MaterialSymbol symbol="gps_fixed" />
         </A>
       </Show>
+      <Show when={can(PermissionEnum.GOAL_TYPES_READ)}>
+        <A
+          href="/league"
+          classList={{
+            [style.entry]: true,
+            'no-style': true,
+          }}
+        >
+          <MaterialSymbol symbol="trophy" />
+        </A>
+      </Show>
       <Show when={can(PermissionEnum.LEAGUES_READ)}>
         <A
           href="/admin"

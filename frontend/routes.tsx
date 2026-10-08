@@ -12,6 +12,9 @@ const MundialCalculator = lazyRoute(
 const AdminDashboard = lazyRoute(
   import.meta.glob('#pages/AdminDashboard/AdminDashboard.tsx'),
 );
+const LeagueDashboard = lazyRoute(
+  import.meta.glob('#pages/LeagueDashboard/LeagueDashboard.tsx'),
+);
 const SeasonsDashboard = lazyRoute(
   import.meta.glob('#pages/SeasonsDashboard/SeasonsDashboard.tsx'),
 );
@@ -105,6 +108,15 @@ export const dashboardRoutes: ExtendedRouteDefinition[] = [
       name: 'Admin',
       icon: 'admin_panel_settings',
       permission: PermissionEnum.LEAGUES_READ,
+    },
+  },
+  {
+    path: '/league',
+    component: LeagueDashboard,
+    info: {
+      name: 'League',
+      icon: 'trophy',
+      permission: PermissionEnum.GOAL_TYPES_READ,
     },
   },
   {
