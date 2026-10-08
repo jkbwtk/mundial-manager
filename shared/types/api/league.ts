@@ -1,4 +1,5 @@
 import z from 'zod';
+import { Role, RoleEnum } from '#shared/permissions';
 import { TimeZone } from '#shared/zod';
 
 export const League = z.object({
@@ -33,3 +34,13 @@ export const LeagueSettingsUpdate = League.pick({
   timezone: true,
 }).partial();
 export type LeagueSettingsUpdate = z.infer<typeof LeagueSettingsUpdate>;
+
+export const LeagueLinkRole = Role.exclude([RoleEnum.ADMIN]);
+export type LeagueLinkRole = z.infer<typeof LeagueLinkRole>;
+
+export const LeagueLinkQuery = League.pick({ uuid: true }).extend({
+  role: LeagueLinkRole.default(RoleEnum.MEMBER),
+  ttl: z.int().min(1).max(365).default(365), // days
+});
+export type LeagueLinkQuery = z.infer<typeof LeagueLinkQuery>;
+export type LeagueLinkQueryInput = z.input<typeof LeagueLinkQuery>;

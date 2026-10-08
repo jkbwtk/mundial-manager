@@ -3,6 +3,7 @@ import { getOwner, Show } from 'solid-js';
 import { Button } from '#components/Button';
 import { useConfirmModal } from '#components/ConfirmModal';
 import { LeagueCreatorModal } from '#components/LeagueCreatorModal';
+import { LeagueLinkModal } from '#components/LeagueLinkModal';
 import { type Column, Table } from '#components/Table';
 import { Divider, Widget } from '#components/Widget';
 import { useCopyToClipboard } from '#flib/clipboard';
@@ -12,7 +13,6 @@ import {
   actionChangeLeague,
   actionDeleteLeague,
   queryActiveLeague,
-  queryLeagueLink,
   queryLeagues,
 } from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
@@ -81,18 +81,19 @@ export const AdminDashboard: Component = () => {
       align: 'center',
       width: 13,
       transform: (_, item) => {
-        const handleGetLink = useHandleButtonAction(async (league: League) => {
-          const link = await queryLeagueLink(item.uuid);
-
-          await copyToClipboard(link, `Magic link for ${league.alias}`);
-        });
+        const handleCreateLink = () => {
+          open({
+            props: {
+              component: LeagueLinkModal,
+              league: item,
+            },
+            owner,
+            closeOnBackgroundClick: false,
+          });
+        };
 
         return (
-          <Button
-            severity="secondary"
-            onPointerUp={() => handleGetLink(item)}
-            loading={handleGetLink.loading()}
-          >
+          <Button severity="secondary" onPointerUp={handleCreateLink}>
             Get Link
           </Button>
         );

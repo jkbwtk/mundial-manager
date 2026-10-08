@@ -27,7 +27,7 @@ export interface ModalFormProps<
   Instance extends { uuid: string } | undefined,
 > extends SharedFormProps<Model, Result, TRPCAction, Instance>,
     ModalFormLabels {
-  onSuccess?: (result: Result) => void;
+  onSuccess?: (result: Awaited<Result>) => void;
   onError?: (error: unknown) => void;
 
   class?: string;

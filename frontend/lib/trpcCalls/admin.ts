@@ -1,6 +1,10 @@
 import { action, json, query } from '@solidjs/router';
 import { trpcClient } from '#flib/trpcClient';
-import type { LeagueCreate, LeagueUpdate } from '#shared/types/api/league';
+import type {
+  LeagueCreate,
+  LeagueLinkQuery,
+  LeagueUpdate,
+} from '#shared/types/api/league';
 
 export const queryLeagues = query(async () => {
   return await trpcClient.admin.leagues.query();
@@ -38,8 +42,8 @@ export const actionDeleteLeague = action(async (uuid: string) => {
   });
 }, 'actionDeleteLeague');
 
-export const queryLeagueLink = query(async (uuid: string) => {
-  const resp = await trpcClient.admin.leagueLink.query({ uuid });
+export const actionCreateLeagueLink = action(async (input: LeagueLinkQuery) => {
+  const resp = await trpcClient.admin.leagueLink.query(input);
 
-  return resp.link;
-}, 'queryLeagueLink');
+  return json(resp.link, { revalidate: [] });
+}, 'actionCreateLeagueLink');

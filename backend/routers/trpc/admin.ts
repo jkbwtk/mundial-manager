@@ -6,8 +6,13 @@ import type { JWTContextCreate } from '#backend/types/auth';
 import { Pagination } from '#backend/types/trpc';
 import { getJWTCookieOptions, sign } from '#blib/jwt';
 import { permissionProcedure, router } from '#blib/trpc';
-import { PermissionEnum, RoleEnum } from '#shared/permissions';
-import { League, LeagueCreate, LeagueUpdate } from '#shared/types/api/league';
+import { PermissionEnum } from '#shared/permissions';
+import {
+  League,
+  LeagueCreate,
+  LeagueLinkQuery,
+  LeagueUpdate,
+} from '#shared/types/api/league';
 
 export const adminRouter = router({
   leagues: permissionProcedure(PermissionEnum.LEAGUES_READ)
@@ -75,7 +80,7 @@ export const adminRouter = router({
     }),
 
   leagueLink: permissionProcedure(PermissionEnum.LEAGUES_INVITE)
-    .input(League.pick({ uuid: true }))
+    .input(LeagueLinkQuery)
     .query(async ({ ctx, input }) => {
       const league = await LeagueModel.getById(ctx.db, input.uuid);
 
@@ -86,16 +91,19 @@ export const adminRouter = router({
         });
       }
 
-      const jwt = await sign({
-        uuid: randomUUID(),
+      const jwt = await sign(
+        {
+          uuid: randomUUID(),
 
-        origin: 'admin-league-link',
+          origin: 'admin-league-link',
 
-        role: RoleEnum.MEMBER,
-        leagueUuid: league.instance.uuid,
+          role: input.role,
+          leagueUuid: league.instance.uuid,
 
-        redirectTo: '/',
-      } satisfies JWTContextCreate);
+          redirectTo: '/',
+        } satisfies JWTContextCreate,
+        `${input.ttl} days`,
+      );
 
       const params = new URLSearchParams();
       params.set('token', jwt);

@@ -47,6 +47,7 @@ const loadRSAKeys = memoized(() => {
 
 export function sign<T extends JWTPayload>(
   payload: T,
+  expirationTime: number | string | Date = '1 year',
   options?: EncryptOptions,
 ) {
   const { pubKey } = loadRSAKeys();
@@ -57,7 +58,7 @@ export function sign<T extends JWTPayload>(
       enc: 'A256GCM',
     })
     .setIssuedAt()
-    .setExpirationTime('1 year')
+    .setExpirationTime(expirationTime)
     .encrypt(pubKey, options);
 }
 
