@@ -1,11 +1,14 @@
 import z from 'zod';
 import type { Ball } from '#shared/types/api/ball';
+import type { GoalType } from '#shared/types/api/goalType';
+import type { League } from '#shared/types/api/league';
 import type { Match, MatchCreate, MatchUpdate } from '#shared/types/api/match';
 import type {
   MatchTimeline,
   MatchTimelineSave,
 } from '#shared/types/api/matchTimeline';
 import type { Player } from '#shared/types/api/player';
+import type { Season } from '#shared/types/api/season';
 import type { Table } from '#shared/types/api/table';
 import { MatchEvent as LegacyMatchEvent } from '#shared/types/Sheets';
 
@@ -30,9 +33,11 @@ export type CalculatorApi = {
   getTables(): Promise<Table[]>;
   getBalls(): Promise<Ball[]>;
   getPlayers(): Promise<Player[]>;
+  getGoalTypes(): Promise<GoalType[]>;
 
-  // TODO: add getGoalTypes endpoint
-  // TODO: expose season and league info
+  getActiveLeague(): Promise<League | null>;
+  getCurrentSeason(): Promise<Season | null>;
+
   // TODO: add live match predictions endpoint
 
   createLegacyMatch(legacyMatch: CalculatorFinishEvent): void;

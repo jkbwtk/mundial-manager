@@ -9,7 +9,10 @@ import {
   actionDeleteMatch,
   actionSaveMatchTimeline,
   actionUpdateMatch,
+  queryActiveLeague,
   queryBalls,
+  queryCurrentSeason,
+  queryGoalTypes,
   queryPlayers,
   queryTables,
 } from '#flib/trpcCalls';
@@ -62,6 +65,10 @@ const MundialCalculator: Component = () => {
         getTables: () => queryTables().then((r) => r.data),
         getBalls: () => queryBalls().then((r) => r.data),
         getPlayers: () => queryPlayers().then((r) => r.data),
+        getGoalTypes: () => queryGoalTypes().then((r) => r.data),
+
+        getActiveLeague: () => queryActiveLeague(),
+        getCurrentSeason: () => queryCurrentSeason(),
 
         createLegacyMatch: (match) => openMatchModal(match),
 
