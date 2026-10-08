@@ -1,4 +1,5 @@
-import { createSignal } from 'solid-js';
+import { createAsync } from '@solidjs/router';
+import { createSignal, getOwner } from 'solid-js';
 import { Break } from '#components/Break';
 import { Button } from '#components/Button';
 import { InlineAction } from '#components/InlineAction';
@@ -8,6 +9,8 @@ import { Modal } from '#components/Modal';
 import { Divider } from '#components/Widget';
 import { useModal, useModalActions } from '#providers/ModalProvider';
 import style from './ModalTest.module.scss';
+
+const SUSPEND_DELAY = 2000; // milliseconds
 
 const M: Component<{
   counter: number;
@@ -55,9 +58,37 @@ const M: Component<{
   );
 };
 
+const SuspendingModal: Component = () => {
+  const loadedAt = createAsync(
+    () =>
+      new Promise<string>((resolve) => {
+        setTimeout(
+          () => resolve(new Date().toLocaleTimeString()),
+          SUSPEND_DELAY,
+        );
+      }),
+  );
+
+  return (
+    <Modal topLeftLabels="Suspending Modal">
+      <div>Loaded at: {loadedAt()}</div>
+    </Modal>
+  );
+};
+
 const ModalTest: Component = () => {
   const [, { open }] = useModal();
   const [counter, setCounter] = createSignal(0);
+  const owner = getOwner();
+
+  const openSuspendingModal = () => {
+    open({
+      props: {
+        component: SuspendingModal,
+      },
+      owner,
+    });
+  };
 
   const openModal = () => {
     open({
@@ -83,6 +114,12 @@ const ModalTest: Component = () => {
       <br />
       <Button severity="danger" onClick={openModal}>
         Open Basic Modal
+      </Button>
+      <Break />
+      Suspending modal (resolves after {SUSPEND_DELAY / 1000}s):
+      <br />
+      <Button severity="secondary" onClick={openSuspendingModal}>
+        Open Suspending Modal
       </Button>
       <Break />
       {/* <M counter={0} /> */}
