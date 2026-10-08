@@ -94,6 +94,19 @@ const emptyResourceQueryById = createResourceQueryById([]);
 const manyResourceQuery = createResourceQuery(manyResources);
 const manyResourceQueryById = createResourceQueryById(manyResources);
 
+const mixedResourceQuery = createResourceQuery([
+  ...defaultResources,
+  ...manyResources,
+]);
+const mixedResourceQueryById = createResourceQueryById([
+  ...defaultResources,
+  ...manyResources,
+]);
+
+const preselectedResources = ['resource-2', 'many-2', 'many-3'];
+
+const isPreselected = (uuid: string) => preselectedResources.includes(uuid);
+
 const toEntry = (resource: TestResource) => {
   return {
     label: (
@@ -126,6 +139,9 @@ export const ResourcePickerTest: Component = () => {
     string | undefined
   >(undefined);
   const [manyPickerValue] = createSignal<string | undefined>('many-1');
+  const [preselectedPickerValue, setPreselectedPickerValue] = createSignal<
+    string | undefined
+  >(undefined);
   const [labelPickerValue, setLabelPickerValue] = createSignal<
     string | undefined
   >('resource-2');
@@ -133,6 +149,9 @@ export const ResourcePickerTest: Component = () => {
   const [multiBasicValue] = createSignal<string[]>(['resource-1']);
   const [multiWideLabelValue] = createSignal<string[]>(['resource-wide']);
   const [multiManyValue] = createSignal<string[]>(['many-1', 'many-2']);
+  const [multiPreselectedValue, setMultiPreselectedValue] = createSignal<
+    string[]
+  >([]);
 
   return (
     <div class={style.outerContainer}>
@@ -213,6 +232,19 @@ export const ResourcePickerTest: Component = () => {
             toEntry={toEntry}
             value={manyPickerValue()}
           />
+          <Divider />
+          Preselected options (Ball B, Resource 2, Resource 3):{' '}
+          <ResourcePicker
+            class={style.forcedPickerWidth}
+            queryById={mixedResourceQueryById}
+            placeholder="Select a resource..."
+            query={mixedResourceQuery}
+            toEntry={toEntry}
+            isPreselected={isPreselected}
+            value={preselectedPickerValue()}
+            onChange={setPreselectedPickerValue}
+          />{' '}
+          Selected: {preselectedPickerValue() ?? 'none'}
           <Divider />
           Multiple side by side:
           <div class={style.sideBySide}>
@@ -302,6 +334,16 @@ export const ResourcePickerTest: Component = () => {
             query={manyResourceQuery}
             toEntry={toEntry}
             value={multiManyValue()}
+          />
+          <Divider />
+          Preselected options (Resource 2, Resource 3):
+          <MultiResourcePicker
+            queryById={manyResourceQueryById}
+            query={manyResourceQuery}
+            toEntry={toEntry}
+            isPreselected={isPreselected}
+            value={multiPreselectedValue()}
+            onChange={setMultiPreselectedValue}
           />
           <Divider />
           Multiple side by side:
