@@ -1,6 +1,8 @@
 import { type Accessor, createMemo } from 'solid-js';
 import { getTableSideColor } from '#flib/teamColors';
+import { formatGoalTypeLabel, sortGoalTypeTree } from '#shared/goalTypes';
 import { getMatchSidePlayers } from '#shared/matchTimeline';
+import type { GoalType } from '#shared/types/api/goalType';
 import type { MatchSide } from '#shared/types/api/matchEvent';
 import type { MatchTimeline } from '#shared/types/api/matchTimeline';
 import { shortUUID } from '#shared/utils';
@@ -10,6 +12,9 @@ export interface MatchTimelineLookup {
 
   getPlayerName: (uuid: string) => string;
   getBallName: (uuid: string) => string;
+  getGoalTypeLabel: (uuid: string) => string;
+
+  goalTypes: Accessor<GoalType[]>;
 
   getSidePlayers: (side: MatchSide) => readonly string[];
   getSidePlayerNames: (side: MatchSide) => string[];
@@ -34,9 +39,24 @@ export function createMatchTimelineLookup(
     () => new Map(timeline().balls.map((ball) => [ball.uuid, ball.name])),
   );
 
+  const goalTypes = createMemo(() => sortGoalTypeTree(timeline().goalTypes));
+
+  const goalTypeLabels = createMemo(
+    () =>
+      new Map(
+        goalTypes().map((goalType) => [
+          goalType.uuid,
+          formatGoalTypeLabel(goalType),
+        ]),
+      ),
+  );
+
   const getPlayerName = (uuid: string) => getReferenceName(playerNames(), uuid);
 
   const getBallName = (uuid: string) => getReferenceName(ballNames(), uuid);
+
+  const getGoalTypeLabel = (uuid: string) =>
+    getReferenceName(goalTypeLabels(), uuid);
 
   const getSidePlayers = (side: MatchSide) =>
     getMatchSidePlayers(timeline().match, side);
@@ -52,6 +72,9 @@ export function createMatchTimelineLookup(
 
     getPlayerName,
     getBallName,
+    getGoalTypeLabel,
+
+    goalTypes,
 
     getSidePlayers,
     getSidePlayerNames,
