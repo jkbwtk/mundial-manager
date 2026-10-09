@@ -1,6 +1,10 @@
 import z from 'zod';
+import {
+  leagueCreateDefaults,
+  leagueLinkQueryDefaults,
+} from '#shared/defaults/league';
 import { Role, RoleEnum } from '#shared/permissions';
-import { TimeZone } from '#shared/zod';
+import { TimeZone, withDefaults } from '#shared/zod';
 
 export const League = z.object({
   uuid: z.uuid(),
@@ -17,9 +21,10 @@ export type League = z.infer<typeof League>;
 export const LeagueNullable = League.nullable();
 export type LeagueNullable = z.infer<typeof LeagueNullable>;
 
-export const LeagueCreate = League.omit({ uuid: true }).extend({
-  timezone: League.shape.timezone.default('UTC'),
-});
+export const LeagueCreate = withDefaults(
+  League.omit({ uuid: true }),
+  leagueCreateDefaults,
+);
 export type LeagueCreate = z.infer<typeof LeagueCreate>;
 export type LeagueCreateInput = z.input<typeof LeagueCreate>;
 
@@ -38,9 +43,15 @@ export type LeagueSettingsUpdate = z.infer<typeof LeagueSettingsUpdate>;
 export const LeagueLinkRole = Role.exclude([RoleEnum.ADMIN]);
 export type LeagueLinkRole = z.infer<typeof LeagueLinkRole>;
 
-export const LeagueLinkQuery = League.pick({ uuid: true }).extend({
-  role: LeagueLinkRole.default(RoleEnum.MEMBER),
-  ttl: z.int().min(1).max(365).default(365), // days
+export const LeagueLink = League.pick({ uuid: true }).extend({
+  role: LeagueLinkRole,
+  ttl: z.int().min(1).max(365), // days
 });
+export type LeagueLink = z.infer<typeof LeagueLink>;
+
+export const LeagueLinkQuery = withDefaults(
+  LeagueLink,
+  leagueLinkQueryDefaults,
+);
 export type LeagueLinkQuery = z.infer<typeof LeagueLinkQuery>;
 export type LeagueLinkQueryInput = z.input<typeof LeagueLinkQuery>;

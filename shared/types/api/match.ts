@@ -1,7 +1,8 @@
 import z from 'zod';
 import { createQueryMeta } from '#backend/types/trpc';
+import { matchCreateDefaults } from '#shared/defaults/match';
 import { Labels } from '#shared/labels';
-import { PaginatedResponse, uuidArray } from '#shared/zod';
+import { PaginatedResponse, uuidArray, withDefaults } from '#shared/zod';
 
 export const SyncId = z
   .string()
@@ -55,18 +56,10 @@ export type MatchPaginated = z.infer<typeof MatchPaginated>;
 export const MatchNullable = Match.nullable();
 export type MatchNullable = z.infer<typeof MatchNullable>;
 
-export const MatchCreate = Match.omit({ uuid: true }).extend({
-  startDate: Match.shape.startDate.default(null),
-
-  duration: Match.shape.duration.default(null),
-  pauseDuration: Match.shape.pauseDuration.default(0),
-
-  status: Match.shape.status.default(MatchStatusEnum.SCHEDULED),
-
-  hidden: Match.shape.hidden.default(false),
-
-  syncId: Match.shape.syncId.default(null),
-});
+export const MatchCreate = withDefaults(
+  Match.omit({ uuid: true }),
+  matchCreateDefaults,
+);
 export type MatchCreate = z.infer<typeof MatchCreate>;
 
 export const MatchUpdate = Match.omit({ uuid: true, syncId: true })
