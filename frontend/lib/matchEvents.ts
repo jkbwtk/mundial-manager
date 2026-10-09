@@ -111,8 +111,10 @@ export function createMatchEvent(
     case 'BALL_CHANGE':
       return { ...base, type, ball: defaults.ballUuid ?? '' };
 
-    case 'EQUIPMENT_FAILURE':
     case 'PAUSE':
+      return { ...base, type, details: null, countsAsPresence: false };
+
+    case 'EQUIPMENT_FAILURE':
     case 'CANCEL':
       return { ...base, type, details: null };
 

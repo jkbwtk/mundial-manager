@@ -156,6 +156,7 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
           type: 'PAUSE',
           details:
             runWithProbability(0.7, () => faker.lorem.sentence()) ?? null,
+          countsAsPresence: false,
           labels: {},
         });
 

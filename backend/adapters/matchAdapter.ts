@@ -250,6 +250,7 @@ export function convertFromLegacyMatchEvent(
 
         type: 'PAUSE',
         details: event.reason,
+        countsAsPresence: false,
       };
 
     case 'RESUME':

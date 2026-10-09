@@ -70,6 +70,7 @@ export type MatchEventEquipmentFailure = z.infer<
 export const MatchEventPause = MatchEventBase.extend({
   type: z.literal(MatchEventTypeEnum.PAUSE),
   details: z.string().nullable().default(null),
+  countsAsPresence: z.boolean().default(false),
 });
 export type MatchEventPause = z.infer<typeof MatchEventPause>;
 
