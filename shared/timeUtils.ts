@@ -36,6 +36,18 @@ export function formatDate(timestamp: number | null): string {
   return dayjs.unix(timestamp).format('YYYY-MM-DD');
 }
 
+export function formatTime(timestamp: number | null): string {
+  if (timestamp === null) {
+    return '--:--';
+  }
+
+  return dayjs.unix(timestamp).format('HH:mm');
+}
+
+export function formatTimeMs(ms: number | null): string {
+  return formatTime(ms === null ? null : msToSeconds(ms));
+}
+
 export function formatDatetime(timestamp: number | null): string {
   if (timestamp === null) {
     return '----/--/-- --:--:--';
