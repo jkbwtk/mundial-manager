@@ -43,6 +43,49 @@ export const ZodLikeError = jsonCodec(
 
 export type ZodLikeError = z.infer<typeof ZodLikeError>;
 
+export type DeepPartial<T> = T extends Date | readonly unknown[]
+  ? T
+  : T extends object
+    ? { [K in keyof T]?: DeepPartial<T[K]> }
+    : T;
+
+type DefaultedShape<Shape extends z.ZodRawShape, Defaults> = {
+  [K in keyof Shape]: K extends keyof Defaults
+    ? Shape[K] extends z.ZodObject<infer Inner>
+      ? z.ZodPrefault<
+          z.ZodObject<DefaultedShape<Inner, NonNullable<Defaults[K]>>>
+        >
+      : z.ZodDefault<Shape[K]>
+    : Shape[K];
+};
+
+export function withDefaults<
+  T extends z.ZodObject,
+  const Defaults extends DeepPartial<z.output<T>>,
+>(
+  schema: T,
+  defaults: Defaults,
+): z.ZodObject<DefaultedShape<T['shape'], Defaults>> {
+  const overrides: Record<string, z.ZodType> = {};
+
+  for (const [key, value] of Object.entries(defaults)) {
+    const field = schema.shape[key] as z.ZodType | undefined;
+
+    if (field === undefined) continue;
+
+    overrides[key] =
+      field instanceof z.ZodObject &&
+      value !== null &&
+      typeof value === 'object' &&
+      !Array.isArray(value)
+        ? withDefaults(field, value).prefault({})
+        : field.default(value);
+  }
+
+  // biome-ignore lint/suspicious/noExplicitAny: yeah
+  return schema.extend(overrides) as any;
+}
+
 export const PaginatedResponse = <T extends z.core.SomeType>(schema: T) => {
   return z.object({
     data: z.array(schema),
