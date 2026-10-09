@@ -48,6 +48,7 @@ export interface MatchTimelineStats {
   counts: Partial<Record<MatchEventType, number>>;
   ownGoals: number;
 
+  goalGaps: number[];
   goalsPerMinute: number | null;
   averageTimeBetweenGoals: number | null;
   longestTimeBetweenGoals: number | null;
@@ -173,6 +174,15 @@ export function getMatchSidePlayers(
   side: MatchSide,
 ): string[] {
   return side === 'SIDE_1' ? match.playersSide1 : match.playersSide2;
+}
+
+export function getMatchSideScores(
+  match: Pick<Match, 'side1Score' | 'side2Score'>,
+  side: MatchSide,
+): [score: number, opponentScore: number] {
+  return side === 'SIDE_1'
+    ? [match.side1Score, match.side2Score]
+    : [match.side2Score, match.side1Score];
 }
 
 function getTieBreakPriority(type: MatchEventType): number {
@@ -321,6 +331,7 @@ export function getMatchTimelineStats(
     counts,
     ownGoals: goals.filter((goal) => goal.ownGoal).length,
 
+    goalGaps: gaps,
     goalsPerMinute: duration ? goals.length / (duration / 60_000) : null,
     averageTimeBetweenGoals:
       gaps.length > 0 ? gaps.reduce((a, b) => a + b, 0) / gaps.length : null,
