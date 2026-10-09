@@ -2,7 +2,6 @@ import { ModalForm } from '#components/ModalForm';
 import { useCopyToClipboard } from '#flib/clipboard';
 import { actionCreateLeagueLink } from '#flib/trpcCalls';
 import { useModalActions } from '#providers/ModalProvider';
-import { RoleEnum } from '#shared/permissions';
 import {
   type League,
   LeagueLinkQuery,
@@ -32,7 +31,6 @@ export const LeagueLinkModal: Component<LeagueLinkModalProps> = (props) => {
   return (
     <ModalForm
       class={style.modal}
-      initialValues={{ role: RoleEnum.MEMBER, ttl: 365 }}
       model={LeagueLinkQuery}
       action={actionCreateLeagueLink}
       title={`Magic Link for ${props.league.alias}`}

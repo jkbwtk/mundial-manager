@@ -116,6 +116,7 @@ export interface FieldMeta {
 }
 
 export interface JSONSchemaNode {
+  default?: unknown;
   properties?: Record<string, JSONSchemaNode | undefined>;
   required?: string[];
 }

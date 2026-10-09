@@ -35,10 +35,18 @@ const getFieldComponent = (type: FormFieldType) => {
   return fieldComponents[type] as Component<FormFieldProps>;
 };
 
+const getInitialValue = (props: FormFieldProps) => {
+  if (props.value !== undefined || props.field.type === 'object') {
+    return props.value;
+  }
+
+  return props.schemaNode?.default ?? undefined;
+};
+
 export const FormFieldEntry: Component<FormFieldProps> = (props) => (
   <Dynamic
     component={getFieldComponent(props.field.type)}
     {...props}
-    value={formatFieldValue(props.field, props.value)}
+    value={formatFieldValue(props.field, getInitialValue(props))}
   />
 );
