@@ -1,7 +1,8 @@
 import z from 'zod';
 import { createQueryMeta } from '#backend/types/trpc';
+import { goalTypeCreateDefaults } from '#shared/defaults/goalType';
 import { Labels } from '#shared/labels';
-import { hexColor, PaginatedResponse } from '#shared/zod';
+import { hexColor, PaginatedResponse, withDefaults } from '#shared/zod';
 
 export const GoalTypeKey = z
   .string()
@@ -20,7 +21,7 @@ export const GoalType = z.object({
 
   icon: z.string().max(16).nullish(), // emoji
   color: hexColor.nullish(), // #RRGGBBAA
-  stylePoints: z.int().nonnegative().default(0),
+  stylePoints: z.int().nonnegative(),
 
   labels: Labels,
 });
@@ -32,12 +33,15 @@ export type GoalTypePaginated = z.infer<typeof GoalTypePaginated>;
 export const GoalTypeNullable = GoalType.nullable();
 export type GoalTypeNullable = z.infer<typeof GoalTypeNullable>;
 
-export const GoalTypeCreate = GoalType.omit({ uuid: true });
+export const GoalTypeCreate = withDefaults(
+  GoalType.omit({ uuid: true }),
+  goalTypeCreateDefaults,
+);
 export type GoalTypeCreate = z.infer<typeof GoalTypeCreate>;
 
-export const GoalTypeUpdate = GoalTypeCreate.partial().extend({
-  uuid: z.uuid(),
-});
+export const GoalTypeUpdate = GoalType.omit({ uuid: true })
+  .partial()
+  .extend({ uuid: z.uuid() });
 export type GoalTypeUpdate = z.infer<typeof GoalTypeUpdate>;
 
 export const GoalTypeQueryMeta = createQueryMeta({

@@ -7,13 +7,13 @@ import {
   ConvertDrizzleErrors,
   StrategyValidationError,
 } from '#blib/modelErrors';
+import { defaultGoalTypes } from '#shared/defaults/goalType';
 import {
   GoalType,
   GoalTypeCreate,
   GoalTypeQueryMeta,
   GoalTypeUpdate,
 } from '#shared/types/api/goalType';
-import { defaultGoalTypes } from '#shared/types/api/goalTypeDefaults';
 
 const GoalTypeOps = ModelOps({
   table: goalTypesTable,

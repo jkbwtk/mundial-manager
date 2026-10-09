@@ -1,6 +1,11 @@
-import type { GoalTypeCreate } from '#shared/types/api/goalType';
+import type { GoalType } from '#shared/types/api/goalType';
+import type { DeepPartial } from '#shared/zod';
 
-export const defaultGoalTypes: Omit<GoalTypeCreate, 'parentUuid'>[] = [
+export const goalTypeCreateDefaults = {
+  stylePoints: 0,
+} satisfies DeepPartial<GoalType>;
+
+export const defaultGoalTypes: Omit<GoalType, 'uuid' | 'parentUuid'>[] = [
   {
     key: 'AERIAL_GOAL',
     name: 'Aerial',
