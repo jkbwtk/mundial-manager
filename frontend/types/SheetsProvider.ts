@@ -1,5 +1,4 @@
 import type { Dayjs } from 'dayjs';
-import type { SeasonConfig } from '#shared/types/api/season';
 import type { Match } from '#shared/types/Sheets';
 
 export interface BaseStats {
@@ -77,13 +76,25 @@ export interface MonthStats extends AggregateStats {
   humanMonth: string;
 }
 
-export type { SeasonConfig } from '#shared/types/api/season';
+export interface LegacySeasonConfig {
+  resetRatings: boolean;
+
+  defaultEloRating: number;
+
+  defaultGlicko2Rating: number;
+  defaultGlicko2RD: number;
+  defaultGlicko2Volatility: number;
+
+  eloKFactorRanges: Record<string, number>;
+
+  eloScoreMultipliers: Record<string, number>;
+}
 
 export interface Season {
   number: number;
   label: string;
 
-  config: SeasonConfig;
+  config: LegacySeasonConfig;
 
   startDate: Dayjs;
   endDate: Dayjs;

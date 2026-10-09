@@ -2,9 +2,29 @@ import type { TX } from '#backend/db/database';
 import { SeasonModel } from '#backend/db/models/SeasonModel';
 import { seasonsTable } from '#backend/db/schema';
 import { seasons as legacySeasons } from '#flib/seasons';
+import type { LegacySeasonConfig } from '#frontend/types';
 import { logger } from '#shared/logger';
+import { type SeasonConfig, SeasonCreate } from '#shared/types/api/season';
 import type { ImportOptions } from '#tools/commands/import';
 import { importResources } from '#tools/commands/import/utils';
+
+function convertLegacySeasonConfig(config: LegacySeasonConfig): SeasonConfig {
+  return SeasonCreate.shape.config.parse({
+    resetRatings: config.resetRatings,
+    ratings: {
+      ELO: {
+        defaultRating: config.defaultEloRating,
+        kFactorRanges: config.eloKFactorRanges,
+        scoreMultipliers: config.eloScoreMultipliers,
+      },
+      GLICKO2: {
+        defaultRating: config.defaultGlicko2Rating,
+        defaultRd: config.defaultGlicko2RD,
+        defaultVolatility: config.defaultGlicko2Volatility,
+      },
+    },
+  });
+}
 
 export async function importLegacySeasons(tx: TX, options: ImportOptions) {
   logger.info('Importing legacy seasons...', {
@@ -35,7 +55,7 @@ export async function importLegacySeasons(tx: TX, options: ImportOptions) {
     create: (season) =>
       SeasonModel.create(tx, options.leagueUuid, {
         name: season.label,
-        config: season.config,
+        config: convertLegacySeasonConfig(season.config),
         startDate: season.startDate.toDate(),
         endDate: season.endDate.toDate(),
         labels: {},

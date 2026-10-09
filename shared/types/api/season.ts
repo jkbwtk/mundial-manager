@@ -1,20 +1,15 @@
 import z from 'zod';
 import { createQueryMeta } from '#backend/types/trpc';
+import { defaultSeasonConfig } from '#shared/defaults/season';
 import { Labels } from '#shared/labels';
-import { PaginatedResponse } from '#shared/zod';
+import { RatingSystemsConfig } from '#shared/types/stats/ratingSystem';
+import { PaginatedResponse, withDefaults } from '#shared/zod';
 
 export const SeasonConfig = z.object({
   resetRatings: z.boolean(),
+  sessionGap: z.number().nonnegative(), // milliseconds
 
-  defaultEloRating: z.number(),
-
-  defaultGlicko2Rating: z.number(),
-  defaultGlicko2RD: z.number(),
-  defaultGlicko2Volatility: z.number(),
-
-  eloKFactorRanges: z.record(z.string(), z.number()),
-
-  eloScoreMultipliers: z.record(z.string(), z.number()),
+  ratings: RatingSystemsConfig,
 });
 export type SeasonConfig = z.infer<typeof SeasonConfig>;
 
@@ -34,10 +29,14 @@ export type SeasonPaginated = z.infer<typeof SeasonPaginated>;
 export const SeasonNullable = Season.nullable();
 export type SeasonNullable = z.infer<typeof SeasonNullable>;
 
-export const SeasonCreate = Season.omit({ uuid: true });
+export const SeasonCreate = Season.omit({ uuid: true }).extend({
+  config: withDefaults(SeasonConfig, defaultSeasonConfig),
+});
 export type SeasonCreate = z.infer<typeof SeasonCreate>;
 
-export const SeasonUpdate = SeasonCreate.partial().extend({ uuid: z.uuid() });
+export const SeasonUpdate = Season.omit({ uuid: true })
+  .partial()
+  .extend({ uuid: z.uuid() });
 export type SeasonUpdate = z.infer<typeof SeasonUpdate>;
 
 export const SeasonQueryMeta = createQueryMeta({

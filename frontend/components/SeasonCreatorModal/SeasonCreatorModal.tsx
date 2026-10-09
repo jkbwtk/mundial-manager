@@ -1,11 +1,11 @@
 import { ModalForm, type ModalFormLabels } from '#components/ModalForm';
 import { actionCreateSeason, actionUpdateSeason } from '#flib/trpcCalls';
+import { msToSeconds, secondsToMs } from '#shared/timeUtils';
 import {
   type Season,
   SeasonCreate,
   SeasonUpdate,
 } from '#shared/types/api/season';
-import { defaultSeasonConfig } from '#shared/types/api/seasonDefaults';
 import style from './SeasonCreatorModal.module.scss';
 
 export interface SeasonCreatorModalProps {
@@ -37,11 +37,6 @@ export const SeasonCreatorModal: Component<SeasonCreatorModalProps> = (
     <ModalForm
       class={style.modal}
       instance={props.season}
-      initialValues={
-        isCreating
-          ? { config: structuredClone(defaultSeasonConfig) }
-          : undefined
-      }
       model={isCreating ? SeasonCreate : SeasonUpdate}
       // @ts-expect-error
       action={isCreating ? actionCreateSeason : actionUpdateSeason}
@@ -74,38 +69,79 @@ export const SeasonCreatorModal: Component<SeasonCreatorModalProps> = (
               label: 'Reset Ratings',
               type: 'checkbox',
             },
-            defaultEloRating: {
-              label: 'Default Elo Rating',
-              placeholder: 'Default Elo rating...',
+            sessionGap: {
+              label: 'Session Gap',
+              placeholder: 'Session gap...',
               type: 'number',
+              unit: 's',
+              min: 0,
+              transform: secondsToMs,
+              format: msToSeconds,
             },
-            defaultGlicko2Rating: {
-              label: 'Default Glicko-2 Rating',
-              placeholder: 'Default Glicko-2 rating...',
-              type: 'number',
-            },
-            defaultGlicko2RD: {
-              label: 'Default Glicko-2 RD',
-              placeholder: 'Default Glicko-2 RD...',
-              type: 'number',
-            },
-            defaultGlicko2Volatility: {
-              label: 'Default Glicko-2 Volatility',
-              placeholder: 'Default Glicko-2 volatility...',
-              type: 'number',
-              step: 'any',
-            },
-            eloKFactorRanges: {
-              label: 'Elo K-Factor Ranges',
-              type: 'record',
-              keyPlaceholder: 'Bound or "default"...',
-              valuePlaceholder: 'K-factor...',
-            },
-            eloScoreMultipliers: {
-              label: 'Elo Score Multipliers',
-              type: 'record',
-              keyPlaceholder: 'Diff or "default"...',
-              valuePlaceholder: 'Multiplier...',
+            ratings: {
+              label: 'Ratings',
+              type: 'object',
+              fields: {
+                ELO: {
+                  label: 'Elo',
+                  type: 'object',
+                  fields: {
+                    enabled: {
+                      label: 'Enabled',
+                      type: 'checkbox',
+                    },
+                    defaultRating: {
+                      label: 'Default Rating',
+                      placeholder: 'Default rating...',
+                      type: 'number',
+                    },
+                    kFactorRanges: {
+                      label: 'K-Factor Ranges',
+                      type: 'record',
+                      keyPlaceholder: 'Bound or "default"...',
+                      valuePlaceholder: 'K-factor...',
+                    },
+                    scoreMultipliers: {
+                      label: 'Score Multipliers',
+                      type: 'record',
+                      keyPlaceholder: 'Diff or "default"...',
+                      valuePlaceholder: 'Multiplier...',
+                    },
+                  },
+                },
+                GLICKO2: {
+                  label: 'Glicko-2',
+                  type: 'object',
+                  fields: {
+                    enabled: {
+                      label: 'Enabled',
+                      type: 'checkbox',
+                    },
+                    defaultRating: {
+                      label: 'Default Rating',
+                      placeholder: 'Default rating...',
+                      type: 'number',
+                    },
+                    defaultRd: {
+                      label: 'Default RD',
+                      placeholder: 'Default RD...',
+                      type: 'number',
+                    },
+                    defaultVolatility: {
+                      label: 'Default Volatility',
+                      placeholder: 'Default volatility...',
+                      type: 'number',
+                      step: 'any',
+                    },
+                    tau: {
+                      label: 'Tau',
+                      placeholder: 'Tau...',
+                      type: 'number',
+                      step: 'any',
+                    },
+                  },
+                },
+              },
             },
           },
         },
