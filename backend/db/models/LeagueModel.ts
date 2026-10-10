@@ -1,6 +1,7 @@
 import { and, count, eq, isNull } from 'drizzle-orm';
 import type { DB, TX } from '#backend/db/database';
 import { Model } from '#backend/db/Model';
+import { GoalTypeModel } from '#backend/db/models/GoalTypeModel';
 import { leaguesTable } from '#backend/db/schema';
 import type { LeagueSelectSchema } from '#backend/types/db/league';
 import {
@@ -24,6 +25,8 @@ export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
     if (!league) {
       throw new DatabaseError('Failed to create league', {});
     }
+
+    await GoalTypeModel.createDefaults(db, league.uuid);
 
     return new LeagueModel(db, league);
   }
