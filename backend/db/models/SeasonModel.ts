@@ -1,7 +1,9 @@
+import { PublishResult } from '#backend/amqp/publishers';
 import type { DB, TX } from '#backend/db/database';
 import { ModelOps } from '#backend/db/models/ModelOps';
 import { seasonsTable } from '#backend/db/schema';
 import { SeasonSelectSchema } from '#backend/types/db/season';
+import type { StatsInvalidation } from '#backend/types/statsInvalidation';
 import {
   ConvertDrizzleErrors,
   StrategyValidationError,
@@ -12,6 +14,14 @@ import {
   SeasonQueryMeta,
   SeasonUpdate,
 } from '#shared/types/api/season';
+
+function getSeasonInvalidation({
+  resp,
+}: {
+  resp: { uuid: string };
+}): StatsInvalidation {
+  return { source: 'SEASON', uuid: resp.uuid };
+}
 
 const SeasonOps = ModelOps({
   table: seasonsTable,
@@ -24,6 +34,44 @@ const SeasonOps = ModelOps({
 });
 
 export class SeasonModel extends SeasonOps {
+  @PublishResult(
+    'STATS_INVALIDATION',
+    ({ args }) => args[1],
+    getSeasonInvalidation,
+  )
+  @ConvertDrizzleErrors()
+  public static async create(
+    db: DB | TX,
+    leagueUuid: string,
+    data: SeasonCreate,
+  ) {
+    return super.create(db, leagueUuid, data);
+  }
+
+  @PublishResult(
+    'STATS_INVALIDATION',
+    ({ args }) => args[1],
+    getSeasonInvalidation,
+  )
+  @ConvertDrizzleErrors()
+  public static async update(
+    db: DB | TX,
+    leagueUuid: string,
+    data: SeasonUpdate,
+  ) {
+    return super.update(db, leagueUuid, data);
+  }
+
+  @PublishResult(
+    'STATS_INVALIDATION',
+    ({ args }) => args[1],
+    getSeasonInvalidation,
+  )
+  @ConvertDrizzleErrors()
+  public static async delete(db: DB | TX, leagueUuid: string, uuid: string) {
+    return super.delete(db, leagueUuid, uuid);
+  }
+
   @ConvertDrizzleErrors()
   public static async getByDate(db: DB | TX, leagueUuid: string, date: Date) {
     const instance = await db.query.seasonsTable.findFirst({
