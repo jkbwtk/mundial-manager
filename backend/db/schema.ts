@@ -2,13 +2,14 @@ import { isNull, type SQL, sql } from 'drizzle-orm';
 import type { AnyPgColumn } from 'drizzle-orm/pg-core';
 import { integer, pgEnum, timestamp, uuid } from 'drizzle-orm/pg-core/columns';
 import { index, uniqueIndex } from 'drizzle-orm/pg-core/indexes';
+import { primaryKey } from 'drizzle-orm/pg-core/primary-keys';
 import { pgTable } from 'drizzle-orm/pg-core/table';
 import { tsvector } from '#backend/db/utils';
 import type { Labels } from '#shared/labels';
 import { MatchStatusEnum } from '#shared/types/api/match';
 import type { MatchEvent } from '#shared/types/api/matchEvent';
 import type { SeasonConfig } from '#shared/types/api/season';
-import type { StatsFrame } from '#shared/types/api/statsFrame';
+import type { StatsFrameModule } from '#shared/types/stats/statsFrame';
 
 const commonFields = {
   uuid: uuid().primaryKey().defaultRandom(),
@@ -359,19 +360,33 @@ export const statsFramesTable = pgTable(
       .references(() => matchesTable.uuid, { onDelete: 'cascade' })
       .notNull(),
 
-    time: t
-      .timestamp({ mode: 'date', withTimezone: true, precision: 6 })
-      .notNull(),
-    payload: t.jsonb().$type<StatsFrame>().notNull(),
+    seq: t.integer().notNull(),
+    day: t.text(), // YYYY-MM-DD in the league timezone
+    matchStartDate: t.timestamp({
+      mode: 'date',
+      withTimezone: true,
+      precision: 6,
+    }),
 
-    labels: t.jsonb().$type<Labels>().notNull().default(sql`'{}'::jsonb`),
+    module: t.text().$type<StatsFrameModule>().notNull(),
+    bucket: t.text().notNull(),
+    bucketKey: t.text().notNull(),
+    subject: t.text().notNull(),
 
-    ...commonFields,
+    payload: t.jsonb().$type<unknown>().notNull(),
   }),
   (r) => [
-    index().on(r.leagueUuid),
-    uniqueIndex().on(r.matchUuid),
-    index().on(r.time),
-    index().on(r.$createdAt),
+    primaryKey({
+      columns: [
+        r.leagueUuid,
+        r.module,
+        r.bucket,
+        r.bucketKey,
+        r.subject,
+        r.seq,
+      ],
+    }),
+    index().on(r.leagueUuid, r.seq),
+    index().on(r.matchUuid).where(sql`${r.module} = 'CONTEXT'`),
   ],
 );

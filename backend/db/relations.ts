@@ -140,11 +140,10 @@ export const relations = defineRelations(schema, (r) => ({
       alias: 'timeline',
       optional: true,
     }),
-    statsFrame: r.one.statsFramesTable({
+    statsFrames: r.many.statsFramesTable({
       from: r.matchesTable.uuid,
       to: r.statsFramesTable.matchUuid,
-      alias: 'statsFrame',
-      optional: true,
+      alias: 'statsFrames',
     }),
   },
   matchTimelinesTable: {
