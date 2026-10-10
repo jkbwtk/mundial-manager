@@ -6,6 +6,7 @@ import { matchesRouter } from '#backend/routers/trpc/matches';
 import { matchTimelinesRouter } from '#backend/routers/trpc/matchTimelines';
 import { playersRouter } from '#backend/routers/trpc/players';
 import { seasonsRouter } from '#backend/routers/trpc/seasons';
+import { statsRouter } from '#backend/routers/trpc/stats';
 import { systemRouter } from '#backend/routers/trpc/system';
 import { tablesRouter } from '#backend/routers/trpc/tables';
 import { router } from '#blib/trpc';
@@ -20,6 +21,7 @@ export const appRouter = router({
   players: playersRouter,
   matches: matchesRouter,
   matchTimelines: matchTimelinesRouter,
+  stats: statsRouter,
   admin: adminRouter,
 });
 
