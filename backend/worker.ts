@@ -1,5 +1,8 @@
 import { getAMQPChannel } from '#backend/amqp/amqp';
-import { registerMatchTableUpdates } from '#backend/amqp/consumers/matchTableUpdates';
+import {
+  enqueueStaleStatsInvalidations,
+  registerStatsInvalidation,
+} from '#backend/amqp/consumers/statsInvalidation';
 import { db } from '#backend/db/database';
 import { environment } from '#backend/environment';
 import { logger } from '#shared/logger';
@@ -23,7 +26,8 @@ async function main() {
     label: ['worker'],
   });
 
-  registerMatchTableUpdates(amqp, db);
+  await registerStatsInvalidation(amqp, db);
+  await enqueueStaleStatsInvalidations(amqp, db);
 }
 
 main().catch((err) => {

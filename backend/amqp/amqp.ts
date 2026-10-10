@@ -16,7 +16,7 @@ export type SupportedAMQPQueue = Options.AssertQueue & {
 
 export const AMQP_QUEUES = [
   {
-    name: 'MATCH_TABLE_UPDATES',
+    name: 'STATS_INVALIDATION',
     arguments: {
       'x-queue-type': 'quorum',
     },

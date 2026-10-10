@@ -1,4 +1,7 @@
-import { PublishResult } from '#backend/amqp/publishers';
+import {
+  type PublishedResponse,
+  PublishResult,
+} from '#backend/amqp/publishers';
 import type { DB, TX } from '#backend/db/database';
 import { matchOrderBy, matchOrderByDesc } from '#backend/db/matchOrder';
 import { BallModel } from '#backend/db/models/BallModel';
@@ -9,6 +12,7 @@ import { PlayerModel } from '#backend/db/models/PlayerModel';
 import { TableModel } from '#backend/db/models/TableModel';
 import { matchesTable, teamConfigurationsTable } from '#backend/db/schema';
 import { MatchSelectSchema } from '#backend/types/db/match';
+import type { StatsInvalidation } from '#backend/types/statsInvalidation';
 import { getMissingReferenceIssues } from '#blib/matchTimelineIssues';
 import {
   ConvertDrizzleErrors,
@@ -35,6 +39,12 @@ import {
   MatchTimelineErrorTypeEnum,
   type MatchTimelineSave,
 } from '#shared/types/api/matchTimeline';
+
+export function getMatchInvalidation({
+  resp,
+}: PublishedResponse<{ uuid: string }>): StatsInvalidation {
+  return { source: 'MATCH', uuid: resp.uuid };
+}
 
 const MatchOps = ModelOps({
   table: matchesTable,
@@ -179,7 +189,11 @@ export class MatchModel extends MatchOps {
     };
   }
 
-  @PublishResult('MATCH_TABLE_UPDATES', ({ args }) => args[1])
+  @PublishResult(
+    'STATS_INVALIDATION',
+    ({ args }) => args[1],
+    getMatchInvalidation,
+  )
   @ConvertDrizzleErrors()
   public static async create(
     db: DB | TX,
@@ -189,7 +203,11 @@ export class MatchModel extends MatchOps {
     return super.create(db, leagueUuid, data);
   }
 
-  @PublishResult('MATCH_TABLE_UPDATES', ({ args }) => args[1])
+  @PublishResult(
+    'STATS_INVALIDATION',
+    ({ args }) => args[1],
+    getMatchInvalidation,
+  )
   @ConvertDrizzleErrors()
   public static async update(
     db: DB | TX,
@@ -259,7 +277,11 @@ export class MatchModel extends MatchOps {
     }));
   }
 
-  @PublishResult('MATCH_TABLE_UPDATES', ({ args }) => args[1])
+  @PublishResult(
+    'STATS_INVALIDATION',
+    ({ args }) => args[1],
+    getMatchInvalidation,
+  )
   @ConvertDrizzleErrors()
   public static async createFull(
     db: DB | TX,
@@ -339,9 +361,9 @@ export class MatchModel extends MatchOps {
   }
 
   @PublishResult(
-    'MATCH_TABLE_UPDATES',
+    'STATS_INVALIDATION',
     ({ args }) => args[1],
-    ({ resp }) => resp.match,
+    ({ resp }) => getMatchInvalidation({ resp: resp.match }),
   )
   @ConvertDrizzleErrors()
   public static async saveTimeline(
@@ -384,7 +406,11 @@ export class MatchModel extends MatchOps {
     });
   }
 
-  @PublishResult('MATCH_TABLE_UPDATES', ({ args }) => args[1])
+  @PublishResult(
+    'STATS_INVALIDATION',
+    ({ args }) => args[1],
+    getMatchInvalidation,
+  )
   @ConvertDrizzleErrors()
   public static async delete(db: DB | TX, leagueUuid: string, uuid: string) {
     return super.delete(db, leagueUuid, uuid);
