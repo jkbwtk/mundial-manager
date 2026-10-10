@@ -43,11 +43,15 @@ export function getMatchCursor(match: MatchLike): MatchLike {
 
 function compareToCursor(cursor: MatchLike, operator: SQL) {
   return (table: MatchesTable): SQL =>
-    sql`(${table.startDate}, ${createdAtMs(table)}, ${table.uuid}) ${operator} (${cursor.startDate}::timestamptz, ${cursor.$createdAt}::timestamptz, ${cursor.uuid}::uuid)`;
+    sql`(coalesce(${table.startDate}, 'infinity'::timestamptz), ${createdAtMs(table)}, ${table.uuid}) ${operator} (coalesce(${cursor.startDate}::timestamptz, 'infinity'::timestamptz), date_trunc('milliseconds', ${cursor.$createdAt}::timestamptz), ${cursor.uuid}::uuid)`;
 }
 
 export function isMatchAfter(cursor: MatchLike) {
   return compareToCursor(cursor, sql`>`);
+}
+
+export function isMatchAtOrAfter(cursor: MatchLike) {
+  return compareToCursor(cursor, sql`>=`);
 }
 
 export function isMatchBefore(cursor: MatchLike) {
