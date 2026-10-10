@@ -1,5 +1,5 @@
 import { and, count, eq, isNull } from 'drizzle-orm';
-import type { DB } from '#backend/db/database';
+import type { DB, TX } from '#backend/db/database';
 import { Model } from '#backend/db/Model';
 import { leaguesTable } from '#backend/db/schema';
 import type { LeagueSelectSchema } from '#backend/types/db/league';
@@ -61,7 +61,7 @@ export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
   }
 
   @ConvertDrizzleErrors()
-  public static async getById(db: DB, uuid: string) {
+  public static async getById(db: DB | TX, uuid: string) {
     const league = await db.query.leaguesTable.findFirst({
       where: {
         uuid,
@@ -79,7 +79,7 @@ export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
   }
 
   @ConvertDrizzleErrors()
-  public static async getAll(db: DB, limit?: number, offset?: number) {
+  public static async getAll(db: DB | TX, limit?: number, offset?: number) {
     const leagues = await db.query.leaguesTable.findMany({
       limit,
       offset,

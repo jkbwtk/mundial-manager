@@ -1,5 +1,5 @@
 import z from 'zod';
-import type { DB } from '#backend/db/database';
+import type { DB, TX } from '#backend/db/database';
 
 const BaseModelType = z.object({
   uuid: z.uuid(),
@@ -9,7 +9,7 @@ type BaseModelType = z.infer<typeof BaseModelType>;
 
 export abstract class Model<T extends BaseModelType, Public extends z.ZodType> {
   public instance: T;
-  protected db: DB;
+  protected db: DB | TX;
 
   protected abstract publicSchema: Public;
 
@@ -17,7 +17,7 @@ export abstract class Model<T extends BaseModelType, Public extends z.ZodType> {
     return this.instance.uuid;
   }
 
-  public constructor(db: DB, instance: T) {
+  public constructor(db: DB | TX, instance: T) {
     this.db = db;
     this.instance = instance;
   }
