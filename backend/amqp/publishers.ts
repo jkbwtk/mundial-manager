@@ -80,16 +80,19 @@ export function getTransportDelay(message: AMQPMessage<object>): number {
   return message.deserializationTimestamp - message.serializationTimestamp - dt;
 }
 
+export interface PublishedResponse<Resp> {
+  resp: Resp;
+}
+
+export interface PublishedCall<T extends (...args: any[]) => any>
+  extends PublishedResponse<Awaited<ReturnType<T>>> {
+  args: Parameters<T>;
+}
+
 export function PublishResult<T extends (...args: any[]) => any>(
   queue: AMQP_QUEUE_NAMES,
-  leagueUuidExtractor: (data: {
-    args: Parameters<T>;
-    resp: ReturnType<T>;
-  }) => string,
-  payloadExtractor: (data: {
-    args: Parameters<T>;
-    resp: Awaited<ReturnType<T>>;
-  }) => object = ({ resp }) => resp,
+  leagueUuidExtractor: (data: PublishedCall<T>) => string,
+  payloadExtractor: (data: PublishedCall<T>) => object = ({ resp }) => resp,
 ) {
   return (target: T, _ctx: ClassMemberDecoratorContext) => {
     const wrappedMethod = async function (this: any, ...args: Parameters<T>) {
