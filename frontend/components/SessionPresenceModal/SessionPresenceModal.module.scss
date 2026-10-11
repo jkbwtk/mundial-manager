@@ -1,0 +1,45 @@
+@use 'app' as *;
+
+.modal {
+  --modal-width: #{cw(80)};
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: ch(1);
+
+  padding-bottom: ch(1);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+}
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: ch(1);
+}
+
+.table-container {
+  max-height: round(down, ch(20), ch(1));
+  overflow: auto;
+
+  .table {
+    width: calc(100% - cw(2));
+    margin: 0 auto;
+  }
+}
+
+.played {
+  color: $primaryBrightColor;
+}
+
+.notice {
+  color: $textDimColor;
+  font-style: italic;
+  text-align: center;
+}
