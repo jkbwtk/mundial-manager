@@ -8,6 +8,7 @@ import { applyKeepAliveTimeout } from '#blib/utils';
 import { logger } from '#shared/logger';
 import registerImportCommand from '#tools/commands/import';
 import registerMigrateCommand from '#tools/commands/migrate';
+import registerSpectatorsCommand from '#tools/commands/spectators';
 
 async function runServer() {
   const app = express();
@@ -39,6 +40,7 @@ async function main() {
 
   registerMigrateCommand(program, '/app/private/backend/migrations');
   registerImportCommand(program);
+  registerSpectatorsCommand(program);
 
   await program.parseAsync();
 }
