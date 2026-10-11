@@ -19,6 +19,7 @@ import {
   DatabaseError,
   StrategyValidationError,
 } from '#blib/modelErrors';
+import { getMatchPlayerUuids } from '#shared/matchPlayers';
 import { deriveMatchStatus } from '#shared/matchStatus';
 import {
   getMatchTimelineContext,
@@ -332,8 +333,7 @@ export class MatchModel extends MatchOps {
       match.tableUuid ? [match.tableUuid] : [],
     );
     const players = await PlayerModel.getByIds(db, leagueUuid, [
-      ...match.playersSide1,
-      ...match.playersSide2,
+      ...getMatchPlayerUuids(match),
       ...references.playerUuids,
     ]);
     const balls = await BallModel.getByIds(db, leagueUuid, [
@@ -418,6 +418,22 @@ export class MatchModel extends MatchOps {
 
   public static strategies = MatchOps.defineStrategies({
     preWrite: {
+      spectatorsNotPlaying: ({ next }) => {
+        const players = new Set(getMatchPlayerUuids(next));
+        const playingSpectators = next.spectators.filter((uuid) =>
+          players.has(uuid),
+        );
+
+        if (playingSpectators.length === 0) return;
+
+        throw new StrategyValidationError('Some spectators are playing', {
+          spectators: {
+            value: playingSpectators,
+            errorType: 'SPECTATORS_PLAYING',
+          },
+        });
+      },
+
       spectatorsExist: async ({ db, leagueUuid, next }) => {
         if (next.spectators.length === 0) return;
 
@@ -449,7 +465,7 @@ export class MatchModel extends MatchOps {
       },
 
       playersExist: async ({ db, leagueUuid, next }) => {
-        const allPlayers = [...next.playersSide1, ...next.playersSide2];
+        const allPlayers = getMatchPlayerUuids(next);
 
         if (allPlayers.length === 0) return;
 
