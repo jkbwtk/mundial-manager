@@ -1,0 +1,25 @@
+@use 'app' as *;
+
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0 cw(2);
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+  gap: cw(1);
+
+  white-space: nowrap;
+
+  strong {
+    color: $textBrightColor;
+  }
+}
+
+.divider {
+  height: ch(1);
+}
