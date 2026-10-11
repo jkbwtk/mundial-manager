@@ -245,9 +245,10 @@ export async function populateMatches(options: PopulateOptions): Promise<void> {
       const playersSide1 = players.slice(0, Math.floor(players.length / 2));
       const playersSide2 = players.slice(Math.floor(players.length / 2));
 
+      const benchUuids = playerUuids.filter((uuid) => !players.includes(uuid));
       const spectators = pickRandomMultiple(
-        playerUuids,
-        randomInt(0, Math.min(4, playerUuids.length - 2) + 1),
+        benchUuids,
+        randomInt(0, Math.min(4, benchUuids.length) + 1),
       );
 
       const eventsResult = generateMatchEvents({
