@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm';
 import {
   type PublishedResponse,
   PublishResult,
@@ -19,6 +20,11 @@ import {
   DatabaseError,
   StrategyValidationError,
 } from '#blib/modelErrors';
+import {
+  getExactStartDate,
+  START_DATE_PRECISION_LABEL,
+  StartDatePrecisionEnum,
+} from '#shared/matchLabels';
 import { getMatchPlayerUuids } from '#shared/matchPlayers';
 import { deriveMatchStatus } from '#shared/matchStatus';
 import {
@@ -28,6 +34,7 @@ import {
   getMatchTimelineScore,
   validateMatchTimeline,
 } from '#shared/matchTimeline';
+import { getStatsMatchSpan } from '#shared/stats/buckets';
 import {
   Match,
   MatchCreate,
@@ -493,6 +500,54 @@ export class MatchModel extends MatchOps {
               errorType: 'PLAYERS_NOT_FOUND',
             },
           });
+        }
+      },
+
+      noTableOverlap: async ({ db, leagueUuid, next, previous }) => {
+        const startDate = getExactStartDate(next);
+
+        if (!next.tableUuid || startDate === null) return;
+
+        const endDate = new Date(startDate.getTime() + getStatsMatchSpan(next));
+        const overlappingMatch = await db.query.matchesTable.findFirst({
+          where: {
+            AND: [
+              {
+                leagueUuid,
+                tableUuid: next.tableUuid,
+                startDate: {
+                  lt: endDate,
+                },
+                $deletedAt: {
+                  isNull: true,
+                },
+              },
+              ...(previous ? [{ NOT: { uuid: previous.uuid } }] : []),
+              {
+                RAW: (table) =>
+                  sql`coalesce(${table.labels} ->> ${START_DATE_PRECISION_LABEL}, ${StartDatePrecisionEnum.EXACT}) = ${StartDatePrecisionEnum.EXACT} and ${table.startDate} + (coalesce(${table.duration}, 0) + ${table.pauseDuration}) * interval '1 millisecond' > ${startDate}`,
+              },
+            ],
+          },
+          columns: {
+            uuid: true,
+          },
+        });
+
+        if (overlappingMatch) {
+          throw new StrategyValidationError(
+            'Match overlaps with another match on the same table',
+            {
+              startDate: {
+                value: next.startDate,
+                errorType: 'TABLE_OVERLAP',
+              },
+              tableUuid: {
+                value: next.tableUuid,
+                errorType: 'TABLE_OVERLAP',
+              },
+            },
+          );
         }
       },
     },
