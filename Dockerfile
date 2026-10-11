@@ -27,7 +27,7 @@ WORKDIR /app
 
 ENV NGINX_ENVSUBST_OUTPUT_DIR=/etc/nginx/
 
-RUN apk add --no-cache supervisor
+RUN apk add --no-cache supervisor libatomic
 
 COPY nginx.conf /etc/nginx/templates/nginx.conf.template
 COPY supervisord.conf /etc/supervisord.conf
