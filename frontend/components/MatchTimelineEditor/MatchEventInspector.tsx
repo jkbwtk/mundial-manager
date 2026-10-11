@@ -361,17 +361,43 @@ export const MatchEventInspector: Component<MatchEventInspectorProps> = (
               )}
             >
               {(detailed) => (
-                <FieldShell path="details" label="Details" required={false}>
-                  <TextArea
-                    classList={fieldInputClassList}
-                    placeholder="Details..."
-                    value={detailed().details ?? ''}
-                    invalid={isInvalid('details')}
-                    onFocus={() => draft.beginTransaction()}
-                    onBlur={() => draft.endTransaction()}
-                    onInput={(ev) => handleDetailsInput(ev.currentTarget.value)}
-                  />
-                </FieldShell>
+                <>
+                  <FieldShell path="details" label="Details" required={false}>
+                    <TextArea
+                      classList={fieldInputClassList}
+                      placeholder="Details..."
+                      value={detailed().details ?? ''}
+                      invalid={isInvalid('details')}
+                      onFocus={() => draft.beginTransaction()}
+                      onBlur={() => draft.endTransaction()}
+                      onInput={(ev) =>
+                        handleDetailsInput(ev.currentTarget.value)
+                      }
+                    />
+                  </FieldShell>
+
+                  <Show when={narrowMatchEvent(detailed(), 'PAUSE')}>
+                    {(pause) => (
+                      <FieldShell
+                        inline
+                        path="countsAsPresence"
+                        label="Counts as presence"
+                        required
+                      >
+                        <Input
+                          classList={fieldInputClassList}
+                          type="checkbox"
+                          checked={pause().countsAsPresence}
+                          onChange={(ev) =>
+                            draft.patchEvent(props.uuid, {
+                              countsAsPresence: ev.currentTarget.checked,
+                            })
+                          }
+                        />
+                      </FieldShell>
+                    )}
+                  </Show>
+                </>
               )}
             </Match>
           </Switch>
