@@ -40,9 +40,6 @@ const ButtonTest = lazyRoute(
   import.meta.glob('#pages/ButtonTest/ButtonTest.tsx'),
 );
 const InputTest = lazyRoute(import.meta.glob('#pages/InputTest/InputTest.tsx'));
-const SheetsTest = lazyRoute(
-  import.meta.glob('#pages/SheetsTest/SheetsTest.tsx'),
-);
 const WidgetTest = lazyRoute(
   import.meta.glob('#pages/WidgetTest/WidgetTest.tsx'),
 );
@@ -72,9 +69,6 @@ const SeasonSummaryTest = lazyRoute(
 );
 const MaterialSymbolTest = lazyRoute(
   import.meta.glob('#pages/MaterialSymbolTest/MaterialSymbolTest.tsx'),
-);
-const ChartBuilderTest = lazyRoute(
-  import.meta.glob('#pages/ChartBuilderTest/ChartBuilderTest.tsx'),
 );
 const FormsTest = lazyRoute(import.meta.glob('#pages/FormsTest/FormsTest.tsx'));
 const BlankTestPage = lazyRoute(
@@ -203,11 +197,6 @@ export const testRoutes: ExtendedRouteDefinition[] = [
     component: InputTest,
   },
   {
-    path: '/sheets-test',
-    info: { name: 'Sheets Test' },
-    component: SheetsTest,
-  },
-  {
     path: '/widget-test',
     info: { name: 'Widget Test' },
     component: WidgetTest,
@@ -266,11 +255,6 @@ export const testRoutes: ExtendedRouteDefinition[] = [
     path: '/material-symbol-test',
     info: { name: 'Material Symbol Test' },
     component: MaterialSymbolTest,
-  },
-  {
-    path: '/chart-builder-test',
-    info: { name: 'Chart Builder Test' },
-    component: ChartBuilderTest,
   },
   {
     path: '/forms-test',
