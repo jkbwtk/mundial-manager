@@ -3,10 +3,14 @@ import type { ModelOps } from '#backend/db/models/ModelOps';
 import type { QueryMetaSchema } from '#backend/types/trpc';
 import { leaguePermissionProcedure } from '#blib/trpc';
 import type { PermissionRequirement } from '#shared/permissions';
-import { PaginatedResponse } from '#shared/zod';
+import { PaginatedResponse, uuidArray } from '#shared/zod';
 
 const InstanceWithId = z.object({
   uuid: z.uuid(),
+});
+
+const InstancesWithIds = z.object({
+  uuids: uuidArray.check(z.maxLength(500)),
 });
 
 type UnionWithId = z.ZodDiscriminatedUnion<(typeof InstanceWithId)[], string>;
@@ -84,6 +88,27 @@ export function createCrudOps<
         );
 
         return metadata.model.mapToPublic(ctx.db, instance);
+      }),
+
+    getByIds: readProcedure
+      .input(InstancesWithIds)
+      .output(metadata.publicSchema.array())
+      // @ts-expect-error
+      .query(async ({ ctx, input }) => {
+        const instances = await metadata.model.getByIds(
+          ctx.db,
+          ctx.league.uuid,
+          input.uuids,
+        );
+        const instancesByUuid = new Map(
+          instances.map((instance) => [instance.uuid, instance]),
+        );
+
+        return Promise.all(
+          input.uuids
+            .flatMap((uuid) => instancesByUuid.get(uuid) ?? [])
+            .map((instance) => metadata.model.mapToPublic(ctx.db, instance)),
+        );
       }),
 
     create: leaguePermissionProcedure(metadata.permissions.create)
