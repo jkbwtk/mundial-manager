@@ -1,7 +1,7 @@
 import dayjs, { type Dayjs } from 'dayjs';
 import { createMemo } from 'solid-js';
 import { useStatPaginatedFrame } from '#components/StatPaginatorWidget';
-import { Divider } from '#components/Widget';
+import { StatRow } from '#components/StatRow';
 import style from './SeasonSummaryModal.module.scss';
 
 function unwrapDayjs(value: Dayjs) {
@@ -23,49 +23,14 @@ export const SummaryHeader: Component = () => {
         {unwrapDayjs(season().endDate).format('MMM D, YYYY')}
       </div>
 
-      <div class={style.stats}>
-        <div class={style.stat}>
-          <div class={style.statValue}> {frame().seasonStats.matches}</div>
-          <div class={style.statLabel}>matches</div>
-        </div>
-
-        <Divider
-          direction="vertical"
-          connect={0b00}
-          class={style.statDivider}
-        />
-
-        <div class={style.stat}>
-          <div class={style.statValue}>
-            {frame().seasonStats.players.length}
-          </div>
-          <div class={style.statLabel}>players</div>
-        </div>
-
-        <Divider
-          direction="vertical"
-          connect={0b00}
-          class={style.statDivider}
-        />
-
-        <div class={style.stat}>
-          <div class={style.statValue}>{frame().seasonStats.goals}</div>
-          <div class={style.statLabel}>goals</div>
-        </div>
-
-        <Divider
-          direction="vertical"
-          connect={0b00}
-          class={style.statDivider}
-        />
-
-        <div class={style.stat}>
-          <div class={style.statValue}>
-            {frame().seasonStats.playtimeFormatted}
-          </div>
-          <div class={style.statLabel}>played</div>
-        </div>
-      </div>
+      <StatRow
+        items={[
+          { value: frame().seasonStats.matches, label: 'matches' },
+          { value: frame().seasonStats.players.length, label: 'players' },
+          { value: frame().seasonStats.goals, label: 'goals' },
+          { value: frame().seasonStats.playtimeFormatted, label: 'played' },
+        ]}
+      />
     </div>
   );
 };
