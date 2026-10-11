@@ -4,6 +4,7 @@ import { AnchorButton, Button } from '#components/Button';
 import { useConfirmModal } from '#components/ConfirmModal';
 import { MatchCreatorModal } from '#components/MatchCreatorModal';
 import { PAGINATOR_DEFAULT_LIMIT, Paginator } from '#components/Paginator';
+import { SessionPresenceModal } from '#components/SessionPresenceModal';
 import { type Column, Table } from '#components/Table';
 import { Divider } from '#components/Widget';
 import { useCan } from '#flib/identity';
@@ -134,6 +135,40 @@ export const MatchesDashboard: Component = () => {
           >
             Events
           </AnchorButton>
+        );
+      },
+    },
+    {
+      key: 'presence',
+      header: 'Presence',
+      align: 'center',
+      width: 12,
+      transform: (_, item) => {
+        const handleEditPresence = useHandleButtonAction(
+          async (match: Match) => {
+            open({
+              props: {
+                component: SessionPresenceModal,
+                matchUuid: match.uuid,
+              },
+              owner,
+              closeOnBackgroundClick: false,
+            });
+          },
+          () => actions.error('Failed to open Session Presence'),
+        );
+
+        return (
+          <Button
+            severity="secondary"
+            disabled={
+              !can([PermissionEnum.MATCHES_UPDATE, PermissionEnum.PLAYERS_READ])
+            }
+            onPointerUp={() => handleEditPresence(item)}
+            loading={handleEditPresence.loading()}
+          >
+            Presence
+          </Button>
         );
       },
     },
