@@ -1,4 +1,5 @@
 import { action, json, query } from '@solidjs/router';
+import { createBatchLoader, createQueryByIds } from '#flib/batchedQuery';
 import { trpcClient } from '#flib/trpcClient';
 import {
   GoalType,
@@ -14,11 +15,13 @@ export const queryGoalTypes = query(async (meta: GoalTypeQueryMeta = {}) => {
   return PaginatedResponse(GoalType).parse(goalTypes);
 }, 'queryGoalTypes');
 
-export const queryGoalTypeById = query(async (uuid: string) => {
-  const goalType = await trpcClient.goalTypes.getById.query({ uuid });
+const loadGoalType = createBatchLoader(async (uuids) =>
+  GoalType.array().parse(await trpcClient.goalTypes.getByIds.query({ uuids })),
+);
 
-  return GoalType.parse(goalType);
-}, 'queryGoalTypeById');
+export const queryGoalTypeById = query(loadGoalType, 'queryGoalTypeById');
+
+export const queryGoalTypesByIds = createQueryByIds(queryGoalTypeById);
 
 export const actionCreateGoalType = action(async (goalType: GoalTypeCreate) => {
   const newGoalType = await trpcClient.goalTypes.create.mutate(goalType);

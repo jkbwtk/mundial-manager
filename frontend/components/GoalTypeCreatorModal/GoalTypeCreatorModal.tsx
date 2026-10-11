@@ -2,8 +2,8 @@ import { ModalForm, type ModalFormLabels } from '#components/ModalForm';
 import {
   actionCreateGoalType,
   actionUpdateGoalType,
-  queryGoalTypeById,
   queryGoalTypes,
+  queryGoalTypesByIds,
 } from '#flib/trpcCalls';
 import { formatGoalTypeLabel } from '#shared/goalTypes';
 import {
@@ -72,7 +72,7 @@ export const GoalTypeCreatorModal: Component<GoalTypeCreatorModalProps> = (
           label: 'Parent',
           type: 'resourcePicker',
           placeholder: 'Select a parent goal type...',
-          queryById: queryGoalTypeById,
+          queryByIds: queryGoalTypesByIds,
           query: queryGoalTypes,
           toEntry: (goalType: GoalType) => ({
             label: formatGoalTypeLabel(goalType),

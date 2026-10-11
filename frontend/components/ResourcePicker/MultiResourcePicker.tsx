@@ -32,7 +32,7 @@ export interface MultiResourcePickerProps<T, TE> {
   query: (meta?: PickerQueryMeta) => Promise<PaginatedResponse<T>>;
   toEntry: (data: T) => PickerEntry<TE>;
 
-  queryById: (id: TE) => Promise<T>;
+  queryByIds: (ids: TE[]) => Promise<T[]>;
   isPreselected?: (value: TE) => boolean;
 
   name?: string;
@@ -118,12 +118,48 @@ export const MultiResourcePicker = <T, TE = unknown>(
     on([() => props.value], ([value]) => {
       if (value === undefined) return;
 
-      setPicked(value.map((e) => ({ label: '', value: e, loading: true })));
+      const current = picked();
 
-      Promise.all(value.map((v) => props.queryById(v)))
+      if (
+        value.length === current.length &&
+        value.every((v, index) => current[index]?.value === v)
+      ) {
+        return;
+      }
+
+      const known = new Map(current.map((entry) => [entry.value, entry]));
+
+      setPicked(
+        value.map(
+          (v) => known.get(v) ?? { label: '', value: v, loading: true },
+        ),
+      );
+
+      const missing = value.filter((v) => !known.has(v));
+
+      if (missing.length === 0) return;
+
+      props
+        .queryByIds(missing)
         .then((instances) => instances.map(toEntryWithOwner))
+        .catch((err) => {
+          console.error('Resource picker error:', err);
+
+          return [];
+        })
         .then((entries) => {
-          setPicked(entries);
+          const resolved = new Map(entries.map((e) => [e.value, e]));
+
+          setPicked((prev) =>
+            prev.map((e) =>
+              e.loading && missing.includes(e.value)
+                ? (resolved.get(e.value) ?? {
+                    label: String(e.value),
+                    value: e.value,
+                  })
+                : e,
+            ),
+          );
         });
     }),
   );

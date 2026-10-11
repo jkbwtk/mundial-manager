@@ -4,12 +4,12 @@ import { ModalForm, type ModalFormLabels } from '#components/ModalForm';
 import {
   actionCreateMatch,
   actionUpdateMatch,
-  queryBallById,
   queryBalls,
-  queryPlayerById,
+  queryBallsByIds,
   queryPlayers,
-  queryTableById,
+  queryPlayersByIds,
   queryTables,
+  queryTablesByIds,
 } from '#flib/trpcCalls';
 import { msToSeconds, secondsToMs } from '#shared/timeUtils';
 import type { Ball } from '#shared/types/api/ball';
@@ -119,7 +119,7 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
           label: 'Table',
           type: 'resourcePicker',
           placeholder: 'Select a table...',
-          queryById: queryTableById,
+          queryByIds: queryTablesByIds,
           query: queryTables,
           toEntry: (e: Table) => {
             return { label: e.name, value: e.uuid };
@@ -128,7 +128,7 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
         ballUuid: {
           label: 'Ball',
           type: 'resourcePicker',
-          queryById: queryBallById,
+          queryByIds: queryBallsByIds,
           query: queryBalls,
           placeholder: 'Select a ball...',
           toEntry: (e: Ball) => {
@@ -138,7 +138,7 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
         playersSide1: {
           label: 'Side 1 Players',
           type: 'multiResourcePicker',
-          queryById: queryPlayerById,
+          queryByIds: queryPlayersByIds,
           query: queryPlayers,
           toEntry: (e: Player) => {
             return { label: e.name, value: e.uuid };
@@ -147,7 +147,7 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
         playersSide2: {
           label: 'Players Side 2',
           type: 'multiResourcePicker',
-          queryById: queryPlayerById,
+          queryByIds: queryPlayersByIds,
           query: queryPlayers,
           toEntry: (e: Player) => {
             return { label: e.name, value: e.uuid };
@@ -156,7 +156,7 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
         spectators: {
           label: 'Spectators',
           type: 'multiResourcePicker',
-          queryById: queryPlayerById,
+          queryByIds: queryPlayersByIds,
           query: queryPlayers,
           toEntry: (e: Player) => {
             return { label: e.name, value: e.uuid };

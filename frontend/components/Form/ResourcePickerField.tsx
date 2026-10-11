@@ -14,7 +14,7 @@ export const ResourcePickerField: Component<
       classList={fieldInputClassList}
       name={props.path}
       placeholder={props.field.placeholder}
-      queryById={props.field.queryById}
+      queryByIds={props.field.queryByIds}
       query={props.field.query}
       toEntry={props.field.toEntry}
       isPreselected={props.field.isPreselected}

@@ -73,32 +73,25 @@ const createResourceQuery =
     };
   };
 
-const createResourceQueryById =
+const createResourceQueryByIds =
   (resources: TestResource[]) =>
-  async (uuid: string): Promise<TestResource> => {
-    const resource = resources.find((entry) => entry.uuid === uuid);
-
-    if (!resource) {
-      throw new Error(`Resource ${uuid} does not exist in this test dataset.`);
-    }
-
-    return resource;
-  };
+  async (uuids: string[]): Promise<TestResource[]> =>
+    resources.filter((entry) => uuids.includes(entry.uuid));
 
 const defaultResourceQuery = createResourceQuery(defaultResources);
-const defaultResourceQueryById = createResourceQueryById(defaultResources);
+const defaultResourceQueryByIds = createResourceQueryByIds(defaultResources);
 
 const emptyResourceQuery = createResourceQuery([]);
-const emptyResourceQueryById = createResourceQueryById([]);
+const emptyResourceQueryByIds = createResourceQueryByIds([]);
 
 const manyResourceQuery = createResourceQuery(manyResources);
-const manyResourceQueryById = createResourceQueryById(manyResources);
+const manyResourceQueryByIds = createResourceQueryByIds(manyResources);
 
 const mixedResourceQuery = createResourceQuery([
   ...defaultResources,
   ...manyResources,
 ]);
-const mixedResourceQueryById = createResourceQueryById([
+const mixedResourceQueryByIds = createResourceQueryByIds([
   ...defaultResources,
   ...manyResources,
 ]);
@@ -161,7 +154,7 @@ export const ResourcePickerTest: Component = () => {
           Basic picker:{' '}
           <ResourcePicker
             class={style.forcedPickerWidth}
-            queryById={defaultResourceQueryById}
+            queryByIds={defaultResourceQueryByIds}
             placeholder="Select a resource..."
             query={defaultResourceQuery}
             toEntry={toEntry}
@@ -173,7 +166,7 @@ export const ResourcePickerTest: Component = () => {
           Picker without default value:{' '}
           <ResourcePicker
             class={style.forcedPickerWidth}
-            queryById={defaultResourceQueryById}
+            queryByIds={defaultResourceQueryByIds}
             placeholder="Select a resource..."
             query={defaultResourceQuery}
             toEntry={toEntry}
@@ -186,7 +179,7 @@ export const ResourcePickerTest: Component = () => {
           <ResourcePicker
             class={style.forcedPickerWidth}
             disabled
-            queryById={defaultResourceQueryById}
+            queryByIds={defaultResourceQueryByIds}
             query={defaultResourceQuery}
             toEntry={toEntry}
             value={'resource-1'}
@@ -196,7 +189,7 @@ export const ResourcePickerTest: Component = () => {
           <ResourcePicker
             class={style.forcedPickerWidth}
             invalid
-            queryById={defaultResourceQueryById}
+            queryByIds={defaultResourceQueryByIds}
             placeholder="Selection is required..."
             query={defaultResourceQuery}
             toEntry={toEntry}
@@ -208,7 +201,7 @@ export const ResourcePickerTest: Component = () => {
           Empty picker:{' '}
           <ResourcePicker
             class={style.forcedPickerWidth}
-            queryById={emptyResourceQueryById}
+            queryByIds={emptyResourceQueryByIds}
             placeholder="No resources available..."
             query={emptyResourceQuery}
             toEntry={toEntry}
@@ -217,7 +210,7 @@ export const ResourcePickerTest: Component = () => {
           Wide labels:{' '}
           <ResourcePicker
             class={style.forcedPickerWidth}
-            queryById={defaultResourceQueryById}
+            queryByIds={defaultResourceQueryByIds}
             query={defaultResourceQuery}
             toEntry={toEntry}
             value={wideLabelPickerValue()}
@@ -227,7 +220,7 @@ export const ResourcePickerTest: Component = () => {
           Many options:{' '}
           <ResourcePicker
             class={style.forcedPickerWidth}
-            queryById={manyResourceQueryById}
+            queryByIds={manyResourceQueryByIds}
             query={manyResourceQuery}
             toEntry={toEntry}
             value={manyPickerValue()}
@@ -236,7 +229,7 @@ export const ResourcePickerTest: Component = () => {
           Preselected options (Ball B, Resource 2, Resource 3):{' '}
           <ResourcePicker
             class={style.forcedPickerWidth}
-            queryById={mixedResourceQueryById}
+            queryByIds={mixedResourceQueryByIds}
             placeholder="Select a resource..."
             query={mixedResourceQuery}
             toEntry={toEntry}
@@ -250,7 +243,7 @@ export const ResourcePickerTest: Component = () => {
           <div class={style.sideBySide}>
             <ResourcePicker
               class={style.forcedPickerWidth}
-              queryById={defaultResourceQueryById}
+              queryByIds={defaultResourceQueryByIds}
               query={defaultResourceQuery}
               toEntry={toEntry}
               value={'resource-1'}
@@ -258,7 +251,7 @@ export const ResourcePickerTest: Component = () => {
 
             <ResourcePicker
               class={style.forcedPickerWidth}
-              queryById={defaultResourceQueryById}
+              queryByIds={defaultResourceQueryByIds}
               query={defaultResourceQuery}
               toEntry={toEntry}
               value={'resource-2'}
@@ -266,7 +259,7 @@ export const ResourcePickerTest: Component = () => {
 
             <ResourcePicker
               class={style.forcedPickerWidth}
-              queryById={defaultResourceQueryById}
+              queryByIds={defaultResourceQueryByIds}
               query={defaultResourceQuery}
               toEntry={toEntry}
               value={'resource-3'}
@@ -280,7 +273,7 @@ export const ResourcePickerTest: Component = () => {
           <br />
           Basic multi picker:
           <MultiResourcePicker
-            queryById={defaultResourceQueryById}
+            queryByIds={defaultResourceQueryByIds}
             query={defaultResourceQuery}
             toEntry={toEntry}
             value={multiBasicValue()}
@@ -288,7 +281,7 @@ export const ResourcePickerTest: Component = () => {
           <Divider />
           Multi picker without default values:
           <MultiResourcePicker
-            queryById={defaultResourceQueryById}
+            queryByIds={defaultResourceQueryByIds}
             query={defaultResourceQuery}
             toEntry={toEntry}
             value={[]}
@@ -297,7 +290,7 @@ export const ResourcePickerTest: Component = () => {
           Disabled multi picker:
           <MultiResourcePicker
             disabled
-            queryById={defaultResourceQueryById}
+            queryByIds={defaultResourceQueryByIds}
             query={defaultResourceQuery}
             toEntry={toEntry}
             value={multiBasicValue()}
@@ -306,7 +299,7 @@ export const ResourcePickerTest: Component = () => {
           Invalid multi picker:
           <MultiResourcePicker
             invalid
-            queryById={defaultResourceQueryById}
+            queryByIds={defaultResourceQueryByIds}
             query={defaultResourceQuery}
             toEntry={toEntry}
             value={[]}
@@ -314,7 +307,7 @@ export const ResourcePickerTest: Component = () => {
           <Divider />
           Empty multi picker:
           <MultiResourcePicker
-            queryById={emptyResourceQueryById}
+            queryByIds={emptyResourceQueryByIds}
             query={emptyResourceQuery}
             toEntry={toEntry}
             value={[]}
@@ -322,7 +315,7 @@ export const ResourcePickerTest: Component = () => {
           <Divider />
           Wide labels:
           <MultiResourcePicker
-            queryById={defaultResourceQueryById}
+            queryByIds={defaultResourceQueryByIds}
             query={defaultResourceQuery}
             toEntry={toEntry}
             value={multiWideLabelValue()}
@@ -330,7 +323,7 @@ export const ResourcePickerTest: Component = () => {
           <Divider />
           Many options:
           <MultiResourcePicker
-            queryById={manyResourceQueryById}
+            queryByIds={manyResourceQueryByIds}
             query={manyResourceQuery}
             toEntry={toEntry}
             value={multiManyValue()}
@@ -338,7 +331,7 @@ export const ResourcePickerTest: Component = () => {
           <Divider />
           Preselected options (Resource 2, Resource 3):
           <MultiResourcePicker
-            queryById={manyResourceQueryById}
+            queryByIds={manyResourceQueryByIds}
             query={manyResourceQuery}
             toEntry={toEntry}
             isPreselected={isPreselected}
@@ -349,14 +342,14 @@ export const ResourcePickerTest: Component = () => {
           Multiple side by side:
           <div class={style.sideBySide}>
             <MultiResourcePicker
-              queryById={defaultResourceQueryById}
+              queryByIds={defaultResourceQueryByIds}
               query={defaultResourceQuery}
               toEntry={toEntry}
               value={['resource-1']}
             />
 
             <MultiResourcePicker
-              queryById={defaultResourceQueryById}
+              queryByIds={defaultResourceQueryByIds}
               query={defaultResourceQuery}
               toEntry={toEntry}
               value={['resource-2']}
@@ -370,7 +363,7 @@ export const ResourcePickerTest: Component = () => {
           'Resource Picker in Widget Labels',
           <ResourcePicker
             class={style.forcedPickerWidth}
-            queryById={defaultResourceQueryById}
+            queryByIds={defaultResourceQueryByIds}
             query={defaultResourceQuery}
             toEntry={toEntry}
             value={labelPickerValue()}
@@ -380,7 +373,7 @@ export const ResourcePickerTest: Component = () => {
         topRightLabels={
           <ResourcePicker
             class={style.forcedPickerWidth}
-            queryById={defaultResourceQueryById}
+            queryByIds={defaultResourceQueryByIds}
             query={defaultResourceQuery}
             toEntry={toEntry}
             value={labelPickerValue()}
@@ -390,7 +383,7 @@ export const ResourcePickerTest: Component = () => {
         bottomLeftLabels={
           <ResourcePicker
             class={style.forcedPickerWidth}
-            queryById={defaultResourceQueryById}
+            queryByIds={defaultResourceQueryByIds}
             query={defaultResourceQuery}
             toEntry={toEntry}
             value={labelPickerValue()}
@@ -400,7 +393,7 @@ export const ResourcePickerTest: Component = () => {
         bottomRightLabels={
           <ResourcePicker
             class={style.forcedPickerWidth}
-            queryById={defaultResourceQueryById}
+            queryByIds={defaultResourceQueryByIds}
             query={defaultResourceQuery}
             toEntry={toEntry}
             value={labelPickerValue()}

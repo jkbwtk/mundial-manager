@@ -74,7 +74,7 @@ export type FormField<Value> =
       toEntry: (data: any) => PickerEntry<string>;
 
       // biome-ignore lint/suspicious/noExplicitAny: yeah
-      queryById: (id: string) => Promise<any>;
+      queryByIds: (ids: string[]) => Promise<any[]>;
       isPreselected?: (value: string) => boolean;
     })
   | (BaseFormField<Value> & {

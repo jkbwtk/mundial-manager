@@ -13,7 +13,7 @@ export const MultiResourcePickerField: Component<
     <MultiResourcePicker
       classList={fieldInputClassList}
       name={props.path}
-      queryById={props.field.queryById}
+      queryByIds={props.field.queryByIds}
       query={props.field.query}
       toEntry={props.field.toEntry}
       isPreselected={props.field.isPreselected}

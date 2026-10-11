@@ -20,7 +20,7 @@ import {
   MatchSideLabels,
   narrowMatchEvent,
 } from '#flib/matchEvents';
-import { queryBallById, queryBalls } from '#flib/trpcCalls';
+import { queryBalls, queryBallsByIds } from '#flib/trpcCalls';
 import {
   formatGoalTypeLabel,
   normalizeGoalTypeSelection,
@@ -337,7 +337,7 @@ export const MatchEventInspector: Component<MatchEventInspectorProps> = (
                     classList={fieldInputClassList}
                     placeholder="Select a ball..."
                     query={queryBalls}
-                    queryById={queryBallById}
+                    queryByIds={queryBallsByIds}
                     toEntry={(ball: Ball) => ({
                       label: <BallLabel ball={ball} />,
                       value: ball.uuid,

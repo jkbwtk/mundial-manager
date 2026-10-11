@@ -1,4 +1,5 @@
 import { action, json, query } from '@solidjs/router';
+import { createBatchLoader, createQueryByIds } from '#flib/batchedQuery';
 import { trpcClient } from '#flib/trpcClient';
 import {
   Ball,
@@ -38,8 +39,10 @@ export const actionDeleteBall = action(async (uuid: string) => {
   });
 }, 'actionDeleteBall');
 
-export const queryBallById = query(async (uuid: string) => {
-  const ball = await trpcClient.balls.getById.query({ uuid });
+const loadBall = createBatchLoader(async (uuids) =>
+  Ball.array().parse(await trpcClient.balls.getByIds.query({ uuids })),
+);
 
-  return Ball.parse(ball);
-}, 'queryBallById');
+export const queryBallById = query(loadBall, 'queryBallById');
+
+export const queryBallsByIds = createQueryByIds(queryBallById);

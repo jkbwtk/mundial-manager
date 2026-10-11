@@ -29,7 +29,7 @@ export interface ResourcePickerProps<T = unknown, TE = string> {
   query: (meta?: PickerQueryMeta) => Promise<PaginatedResponse<T>>;
   toEntry: (data: T) => PickerEntry<TE>;
 
-  queryById: (id: TE) => Promise<T>;
+  queryByIds: (ids: TE[]) => Promise<T[]>;
   isPreselected?: (value: TE) => boolean;
 
   name?: string;
@@ -157,12 +157,23 @@ export const ResourcePicker = <T, TE = string>(
 
       setPicked({ label: '', value, loading: true });
 
-      props.queryById(value).then((instance) => {
-        if (picked()?.value !== value) return;
+      props
+        .queryByIds([value])
+        .then(([instance]) =>
+          instance === undefined
+            ? { label: String(value), value }
+            : toEntryWithOwner(instance),
+        )
+        .catch((err): PickerEntry<TE> => {
+          console.error('Resource picker error:', err);
 
-        const entry = toEntryWithOwner(instance);
-        setPicked(entry);
-      });
+          return { label: String(value), value };
+        })
+        .then((entry) => {
+          if (picked()?.value !== value) return;
+
+          setPicked(entry);
+        });
     }),
   );
 
