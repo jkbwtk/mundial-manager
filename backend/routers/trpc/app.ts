@@ -3,6 +3,7 @@ import { ballsRouter } from '#backend/routers/trpc/balls';
 import { goalTypesRouter } from '#backend/routers/trpc/goalTypes';
 import { leaguesRouter } from '#backend/routers/trpc/leagues';
 import { matchesRouter } from '#backend/routers/trpc/matches';
+import { matchSessionsRouter } from '#backend/routers/trpc/matchSessions';
 import { matchTimelinesRouter } from '#backend/routers/trpc/matchTimelines';
 import { playersRouter } from '#backend/routers/trpc/players';
 import { seasonsRouter } from '#backend/routers/trpc/seasons';
@@ -20,6 +21,7 @@ export const appRouter = router({
   goalTypes: goalTypesRouter,
   players: playersRouter,
   matches: matchesRouter,
+  matchSessions: matchSessionsRouter,
   matchTimelines: matchTimelinesRouter,
   stats: statsRouter,
   admin: adminRouter,
