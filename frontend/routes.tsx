@@ -87,7 +87,11 @@ export const dashboardRoutes: ExtendedRouteDefinition[] = [
   {
     path: '/',
     component: Homepage,
-    info: { name: 'Home', icon: 'home' },
+    info: {
+      name: 'Home',
+      icon: 'home',
+      permission: PermissionEnum.STATS_READ,
+    },
   },
   {
     path: '/mundial-calculator',
