@@ -96,6 +96,8 @@ services:
       rabbit:
         condition: service_started
         restart: true
+      migrate:
+        condition: service_completed_successfully
     environment: *node-env
     restart: unless-stopped
     deploy:
