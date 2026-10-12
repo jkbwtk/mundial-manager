@@ -81,7 +81,7 @@ const GlobalPermissions: Permission[] = [
   PermissionEnum.LEAGUES_DELETE,
   PermissionEnum.LEAGUES_SWITCH,
   PermissionEnum.LEAGUES_INVITE,
-  PermissionEnum.DEV_TOOLS_VIEW,
+  // PermissionEnum.DEV_TOOLS_VIEW,
 ];
 
 const LeaguePermissions = Permissions.filter(
