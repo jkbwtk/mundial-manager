@@ -24,6 +24,7 @@ export const Modal: Component<ModalProps> = (userProps) => {
     'topRightLabels',
     'bottomLeftLabels',
     'bottomRightLabels',
+    'centerLabels',
     'footer',
     'children',
     'class',
@@ -165,6 +166,7 @@ export const Modal: Component<ModalProps> = (userProps) => {
       classList={{
         [style.modal]: true,
         [style.narrow]: isNarrowScreen(),
+        [style.centerLabels]: !!props.centerLabels,
         [props.class ?? '']: true,
 
         ...(props.classList ?? {}),

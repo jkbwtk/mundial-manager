@@ -10,6 +10,8 @@ export type Widget<T extends ValidComponent> = DynamicProps<T> & {
   bottomLeftLabels?: JSX.Element;
   bottomRightLabels?: JSX.Element;
 
+  centerLabels?: boolean;
+
   class?: string;
   classList?: JSX.CustomAttributes<HTMLElement>['classList'];
 
@@ -27,6 +29,7 @@ export function BaseWidget<T extends ValidComponent>(userProps: Widget<T>) {
     'topRightLabels',
     'bottomLeftLabels',
     'bottomRightLabels',
+    'centerLabels',
     'children',
     'class',
     'classList',
@@ -46,6 +49,7 @@ export function BaseWidget<T extends ValidComponent>(userProps: Widget<T>) {
       {...widgetProps}
       classList={{
         [style.container]: true,
+        [style.centerLabels]: !!props.centerLabels,
         [props.class ?? '']: true,
         ...(props.classList ?? {}),
       }}

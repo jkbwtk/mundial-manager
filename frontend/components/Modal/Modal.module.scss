@@ -203,6 +203,25 @@
     --modal-width: 100dvw;
     --modal-padding-x-units: 1;
   }
+  &.center-labels {
+    .top-labels,
+    .bottom-labels {
+      grid-template-columns: 1fr;
+    }
+
+    .left-labels,
+    .right-labels {
+      grid-area: 1 / 1;
+    }
+
+    .left-labels {
+      justify-self: center;
+    }
+
+    .right-labels {
+      justify-self: end;
+    }
+  }
 }
 
 .top-bar {
