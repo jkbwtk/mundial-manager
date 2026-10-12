@@ -24,13 +24,13 @@ export const MundialCalculatorLink: Component = () => {
 
   onMount(() => {
     if (isServer === false) {
-      document.addEventListener('scroll', handleScroll);
+      document.addEventListener('scroll', handleScroll, { capture: true });
     }
   });
 
   onCleanup(() => {
     if (isServer === false) {
-      document.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('scroll', handleScroll, { capture: true });
     }
   });
 
