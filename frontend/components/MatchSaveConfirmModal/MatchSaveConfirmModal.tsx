@@ -1,10 +1,15 @@
+import { useAction } from '@solidjs/router';
 import { createMemo, createSignal, Show } from 'solid-js';
 import { Button } from '#components/Button';
+import { useConfirmModal } from '#components/ConfirmModal';
 import { Modal } from '#components/Modal';
 import { Divider } from '#components/Widget';
+import { parseServerFieldErrors } from '#flib/formValidation';
+import { addLegacyMatch, removeLegacyMatch } from '#flib/legacyMatches';
 import { getTeamColorClass } from '#flib/teamColors';
+import { actionCreateLegacyMatch } from '#flib/trpcCalls';
 import { useModalActions } from '#providers/ModalProvider';
-import { useSheets } from '#providers/SheetsProvider';
+import { useToast } from '#providers/ToastProvider';
 import { getMatchFloor, getTeamColors } from '#shared/matchUtils';
 import { formatDate, formatDuration } from '#shared/timeUtils';
 import type { MatchCreate } from '#shared/types/Sheets';
@@ -17,39 +22,76 @@ export interface MatchSafeCOnfirmModalProps {
 export const MatchSaveConfirmModal: Component<MatchSafeCOnfirmModalProps> = (
   props,
 ) => {
-  const [, { createMatch }] = useSheets();
   const { closeModal } = useModalActions();
+  const [, actions] = useToast();
+  const openConfirmModal = useConfirmModal();
+  const createLegacyMatch = useAction(actionCreateLegacyMatch);
+
+  const { syncId } = addLegacyMatch(props.match);
 
   const [isSaving, setIsSaving] = createSignal(false);
 
   const teamColors = createMemo(() => getTeamColors(props.match));
   const floor = createMemo(() => getMatchFloor(props.match));
 
+  const getSaveErrorMessage = (err: unknown) => {
+    const isMissingPlayers = parseServerFieldErrors(err).some(([, errors]) =>
+      errors.includes('PLAYERS_NOT_FOUND'),
+    );
+
+    return isMissingPlayers
+      ? 'Failed to save match, some players do not exist'
+      : 'Failed to save match';
+  };
+
+  const discardMatch = async () => {
+    const confirmed = await openConfirmModal({
+      title: 'Discard Match',
+      message: 'Discard this match? It will not be saved.',
+      confirmText: 'Discard',
+      severity: 'danger',
+    });
+
+    if (!confirmed) return;
+
+    closeModal(false);
+  };
+
   const handleCancel = (ev: PointerEvent) => {
     ev.preventDefault();
-    closeModal(false);
+    discardMatch();
   };
 
   const handleConfirm = async (ev: PointerEvent) => {
     ev.preventDefault();
 
+    if (isSaving()) return;
+
+    setIsSaving(true);
+
     try {
-      setIsSaving(true);
-      await createMatch(props.match);
+      await createLegacyMatch(props.match, syncId);
+
+      removeLegacyMatch(syncId);
+      actions.success('Match saved successfully!');
+      closeModal(true);
     } catch (err) {
-      console.error(err);
+      console.error('Legacy match upload error:', err);
+      actions.error(getSaveErrorMessage(err));
+    } finally {
+      setIsSaving(false);
     }
-
-    setIsSaving(false);
-
-    closeModal(true);
   };
 
   return (
     <Modal
       topLeftLabels="Match Creator"
       bottomLeftLabels={[
-        <Button severity="secondary" onPointerUp={handleCancel}>
+        <Button
+          severity="secondary"
+          disabled={isSaving()}
+          onPointerUp={handleCancel}
+        >
           Cancel
         </Button>,
       ]}
@@ -63,6 +105,7 @@ export const MatchSaveConfirmModal: Component<MatchSafeCOnfirmModalProps> = (
         </Button>,
       ]}
       class={style.modal}
+      onClose={discardMatch}
     >
       <div class={style.title}>Do you want to save this match?</div>
       <Divider class={style.divider} />
