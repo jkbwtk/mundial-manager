@@ -25,6 +25,12 @@ export const queryMatchById = query(async (uuid: string) => {
   return Match.parse(match);
 }, 'queryMatchById');
 
+export const queryMatchesBySyncIds = query(async (syncIds: string[]) => {
+  const matches = await trpcClient.matches.getBySyncIds.query({ syncIds });
+
+  return Match.array().parse(matches);
+}, 'queryMatchesBySyncIds');
+
 export const actionCreateMatch = action(async (match: MatchCreate) => {
   const newMatch = await trpcClient.matches.create.mutate(match);
 
@@ -84,7 +90,12 @@ export const actionCreateLegacyMatch = action(
     });
 
     return json(LegacyMatch.parse(newMatch), {
-      revalidate: ['queryMatches', 'queryMatchById', 'queryLegacyMatches'],
+      revalidate: [
+        'queryMatches',
+        'queryMatchById',
+        'queryLegacyMatches',
+        'queryMatchesBySyncIds',
+      ],
     });
   },
   'actionCreateLegacyMatch',
