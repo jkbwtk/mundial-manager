@@ -1,4 +1,5 @@
-import { Show } from 'solid-js';
+import { useAction } from '@solidjs/router';
+import { createMemo, Show } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import { Button } from '#components/Button';
 import { ColorBlock } from '#components/ColorBlock';
@@ -6,8 +7,18 @@ import { InlineAction } from '#components/InlineAction';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import { type Column, Table } from '#components/Table';
 import { Divider, Widget } from '#components/Widget';
+import {
+  addLegacyMatch,
+  clearLegacyMatches,
+  getLegacyOutbox,
+  removeLegacyMatch,
+} from '#flib/legacyMatches';
+import { createResilientAsync } from '#flib/resilientAsync';
 import { getTeamColor } from '#flib/teamColors';
-import { useSheets } from '#providers/SheetsProvider';
+import {
+  actionCreateLegacyMatch,
+  queryMatchesBySyncIds,
+} from '#flib/trpcCalls';
 import { formatDate, formatDuration } from '#shared/timeUtils';
 import type { MatchCreate } from '#shared/types/Sheets';
 import style from './CreatedMatchesTest.module.scss';
@@ -19,18 +30,18 @@ interface MatchRow extends MatchCreate {
 }
 
 const CreatedMatchesTest: Component = () => {
-  const [
-    state,
-    {
-      createLocalMatch,
-      matchSyncIdMap,
-      syncCreatedMatch,
-      syncCreatedMatches,
-      clearCreatedMatches,
-      removeCreatedMatch,
-    },
-  ] = useSheets();
   const [syncing, setSyncing] = createStore<Record<string, boolean>>({});
+
+  const createLegacyMatch = useAction(actionCreateLegacyMatch);
+
+  const syncedMatches = createResilientAsync(
+    () => Object.keys(getLegacyOutbox()),
+    queryMatchesBySyncIds,
+  );
+
+  const syncedIds = createMemo(
+    () => new Set((syncedMatches.latest ?? []).map((match) => match.syncId)),
+  );
 
   const addMockMatch = () => {
     const newMatch: MatchCreate = {
@@ -44,52 +55,54 @@ const CreatedMatchesTest: Component = () => {
       replayMetadata: null,
     };
 
-    createLocalMatch(newMatch);
+    addLegacyMatch(newMatch);
+  };
+
+  const uploadMatch = async (syncId: string) => {
+    const local = getLegacyOutbox()[syncId];
+
+    if (!local) return;
+
+    const { syncId: _syncId, ...match } = local;
+
+    await createLegacyMatch(match, syncId);
   };
 
   const syncMatch = async (syncId: string) => {
     setSyncing(syncId, true);
 
     try {
-      await syncCreatedMatch(syncId);
+      await uploadMatch(syncId);
     } finally {
       setSyncing(syncId, false);
     }
   };
 
   const syncAll = async () => {
-    const syncIds = Object.keys(state.createdMatches);
-    const syncIdsToSync = syncIds.filter((syncId) => !matchSyncIdMap()[syncId]);
+    const syncIdsToSync = Object.keys(getLegacyOutbox()).filter(
+      (syncId) => !syncedIds().has(syncId),
+    );
 
     setSyncing(syncIdsToSync, true);
 
     try {
-      await syncCreatedMatches(syncIdsToSync);
+      await Promise.all(syncIdsToSync.map(uploadMatch));
     } finally {
       setSyncing(syncIdsToSync, false);
     }
   };
 
-  const clearAll = () => {
-    clearCreatedMatches();
-  };
-
-  const removeMatch = (syncId: string) => {
-    removeCreatedMatch(syncId);
-  };
-
-  const matchesCount = () => Object.keys(state.createdMatches).length;
+  const matchesCount = () => Object.keys(getLegacyOutbox()).length;
   const syncedCount = () =>
-    Object.keys(state.createdMatches).filter(
-      (syncId) => matchSyncIdMap()[syncId],
-    ).length;
+    Object.keys(getLegacyOutbox()).filter((syncId) => syncedIds().has(syncId))
+      .length;
   const unsyncedCount = () => matchesCount() - syncedCount();
 
   const tableData = (): MatchRow[] => {
-    return Object.entries(state.createdMatches).map(([syncId, match]) => ({
+    return Object.entries(getLegacyOutbox()).map(([syncId, match]) => ({
       ...match,
       syncId,
-      synced: !!matchSyncIdMap()[syncId],
+      synced: syncedIds().has(syncId),
     }));
   };
 
@@ -168,7 +181,7 @@ const CreatedMatchesTest: Component = () => {
       align: 'center',
       width: 10,
       transform: (syncId: string) => (
-        <Button onClick={() => removeMatch(syncId)} severity="danger">
+        <Button onClick={() => removeLegacyMatch(syncId)} severity="danger">
           Delete
         </Button>
       ),
@@ -195,7 +208,7 @@ const CreatedMatchesTest: Component = () => {
           Sync All
         </Button>
         <Button
-          onClick={clearAll}
+          onClick={clearLegacyMatches}
           disabled={matchesCount() === 0}
           severity="danger"
         >
