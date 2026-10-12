@@ -16,6 +16,7 @@ import { PermissionEnum } from '#shared/permissions';
 import {
   Match,
   MatchCreate,
+  MatchesBySyncIds,
   MatchQueryMeta,
   MatchUpdate,
   SyncId,
@@ -37,6 +38,13 @@ export const matchesRouter = router({
       delete: PermissionEnum.MATCHES_DELETE,
     },
   }),
+
+  getBySyncIds: leaguePermissionProcedure(PermissionEnum.MATCHES_READ)
+    .input(MatchesBySyncIds)
+    .output(Match.array())
+    .query(async ({ ctx, input }) => {
+      return MatchModel.getBySyncIds(ctx.db, ctx.league.uuid, input.syncIds);
+    }),
 
   createFull: leaguePermissionProcedure(PermissionEnum.MATCHES_CREATE)
     .input(MatchFullCreate)

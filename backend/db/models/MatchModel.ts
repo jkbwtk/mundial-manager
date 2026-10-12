@@ -285,6 +285,29 @@ export class MatchModel extends MatchOps {
     }));
   }
 
+  @ConvertDrizzleErrors()
+  public static async getBySyncIds(
+    db: DB | TX,
+    leagueUuid: string,
+    syncIds: string[],
+  ): Promise<Match[]> {
+    if (syncIds.length === 0) return [];
+
+    const instances = await db.query.matchesTable.findMany({
+      where: {
+        leagueUuid,
+        syncId: {
+          in: syncIds,
+        },
+        $deletedAt: {
+          isNull: true,
+        },
+      },
+    });
+
+    return Match.array().parse(instances);
+  }
+
   @PublishResult(
     'STATS_INVALIDATION',
     ({ args }) => args[1],
