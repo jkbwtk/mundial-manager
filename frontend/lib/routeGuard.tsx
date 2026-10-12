@@ -14,13 +14,17 @@ export function guardRoute(
   const Page =
     route.component ?? ((props: RouteSectionProps) => props.children);
 
+  const GuardedPage = (props: RouteSectionProps) => (
+    <PermissionGuard permission={permission} fallback={<Fallback />}>
+      <Page {...props} />
+    </PermissionGuard>
+  );
+
   return {
     ...route,
     children,
-    component: (props: RouteSectionProps) => (
-      <PermissionGuard permission={permission} fallback={<Fallback />}>
-        <Page {...props} />
-      </PermissionGuard>
-    ),
+    component: Object.assign(GuardedPage, {
+      preload: 'preload' in Page ? Page.preload : undefined,
+    }),
   };
 }
