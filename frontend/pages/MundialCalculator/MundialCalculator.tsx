@@ -1,9 +1,9 @@
 import { useAction } from '@solidjs/router';
 import { type Connection, connect, WindowMessenger } from 'penpal';
-import { onCleanup, onMount } from 'solid-js';
+import { getOwner, onCleanup, onMount } from 'solid-js';
 import { isServer } from 'solid-js/web';
 import { MatchSaveConfirmModal } from '#components/MatchSaveConfirmModal';
-import { convertCalculatorFinishEventToMatch } from '#flib/sheetUtils';
+import { convertCalculatorFinishEventToMatch } from '#flib/legacyMatches';
 import {
   actionCreateMatch,
   actionDeleteMatch,
@@ -18,8 +18,8 @@ import {
 } from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
-import type {
-  CalculatorApi,
+import {
+  type CalculatorApi,
   CalculatorFinishEvent,
 } from '#shared/types/MundialCalculator';
 import style from './MundialCalculator.module.scss';
@@ -28,9 +28,14 @@ const CALCULATOR_URL = import.meta.env.VITE_CALCULATOR_URL;
 
 const MundialCalculator: Component = () => {
   const [, { open }] = useModal();
-  const [, { info }] = useToast();
+  const [, actions] = useToast();
+  const owner = getOwner();
 
   let iframeRef!: HTMLIFrameElement;
+
+  let isDisposed = false;
+
+  const getCalculatorOrigin = () => new URL(iframeRef.src).origin;
 
   const openMatchModal = (data: CalculatorFinishEvent) => {
     open({
@@ -38,8 +43,19 @@ const MundialCalculator: Component = () => {
         component: MatchSaveConfirmModal,
         match: convertCalculatorFinishEventToMatch(data),
       },
+      owner,
       closeOnBackgroundClick: false,
     });
+  };
+
+  const receiveFinishEvent = (data: unknown) => {
+    const parsed = CalculatorFinishEvent.safeParse(data);
+
+    if (!parsed.success) {
+      throw new Error('Invalid calculator finish event');
+    }
+
+    openMatchModal(parsed.data);
   };
 
   const createMatch = useAction(actionCreateMatch);
@@ -48,13 +64,28 @@ const MundialCalculator: Component = () => {
 
   const saveMatchTimeline = useAction(actionSaveMatchTimeline);
 
+  const handleMessage = (ev: MessageEvent) => {
+    if (
+      ev.source !== iframeRef.contentWindow ||
+      ev.origin !== getCalculatorOrigin()
+    ) {
+      return;
+    }
+
+    const parsed = CalculatorFinishEvent.safeParse(ev.data);
+
+    if (parsed.success) openMatchModal(parsed.data);
+  };
+
   let messenger: WindowMessenger | undefined;
   let connection: Connection | undefined;
 
   onMount(async () => {
+    window.addEventListener('message', handleMessage);
+
     messenger = new WindowMessenger({
       remoteWindow: iframeRef.contentWindow!,
-      allowedOrigins: [new URL(iframeRef.src).origin],
+      allowedOrigins: [getCalculatorOrigin()],
     });
 
     connection = connect({
@@ -70,7 +101,7 @@ const MundialCalculator: Component = () => {
         getActiveLeague: () => queryActiveLeague(),
         getCurrentSeason: () => queryCurrentSeason(),
 
-        createLegacyMatch: (match) => openMatchModal(match),
+        createLegacyMatch: receiveFinishEvent,
 
         createMatch,
         updateMatch,
@@ -80,15 +111,25 @@ const MundialCalculator: Component = () => {
       } satisfies CalculatorApi,
     });
 
-    await connection.promise;
+    try {
+      await connection.promise;
 
-    info('Connection with calculator successful', {
-      duration: 1000,
-    });
+      actions.info('Connection with calculator successful', {
+        duration: 1000,
+      });
+    } catch (err) {
+      if (isDisposed) return;
+
+      console.error('Calculator connection error:', err);
+      actions.error('Failed to connect to the calculator');
+    }
   });
 
   onCleanup(() => {
+    isDisposed = true;
+
     if (isServer === false) {
+      window.removeEventListener('message', handleMessage);
       connection?.destroy();
       messenger?.destroy();
     }
