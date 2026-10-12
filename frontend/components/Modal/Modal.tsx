@@ -16,6 +16,8 @@ import style from './Modal.module.scss';
 
 export type ModalProps = WidgetPropsWithoutComponent<'div'> & {
   footer?: JSX.Element;
+
+  onClose?: () => void;
 };
 
 export const Modal: Component<ModalProps> = (userProps) => {
@@ -26,6 +28,7 @@ export const Modal: Component<ModalProps> = (userProps) => {
     'bottomRightLabels',
     'centerLabels',
     'footer',
+    'onClose',
     'children',
     'class',
     'classList',
@@ -41,6 +44,8 @@ export const Modal: Component<ModalProps> = (userProps) => {
   const bottomRightLabels = children(() => props.bottomRightLabels);
 
   const footer = children(() => props.footer);
+
+  const handleClose = () => (props.onClose ?? closeModal)();
 
   // biome-ignore lint/style/useConst: yeah
   let modalRef: HTMLDivElement = null!;
@@ -227,7 +232,7 @@ export const Modal: Component<ModalProps> = (userProps) => {
           </For>
 
           <div class={style.topRightLabel}>
-            <Button class={style.closeButton} onClick={() => closeModal()}>
+            <Button class={style.closeButton} onClick={handleClose}>
               X
             </Button>
           </div>
