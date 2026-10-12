@@ -9,6 +9,7 @@ import { MatchModel } from '#backend/db/models/MatchModel';
 import { MatchTimelineModel } from '#backend/db/models/MatchTimelineModel';
 import { PlayerModel } from '#backend/db/models/PlayerModel';
 import { TableModel } from '#backend/db/models/TableModel';
+import { saveLegacyMatchToSheet } from '#blib/sheetSync';
 import { leaguePermissionProcedure, router } from '#blib/trpc';
 import { createCrudOps } from '#blib/trpcOps';
 import { zodEncode } from '#blib/utils';
@@ -94,21 +95,29 @@ export const matchesRouter = router({
 
       const goalTypes = await GoalTypeModel.getAll(ctx.db, ctx.league.uuid);
 
-      const matchFullCreate = convertFromLegacyMatch(
-        match,
-        tablesDict,
-        playersDict,
-        Object.fromEntries(
-          goalTypes.map((goalType) => [goalType.key, goalType]),
-        ),
-        syncId ?? null,
-      );
+      const [existing] =
+        syncId === null
+          ? []
+          : await MatchModel.getBySyncIds(ctx.db, ctx.league.uuid, [syncId]);
 
-      const instance = await MatchModel.createFull(
-        ctx.db,
-        ctx.league.uuid,
-        matchFullCreate,
-      );
+      const instance =
+        existing ??
+        (await MatchModel.createFull(
+          ctx.db,
+          ctx.league.uuid,
+          convertFromLegacyMatch(
+            match,
+            tablesDict,
+            playersDict,
+            Object.fromEntries(
+              goalTypes.map((goalType) => [goalType.key, goalType]),
+            ),
+            syncId,
+          ),
+        ));
+
+      if (existing === undefined) saveLegacyMatchToSheet(match);
+
       const events = await MatchTimelineModel.getEventsByMatchId(
         ctx.db,
         ctx.league.uuid,
