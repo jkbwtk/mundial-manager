@@ -20,7 +20,7 @@ import type { Player } from '#shared/types/api/player';
 import type { Table } from '#shared/types/api/table';
 import {
   GoalType as LegacyGoalType,
-  type Match as LegacyMatch,
+  Match as LegacyMatch,
   type MatchCreate as LegacyMatchCreate,
   type MatchEvent as LegacyMatchEvent,
 } from '#shared/types/Sheets';
@@ -278,10 +278,10 @@ export function convertToLegacyMatch(
   players: Record<string, Player>,
   goalTypes: Record<string, GoalType>,
   index?: number,
-): LegacyMatch {
+): z.input<typeof LegacyMatch> {
   const colors = getLegacyColorsFromTable(match.table ?? undefined);
 
-  return {
+  return LegacyMatch.encode({
     id: index ?? 0,
 
     team1: match.playersSide1
@@ -318,7 +318,7 @@ export function convertToLegacyMatch(
               .filter((event) => event !== null),
           }
         : null,
-  };
+  });
 }
 
 export function convertToLegacyMatchEvent(
