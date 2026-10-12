@@ -96,6 +96,17 @@ export const RolePermissions: Record<Role, Permission[]> = {
   ),
 };
 
+export function getGrantedPermissions(
+  role: Role,
+  hasLeague: boolean,
+): Permission[] {
+  return hasLeague
+    ? RolePermissions[role]
+    : RolePermissions[role].filter((permission) =>
+        GlobalPermissions.includes(permission),
+      );
+}
+
 export function hasPermissions(
   granted: Permission[],
   required: PermissionRequirement,

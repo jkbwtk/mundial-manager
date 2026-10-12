@@ -1,5 +1,5 @@
 import { procedure, router } from '#blib/trpc';
-import { RolePermissions } from '#shared/permissions';
+import { getGrantedPermissions } from '#shared/permissions';
 import { Identity } from '#shared/types/api/identity';
 
 export const systemRouter = router({
@@ -10,7 +10,8 @@ export const systemRouter = router({
 
     return {
       role: jwt?.role ?? null,
-      permissions: jwt === null ? [] : RolePermissions[jwt.role],
+      permissions:
+        jwt === null ? [] : getGrantedPermissions(jwt.role, !!jwt.leagueUuid),
 
       leagueUuid: jwt?.leagueUuid ?? null,
     };
