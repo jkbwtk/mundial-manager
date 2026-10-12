@@ -7,6 +7,7 @@ import { createRouter } from '#backend/routers/router';
 import { applyKeepAliveTimeout } from '#blib/utils';
 import { logger } from '#shared/logger';
 import registerImportCommand from '#tools/commands/import';
+import registerMagicLinkCommand from '#tools/commands/magicLink';
 import registerMigrateCommand from '#tools/commands/migrate';
 import registerSpectatorsCommand from '#tools/commands/spectators';
 
@@ -41,6 +42,7 @@ async function main() {
   registerMigrateCommand(program, '/app/private/backend/migrations');
   registerImportCommand(program);
   registerSpectatorsCommand(program);
+  registerMagicLinkCommand(program);
 
   await program.parseAsync();
 }
