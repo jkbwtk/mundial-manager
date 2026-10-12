@@ -1,36 +1,18 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "dd4c24b4-1931-4ee6-a49d-77ab7c7eaf7d",
+  "id": "a54cd7fc-a114-4cc4-abfc-6e0b2f3683f4",
   "prevIds": [
     "00000000-0000-0000-0000-000000000000"
   ],
   "ddl": [
     {
       "values": [
-        "MATCH_START",
-        "GOAL",
-        "POSITION_CHANGE",
-        "BALL_OUT",
-        "BALL_CHANGE",
-        "EQUIPMENT_FAILURE",
-        "PAUSE",
-        "RESUME",
-        "CANCEL"
-      ],
-      "name": "matchEventType",
-      "entityType": "enums",
-      "schema": "public"
-    },
-    {
-      "values": [
         "SCHEDULED",
         "ONGOING",
         "PAUSED",
         "FINISHED",
-        "CANCELED",
-        "HIDDEN",
-        "UNKNOWN"
+        "CANCELED"
       ],
       "name": "matchStatus",
       "entityType": "enums",
@@ -44,13 +26,19 @@
     },
     {
       "isRlsEnabled": false,
+      "name": "goalTypes",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
       "name": "leagues",
       "entityType": "tables",
       "schema": "public"
     },
     {
       "isRlsEnabled": false,
-      "name": "matchEvents",
+      "name": "matchTimelines",
       "entityType": "tables",
       "schema": "public"
     },
@@ -69,6 +57,12 @@
     {
       "isRlsEnabled": false,
       "name": "seasons",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "statsFrames",
       "entityType": "tables",
       "schema": "public"
     },
@@ -270,6 +264,188 @@
       "table": "balls"
     },
     {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "leagueUuid",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "goalTypes"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "parentUuid",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "goalTypes"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "key",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "goalTypes"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "goalTypes"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "description",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "goalTypes"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "icon",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "goalTypes"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "color",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "goalTypes"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "0",
+      "generated": null,
+      "identity": null,
+      "name": "stylePoints",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "goalTypes"
+    },
+    {
+      "type": "jsonb",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'{}'",
+      "generated": null,
+      "identity": null,
+      "name": "labels",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "goalTypes"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "gen_random_uuid()",
+      "generated": null,
+      "identity": null,
+      "name": "uuid",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "goalTypes"
+    },
+    {
+      "type": "timestamp(6) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "$createdAt",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "goalTypes"
+    },
+    {
+      "type": "timestamp(6) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "$updatedAt",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "goalTypes"
+    },
+    {
+      "type": "timestamp(6) with time zone",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "$deletedAt",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "goalTypes"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "1",
+      "generated": null,
+      "identity": null,
+      "name": "$updateCounter",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "goalTypes"
+    },
+    {
       "type": "text",
       "typeSchema": null,
       "notNull": true,
@@ -322,6 +498,19 @@
       "table": "leagues"
     },
     {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'UTC'",
+      "generated": null,
+      "identity": null,
+      "name": "timezone",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "leagues"
+    },
+    {
       "type": "uuid",
       "typeSchema": null,
       "notNull": true,
@@ -397,7 +586,7 @@
       "name": "leagueUuid",
       "entityType": "columns",
       "schema": "public",
-      "table": "matchEvents"
+      "table": "matchTimelines"
     },
     {
       "type": "uuid",
@@ -410,46 +599,20 @@
       "name": "matchUuid",
       "entityType": "columns",
       "schema": "public",
-      "table": "matchEvents"
-    },
-    {
-      "type": "matchEventType",
-      "typeSchema": "public",
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "type",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "matchEvents"
-    },
-    {
-      "type": "timestamp(6) with time zone",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "time",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "matchEvents"
+      "table": "matchTimelines"
     },
     {
       "type": "jsonb",
       "typeSchema": null,
-      "notNull": false,
+      "notNull": true,
       "dimensions": 0,
-      "default": null,
+      "default": "'[]'",
       "generated": null,
       "identity": null,
-      "name": "payload",
+      "name": "events",
       "entityType": "columns",
       "schema": "public",
-      "table": "matchEvents"
+      "table": "matchTimelines"
     },
     {
       "type": "jsonb",
@@ -462,7 +625,7 @@
       "name": "labels",
       "entityType": "columns",
       "schema": "public",
-      "table": "matchEvents"
+      "table": "matchTimelines"
     },
     {
       "type": "uuid",
@@ -475,7 +638,7 @@
       "name": "uuid",
       "entityType": "columns",
       "schema": "public",
-      "table": "matchEvents"
+      "table": "matchTimelines"
     },
     {
       "type": "timestamp(6) with time zone",
@@ -488,7 +651,7 @@
       "name": "$createdAt",
       "entityType": "columns",
       "schema": "public",
-      "table": "matchEvents"
+      "table": "matchTimelines"
     },
     {
       "type": "timestamp(6) with time zone",
@@ -501,7 +664,7 @@
       "name": "$updatedAt",
       "entityType": "columns",
       "schema": "public",
-      "table": "matchEvents"
+      "table": "matchTimelines"
     },
     {
       "type": "timestamp(6) with time zone",
@@ -514,7 +677,7 @@
       "name": "$deletedAt",
       "entityType": "columns",
       "schema": "public",
-      "table": "matchEvents"
+      "table": "matchTimelines"
     },
     {
       "type": "integer",
@@ -527,7 +690,7 @@
       "name": "$updateCounter",
       "entityType": "columns",
       "schema": "public",
-      "table": "matchEvents"
+      "table": "matchTimelines"
     },
     {
       "type": "uuid",
@@ -571,7 +734,7 @@
     {
       "type": "timestamp(6) with time zone",
       "typeSchema": null,
-      "notNull": true,
+      "notNull": false,
       "dimensions": 0,
       "default": null,
       "generated": null,
@@ -584,7 +747,7 @@
     {
       "type": "double precision",
       "typeSchema": null,
-      "notNull": true,
+      "notNull": false,
       "dimensions": 0,
       "default": null,
       "generated": null,
@@ -597,7 +760,7 @@
     {
       "type": "double precision",
       "typeSchema": null,
-      "notNull": false,
+      "notNull": true,
       "dimensions": 0,
       "default": "0",
       "generated": null,
@@ -738,14 +901,27 @@
       "table": "matches"
     },
     {
-      "type": "text",
+      "type": "boolean",
       "typeSchema": null,
       "notNull": true,
+      "dimensions": 0,
+      "default": "false",
+      "generated": null,
+      "identity": null,
+      "name": "hidden",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "matches"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
       "dimensions": 0,
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "hash",
+      "name": "syncId",
       "entityType": "columns",
       "schema": "public",
       "table": "matches"
@@ -1116,6 +1292,136 @@
       "entityType": "columns",
       "schema": "public",
       "table": "seasons"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "leagueUuid",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "statsFrames"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "matchUuid",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "statsFrames"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "seq",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "statsFrames"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "day",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "statsFrames"
+    },
+    {
+      "type": "timestamp(6) with time zone",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "matchStartDate",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "statsFrames"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "module",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "statsFrames"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "bucket",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "statsFrames"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "bucketKey",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "statsFrames"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "subject",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "statsFrames"
+    },
+    {
+      "type": "jsonb",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "payload",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "statsFrames"
     },
     {
       "type": "uuid",
@@ -1509,6 +1815,118 @@
       "nameExplicit": false,
       "columns": [
         {
+          "value": "leagueUuid",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "goalTypes_leagueUuid_index",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "goalTypes"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        {
+          "value": "parentUuid",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "goalTypes_parentUuid_index",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "goalTypes"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        {
+          "value": "leagueUuid",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "key",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": true,
+      "where": "(\"$deletedAt\" is null)",
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "goalTypes_leagueUuid_key_index",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "goalTypes"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        {
+          "value": "$createdAt",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "goalTypes_$createdAt_index",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "goalTypes"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        {
+          "value": "$deletedAt",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": "(\"$deletedAt\" is null)",
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "goalTypes_$deletedAt_index",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "goalTypes"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        {
           "value": "name",
           "isExpression": false,
           "asc": true,
@@ -1605,10 +2023,10 @@
       "with": "",
       "method": "btree",
       "concurrently": false,
-      "name": "matchEvents_leagueUuid_index",
+      "name": "matchTimelines_leagueUuid_index",
       "entityType": "indexes",
       "schema": "public",
-      "table": "matchEvents"
+      "table": "matchTimelines"
     },
     {
       "nameExplicit": false,
@@ -1621,57 +2039,15 @@
           "opclass": null
         }
       ],
-      "isUnique": false,
+      "isUnique": true,
       "where": null,
       "with": "",
       "method": "btree",
       "concurrently": false,
-      "name": "matchEvents_matchUuid_index",
+      "name": "matchTimelines_matchUuid_index",
       "entityType": "indexes",
       "schema": "public",
-      "table": "matchEvents"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        {
-          "value": "type",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": false,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "matchEvents_type_index",
-      "entityType": "indexes",
-      "schema": "public",
-      "table": "matchEvents"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        {
-          "value": "time",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": false,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "matchEvents_time_index",
-      "entityType": "indexes",
-      "schema": "public",
-      "table": "matchEvents"
+      "table": "matchTimelines"
     },
     {
       "nameExplicit": false,
@@ -1689,10 +2065,10 @@
       "with": "",
       "method": "btree",
       "concurrently": false,
-      "name": "matchEvents_$createdAt_index",
+      "name": "matchTimelines_$createdAt_index",
       "entityType": "indexes",
       "schema": "public",
-      "table": "matchEvents"
+      "table": "matchTimelines"
     },
     {
       "nameExplicit": false,
@@ -1710,10 +2086,10 @@
       "with": "",
       "method": "btree",
       "concurrently": false,
-      "name": "matchEvents_$deletedAt_index",
+      "name": "matchTimelines_$deletedAt_index",
       "entityType": "indexes",
       "schema": "public",
-      "table": "matchEvents"
+      "table": "matchTimelines"
     },
     {
       "nameExplicit": false,
@@ -1831,7 +2207,7 @@
           "opclass": null
         },
         {
-          "value": "hash",
+          "value": "syncId",
           "isExpression": false,
           "asc": true,
           "nullsFirst": false,
@@ -1839,11 +2215,11 @@
         }
       ],
       "isUnique": true,
-      "where": null,
+      "where": "(\"$deletedAt\" is null)",
       "with": "",
       "method": "btree",
       "concurrently": false,
-      "name": "matches_leagueUuid_hash_index",
+      "name": "matches_leagueUuid_syncId_index",
       "entityType": "indexes",
       "schema": "public",
       "table": "matches"
@@ -2130,6 +2506,55 @@
           "asc": true,
           "nullsFirst": false,
           "opclass": null
+        },
+        {
+          "value": "seq",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "statsFrames_leagueUuid_seq_index",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "statsFrames"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        {
+          "value": "matchUuid",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": "\"module\" = 'CONTEXT'",
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "statsFrames_matchUuid_index",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "statsFrames"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        {
+          "value": "leagueUuid",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
         }
       ],
       "isUnique": false,
@@ -2374,10 +2799,44 @@
       ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
-      "name": "matchEvents_leagueUuid_leagues_uuid_fkey",
+      "name": "goalTypes_leagueUuid_leagues_uuid_fkey",
       "entityType": "fks",
       "schema": "public",
-      "table": "matchEvents"
+      "table": "goalTypes"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "parentUuid"
+      ],
+      "schemaTo": "public",
+      "tableTo": "goalTypes",
+      "columnsTo": [
+        "uuid"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "SET NULL",
+      "name": "goalTypes_parentUuid_goalTypes_uuid_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "goalTypes"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "leagueUuid"
+      ],
+      "schemaTo": "public",
+      "tableTo": "leagues",
+      "columnsTo": [
+        "uuid"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "matchTimelines_leagueUuid_leagues_uuid_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "matchTimelines"
     },
     {
       "nameExplicit": false,
@@ -2391,10 +2850,10 @@
       ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
-      "name": "matchEvents_matchUuid_matches_uuid_fkey",
+      "name": "matchTimelines_matchUuid_matches_uuid_fkey",
       "entityType": "fks",
       "schema": "public",
-      "table": "matchEvents"
+      "table": "matchTimelines"
     },
     {
       "nameExplicit": false,
@@ -2527,6 +2986,40 @@
       ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
+      "name": "statsFrames_leagueUuid_leagues_uuid_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "statsFrames"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "matchUuid"
+      ],
+      "schemaTo": "public",
+      "tableTo": "matches",
+      "columnsTo": [
+        "uuid"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "statsFrames_matchUuid_matches_uuid_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "statsFrames"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "leagueUuid"
+      ],
+      "schemaTo": "public",
+      "tableTo": "leagues",
+      "columnsTo": [
+        "uuid"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
       "name": "tables_leagueUuid_leagues_uuid_fkey",
       "entityType": "fks",
       "schema": "public",
@@ -2551,12 +3044,37 @@
     },
     {
       "columns": [
+        "leagueUuid",
+        "module",
+        "bucket",
+        "bucketKey",
+        "subject",
+        "seq"
+      ],
+      "nameExplicit": false,
+      "name": "statsFrames_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "statsFrames"
+    },
+    {
+      "columns": [
         "uuid"
       ],
       "nameExplicit": false,
       "name": "balls_pkey",
       "schema": "public",
       "table": "balls",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "uuid"
+      ],
+      "nameExplicit": false,
+      "name": "goalTypes_pkey",
+      "schema": "public",
+      "table": "goalTypes",
       "entityType": "pks"
     },
     {
@@ -2574,9 +3092,9 @@
         "uuid"
       ],
       "nameExplicit": false,
-      "name": "matchEvents_pkey",
+      "name": "matchTimelines_pkey",
       "schema": "public",
-      "table": "matchEvents",
+      "table": "matchTimelines",
       "entityType": "pks"
     },
     {
