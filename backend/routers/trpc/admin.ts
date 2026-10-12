@@ -2,9 +2,9 @@ import { randomUUID } from 'node:crypto';
 import { TRPCError } from '@trpc/server';
 import { LeagueModel } from '#backend/db/models/LeagueModel';
 import { environment } from '#backend/environment';
-import type { JWTContextCreate } from '#backend/types/auth';
 import { Pagination } from '#backend/types/trpc';
 import { getJWTCookieOptions, sign } from '#blib/jwt';
+import { createMagicLink } from '#blib/magicLink';
 import { permissionProcedure, router } from '#blib/trpc';
 import { PermissionEnum } from '#shared/permissions';
 import {
@@ -91,7 +91,7 @@ export const adminRouter = router({
         });
       }
 
-      const jwt = await sign(
+      const link = await createMagicLink(
         {
           uuid: randomUUID(),
 
@@ -101,19 +101,10 @@ export const adminRouter = router({
           leagueUuid: league.instance.uuid,
 
           redirectTo: '/',
-        } satisfies JWTContextCreate,
+        },
         `${input.ttl} days`,
       );
 
-      const params = new URLSearchParams();
-      params.set('token', jwt);
-
-      if (environment.NGINX_PARAM_KEY && environment.NGINX_SECRET) {
-        params.set(environment.NGINX_PARAM_KEY, environment.NGINX_SECRET);
-      }
-
-      return {
-        link: new URL(`/magic?${params}`, environment.BASE_SITE_URL).toString(),
-      };
+      return { link };
     }),
 });
