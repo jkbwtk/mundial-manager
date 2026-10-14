@@ -128,7 +128,7 @@ export const BallsDashboard: Component = () => {
           <Show when={item.uuid}>
             <Button
               disabled={!can(PermissionEnum.BALLS_UPDATE)}
-              onPointerUp={() => handleEditBall(item)}
+              onClick={() => handleEditBall(item)}
             >
               Edit
             </Button>
@@ -165,7 +165,7 @@ export const BallsDashboard: Component = () => {
           <Button
             severity="danger"
             disabled={!can(PermissionEnum.BALLS_DELETE)}
-            onPointerUp={() => handleDeleteBall(item)}
+            onClick={() => handleDeleteBall(item)}
             loading={handleDeleteBall.loading()}
           >
             Delete
@@ -179,7 +179,7 @@ export const BallsDashboard: Component = () => {
     <div class={style.outerContainer}>
       <div class={style.controls}>
         <Show when={can(PermissionEnum.BALLS_CREATE)}>
-          <Button onPointerUp={handleCreateBall}>Create Ball</Button>
+          <Button onClick={handleCreateBall}>Create Ball</Button>
         </Show>
       </div>
 

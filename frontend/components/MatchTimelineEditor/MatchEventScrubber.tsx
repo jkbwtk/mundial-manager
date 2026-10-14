@@ -265,7 +265,7 @@ export const MatchEventScrubber: Component = () => {
               severity="secondary"
               padding={0}
               title="Clear insert position"
-              onPointerUp={() => draft.setPlayhead(null)}
+              onClick={() => draft.setPlayhead(null)}
             >
               <MaterialSymbol symbol="close" />
             </Button>
@@ -278,7 +278,7 @@ export const MatchEventScrubber: Component = () => {
             padding={0}
             title="Zoom out"
             disabled={zoom() === ZoomLevels.at(0)}
-            onPointerUp={() => stepZoom(-1)}
+            onClick={() => stepZoom(-1)}
           >
             <MaterialSymbol symbol="remove" />
           </Button>
@@ -290,7 +290,7 @@ export const MatchEventScrubber: Component = () => {
             padding={0}
             title="Zoom in"
             disabled={zoom() === ZoomLevels.at(-1)}
-            onPointerUp={() => stepZoom(1)}
+            onClick={() => stepZoom(1)}
           >
             <MaterialSymbol symbol="add" />
           </Button>

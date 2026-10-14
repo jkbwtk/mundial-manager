@@ -66,7 +66,7 @@ export const MatchEventQuickAdd: Component = () => {
             <Button
               severity="secondary"
               padding={0}
-              onPointerUp={() => addEvent(entry)}
+              onClick={() => addEvent(entry)}
             >
               <MaterialSymbol
                 symbol={MatchEventTypeSymbols[getEntryType(entry)]}

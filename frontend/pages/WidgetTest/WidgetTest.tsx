@@ -105,7 +105,7 @@ const WidgetTest: Component = () => {
         style={{
           width: '100%',
         }}
-        onPointerUp={() => alert('Button widget clicked')}
+        onClick={() => alert('Button widget clicked')}
       >
         This widget uses a button as its root component.
       </ButtonWidget>

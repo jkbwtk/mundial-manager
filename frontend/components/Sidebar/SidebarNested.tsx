@@ -28,7 +28,7 @@ export const SidebarNested: Component<SidebarSimpleProps> = (props) => {
           [style.nestedActive]: isActive(),
         }}
         type="button"
-        onPointerUp={() => isActive() === false && setIsOpen((prev) => !prev)}
+        onClick={() => isActive() === false && setIsOpen((prev) => !prev)}
       >
         <SidebarBase route={props.route} />
 

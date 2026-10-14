@@ -147,7 +147,7 @@ export const MatchEventsDashboard: Component = () => {
         <Button
           severity="secondary"
           disabled={!timeline.latest || !can(PermissionEnum.MATCHES_UPDATE)}
-          onPointerUp={handleEditMatch}
+          onClick={handleEditMatch}
         >
           Edit Match
         </Button>
@@ -168,7 +168,7 @@ export const MatchEventsDashboard: Component = () => {
           padding={0}
           title="Undo (Ctrl+Z)"
           disabled={!draft.canUndo()}
-          onPointerUp={draft.undo}
+          onClick={draft.undo}
         >
           <MaterialSymbol symbol="undo" />
         </Button>
@@ -178,7 +178,7 @@ export const MatchEventsDashboard: Component = () => {
           padding={0}
           title="Redo (Ctrl+Y)"
           disabled={!draft.canRedo()}
-          onPointerUp={draft.redo}
+          onClick={draft.redo}
         >
           <MaterialSymbol symbol="redo" />
         </Button>
@@ -186,7 +186,7 @@ export const MatchEventsDashboard: Component = () => {
         <Button
           severity="secondary"
           disabled={!draft.isDirty()}
-          onPointerUp={handleDiscard}
+          onClick={handleDiscard}
         >
           Discard
         </Button>
@@ -195,7 +195,7 @@ export const MatchEventsDashboard: Component = () => {
           title="Save (Ctrl+S)"
           disabled={!canSave()}
           loading={handleSave.loading()}
-          onPointerUp={() => handleSave()}
+          onClick={() => handleSave()}
         >
           Save
         </Button>
@@ -214,11 +214,11 @@ export const MatchEventsDashboard: Component = () => {
 
             <span class={style.spacer} />
 
-            <Button severity="secondary" onPointerUp={handleDiscard}>
+            <Button severity="secondary" onClick={handleDiscard}>
               Discard
             </Button>
 
-            <Button onPointerUp={storedDraft.dismissRestored}>Keep</Button>
+            <Button onClick={storedDraft.dismissRestored}>Keep</Button>
           </div>
         )}
       </Show>

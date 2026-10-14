@@ -20,6 +20,7 @@ import { Spinner } from '#components/Spinner';
 import { TextMarquee } from '#components/TextMarquee';
 import {
   applyDirectives,
+  type ClickEvent,
   type ComponentUseDirectiveHack,
 } from '#flib/solidHelpers';
 import type { PaginatedResponse } from '#shared/zod';
@@ -73,7 +74,7 @@ export const ResourcePicker = <T, TE = string>(
     ref.onblur?.(new FocusEvent('blur', { relatedTarget: ref }));
   };
 
-  const toggleOpen = (ev: PointerEvent) => {
+  const toggleOpen = (ev: ClickEvent) => {
     if (
       ev.target instanceof HTMLElement &&
       clearRef &&
@@ -194,7 +195,7 @@ export const ResourcePicker = <T, TE = string>(
         aria-haspopup="listbox"
         aria-expanded={open()}
         aria-controls={menuId}
-        onPointerUp={toggleOpen}
+        onClick={toggleOpen}
         disabled={props.disabled}
         aria-invalid={props.invalid}
         onKeyDown={handleTriggerDown}

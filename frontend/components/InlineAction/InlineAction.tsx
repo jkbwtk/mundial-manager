@@ -60,7 +60,7 @@ export const InlineAction: Component<InlineActionProps> = (props) => {
   return (
     <button
       type="button"
-      onPointerUp={() => triggerAction('click')}
+      onClick={() => triggerAction('click')}
       classList={{
         [style.container]: true,
         [style.activated]: activated(),

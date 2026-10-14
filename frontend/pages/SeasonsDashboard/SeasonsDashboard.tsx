@@ -120,7 +120,7 @@ export const SeasonsDashboard: Component = () => {
           <Button
             severity="secondary"
             disabled={!can(PermissionEnum.SEASONS_UPDATE)}
-            onPointerUp={() => handleEditSeason(item)}
+            onClick={() => handleEditSeason(item)}
             loading={handleEditSeason.loading()}
           >
             Edit
@@ -157,7 +157,7 @@ export const SeasonsDashboard: Component = () => {
           <Button
             severity="danger"
             disabled={!can(PermissionEnum.SEASONS_DELETE)}
-            onPointerUp={() => handleDeleteSeason(item)}
+            onClick={() => handleDeleteSeason(item)}
             loading={handleDeleteSeason.loading()}
           >
             Delete
@@ -181,7 +181,7 @@ export const SeasonsDashboard: Component = () => {
         </div>
 
         <Show when={can(PermissionEnum.SEASONS_CREATE)}>
-          <Button onPointerUp={handleCreateSeason}>Create Season</Button>
+          <Button onClick={handleCreateSeason}>Create Season</Button>
         </Show>
       </div>
 

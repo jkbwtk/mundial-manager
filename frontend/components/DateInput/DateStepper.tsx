@@ -63,7 +63,7 @@ export const DateStepper: Component<DateStepperProps> = (props) => {
               severity="secondary"
               padding={0}
               disabled={dateProps.disabled || value() === null}
-              onPointerUp={() => step(offset)}
+              onClick={() => step(offset)}
             >
               {formatDateStep(offset)}
             </Button>

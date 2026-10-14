@@ -27,7 +27,7 @@ export const SeasonSummaryTest: Component = () => {
 
   return (
     <div class={style.container}>
-      <Button severity="primary" onPointerUp={openSummary}>
+      <Button severity="primary" onClick={openSummary}>
         Open Season Summary
       </Button>
     </div>

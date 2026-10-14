@@ -6,6 +6,7 @@ import { Modal } from '#components/Modal';
 import { Divider } from '#components/Widget';
 import { parseServerFieldErrors } from '#flib/formValidation';
 import { addLegacyMatch, removeLegacyMatch } from '#flib/legacyMatches';
+import type { ClickEvent } from '#flib/solidHelpers';
 import { getTeamColorClass } from '#flib/teamColors';
 import { actionCreateLegacyMatch } from '#flib/trpcCalls';
 import { useModalActions } from '#providers/ModalProvider';
@@ -57,12 +58,12 @@ export const MatchSaveConfirmModal: Component<MatchSafeCOnfirmModalProps> = (
     closeModal(false);
   };
 
-  const handleCancel = (ev: PointerEvent) => {
+  const handleCancel = (ev: ClickEvent) => {
     ev.preventDefault();
     discardMatch();
   };
 
-  const handleConfirm = async (ev: PointerEvent) => {
+  const handleConfirm = async (ev: ClickEvent) => {
     ev.preventDefault();
 
     if (isSaving()) return;
@@ -90,17 +91,13 @@ export const MatchSaveConfirmModal: Component<MatchSafeCOnfirmModalProps> = (
         <Button
           severity="secondary"
           disabled={isSaving()}
-          onPointerUp={handleCancel}
+          onClick={handleCancel}
         >
           Cancel
         </Button>,
       ]}
       bottomRightLabels={[
-        <Button
-          severity="primary"
-          onPointerUp={handleConfirm}
-          loading={isSaving()}
-        >
+        <Button severity="primary" onClick={handleConfirm} loading={isSaving()}>
           Confirm
         </Button>,
       ]}

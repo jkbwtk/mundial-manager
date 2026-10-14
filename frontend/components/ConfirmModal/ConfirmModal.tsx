@@ -34,12 +34,12 @@ export const ConfirmModal: Component<ConfirmModalProps> = (userProps) => {
     <Modal
       topLeftLabels={props.title}
       bottomLeftLabels={[
-        <Button severity="secondary" onPointerUp={handleCancel}>
+        <Button severity="secondary" onClick={handleCancel}>
           Cancel
         </Button>,
       ]}
       bottomRightLabels={[
-        <Button severity={props.severity} onPointerUp={handleConfirm}>
+        <Button severity={props.severity} onClick={handleConfirm}>
           {props.confirmText}
         </Button>,
       ]}

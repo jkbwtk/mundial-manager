@@ -97,9 +97,8 @@ export const ButtonGroup = <T = string>(props: ButtonGroupProps<T>) => {
             severity={value() === option.value ? 'primary' : 'secondary'}
             padding={0}
             disabled={props.disabled || option.disabled}
-            onPointerUp={() => select(option)}
-            onClick={(ev) => {
-              if (ev.detail === 0) select(option);
+            onClick={() => {
+              select(option);
             }}
           >
             <Show when={option.color}>

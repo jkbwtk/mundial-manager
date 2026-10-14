@@ -19,7 +19,7 @@ export const ChangelogModal: Component = () => {
       bottomLeftLabels={[
         <Button
           severity="secondary"
-          onPointerUp={() => {
+          onClick={() => {
             disableUntilNextVersion();
             closeModal();
           }}
@@ -28,7 +28,7 @@ export const ChangelogModal: Component = () => {
         </Button>,
         <Button
           severity="danger"
-          onPointerUp={() => {
+          onClick={() => {
             disablePermanently();
             closeModal();
           }}

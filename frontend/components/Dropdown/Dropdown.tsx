@@ -395,7 +395,7 @@ export const Dropdown: DropdownSignature = <T = string>(
           [style.invalid]: props.invalid,
           [style.triggerOpen]: open(),
         }}
-        onPointerUp={toggleMenu}
+        onClick={toggleMenu}
         onKeyDown={handleTriggerKeyDown}
       >
         {
@@ -441,11 +441,11 @@ export const Dropdown: DropdownSignature = <T = string>(
 
         <Show when={props.multiple}>
           <div class={style.selectionControls}>
-            <Button severity="secondary" padding={0} onPointerUp={selectAll}>
+            <Button severity="secondary" padding={0} onClick={selectAll}>
               <MaterialSymbol symbol="select_all" />
             </Button>
 
-            <Button severity="secondary" padding={0} onPointerUp={deselectAll}>
+            <Button severity="secondary" padding={0} onClick={deselectAll}>
               <MaterialSymbol symbol="remove_selection" />
             </Button>
           </div>
@@ -468,7 +468,7 @@ export const Dropdown: DropdownSignature = <T = string>(
                 [style.optionSelected]: values().includes(option.value),
                 [style.optionActive]: index() === activeIndex(),
               }}
-              onPointerUp={() => selectOption(option.value)}
+              onClick={() => selectOption(option.value)}
               onPointerEnter={() => setActiveIndex(index())}
             >
               {option.label}

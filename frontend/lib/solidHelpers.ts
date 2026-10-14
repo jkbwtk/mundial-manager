@@ -5,6 +5,11 @@ import type {
   ExtendedRouteMatch,
 } from '#frontend/types';
 
+export type ClickEvent<T extends Element = HTMLElement> = MouseEvent & {
+  currentTarget: T;
+  target: Element;
+};
+
 export type ButtonActionHandler<
   // biome-ignore lint/suspicious/noExplicitAny: yeah
   T extends (...args: any[]) => Promise<unknown>,

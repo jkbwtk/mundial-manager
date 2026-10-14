@@ -35,7 +35,7 @@ export const LoadingTest: Component = () => {
 
   return (
     <div ref={ref} class={style.outerContainer}>
-      <Button severity="secondary" onPointerUp={replay}>
+      <Button severity="secondary" onClick={replay}>
         <MaterialSymbol symbol="refresh" /> Replay reveal
       </Button>
 

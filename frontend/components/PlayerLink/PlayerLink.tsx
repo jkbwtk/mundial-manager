@@ -19,11 +19,7 @@ export const PlayerLink: Component<PlayerLinkProps> = (props) => {
   };
 
   return (
-    <button
-      class={style.link}
-      type="button"
-      onPointerUp={openPlayerProfileModal}
-    >
+    <button class={style.link} type="button" onClick={openPlayerProfileModal}>
       {props.name}
     </button>
   );

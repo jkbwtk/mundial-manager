@@ -178,7 +178,7 @@ export const ResourcePickerBase = <T, TE = unknown>(
                     [style.preselected]:
                       props.isPreselected?.(entry.value) ?? false,
                   }}
-                  onPointerUp={() => props.onSelect(entry)}
+                  onClick={() => props.onSelect(entry)}
                   onPointerEnter={() => setActiveIndex(index())}
                 >
                   {entry.label}

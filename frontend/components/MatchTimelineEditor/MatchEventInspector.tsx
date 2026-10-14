@@ -192,7 +192,7 @@ export const MatchEventInspector: Component<MatchEventInspectorProps> = (
                       severity="secondary"
                       padding={0}
                       title={`Move by ${formatDateStep(shift)}`}
-                      onPointerUp={() => draft.nudgeEvent(props.uuid, shift)}
+                      onClick={() => draft.nudgeEvent(props.uuid, shift)}
                     >
                       {formatDateStep(shift)}
                     </Button>
@@ -206,7 +206,7 @@ export const MatchEventInspector: Component<MatchEventInspectorProps> = (
                   padding={0}
                   title="Swap with the previous event"
                   disabled={current().index === 0}
-                  onPointerUp={() => draft.shiftEvent(props.uuid, -1)}
+                  onClick={() => draft.shiftEvent(props.uuid, -1)}
                 >
                   <MaterialSymbol symbol="keyboard_arrow_up" /> Earlier
                 </Button>
@@ -216,7 +216,7 @@ export const MatchEventInspector: Component<MatchEventInspectorProps> = (
                   padding={0}
                   title="Swap with the next event"
                   disabled={current().index === draft.steps().length - 1}
-                  onPointerUp={() => draft.shiftEvent(props.uuid, 1)}
+                  onClick={() => draft.shiftEvent(props.uuid, 1)}
                 >
                   <MaterialSymbol symbol="keyboard_arrow_down" /> Later
                 </Button>
@@ -408,7 +408,7 @@ export const MatchEventInspector: Component<MatchEventInspectorProps> = (
             <Button
               severity="secondary"
               padding={0}
-              onPointerUp={() => draft.duplicateEvent(props.uuid)}
+              onClick={() => draft.duplicateEvent(props.uuid)}
             >
               <MaterialSymbol symbol="content_copy" /> Duplicate
             </Button>
@@ -416,7 +416,7 @@ export const MatchEventInspector: Component<MatchEventInspectorProps> = (
             <Button
               severity="danger"
               padding={0}
-              onPointerUp={() => removeEvent(props.uuid)}
+              onClick={() => removeEvent(props.uuid)}
             >
               <MaterialSymbol symbol="delete" /> Delete
             </Button>

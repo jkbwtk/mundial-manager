@@ -125,7 +125,7 @@ export const LeagueDashboard: Component = () => {
           <Button
             severity="secondary"
             disabled={!can(PermissionEnum.GOAL_TYPES_UPDATE)}
-            onPointerUp={() => handleEditGoalType(item)}
+            onClick={() => handleEditGoalType(item)}
             loading={handleEditGoalType.loading()}
           >
             Edit
@@ -162,7 +162,7 @@ export const LeagueDashboard: Component = () => {
           <Button
             severity="danger"
             disabled={!can(PermissionEnum.GOAL_TYPES_DELETE)}
-            onPointerUp={() => handleDeleteGoalType(item)}
+            onClick={() => handleDeleteGoalType(item)}
             loading={handleDeleteGoalType.loading()}
           >
             Delete
@@ -201,13 +201,13 @@ export const LeagueDashboard: Component = () => {
         </Show>
 
         <Show when={can(PermissionEnum.LEAGUE_SETTINGS_UPDATE)}>
-          <Button onPointerUp={handleEditLeague}>Edit League</Button>
+          <Button onClick={handleEditLeague}>Edit League</Button>
         </Show>
       </Widget>
 
       <Widget topLeftLabels="Goal Types">
         <Show when={can(PermissionEnum.GOAL_TYPES_CREATE)}>
-          <Button onPointerUp={handleCreateGoalType}>Create Goal Type</Button>
+          <Button onClick={handleCreateGoalType}>Create Goal Type</Button>
         </Show>
 
         <Divider />

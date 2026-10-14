@@ -130,7 +130,7 @@ export const TablesDashboard: Component = () => {
           <Show when={item.uuid}>
             <Button
               disabled={!can(PermissionEnum.TABLES_UPDATE)}
-              onPointerUp={() => handleEditTable(item)}
+              onClick={() => handleEditTable(item)}
             >
               Edit
             </Button>
@@ -167,7 +167,7 @@ export const TablesDashboard: Component = () => {
           <Button
             severity="danger"
             disabled={!can(PermissionEnum.TABLES_DELETE)}
-            onPointerUp={() => handleDeleteTable(item)}
+            onClick={() => handleDeleteTable(item)}
             loading={handleDeleteTable.loading()}
           >
             Delete
@@ -181,7 +181,7 @@ export const TablesDashboard: Component = () => {
     <div class={style.outerContainer}>
       <div class={style.controls}>
         <Show when={can(PermissionEnum.TABLES_CREATE)}>
-          <Button onPointerUp={handleCreateTable}>Create Table</Button>
+          <Button onClick={handleCreateTable}>Create Table</Button>
         </Show>
       </div>
 

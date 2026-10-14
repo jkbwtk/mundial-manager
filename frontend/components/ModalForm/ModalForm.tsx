@@ -7,6 +7,7 @@ import { FormErrors } from '#components/FormErrors';
 import { Modal } from '#components/Modal';
 import { Divider } from '#components/Widget';
 import { useFormValidation } from '#flib/formValidation';
+import type { ClickEvent } from '#flib/solidHelpers';
 import { useUnsavedChanges } from '#flib/unsavedChanges';
 import { useModalActions } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
@@ -78,7 +79,7 @@ export const ModalForm = <
     console.error(props.logLabel, err);
   };
 
-  const handleCancel = (ev: PointerEvent) => {
+  const handleCancel = (ev: ClickEvent) => {
     ev.preventDefault();
     closeModal(false);
   };
@@ -105,7 +106,7 @@ export const ModalForm = <
       }}
       topLeftLabels={props.title}
       bottomLeftLabels={[
-        <Button severity="secondary" onPointerUp={handleCancel}>
+        <Button severity="secondary" onClick={handleCancel}>
           Cancel
         </Button>,
       ]}

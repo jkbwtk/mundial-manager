@@ -109,7 +109,7 @@ export const PlayersDashboard: Component = () => {
           <Show when={item.uuid}>
             <Button
               disabled={!can(PermissionEnum.PLAYERS_UPDATE)}
-              onPointerUp={() => handleEditPlayer(item)}
+              onClick={() => handleEditPlayer(item)}
             >
               Edit
             </Button>
@@ -146,7 +146,7 @@ export const PlayersDashboard: Component = () => {
           <Button
             severity="danger"
             disabled={!can(PermissionEnum.PLAYERS_DELETE)}
-            onPointerUp={() => handleDeletePlayer(item)}
+            onClick={() => handleDeletePlayer(item)}
             loading={handleDeletePlayer.loading()}
           >
             Delete
@@ -160,7 +160,7 @@ export const PlayersDashboard: Component = () => {
     <div class={style.outerContainer}>
       <div class={style.controls}>
         <Show when={can(PermissionEnum.PLAYERS_CREATE)}>
-          <Button onPointerUp={handleCreatePlayer}>Create Player</Button>
+          <Button onClick={handleCreatePlayer}>Create Player</Button>
         </Show>
       </div>
 

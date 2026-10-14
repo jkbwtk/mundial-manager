@@ -93,7 +93,7 @@ export const AdminDashboard: Component = () => {
         };
 
         return (
-          <Button severity="secondary" onPointerUp={handleCreateLink}>
+          <Button severity="secondary" onClick={handleCreateLink}>
             Get Link
           </Button>
         );
@@ -118,7 +118,7 @@ export const AdminDashboard: Component = () => {
           <Show when={activeLeague()?.uuid !== item.uuid}>
             <Button
               severity="secondary"
-              onPointerUp={() => handleChangeLeague(item)}
+              onClick={() => handleChangeLeague(item)}
               loading={handleChangeLeague.loading()}
             >
               Switch
@@ -150,7 +150,7 @@ export const AdminDashboard: Component = () => {
         return (
           <Button
             severity="secondary"
-            onPointerUp={() => handleEditLeague(item)}
+            onClick={() => handleEditLeague(item)}
             loading={handleEditLeague.loading()}
           >
             Edit
@@ -186,7 +186,7 @@ export const AdminDashboard: Component = () => {
         return (
           <Button
             severity="danger"
-            onPointerUp={() => handleDeleteLeague(item)}
+            onClick={() => handleDeleteLeague(item)}
             loading={handleDeleteLeague.loading()}
           >
             Delete
@@ -209,7 +209,7 @@ export const AdminDashboard: Component = () => {
         )}
       </div>
 
-      <Button onPointerUp={handleCreateLeague}>Create League</Button>
+      <Button onClick={handleCreateLeague}>Create League</Button>
 
       <Divider />
 

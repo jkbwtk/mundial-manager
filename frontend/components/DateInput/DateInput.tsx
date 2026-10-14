@@ -797,7 +797,7 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
                   [style.today]: cell.date.toDateString() === TodayDate,
                   [style.focused]: idx() === focusIdx(),
                 }}
-                onPointerUp={() => selectDate(cell.date)}
+                onClick={() => selectDate(cell.date)}
                 onPointerEnter={() => setFocusIdx(idx())}
               >
                 {String(cell.dayNumber).padStart(2, '0')}

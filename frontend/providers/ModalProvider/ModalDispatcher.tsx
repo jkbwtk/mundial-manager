@@ -1,4 +1,5 @@
 import { For, Portal, Show } from 'solid-js/web';
+import type { ClickEvent } from '#flib/solidHelpers';
 import { ModalInstanceProvider, useModal } from '#providers/ModalProvider';
 
 import style from './ModalProvider.module.scss';
@@ -6,7 +7,7 @@ import style from './ModalProvider.module.scss';
 export const ModalDispatcher: ParentComponent = (props) => {
   const [state, { closeTop }] = useModal();
 
-  const handleBackgroundClick = (e: PointerEvent) => {
+  const handleBackgroundClick = (e: ClickEvent) => {
     const topModal = state.modals.at(-1);
 
     if (topModal !== undefined && topModal.closeOnBackgroundClick === false) {
@@ -24,7 +25,9 @@ export const ModalDispatcher: ParentComponent = (props) => {
 
       <Portal>
         <Show when={state.modals.length > 0}>
-          <div class={style.modalContainer} onPointerUp={handleBackgroundClick}>
+          {/* biome-ignore lint/a11y/noStaticElementInteractions: yeah */}
+          {/* biome-ignore lint/a11y/useKeyWithClickEvents: yeah */}
+          <div class={style.modalContainer} onClick={handleBackgroundClick}>
             <For each={state.modals}>
               {(modal) => <ModalInstanceProvider {...modal} />}
             </For>

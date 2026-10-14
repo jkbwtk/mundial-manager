@@ -247,14 +247,14 @@ export const SessionPresenceModal: Component<SessionPresenceModalProps> = (
     <Modal
       topLeftLabels="Session Presence"
       bottomLeftLabels={[
-        <Button severity="secondary" onPointerUp={() => closeModal(false)}>
+        <Button severity="secondary" onClick={() => closeModal(false)}>
           Cancel
         </Button>,
       ]}
       bottomRightLabels={[
         <Button
           severity="primary"
-          onPointerUp={handleSave}
+          onClick={handleSave}
           loading={handleSave.loading()}
           disabled={matches().length === 0}
         >
