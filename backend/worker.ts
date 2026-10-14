@@ -1,9 +1,4 @@
 import { getAMQPChannel } from '#backend/amqp/amqp';
-import {
-  enqueueStaleStatsInvalidations,
-  registerStatsInvalidation,
-} from '#backend/amqp/consumers/statsInvalidation';
-import { db } from '#backend/db/database';
 import { environment } from '#backend/environment';
 import { logger } from '#shared/logger';
 
@@ -20,14 +15,11 @@ async function main() {
     label: ['worker'],
   });
 
-  const amqp = await getAMQPChannel();
+  await getAMQPChannel();
 
   logger.info('Worker AMQP channel established', {
     label: ['worker'],
   });
-
-  await registerStatsInvalidation(amqp, db);
-  await enqueueStaleStatsInvalidations(amqp, db);
 }
 
 main().catch((err) => {

@@ -1,5 +1,4 @@
 import { and, count, eq, isNull } from 'drizzle-orm';
-import { PublishResult } from '#backend/amqp/publishers';
 import type { DB, TX } from '#backend/db/database';
 import { Model } from '#backend/db/Model';
 import { GoalTypeModel } from '#backend/db/models/GoalTypeModel';
@@ -32,11 +31,6 @@ export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
     return new LeagueModel(db, league);
   }
 
-  @PublishResult(
-    'STATS_INVALIDATION',
-    ({ resp }) => resp.instance.uuid,
-    ({ resp }) => ({ source: 'LEAGUE', uuid: resp.instance.uuid }),
-  )
   @ConvertDrizzleErrors()
   public static async update(db: DB, data: LeagueUpdate) {
     const { uuid, ...updateData } = data;

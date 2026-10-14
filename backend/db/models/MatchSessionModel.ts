@@ -1,12 +1,8 @@
 import dayjs from 'dayjs';
-import { PublishResult } from '#backend/amqp/publishers';
 import type { DB, TX } from '#backend/db/database';
 import { matchOrderBy } from '#backend/db/matchOrder';
 import { LeagueModel } from '#backend/db/models/LeagueModel';
-import {
-  getMatchInvalidation,
-  MatchModel,
-} from '#backend/db/models/MatchModel';
+import { MatchModel } from '#backend/db/models/MatchModel';
 import { PlayerModel } from '#backend/db/models/PlayerModel';
 import { TableModel } from '#backend/db/models/TableModel';
 import type { MatchSelectSchema } from '#backend/types/db/match';
@@ -123,11 +119,6 @@ export class MatchSessionModel {
     return { key, table: tables.at(0) ?? null, matches, players };
   }
 
-  @PublishResult(
-    'STATS_INVALIDATION',
-    ({ args }) => args[1],
-    ({ resp }) => getMatchInvalidation({ resp: resp.matches[0]! }),
-  )
   @ConvertDrizzleErrors()
   public static async saveSpectators(
     db: DB | TX,

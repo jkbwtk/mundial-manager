@@ -14,14 +14,7 @@ export type SupportedAMQPQueue = Options.AssertQueue & {
   name: string;
 };
 
-export const AMQP_QUEUES = [
-  {
-    name: 'STATS_INVALIDATION',
-    arguments: {
-      'x-queue-type': 'quorum',
-    },
-  },
-] as const satisfies SupportedAMQPQueue[];
+export const AMQP_QUEUES: SupportedAMQPQueue[] = [];
 
 export type AMQP_QUEUE_NAMES = (typeof AMQP_QUEUES)[number]['name'];
 
