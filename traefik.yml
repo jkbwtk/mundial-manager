@@ -1,0 +1,14 @@
+http:
+  routers:
+    manager:
+      rule: PathPrefix(`/`)
+      entryPoints:
+        - websecure
+      service: manager
+      tls: {}
+
+  services:
+    manager:
+      loadBalancer:
+        servers:
+          - url: http://manager:80

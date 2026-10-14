@@ -122,6 +122,24 @@ services:
     profiles:
       - staging
 
+  proxy:
+    image: traefik:v3.7
+    command:
+      - --entryPoints.websecure.address=:${PROXY_HTTPS_PORT:-8443}
+      - --entryPoints.websecure.http3=true
+      - --providers.file.filename=/etc/traefik/manager.yml
+    ports:
+      - ${PROXY_HTTPS_PORT:-8443}:${PROXY_HTTPS_PORT:-8443}/tcp
+      - ${PROXY_HTTPS_PORT:-8443}:${PROXY_HTTPS_PORT:-8443}/udp
+    depends_on:
+      manager:
+        condition: service_started
+    volumes:
+      - ./traefik.yml:/etc/traefik/manager.yml:ro
+    restart: unless-stopped
+    profiles:
+      - staging
+
   rabbit:
     image: rabbitmq:4.3-management-alpine
     ports:
