@@ -4,7 +4,6 @@ import z from 'zod';
 import { db, type TX } from '#backend/db/database';
 import { matchOrderBy } from '#backend/db/matchOrder';
 import { LeagueModel } from '#backend/db/models/LeagueModel';
-import { StatsFrameModel } from '#backend/db/models/StatsFrameModel';
 import { matchesTable } from '#backend/db/schema';
 import { logger } from '#shared/logger';
 import { getMatchPlayerUuids } from '#shared/matchPlayers';
@@ -97,16 +96,6 @@ async function backfillSpectators(options: SpectatorsOptions) {
         sessionPlayers.size,
         { label: ['cli', 'spectators'] },
       );
-
-      const processed = await StatsFrameModel.recalculate(
-        tx,
-        options.leagueUuid,
-        null,
-      );
-
-      logger.info('Recalculated stats of %d matches', processed, {
-        label: ['cli', 'spectators'],
-      });
 
       if (options.dryRun) {
         throw new DryRunRollback();
