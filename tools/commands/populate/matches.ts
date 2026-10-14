@@ -1,5 +1,6 @@
 import { randomInt } from 'node:crypto';
 import { faker } from '@faker-js/faker';
+import { eq } from 'drizzle-orm';
 import { db } from '#backend/db/database';
 import { BallModel } from '#backend/db/models/BallModel';
 import { GoalTypeModel } from '#backend/db/models/GoalTypeModel';
@@ -193,7 +194,10 @@ export async function populateMatches(options: PopulateOptions): Promise<void> {
       label: ['cli', 'populate', 'matches'],
     });
 
-    const deletedMatches = await db.delete(matchesTable).returning();
+    const deletedMatches = await db
+      .delete(matchesTable)
+      .where(eq(matchesTable.leagueUuid, options.leagueUuid))
+      .returning();
 
     logger.info('Deleted %d matches', deletedMatches.length, {
       label: ['cli', 'populate', 'matches'],

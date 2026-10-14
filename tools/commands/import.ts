@@ -1,4 +1,5 @@
 import type { Command } from 'commander';
+import { eq } from 'drizzle-orm';
 import z from 'zod';
 import { getAMQPChannel, runWithAMQPDisabled } from '#backend/amqp/amqp';
 import { db } from '#backend/db/database';
@@ -51,7 +52,10 @@ async function importData(options: ImportOptions) {
           label: ['cli', 'import'],
         });
 
-        const deletedMatches = await tx.delete(matchesTable).returning();
+        const deletedMatches = await tx
+          .delete(matchesTable)
+          .where(eq(matchesTable.leagueUuid, options.leagueUuid))
+          .returning();
 
         logger.info('Deleted %d matches', deletedMatches.length, {
           label: ['cli', 'import'],

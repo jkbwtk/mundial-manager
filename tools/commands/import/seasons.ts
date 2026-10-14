@@ -1,3 +1,4 @@
+import { eq } from 'drizzle-orm';
 import type { TX } from '#backend/db/database';
 import { SeasonModel } from '#backend/db/models/SeasonModel';
 import { seasonsTable } from '#backend/db/schema';
@@ -36,7 +37,10 @@ export async function importLegacySeasons(tx: TX, options: ImportOptions) {
       label: ['cli', 'import', 'seasons'],
     });
 
-    const deletedSeasons = await tx.delete(seasonsTable).returning();
+    const deletedSeasons = await tx
+      .delete(seasonsTable)
+      .where(eq(seasonsTable.leagueUuid, options.leagueUuid))
+      .returning();
 
     logger.info('Deleted %d seasons', deletedSeasons.length, {
       label: ['cli', 'import', 'seasons'],

@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import { eq } from 'drizzle-orm';
 import { db } from '#backend/db/database';
 import { TableModel } from '#backend/db/models/TableModel';
 import { tablesTable } from '#backend/db/schema';
@@ -12,7 +13,10 @@ export async function populateTables(options: PopulateOptions): Promise<void> {
       label: ['cli', 'populate', 'tables'],
     });
 
-    const deletedTables = await db.delete(tablesTable).returning();
+    const deletedTables = await db
+      .delete(tablesTable)
+      .where(eq(tablesTable.leagueUuid, options.leagueUuid))
+      .returning();
 
     logger.info('Deleted %d tables', deletedTables.length, {
       label: ['cli', 'populate', 'tables'],

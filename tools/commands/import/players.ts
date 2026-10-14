@@ -1,3 +1,4 @@
+import { eq } from 'drizzle-orm';
 import type { TX } from '#backend/db/database';
 import { PlayerModel } from '#backend/db/models/PlayerModel';
 import { playersTable } from '#backend/db/schema';
@@ -31,7 +32,10 @@ export async function importLegacyPlayers(
       label: ['cli', 'import', 'players'],
     });
 
-    const deletedPlayers = await tx.delete(playersTable).returning();
+    const deletedPlayers = await tx
+      .delete(playersTable)
+      .where(eq(playersTable.leagueUuid, options.leagueUuid))
+      .returning();
 
     logger.info('Deleted %d players', deletedPlayers.length, {
       label: ['cli', 'import', 'players'],

@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import { eq } from 'drizzle-orm';
 import { db } from '#backend/db/database';
 import { BallModel } from '#backend/db/models/BallModel';
 import { ballsTable } from '#backend/db/schema';
@@ -12,7 +13,10 @@ export async function populateBalls(options: PopulateOptions): Promise<void> {
       label: ['cli', 'populate', 'balls'],
     });
 
-    const deletedBalls = await db.delete(ballsTable).returning();
+    const deletedBalls = await db
+      .delete(ballsTable)
+      .where(eq(ballsTable.leagueUuid, options.leagueUuid))
+      .returning();
 
     logger.info('Deleted %d balls', deletedBalls.length, {
       label: ['cli', 'populate', 'balls'],

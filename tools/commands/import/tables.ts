@@ -1,3 +1,4 @@
+import { eq } from 'drizzle-orm';
 import type { TX } from '#backend/db/database';
 import { TableModel } from '#backend/db/models/TableModel';
 import { tablesTable } from '#backend/db/schema';
@@ -41,7 +42,10 @@ export async function importLegacyTables(
       label: ['cli', 'import', 'tables'],
     });
 
-    const deletedTables = await tx.delete(tablesTable).returning();
+    const deletedTables = await tx
+      .delete(tablesTable)
+      .where(eq(tablesTable.leagueUuid, options.leagueUuid))
+      .returning();
 
     logger.info('Deleted %d tables', deletedTables.length, {
       label: ['cli', 'import', 'tables'],

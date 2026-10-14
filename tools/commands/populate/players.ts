@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import { eq } from 'drizzle-orm';
 import { db } from '#backend/db/database';
 import { PlayerModel } from '#backend/db/models/PlayerModel';
 import { playersTable } from '#backend/db/schema';
@@ -12,7 +13,10 @@ export async function populatePlayers(options: PopulateOptions): Promise<void> {
       label: ['cli', 'populate', 'players'],
     });
 
-    const deletedPlayers = await db.delete(playersTable).returning();
+    const deletedPlayers = await db
+      .delete(playersTable)
+      .where(eq(playersTable.leagueUuid, options.leagueUuid))
+      .returning();
 
     logger.info('Deleted %d players', deletedPlayers.length, {
       label: ['cli', 'populate', 'players'],
