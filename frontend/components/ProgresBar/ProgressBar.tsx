@@ -1,4 +1,4 @@
-import { type JSX, mergeProps, Show } from 'solid-js';
+import { createEffect, type JSX, mergeProps, on, Show } from 'solid-js';
 import type { RequiredDefaults } from '#shared/utils';
 
 import style from './ProgressBar.module.scss';
@@ -31,6 +31,13 @@ export const ProgressBar = (userProps: ProgressBarProps) => {
   const percentage = () =>
     ((props.value - props.min) / (props.max - props.min)) * 100;
 
+  // The browser clamps the value to the max it had when the value was set
+  createEffect(
+    on([() => props.min, () => props.max, () => props.value], () => {
+      if (inputRef) inputRef.value = String(props.value);
+    }),
+  );
+
   const handleValueChange = (event: Event) => {
     if (event.target instanceof HTMLInputElement && props.valueSetter) {
       const newValue = Number.parseFloat(event.target.value);
@@ -50,19 +57,19 @@ export const ProgressBar = (userProps: ProgressBarProps) => {
       <div class={style.progressBarBackground} />
       <div class={style.progressBarContainer}>
         <div class={style.progressBar} style={{ width: `${percentage()}%` }} />
-
-        <Show when={props.valueSetter !== null}>
-          <input
-            ref={inputRef}
-            type="range"
-            min={props.min}
-            max={props.max}
-            value={props.value}
-            onInput={handleValueChange}
-            class={style.progressBarInput}
-          />
-        </Show>
       </div>
+
+      <Show when={props.valueSetter !== null}>
+        <input
+          ref={inputRef}
+          type="range"
+          min={props.min}
+          max={props.max}
+          value={props.value}
+          onInput={handleValueChange}
+          class={style.progressBarInput}
+        />
+      </Show>
     </div>
   );
 };

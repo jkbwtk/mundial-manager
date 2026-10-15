@@ -80,43 +80,44 @@
     background-color: $textColor;
     // background-color: $textBrightColor;
   }
+}
 
-  .progress-bar-input {
-    position: absolute;
+.progress-bar-input {
+  position: absolute;
+  inset: 0;
 
-    top: 50%;
-    left: 50%;
+  width: 100%;
+  height: 100%;
+  margin: 0;
 
-    width: 100%;
-    height: 100%;
+  appearance: none;
+  background-color: transparent;
 
-    transform: translate(-50%, -50%);
+  cursor: pointer;
 
-    margin: 0;
+  @mixin thumbStyle() {
+    box-sizing: border-box;
+
+    width: cw(1);
+    height: ch(1);
+
     appearance: none;
 
-    background-color: transparent;
+    background-color: $textBrightColor;
+    background-clip: padding-box;
+    border-color: transparent;
+    border-style: solid;
+    border-width: ch(0.25) cw(0.375);
+    border-radius: 9000px;
 
-    @mixin thumbStyle() {
-      cursor: pointer;
+    cursor: pointer;
+  }
 
-      width: cw(0.25);
-      height: ch(0.5);
+  &::-webkit-slider-thumb {
+    @include thumbStyle();
+  }
 
-      appearance: none;
-
-      border: none;
-
-      background-color: $textBrightColor;
-      border-radius: 9000px;
-    }
-
-    &::-webkit-slider-thumb {
-      @include thumbStyle();
-    }
-
-    &::-moz-range-thumb {
-      @include thumbStyle();
-    }
+  &::-moz-range-thumb {
+    @include thumbStyle();
   }
 }
