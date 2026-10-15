@@ -3,7 +3,6 @@ import {
   createMemo,
   createSignal,
   createUniqueId,
-  For,
   type JSX,
   on,
   onMount,
@@ -11,6 +10,7 @@ import {
 } from 'solid-js';
 import { Button } from '#components/Button';
 import { Input } from '#components/Input';
+import { KeyedFor } from '#components/KeyedFor';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import {
   applyDirectives,
@@ -180,9 +180,9 @@ export const RecordEditor: Component<RecordEditorProps> = (props) => {
     >
       <Show when={entries().length > 0}>
         <div class={style.list}>
-          <For each={entries()}>
+          <KeyedFor each={entries()} by={(entry) => entry.id}>
             {(entry) => {
-              const isDuplicate = () => duplicateKeys().has(entry.key.trim());
+              const isDuplicate = () => duplicateKeys().has(entry().key.trim());
 
               return (
                 <div class={style.entry}>
@@ -190,11 +190,11 @@ export const RecordEditor: Component<RecordEditorProps> = (props) => {
                     classList={{ [style.keyInput]: true }}
                     type="text"
                     placeholder={props.keyPlaceholder ?? 'Key...'}
-                    value={entry.key}
+                    value={entry().key}
                     disabled={props.disabled}
-                    invalid={isDuplicate() || isMissingKey(entry)}
+                    invalid={isDuplicate() || isMissingKey(entry())}
                     onInput={(ev) =>
-                      updateKey(entry.id, ev.currentTarget.value)
+                      updateKey(entry().id, ev.currentTarget.value)
                     }
                     onBlur={notifyBlur}
                   />
@@ -206,14 +206,14 @@ export const RecordEditor: Component<RecordEditorProps> = (props) => {
                     type="number"
                     step="any"
                     placeholder={props.valuePlaceholder ?? 'Value...'}
-                    value={entry.value ?? ''}
+                    value={entry().value ?? ''}
                     disabled={props.disabled}
-                    invalid={isMissingValue(entry)}
+                    invalid={isMissingValue(entry())}
                     onInput={(ev) => {
                       const raw = ev.currentTarget.value;
 
                       updateValue(
-                        entry.id,
+                        entry().id,
                         raw.trim() === '' ? undefined : Number(raw),
                       );
                     }}
@@ -225,7 +225,7 @@ export const RecordEditor: Component<RecordEditorProps> = (props) => {
                     class={style.removeButton}
                     disabled={props.disabled}
                     onClick={() => {
-                      removeEntry(entry.id);
+                      removeEntry(entry().id);
                       notifyBlur();
                     }}
                   >
@@ -239,7 +239,7 @@ export const RecordEditor: Component<RecordEditorProps> = (props) => {
                 </div>
               );
             }}
-          </For>
+          </KeyedFor>
         </div>
       </Show>
 
