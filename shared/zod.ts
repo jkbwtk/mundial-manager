@@ -98,12 +98,12 @@ export type PaginatedResponse<T> = {
   total: number;
 };
 
-const unwrapToZodObject = (
+const unwrapToZodContainer = (
   schemaType: z.ZodTypeAny,
-): z.ZodObject | undefined => {
+): z.ZodObject | z.ZodRecord | undefined => {
   let current: z.ZodTypeAny = schemaType;
 
-  while (!(current instanceof z.ZodObject)) {
+  while (!(current instanceof z.ZodObject || current instanceof z.ZodRecord)) {
     if (!('unwrap' in current) || typeof current.unwrap !== 'function') {
       return undefined;
     }
@@ -118,17 +118,20 @@ export const resolveSchemaField = (
   rootSchema: z.ZodObject,
   path: string[],
 ): z.ZodTypeAny | undefined => {
-  let currentObject: z.ZodObject | undefined = rootSchema;
+  let container: z.ZodObject | z.ZodRecord | undefined = rootSchema;
   let field: z.ZodTypeAny | undefined;
 
   for (const segment of path) {
-    if (!currentObject) return undefined;
+    if (!container) return undefined;
 
-    field = currentObject.shape[segment];
+    field =
+      container instanceof z.ZodRecord
+        ? (container.valueType as z.ZodTypeAny)
+        : container.shape[segment];
 
     if (field === undefined) return undefined;
 
-    currentObject = unwrapToZodObject(field);
+    container = unwrapToZodContainer(field);
   }
 
   return field;
