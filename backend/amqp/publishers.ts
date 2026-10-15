@@ -34,7 +34,7 @@ export function serializeAMQPMessage<T extends object>(
   );
 }
 
-export function deserializeAMQPMessage<T extends z.ZodObject>(
+export function deserializeAMQPMessage<T extends z.ZodType<object>>(
   schema: T,
   data: Buffer<ArrayBufferLike>,
 ): AMQPMessage<z.infer<T>> | null {
