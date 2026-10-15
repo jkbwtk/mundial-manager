@@ -33,7 +33,7 @@ export const ColorBlock: Component<ColorBlockProps> = (props) => {
       classList={{
         [style.color]: true,
         [style.fill]: !!props.fill,
-        [props.class ?? '']: true,
+        [props.class ?? '']: !!props.class,
         ...(props.classList ?? {}),
       }}
       style={{
