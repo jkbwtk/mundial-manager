@@ -7,7 +7,9 @@ export const DashboardMobileLayout: ParentComponent = (props) => {
     <div class={style.mobileContainer}>
       <Suspense>{props.children}</Suspense>
 
-      <MobileNavBar class={style.mobileNav} />
+      <div class={style.mobileNav}>
+        <MobileNavBar />
+      </div>
     </div>
   );
 };
