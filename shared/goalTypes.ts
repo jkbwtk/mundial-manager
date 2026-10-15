@@ -1,4 +1,5 @@
 import type { GoalType } from '#shared/types/api/goalType';
+import type { SeasonConfig } from '#shared/types/api/season';
 
 type GoalTypeNode = Pick<GoalType, 'uuid' | 'parentUuid' | 'name' | 'icon'>;
 
@@ -43,4 +44,26 @@ export function normalizeGoalTypeSelection(
   }
 
   return [...selected];
+}
+
+export function isGoalTypeEnabled(
+  config: Pick<SeasonConfig, 'goalTypes'> | null,
+  uuid: string,
+): boolean {
+  return config?.goalTypes[uuid]?.enabled ?? true;
+}
+
+export function getSeasonGoalTypes(
+  goalTypes: Pick<GoalType, 'uuid' | 'stylePoints'>[],
+  configured: SeasonConfig['goalTypes'],
+): SeasonConfig['goalTypes'] {
+  return Object.fromEntries(
+    goalTypes.map((goalType) => [
+      goalType.uuid,
+      configured[goalType.uuid] ?? {
+        enabled: true,
+        stylePoints: goalType.stylePoints,
+      },
+    ]),
+  );
 }
