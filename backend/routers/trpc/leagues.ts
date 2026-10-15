@@ -1,4 +1,3 @@
-import { TRPCError } from '@trpc/server';
 import { LeagueModel } from '#backend/db/models/LeagueModel';
 import {
   leaguePermissionProcedure,
@@ -16,14 +15,7 @@ export const leaguesRouter = router({
       return null;
     }
 
-    const league = await LeagueModel.getById(ctx.db, leagueUuid);
-
-    if (league === null) {
-      throw new TRPCError({
-        code: 'NOT_FOUND',
-        message: 'League not found',
-      });
-    }
+    const league = await LeagueModel.getByIdOrThrow(ctx.db, leagueUuid);
 
     return league.serialize();
   }),

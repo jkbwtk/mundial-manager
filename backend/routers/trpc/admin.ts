@@ -1,5 +1,4 @@
 import { randomUUID } from 'node:crypto';
-import { TRPCError } from '@trpc/server';
 import { LeagueModel } from '#backend/db/models/LeagueModel';
 import { environment } from '#backend/environment';
 import { Pagination } from '#backend/types/trpc';
@@ -56,14 +55,7 @@ export const adminRouter = router({
   changeLeague$: permissionProcedure(PermissionEnum.LEAGUES_SWITCH)
     .input(League.pick({ uuid: true }))
     .mutation(async ({ ctx, input }) => {
-      const league = await LeagueModel.getById(ctx.db, input.uuid);
-
-      if (league === null) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'League not found',
-        });
-      }
+      const league = await LeagueModel.getByIdOrThrow(ctx.db, input.uuid);
 
       const newJWT = await sign({
         ...ctx.jwt,
@@ -82,14 +74,7 @@ export const adminRouter = router({
   leagueLink: permissionProcedure(PermissionEnum.LEAGUES_INVITE)
     .input(LeagueLinkQuery)
     .query(async ({ ctx, input }) => {
-      const league = await LeagueModel.getById(ctx.db, input.uuid);
-
-      if (league === null) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'League not found',
-        });
-      }
+      const league = await LeagueModel.getByIdOrThrow(ctx.db, input.uuid);
 
       const link = await createMagicLink(
         {

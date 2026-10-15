@@ -21,11 +21,7 @@ export type MagicLinkOptions = z.infer<typeof MagicLinkOptions>;
 
 async function generateMagicLink(options: MagicLinkOptions) {
   if (options.leagueUuid !== null) {
-    const league = await LeagueModel.getById(db, options.leagueUuid);
-
-    if (league === null) {
-      throw new Error(`League ${options.leagueUuid} not found`);
-    }
+    await LeagueModel.getByIdOrThrow(db, options.leagueUuid);
   }
 
   const link = await createMagicLink(
