@@ -30,7 +30,7 @@ export const LeagueDashboard: Component = () => {
   const can = useCan();
 
   const league = createResilientAsync(queryActiveLeague);
-  const goalTypes = createResilientAsync(() => queryGoalTypes());
+  const goalTypes = createResilientAsync(queryGoalTypes);
 
   const deleteGoalType = useAction(actionDeleteGoalType);
   const openConfirmModal = useConfirmModal();
