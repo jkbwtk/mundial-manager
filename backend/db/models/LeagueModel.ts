@@ -7,6 +7,7 @@ import type { LeagueSelectSchema } from '#backend/types/db/league';
 import {
   ConvertDrizzleErrors,
   DatabaseError,
+  type ModelErrorFields,
   NotFoundError,
 } from '#blib/modelErrors';
 import {
@@ -79,6 +80,21 @@ export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
     }
 
     return new LeagueModel(db, league);
+  }
+
+  @ConvertDrizzleErrors()
+  public static async getByIdOrThrow(
+    db: DB | TX,
+    uuid: string,
+    errorFields: ModelErrorFields = ['uuid'],
+  ) {
+    const league = await LeagueModel.getById(db, uuid);
+
+    if (!league) {
+      throw new NotFoundError('League not found', errorFields);
+    }
+
+    return league;
   }
 
   @ConvertDrizzleErrors()
