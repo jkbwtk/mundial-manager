@@ -9,7 +9,11 @@ import { MatchModel } from '#backend/db/models/MatchModel';
 import { MatchTimelineModel } from '#backend/db/models/MatchTimelineModel';
 import { PlayerModel } from '#backend/db/models/PlayerModel';
 import { TableModel } from '#backend/db/models/TableModel';
-import { saveLegacyMatchToSheet } from '#blib/sheetSync';
+import {
+  queueMatchSync,
+  saveLegacyMatchToSheet,
+  saveMatchToSheet,
+} from '#blib/sheetSync';
 import { leaguePermissionProcedure, router } from '#blib/trpc';
 import { createCrudOps } from '#blib/trpcOps';
 import { zodEncode } from '#blib/utils';
@@ -19,6 +23,7 @@ import {
   MatchCreate,
   MatchesBySyncIds,
   MatchQueryMeta,
+  MatchStatusEnum,
   MatchUpdate,
   SyncId,
 } from '#shared/types/api/match';
@@ -40,6 +45,32 @@ export const matchesRouter = router({
     },
   }),
 
+  createWithWebhook: leaguePermissionProcedure(PermissionEnum.MATCHES_CREATE)
+    .input(MatchCreate)
+    .output(Match)
+    .mutation(async ({ ctx, input }) => {
+      const instance = await MatchModel.create(ctx.db, ctx.league.uuid, input);
+
+      if (instance.status === MatchStatusEnum.FINISHED) {
+        queueMatchSync(ctx.db, ctx.league.uuid, instance.uuid);
+      }
+
+      return MatchModel.mapToPublic(ctx.db, instance);
+    }),
+
+  updateWithWebhook: leaguePermissionProcedure(PermissionEnum.MATCHES_UPDATE)
+    .input(MatchUpdate)
+    .output(Match)
+    .mutation(async ({ ctx, input }) => {
+      const instance = await MatchModel.update(ctx.db, ctx.league.uuid, input);
+
+      if (instance.status === MatchStatusEnum.FINISHED) {
+        queueMatchSync(ctx.db, ctx.league.uuid, instance.uuid);
+      }
+
+      return MatchModel.mapToPublic(ctx.db, instance);
+    }),
+
   getBySyncIds: leaguePermissionProcedure(PermissionEnum.MATCHES_READ)
     .input(MatchesBySyncIds)
     .output(Match.array())
@@ -51,7 +82,15 @@ export const matchesRouter = router({
     .input(MatchFullCreate)
     .output(Match)
     .mutation(async ({ ctx, input }) => {
-      return MatchModel.createFull(ctx.db, ctx.league.uuid, input);
+      const instance = await MatchModel.createFull(
+        ctx.db,
+        ctx.league.uuid,
+        input,
+      );
+
+      saveMatchToSheet(ctx.db, ctx.league.uuid, instance.uuid);
+
+      return instance;
     }),
 
   getLegacy: leaguePermissionProcedure([

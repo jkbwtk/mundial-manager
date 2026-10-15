@@ -39,6 +39,17 @@ export const actionCreateMatch = action(async (match: MatchCreate) => {
   });
 }, 'actionCreateMatch');
 
+export const actionCreateMatchWithWebhook = action(
+  async (match: MatchCreate) => {
+    const newMatch = await trpcClient.matches.createWithWebhook.mutate(match);
+
+    return json(Match.parse(newMatch), {
+      revalidate: ['queryMatches'],
+    });
+  },
+  'actionCreateMatchWithWebhook',
+);
+
 export const actionCreateFullMatch = action(
   async (fullMatch: MatchFullCreate) => {
     const newMatch = await trpcClient.matches.createFull.mutate(fullMatch);
@@ -62,6 +73,17 @@ export const actionUpdateMatch = action(async (match: MatchUpdate) => {
     ],
   });
 }, 'actionUpdateMatch');
+
+export const actionUpdateMatchWithWebhook = action(
+  async (match: MatchUpdate) => {
+    const updatedMatch = await trpcClient.matches.update.mutate(match);
+
+    return json(Match.parse(updatedMatch), {
+      revalidate: ['queryMatches', 'queryMatchById', 'queryMatchTimeline'],
+    });
+  },
+  'actionUpdateMatchWithWebhook',
+);
 
 export const actionDeleteMatch = action(async (uuid: string) => {
   const deletedMatch = await trpcClient.matches.delete.mutate({ uuid });

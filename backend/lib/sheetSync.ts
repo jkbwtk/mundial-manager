@@ -8,6 +8,10 @@ import {
   type MatchCreate as LegacyMatchCreate,
 } from '#shared/types/Sheets';
 
+const MATCH_SYNC_FALLBACK_MS = 30_000;
+
+const pendingMatchSyncs = new Map<string, ReturnType<typeof setTimeout>>();
+
 let sheetStoreSingleton: Promise<SheetStore> | null = null;
 
 function getSheetStore(): Promise<SheetStore> {
@@ -69,4 +73,35 @@ export function saveMatchToSheet(
         error: err,
       });
     });
+}
+
+export function flushMatchSync(
+  db: DB,
+  leagueUuid: string,
+  matchUuid: string,
+): void {
+  const pending = pendingMatchSyncs.get(matchUuid);
+
+  if (pending === undefined) return;
+
+  clearTimeout(pending);
+  pendingMatchSyncs.delete(matchUuid);
+
+  saveMatchToSheet(db, leagueUuid, matchUuid);
+}
+
+export function queueMatchSync(
+  db: DB,
+  leagueUuid: string,
+  matchUuid: string,
+): void {
+  clearTimeout(pendingMatchSyncs.get(matchUuid));
+
+  pendingMatchSyncs.set(
+    matchUuid,
+    setTimeout(
+      () => flushMatchSync(db, leagueUuid, matchUuid),
+      MATCH_SYNC_FALLBACK_MS,
+    ),
+  );
 }

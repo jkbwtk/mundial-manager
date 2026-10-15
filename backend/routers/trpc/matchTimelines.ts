@@ -1,4 +1,5 @@
 import { MatchModel } from '#backend/db/models/MatchModel';
+import { flushMatchSync } from '#blib/sheetSync';
 import { leaguePermissionProcedure, router } from '#blib/trpc';
 import { PermissionEnum } from '#shared/permissions';
 import {
@@ -19,6 +20,14 @@ export const matchTimelinesRouter = router({
     .input(MatchTimelineSave)
     .output(MatchTimeline)
     .mutation(async ({ ctx, input }) => {
-      return MatchModel.saveTimeline(ctx.db, ctx.league.uuid, input);
+      const timeline = await MatchModel.saveTimeline(
+        ctx.db,
+        ctx.league.uuid,
+        input,
+      );
+
+      flushMatchSync(ctx.db, ctx.league.uuid, input.matchUuid);
+
+      return timeline;
     }),
 });
