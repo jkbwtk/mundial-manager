@@ -9,10 +9,10 @@ import {
 import type { ECharts } from 'echarts/core';
 import * as echarts from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
-import { createEffect, createMemo, onCleanup, onMount } from 'solid-js';
+import { createEffect, onCleanup, onMount } from 'solid-js';
 import type { ChartOptions } from '#components/EChartWrapper';
 import { defaultTheme } from '#flib/chartTheme';
-import styles from './EChartWrapper.module.scss';
+import style from './EChartWrapper.module.scss';
 
 export interface EChartWrapperProps {
   config: ChartOptions;
@@ -40,14 +40,10 @@ export const EChartWrapper: Component<EChartWrapperProps> = (props) => {
   let chartRef!: HTMLDivElement;
   let chart: ECharts | null = null;
 
-  const options = createMemo<ChartOptions>(() => ({
-    ...props.config,
-  }));
-
   onMount(() => {
     chart = echarts.init(chartRef, 'default');
 
-    let resizeTimer: ReturnType<typeof setTimeout>;
+    let resizeTimer: ReturnType<typeof setTimeout> | undefined;
 
     const observer = new ResizeObserver((entries) => {
       clearTimeout(resizeTimer);
@@ -65,20 +61,20 @@ export const EChartWrapper: Component<EChartWrapperProps> = (props) => {
 
     observer.observe(wrapperRef);
 
-    chart.setOption(options());
-
     if (props.onChartReady) {
       props.onChartReady(chart);
     }
 
     onCleanup(() => {
+      clearTimeout(resizeTimer);
       observer.disconnect();
       chart?.dispose();
+      chart = null;
     });
   });
 
   createEffect(() => {
-    chart?.setOption(options(), { notMerge: true });
+    chart?.setOption(props.config, { notMerge: true });
   });
 
   return (
@@ -86,11 +82,11 @@ export const EChartWrapper: Component<EChartWrapperProps> = (props) => {
       ref={wrapperRef}
       classList={{
         [props.class ?? '']: !!props.class,
-        [styles.container]: true,
+        [style.container]: true,
         ...(props.classList ?? {}),
       }}
     >
-      <div ref={chartRef} class={styles.chart} />
+      <div ref={chartRef} class={style.chart} />
     </div>
   );
 };
