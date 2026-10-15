@@ -32,7 +32,7 @@ export default (
 
   dayjsClass.prototype.diff = function (date, unit, float) {
     if (unit === 'workDay' || unit === 'workDays') {
-      const that = dayjs(date);
+      const that = dayjs.isDayjs(date) ? date : dayjs(date);
 
       const start = (this > that ? that : this).startOf('day');
       const goal = (this > that ? this : that).startOf('day');
