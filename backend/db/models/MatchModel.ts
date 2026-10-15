@@ -5,6 +5,7 @@ import { GoalTypeModel } from '#backend/db/models/GoalTypeModel';
 import { MatchTimelineModel } from '#backend/db/models/MatchTimelineModel';
 import { ModelOps } from '#backend/db/models/ModelOps';
 import { PlayerModel } from '#backend/db/models/PlayerModel';
+import { SeasonModel } from '#backend/db/models/SeasonModel';
 import { TableModel } from '#backend/db/models/TableModel';
 import { matchesTable, teamConfigurationsTable } from '#backend/db/schema';
 import { MatchSelectSchema } from '#backend/types/db/match';
@@ -14,6 +15,7 @@ import {
   DatabaseError,
   StrategyValidationError,
 } from '#blib/modelErrors';
+import { isGoalTypeEnabled } from '#shared/goalTypes';
 import {
   getExactStartDate,
   START_DATE_PRECISION_LABEL,
@@ -41,6 +43,7 @@ import {
   MatchTimelineErrorTypeEnum,
   type MatchTimelineSave,
 } from '#shared/types/api/matchTimeline';
+import { SeasonConfig } from '#shared/types/api/season';
 
 const MatchOps = ModelOps({
   table: matchesTable,
@@ -325,7 +328,16 @@ export class MatchModel extends MatchOps {
       ...(match.ballUuid ? [match.ballUuid] : []),
       ...references.ballUuids,
     ]);
-    const goalTypes = await GoalTypeModel.getAll(db, leagueUuid);
+    const season =
+      match.startDate === null
+        ? null
+        : await SeasonModel.getByDate(db, leagueUuid, match.startDate);
+    const seasonConfig = season && SeasonConfig.parse(season.config);
+    const goalTypes = (await GoalTypeModel.getAll(db, leagueUuid)).filter(
+      (goalType) =>
+        references.goalTypeUuids.has(goalType.uuid) ||
+        isGoalTypeEnabled(seasonConfig, goalType.uuid),
+    );
 
     return {
       match,
