@@ -1,6 +1,7 @@
 import { BallLabel } from '#components/BallLabel';
 import type { DropdownOption } from '#components/Dropdown';
 import { ModalForm, type ModalFormLabels } from '#components/ModalForm';
+import { TableLabel } from '#components/TableLabel';
 import {
   actionCreateMatch,
   actionUpdateMatch,
@@ -122,7 +123,7 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
           queryByIds: queryTablesByIds,
           query: queryTables,
           toEntry: (e: Table) => {
-            return { label: e.name, value: e.uuid };
+            return { label: <TableLabel table={e} />, value: e.uuid };
           },
         },
         ballUuid: {
