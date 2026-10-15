@@ -28,7 +28,7 @@ export type MatchEventType = z.infer<typeof MatchEventType>;
 const MatchEventBase = z.object({
   uuid: z.uuid(),
 
-  offset: z.number().int(),
+  offset: z.number().int(), // milliseconds from the match start
 
   labels: Labels,
 });

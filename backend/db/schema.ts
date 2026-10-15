@@ -266,8 +266,8 @@ export const matchesTable = pgTable(
       precision: 6,
     }),
 
-    duration: t.doublePrecision(),
-    pauseDuration: t.doublePrecision().notNull().default(0),
+    duration: t.doublePrecision(), // milliseconds
+    pauseDuration: t.doublePrecision().notNull().default(0), // milliseconds
 
     side1Score: t.integer().notNull(),
     side2Score: t.integer().notNull(),
