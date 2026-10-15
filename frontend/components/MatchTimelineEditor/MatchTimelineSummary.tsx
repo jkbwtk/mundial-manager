@@ -7,7 +7,7 @@ import { MaterialSymbol } from '#components/MaterialSymbol';
 import { Divider } from '#components/Widget';
 import { MatchEventTypeLabels, MatchEventTypeSymbols } from '#flib/matchEvents';
 import { getMatchTimelineStats } from '#shared/matchTimeline';
-import { formatDurationMs } from '#shared/timeUtils';
+import { formatDuration } from '#shared/timeUtils';
 import { MatchEventTypeEnum, MatchSides } from '#shared/types/api/matchEvent';
 import { useMatchTimelineEditor } from './MatchTimelineEditor';
 import style from './MatchTimelineEditor.module.scss';
@@ -98,17 +98,17 @@ export const MatchTimelineSummary: Component = () => {
         <strong>
           {match().duration === null
             ? 'Not finished'
-            : formatDurationMs(match().duration)}
+            : formatDuration(match().duration)}
         </strong>
 
         <span>Pause Duration:</span>
         <strong>
-          {formatDurationMs(storedPauseDuration())}
+          {formatDuration(storedPauseDuration())}
           <Show when={pauseChanged()}>
             <DeltaDisplay
               base={draft.pauseDuration()}
               compared={storedPauseDuration()}
-              formatter={(value) => formatDurationMs(value ?? 0)}
+              formatter={(value) => formatDuration(value ?? 0)}
             />
           </Show>
         </strong>
@@ -139,21 +139,21 @@ export const MatchTimelineSummary: Component = () => {
           <span>Avg. Time Between Goals:</span>
           <strong>
             <AnimatedText>
-              {formatDurationMs(stats().averageTimeBetweenGoals)}
+              {formatDuration(stats().averageTimeBetweenGoals)}
             </AnimatedText>
           </strong>
 
           <span>Longest Time Between Goals:</span>
           <strong>
             <AnimatedText>
-              {formatDurationMs(stats().longestTimeBetweenGoals)}
+              {formatDuration(stats().longestTimeBetweenGoals)}
             </AnimatedText>
           </strong>
 
           <span>Shortest Time Between Goals:</span>
           <strong>
             <AnimatedText>
-              {formatDurationMs(stats().shortestTimeBetweenGoals)}
+              {formatDuration(stats().shortestTimeBetweenGoals)}
             </AnimatedText>
           </strong>
 

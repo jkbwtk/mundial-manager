@@ -10,7 +10,7 @@ import {
   getTeamColors,
   hasWon,
 } from '#shared/matchUtils';
-import { formatDuration } from '#shared/timeUtils';
+import { formatDuration, secondsToMs } from '#shared/timeUtils';
 import type { Match } from '#shared/types/Sheets';
 import { type QuickSwitchCases, quickSwitch } from '#shared/utils';
 
@@ -72,8 +72,8 @@ async function _sendMatchSummaryWebhook(match: Match) {
           : undefined,
         description: `${team1Emoji} ${team1} **${match.score1}** - **${match.score2}** ${team2} ${team2Emoji}
 
-:hourglass: Duration: **${formatDuration(match.duration)}**
-:pause_button: Pause Duration: **${formatDuration(getPauseDuration(match.replayMetadata?.events ?? []))}**,
+:hourglass: Duration: **${formatDuration(secondsToMs(match.duration))}**
+:pause_button: Pause Duration: **${formatDuration(secondsToMs(getPauseDuration(match.replayMetadata?.events ?? [])))}**,
 :elevator: Floor: **${match.floor ?? 'N/A'}**
 
 Ball outs: **${getBallOutEvents(match)?.length ?? 0}**

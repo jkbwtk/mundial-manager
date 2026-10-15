@@ -16,6 +16,7 @@ import { StatRow } from '#components/StatRow';
 import { SummaryRow } from '#components/SummaryRow';
 import { type Column, Table } from '#components/Table';
 import { Divider } from '#components/Widget';
+import { useLeagueTimeZone } from '#flib/leagueTimeZone';
 import { createResilientAsync } from '#flib/resilientAsync';
 import { useHandleButtonAction } from '#flib/solidHelpers';
 import {
@@ -30,7 +31,7 @@ import { formatExactStartTime } from '#shared/matchLabels';
 import { isMatchPlayer } from '#shared/matchPlayers';
 import { formatStatsSessionKey } from '#shared/stats/buckets';
 import { getStatsSessionSpan } from '#shared/stats/presence';
-import { formatTimeMs } from '#shared/timeUtils';
+import { formatTime } from '#shared/timeUtils';
 import type { Match } from '#shared/types/api/match';
 import type { Player } from '#shared/types/api/player';
 import style from './SessionPresenceModal.module.scss';
@@ -44,6 +45,7 @@ export const SessionPresenceModal: Component<SessionPresenceModalProps> = (
 ) => {
   const [, actions] = useToast();
   const { closeModal } = useModalActions();
+  const timeZone = useLeagueTimeZone();
 
   const session = createResilientAsync(
     () => props.matchUuid,
@@ -78,9 +80,9 @@ export const SessionPresenceModal: Component<SessionPresenceModalProps> = (
   const timeSpan = () => {
     const span = getStatsSessionSpan(matches());
 
-    if (span === null) return formatTimeMs(null);
+    if (span === null) return formatTime(null);
 
-    return `${formatTimeMs(span[0])} - ${formatTimeMs(span[1])}`;
+    return `${formatTime(span[0], timeZone())} - ${formatTime(span[1], timeZone())}`;
   };
 
   const isPresent = (match: Match, playerUuid: string) =>
@@ -202,7 +204,7 @@ export const SessionPresenceModal: Component<SessionPresenceModalProps> = (
     ...matches().map(
       (match): Column => ({
         key: match.uuid,
-        header: formatExactStartTime(match),
+        header: formatExactStartTime(match, timeZone()),
         align: 'center',
         width: 7,
         transform: (_, player: Player) => (

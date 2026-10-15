@@ -19,7 +19,7 @@ import {
   actionCreateLegacyMatch,
   queryMatchesBySyncIds,
 } from '#flib/trpcCalls';
-import { formatDate, formatDuration } from '#shared/timeUtils';
+import { formatDate, formatDuration, secondsToMs } from '#shared/timeUtils';
 import type { MatchCreate } from '#shared/types/Sheets';
 import style from './CreatedMatchesTest.module.scss';
 
@@ -167,13 +167,14 @@ const CreatedMatchesTest: Component = () => {
       header: 'Time',
       width: 10,
       transform: (value: number | null) =>
-        value ? formatDuration(value) : 'N/A',
+        value ? formatDuration(secondsToMs(value)) : 'N/A',
     },
     {
       key: 'date',
       header: 'Date',
       width: 12,
-      transform: (value: number | null) => (value ? formatDate(value) : 'N/A'),
+      transform: (value: number | null) =>
+        value ? formatDate(secondsToMs(value)) : 'N/A',
     },
     {
       key: 'syncId',

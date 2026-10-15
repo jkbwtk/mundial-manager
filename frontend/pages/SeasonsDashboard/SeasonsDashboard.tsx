@@ -7,6 +7,7 @@ import { SeasonCreatorModal } from '#components/SeasonCreatorModal';
 import { type Column, Table } from '#components/Table';
 import { Divider } from '#components/Widget';
 import { useCan } from '#flib/identity';
+import { useLeagueTimeZone } from '#flib/leagueTimeZone';
 import { createResilientAsync } from '#flib/resilientAsync';
 import { useSearchParamsState } from '#flib/searchParamsState';
 import { useHandleButtonAction } from '#flib/solidHelpers';
@@ -24,6 +25,7 @@ import { shortUUID } from '#shared/utils';
 import style from './SeasonsDashboard.module.scss';
 
 export const SeasonsDashboard: Component = () => {
+  const timeZone = useLeagueTimeZone();
   const [, actions] = useToast();
   const [, { open }] = useModal();
 
@@ -86,7 +88,7 @@ export const SeasonsDashboard: Component = () => {
       align: 'center',
       width: 14,
       sortable: true,
-      transform: (val: Date) => formatDate(val.getTime() / 1000),
+      transform: (val: Date) => formatDate(val, timeZone()),
     },
     {
       key: 'endDate',
@@ -94,7 +96,7 @@ export const SeasonsDashboard: Component = () => {
       align: 'center',
       width: 14,
       sortable: true,
-      transform: (val: Date) => formatDate(val.getTime() / 1000),
+      transform: (val: Date) => formatDate(val, timeZone()),
     },
     {
       key: 'edit',

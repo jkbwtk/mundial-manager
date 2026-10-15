@@ -1,6 +1,6 @@
 import z from 'zod';
 import { getLabelValue } from '#shared/labels';
-import { formatDate, formatDatetime, formatTimeMs } from '#shared/timeUtils';
+import { formatDate, formatDatetime, formatTime } from '#shared/timeUtils';
 import type { Match } from '#shared/types/api/match';
 
 type DatedMatch = Pick<Match, 'startDate' | 'labels'>;
@@ -47,18 +47,23 @@ export function getExactStartDate(match: DatedMatch): Date | null {
   return hasExactStartDate(match) ? match.startDate : null;
 }
 
-export function formatKnownStartDate(match: DatedMatch): string {
-  const startDate = getKnownStartDate(match);
-
-  return formatDate(startDate === null ? null : startDate.getTime() / 1000);
+export function formatKnownStartDate(
+  match: DatedMatch,
+  timeZone?: string,
+): string {
+  return formatDate(getKnownStartDate(match), timeZone);
 }
 
-export function formatExactStartTime(match: DatedMatch): string {
-  return formatTimeMs(getExactStartDate(match)?.getTime() ?? null);
+export function formatExactStartTime(
+  match: DatedMatch,
+  timeZone?: string,
+): string {
+  return formatTime(getExactStartDate(match), timeZone);
 }
 
-export function formatKnownStartDatetime(match: DatedMatch): string {
-  const startDate = getKnownStartDate(match);
-
-  return formatDatetime(startDate === null ? null : startDate.getTime() / 1000);
+export function formatKnownStartDatetime(
+  match: DatedMatch,
+  timeZone?: string,
+): string {
+  return formatDatetime(getKnownStartDate(match), timeZone);
 }

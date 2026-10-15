@@ -8,6 +8,7 @@ import { SessionPresenceModal } from '#components/SessionPresenceModal';
 import { type Column, Table } from '#components/Table';
 import { Divider } from '#components/Widget';
 import { useCan } from '#flib/identity';
+import { useLeagueTimeZone } from '#flib/leagueTimeZone';
 import { createResilientAsync } from '#flib/resilientAsync';
 import { useSearchParamsState } from '#flib/searchParamsState';
 import { useHandleButtonAction } from '#flib/solidHelpers';
@@ -16,12 +17,13 @@ import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
 import { formatKnownStartDatetime } from '#shared/matchLabels';
 import { PermissionEnum } from '#shared/permissions';
-import { formatDurationMs } from '#shared/timeUtils';
+import { formatDuration } from '#shared/timeUtils';
 import { type Match, MatchQueryMeta } from '#shared/types/api/match';
 import { shortUUID } from '#shared/utils';
 import style from './MatchesDashboard.module.scss';
 
 export const MatchesDashboard: Component = () => {
+  const timeZone = useLeagueTimeZone();
   const [, actions] = useToast();
   const [, { open }] = useModal();
 
@@ -91,7 +93,8 @@ export const MatchesDashboard: Component = () => {
       align: 'center',
       sortable: true,
       width: 23,
-      transform: (_val, row: Match) => formatKnownStartDatetime(row),
+      transform: (_val, row: Match) =>
+        formatKnownStartDatetime(row, timeZone()),
     },
     {
       key: 'duration',
@@ -99,7 +102,7 @@ export const MatchesDashboard: Component = () => {
       align: 'center',
       sortable: true,
       width: 10,
-      transform: (val) => formatDurationMs(val),
+      transform: (val) => formatDuration(val),
     },
     {
       key: 'pauseDuration',
@@ -107,7 +110,7 @@ export const MatchesDashboard: Component = () => {
       align: 'center',
       sortable: true,
       width: 18,
-      transform: (val) => formatDurationMs(val),
+      transform: (val) => formatDuration(val),
     },
     {
       key: 'spectators',

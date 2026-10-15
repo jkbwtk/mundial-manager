@@ -12,7 +12,7 @@ import { actionCreateLegacyMatch } from '#flib/trpcCalls';
 import { useModalActions } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
 import { getMatchFloor, getTeamColors } from '#shared/matchUtils';
-import { formatDate, formatDuration } from '#shared/timeUtils';
+import { formatDate, formatDuration, secondsToMs } from '#shared/timeUtils';
 import type { MatchCreate } from '#shared/types/Sheets';
 import style from './MatchSaveConfirmModal.module.scss';
 
@@ -150,12 +150,12 @@ export const MatchSaveConfirmModal: Component<MatchSafeCOnfirmModalProps> = (
       <div class={style.statsContainer}>
         <Show when={props.match.duration}>
           <span>Duration:</span>
-          <strong>{formatDuration(props.match.duration!)}</strong>
+          <strong>{formatDuration(secondsToMs(props.match.duration!))}</strong>
         </Show>
 
         <Show when={props.match.date}>
           <span>Date:</span>
-          <strong>{formatDate(props.match.date!)}</strong>
+          <strong>{formatDate(secondsToMs(props.match.date!))}</strong>
         </Show>
 
         <Show when={floor()}>

@@ -74,10 +74,9 @@ export function narrowMatchEvent<T extends MatchEventType>(
 export function formatElapsed(ms: number): string {
   const sign = ms < 0 ? '-' : '';
   const absolute = Math.abs(ms);
-  const seconds = Math.floor(absolute / 1000);
   const tenths = Math.floor((absolute % 1000) / 100);
 
-  return `${sign}${formatDuration(seconds)}${tenths > 0 ? `.${tenths}` : ''}`;
+  return `${sign}${formatDuration(absolute - (absolute % 1000))}${tenths > 0 ? `.${tenths}` : ''}`;
 }
 
 export function createMatchEvent(
