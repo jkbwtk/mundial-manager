@@ -84,9 +84,13 @@
 .menu {
   max-height: round(down, ch(12), ch(1));
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .option {
+  display: block;
+  text-align: left;
+
   width: 100%;
 
   cursor: pointer;

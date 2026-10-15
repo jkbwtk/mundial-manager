@@ -89,7 +89,7 @@ export const Dropdown: DropdownSignature = <T = string>(
   let ref!: HTMLDivElement;
   let triggerRef: HTMLButtonElement | undefined;
   let typeaheadTimeout: ReturnType<typeof setTimeout> | undefined;
-  const optionRefs: Array<HTMLDivElement | undefined> = [];
+  const optionRefs: Array<HTMLButtonElement | undefined> = [];
   const typeaheadResetMs = 350;
 
   const selectedIndices = createMemo(() =>
@@ -453,11 +453,12 @@ export const Dropdown: DropdownSignature = <T = string>(
 
         <For each={visibleOptions()}>
           {(option, index) => (
-            <div
+            <button
               ref={(el) => {
                 optionRefs[index()] = el;
               }}
               id={getOptionId(index())}
+              type="button"
               role="option"
               tabIndex={-1}
               aria-selected={values().includes(option.value)}
@@ -472,7 +473,7 @@ export const Dropdown: DropdownSignature = <T = string>(
               onPointerEnter={() => setActiveIndex(index())}
             >
               {option.label}
-            </div>
+            </button>
           )}
         </For>
       </AnchoredPopup>
