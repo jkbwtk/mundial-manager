@@ -22,6 +22,7 @@ import {
   applyDirectives,
   type ComponentUseDirectiveHack,
 } from '#flib/solidHelpers';
+import { toZonedDayjs } from '#shared/timeUtils';
 import { clamp, type RequiredDefaults } from '#shared/utils';
 import style from './DateInput.module.scss';
 
@@ -49,6 +50,7 @@ export type DateInputProps = {
   classList?: JSX.CustomAttributes<HTMLElement>['classList'];
   useDirectives?: ComponentUseDirectiveHack<HTMLInputElement>[];
   name?: string;
+  timeZone?: string;
 };
 
 const MonthNames = [
@@ -78,6 +80,7 @@ export const dateInputDefaultProps: RequiredDefaults<DateInputProps> = {
   classList: {},
   useDirectives: [],
   name: undefined!,
+  timeZone: undefined!,
 };
 
 const daysInMonth = (year: number, month: number) =>
@@ -128,7 +131,24 @@ const parseDate = (date: Date) => ({
   second: String(date.getSeconds()).padStart(2, '0'),
 });
 
-const TodayDate = new Date().toDateString();
+const toWallClock = (date: Date, timeZone?: string) => {
+  const zoned = toZonedDayjs(date, timeZone);
+
+  return new Date(
+    zoned.year(),
+    zoned.month(),
+    zoned.date(),
+    zoned.hour(),
+    zoned.minute(),
+    zoned.second(),
+    zoned.millisecond(),
+  );
+};
+
+const fromWallClock = (date: Date, timeZone?: string) =>
+  timeZone
+    ? dayjs.tz(dayjs(date).format('YYYY-MM-DDTHH:mm:ss.SSS'), timeZone).toDate()
+    : date;
 
 export const DateInput: Component<DateInputProps> = (userProps) => {
   const baseProps = mergeProps(dateInputDefaultProps, userProps);
@@ -154,13 +174,27 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
   const [open, setOpen] = createSignal(false);
   const [focusIdx, setFocusIdx] = createSignal(-1);
 
-  const [selectedDate, setSelectedDate] = createSignal(props.value ?? null);
+  const now = () => toWallClock(new Date(), props.timeZone);
+  const wallValue = () =>
+    props.value ? toWallClock(props.value, props.timeZone) : null;
+
+  const toValue = (date: Date | null) => {
+    const value = date === null ? null : fromWallClock(date, props.timeZone);
+
+    return value?.getTime() === props.value?.getTime()
+      ? (props.value ?? null)
+      : value;
+  };
+
+  const emitInput = (date: Date | null) => props.onInput(toValue(date));
+
+  const [selectedDate, setSelectedDate] = createSignal(wallValue());
 
   const [viewYear, setViewYear] = createSignal(
-    (selectedDate() ?? new Date()).getFullYear(),
+    (selectedDate() ?? now()).getFullYear(),
   );
   const [viewMonth, setViewMonth] = createSignal(
-    (selectedDate() ?? new Date()).getMonth() + 1,
+    (selectedDate() ?? now()).getMonth() + 1,
   );
 
   const grid = createMemo(() => buildGrid(viewYear(), viewMonth()));
@@ -203,7 +237,7 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
 
     batch(() => {
       setSelectedDate(date);
-      props.onInput(date);
+      emitInput(date);
 
       wrapRef.oninput?.(new InputEvent('input', { bubbles: true }));
     });
@@ -212,7 +246,7 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
   const syncFieldsFromValue = (date: Date | null) => {
     setSelectedDate(date);
 
-    props.onInput(date);
+    emitInput(date);
     wrapRef.oninput?.(new InputEvent('input', { bubbles: true }));
 
     if (!date) {
@@ -245,7 +279,7 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
 
   const currentDaysInMonth = () =>
     daysInMonth(
-      Number(yearRef.value) || new Date().getFullYear(),
+      Number(yearRef.value) || now().getFullYear(),
       Number(monthRef.value) || 1,
     );
 
@@ -415,7 +449,7 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
   };
 
   const openCal = () => {
-    const current = selectedDate() ?? new Date();
+    const current = selectedDate() ?? now();
 
     setViewYear(current.getFullYear());
     setViewMonth(current.getMonth() + 1);
@@ -431,7 +465,7 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
 
   const selectDate = (date: Date) => {
     syncFieldsFromValue(date);
-    props.onInput(date);
+    emitInput(date);
     closeCal();
   };
 
@@ -504,7 +538,7 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
 
   createEffect(
     on(
-      () => props.value,
+      wallValue,
       (newDate) => {
         syncFieldsFromValue(newDate);
       },
@@ -574,7 +608,7 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
       // @ts-expect-error
       prop:type="date"
       prop:name={containerProps.name}
-      prop:value={selectedDate()}
+      prop:value={toValue(selectedDate())}
     >
       <SegmentInput
         ref={(el) => {
@@ -583,7 +617,7 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
         class={style.year}
         maxlength={4}
         placeholder="YYYY"
-        defaultValue={props.value ? parseDate(props.value).year : ''}
+        defaultValue={wallValue() ? parseDate(wallValue()!).year : ''}
         label="Year"
         disabled={props.disabled}
         keys={yearKeys}
@@ -601,7 +635,7 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
         class={style.month}
         maxlength={2}
         placeholder="MM"
-        defaultValue={props.value ? parseDate(props.value).month : ''}
+        defaultValue={wallValue() ? parseDate(wallValue()!).month : ''}
         label="Month"
         disabled={props.disabled}
         keys={monthKeys}
@@ -619,7 +653,7 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
         class={style.day}
         maxlength={2}
         placeholder="DD"
-        defaultValue={props.value ? parseDate(props.value).day : ''}
+        defaultValue={wallValue() ? parseDate(wallValue()!).day : ''}
         label="Day"
         disabled={props.disabled}
         keys={dayKeys}
@@ -640,7 +674,7 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
           class={style.day}
           maxlength={2}
           placeholder="HH"
-          defaultValue={props.value ? parseDate(props.value).hour : ''}
+          defaultValue={wallValue() ? parseDate(wallValue()!).hour : ''}
           label="Hour"
           disabled={props.disabled}
           keys={hourKeys}
@@ -658,7 +692,7 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
           class={style.day}
           maxlength={2}
           placeholder="mm"
-          defaultValue={props.value ? parseDate(props.value).minute : ''}
+          defaultValue={wallValue() ? parseDate(wallValue()!).minute : ''}
           label="Minute"
           disabled={props.disabled}
           keys={minuteKeys}
@@ -677,7 +711,7 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
             class={style.day}
             maxlength={2}
             placeholder="SS"
-            defaultValue={props.value ? parseDate(props.value).second : ''}
+            defaultValue={wallValue() ? parseDate(wallValue()!).second : ''}
             label="Second"
             disabled={props.disabled}
             keys={secondKeys}
@@ -794,7 +828,8 @@ export const DateInput: Component<DateInputProps> = (userProps) => {
                   [style.otherMonth]: !cell.isCurrentMonth,
                   [style.selected]:
                     cell.date.toDateString() === selectedDate()?.toDateString(),
-                  [style.today]: cell.date.toDateString() === TodayDate,
+                  [style.today]:
+                    cell.date.toDateString() === now().toDateString(),
                   [style.focused]: idx() === focusIdx(),
                 }}
                 onClick={() => selectDate(cell.date)}
