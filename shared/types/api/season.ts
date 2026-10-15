@@ -1,13 +1,39 @@
 import z from 'zod';
 import { createQueryMeta } from '#backend/types/trpc';
-import { defaultSeasonConfig } from '#shared/defaults/season';
+import {
+  defaultMatchRules,
+  defaultSeasonConfig,
+  defaultStylePointsConfig,
+} from '#shared/defaults/season';
 import { Labels } from '#shared/labels';
 import { RatingSystemsConfig } from '#shared/types/stats/ratingSystem';
 import { PaginatedResponse, withDefaults } from '#shared/zod';
 
+export const MatchRules = z.object({
+  target: z.int().positive(),
+  winByTwo: z.boolean(),
+});
+export type MatchRules = z.infer<typeof MatchRules>;
+
+export const StylePointsConfig = z.object({
+  streaks: z.record(z.string(), z.int().nonnegative()),
+  comebacks: z.record(z.string(), z.int().nonnegative()),
+});
+export type StylePointsConfig = z.infer<typeof StylePointsConfig>;
+
+export const SeasonGoalTypeConfig = z.object({
+  enabled: z.boolean(),
+  stylePoints: z.int().nonnegative(),
+});
+export type SeasonGoalTypeConfig = z.infer<typeof SeasonGoalTypeConfig>;
+
 export const SeasonConfig = z.object({
   resetRatings: z.boolean(),
   sessionGap: z.number().nonnegative(), // milliseconds
+
+  rules: MatchRules.default(defaultMatchRules),
+  stylePoints: StylePointsConfig.default(defaultStylePointsConfig),
+  goalTypes: z.record(z.uuid(), SeasonGoalTypeConfig).default({}),
 
   ratings: RatingSystemsConfig,
 });
