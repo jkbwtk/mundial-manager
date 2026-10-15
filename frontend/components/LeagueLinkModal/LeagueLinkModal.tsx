@@ -2,6 +2,7 @@ import { ModalForm } from '#components/ModalForm';
 import { useCopyToClipboard } from '#flib/clipboard';
 import { actionCreateLeagueLink } from '#flib/trpcCalls';
 import { useModalActions } from '#providers/ModalProvider';
+import { daysToMs, msToDays } from '#shared/timeUtils';
 import {
   type League,
   LeagueLinkQuery,
@@ -61,6 +62,8 @@ export const LeagueLinkModal: Component<LeagueLinkModalProps> = (props) => {
           unit: 'days',
           min: 1,
           max: 365,
+          transform: daysToMs,
+          format: msToDays,
         },
       }}
     />

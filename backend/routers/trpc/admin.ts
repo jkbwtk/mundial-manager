@@ -87,7 +87,7 @@ export const adminRouter = router({
 
           redirectTo: '/',
         },
-        `${input.ttl} days`,
+        new Date(Date.now() + input.ttl),
       );
 
       return { link };

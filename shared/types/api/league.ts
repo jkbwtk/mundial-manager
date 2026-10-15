@@ -4,6 +4,7 @@ import {
   leagueLinkQueryDefaults,
 } from '#shared/defaults/league';
 import { Role, RoleEnum } from '#shared/permissions';
+import { DAY_MS } from '#shared/timeUtils';
 import { TimeZone, withDefaults } from '#shared/zod';
 
 export const League = z.object({
@@ -45,7 +46,10 @@ export type LeagueLinkRole = z.infer<typeof LeagueLinkRole>;
 
 export const LeagueLink = League.pick({ uuid: true }).extend({
   role: LeagueLinkRole,
-  ttl: z.int().min(1).max(365), // days
+  ttl: z
+    .int()
+    .min(DAY_MS)
+    .max(365 * DAY_MS), // milliseconds
 });
 export type LeagueLink = z.infer<typeof LeagueLink>;
 
