@@ -189,6 +189,16 @@ function getTieBreakPriority(type: MatchEventType): number {
   return type === 'CANCEL' ? 1 : 0;
 }
 
+export function getMatchWinningSide(
+  match: Pick<Match, 'status' | 'side1Score' | 'side2Score'>,
+): MatchSide | null {
+  if (match.status === 'CANCELED' || match.side1Score === match.side2Score) {
+    return null;
+  }
+
+  return match.side1Score > match.side2Score ? 'SIDE_1' : 'SIDE_2';
+}
+
 export function sortMatchTimeline<T extends MatchTimelineEntry>(
   events: T[],
 ): T[] {
