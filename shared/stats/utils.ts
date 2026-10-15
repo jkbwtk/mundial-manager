@@ -39,3 +39,7 @@ export function mergeNullable(
 
   return merge(a, b);
 }
+
+export function mergeUnique(a: string[], b: string[]): string[] {
+  return [...new Set([...a, ...b])].sort();
+}
