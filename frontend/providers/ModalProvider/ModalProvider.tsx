@@ -99,18 +99,11 @@ export const ModalProvider: ParentComponent = (props) => {
   const isActive: ModalContextActions['isActive'] = () =>
     state.modals.length > 0;
 
-  createEffect(() => {
-    on(
-      () => isActive(),
-      (active) => {
-        if (active) {
-          document.body.classList.add(style.modalActive);
-        } else {
-          document.body.classList.remove(style.modalActive);
-        }
-      },
-    );
-  });
+  createEffect(
+    on(isActive, (active) =>
+      document.body.classList.toggle(style.modalActive, active),
+    ),
+  );
 
   return (
     <ModalContext.Provider
