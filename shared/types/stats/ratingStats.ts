@@ -13,9 +13,12 @@ export type RatingSubject = z.infer<typeof RatingSubject>;
 
 export const RatingSubjects = Object.values(RatingSubjectEnum);
 
-export const RatingStats = Glicko2Rating.partial().extend({
+export const RatingValue = Glicko2Rating.partial().extend({
   rating: z.number(),
+});
+export type RatingValue = z.infer<typeof RatingValue>;
 
+export const RatingStats = RatingValue.extend({
   ratingChange: z.number(),
   matches: z.number().int().nonnegative(),
 });
