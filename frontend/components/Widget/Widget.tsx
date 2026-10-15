@@ -10,6 +10,7 @@ export type Widget<T extends ValidComponent> = DynamicProps<T> & {
   bottomLeftLabels?: JSX.Element;
   bottomRightLabels?: JSX.Element;
 
+  pending?: boolean;
   centerLabels?: boolean;
 
   class?: string;
@@ -29,6 +30,7 @@ export function BaseWidget<T extends ValidComponent>(userProps: Widget<T>) {
     'topRightLabels',
     'bottomLeftLabels',
     'bottomRightLabels',
+    'pending',
     'centerLabels',
     'children',
     'class',
@@ -49,8 +51,9 @@ export function BaseWidget<T extends ValidComponent>(userProps: Widget<T>) {
       {...widgetProps}
       classList={{
         [style.container]: true,
+        [style.pending]: !!props.pending,
         [style.centerLabels]: !!props.centerLabels,
-        [props.class ?? '']: true,
+        [props.class ?? '']: !!props.class,
         ...(props.classList ?? {}),
       }}
       component={props.component ?? defaultComponent}
