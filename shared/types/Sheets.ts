@@ -1,3 +1,4 @@
+import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import z from 'zod';
 import { jsonCodec } from '#shared/zod';
@@ -187,3 +188,27 @@ export const MatchCreate = Match.omit({
 });
 
 export type MatchCreate = z.infer<typeof MatchCreate>;
+
+export interface LegacySeasonConfig {
+  resetRatings: boolean;
+
+  defaultEloRating: number;
+
+  defaultGlicko2Rating: number;
+  defaultGlicko2RD: number;
+  defaultGlicko2Volatility: number;
+
+  eloKFactorRanges: Record<string, number>;
+
+  eloScoreMultipliers: Record<string, number>;
+}
+
+export interface LegacySeason {
+  number: number;
+  label: string;
+
+  config: LegacySeasonConfig;
+
+  startDate: Dayjs;
+  endDate: Dayjs;
+}
