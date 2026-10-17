@@ -39,6 +39,12 @@ export const leaguesTable = pgTable(
 
     timezone: t.text().notNull().default('UTC'),
 
+    seasonConfig: t
+      .jsonb()
+      .$type<SeasonConfig>()
+      .notNull()
+      .default(sql`'{}'::jsonb`),
+
     ...commonFields,
   }),
   (r) => [

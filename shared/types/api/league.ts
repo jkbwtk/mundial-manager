@@ -5,6 +5,7 @@ import {
 } from '#shared/defaults/league';
 import { Role, RoleEnum } from '#shared/permissions';
 import { DAY_MS } from '#shared/timeUtils';
+import { SeasonConfig } from '#shared/types/api/season';
 import { TimeZone, withDefaults } from '#shared/zod';
 
 export const League = z.object({
@@ -15,6 +16,8 @@ export const League = z.object({
   description: z.string().trim().max(255).nullish(),
 
   timezone: TimeZone,
+
+  seasonConfig: SeasonConfig, // defaults for new seasons
 });
 
 export type League = z.infer<typeof League>;
@@ -38,6 +41,7 @@ export const LeagueSettingsUpdate = League.pick({
   name: true,
   description: true,
   timezone: true,
+  seasonConfig: true,
 }).partial();
 export type LeagueSettingsUpdate = z.infer<typeof LeagueSettingsUpdate>;
 
