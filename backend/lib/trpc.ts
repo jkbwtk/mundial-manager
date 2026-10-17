@@ -3,6 +3,7 @@ import type { CreateHTTPContextOptions } from '@trpc/server/adapters/standalone'
 import Cookies from 'cookies';
 import { type DB, db } from '#backend/db/database';
 import { LeagueModel } from '#backend/db/models/LeagueModel';
+import { StatsModel } from '#backend/db/models/StatsModel';
 import { HttpError } from '#backend/errors/http';
 import type { JWTContext } from '#backend/types/auth';
 import { getCookieSecurity, getJWTContextFromCookies } from '#blib/jwt';
@@ -146,11 +147,17 @@ export const leagueScopedProcedure = restrictedProcedure.use(async (opts) => {
     });
   }
 
-  return opts.next({
+  const result = await opts.next({
     ctx: {
       league,
     },
   });
+
+  if (opts.type === 'mutation' && result.ok) {
+    await StatsModel.touchAfterWrite(opts.ctx.db, league.uuid);
+  }
+
+  return result;
 });
 
 export function leaguePermissionProcedure(required: PermissionRequirement) {
