@@ -1,0 +1,43 @@
+@use 'app' as *;
+
+.simple-table {
+  border-collapse: collapse;
+
+  :where(&) {
+    width: 100%;
+  }
+
+  td {
+    padding: 0;
+
+    white-space: nowrap;
+
+    &:not(:last-child) {
+      padding-right: cw(1);
+    }
+  }
+
+  thead td {
+    color: $textBrightColor;
+  }
+
+  .fill {
+    width: 100%;
+  }
+
+  .wrap {
+    white-space: normal;
+  }
+
+  .align-left {
+    text-align: left;
+  }
+
+  .align-center {
+    text-align: center;
+  }
+
+  .align-right {
+    text-align: right;
+  }
+}
