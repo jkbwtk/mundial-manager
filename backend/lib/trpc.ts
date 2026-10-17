@@ -50,11 +50,11 @@ const t = initTRPC.context<BaseContext>().create({
   },
   sse: {
     client: {
-      reconnectAfterInactivityMs: 10000,
+      reconnectAfterInactivityMs: 45_000,
     },
     ping: {
       enabled: true,
-      intervalMs: 2000,
+      intervalMs: 20_000,
     },
   },
 });
