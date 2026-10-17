@@ -10,6 +10,7 @@ import registerImportCommand from '#tools/commands/import';
 import registerMagicLinkCommand from '#tools/commands/magicLink';
 import registerMigrateCommand from '#tools/commands/migrate';
 import registerSpectatorsCommand from '#tools/commands/spectators';
+import registerUpgradeCommand from '#tools/commands/upgrade';
 
 async function runServer() {
   const app = express();
@@ -42,6 +43,7 @@ async function main() {
   registerMigrateCommand(program, '/app/private/backend/migrations');
   registerImportCommand(program);
   registerSpectatorsCommand(program);
+  registerUpgradeCommand(program);
   registerMagicLinkCommand(program);
 
   await program.parseAsync();
