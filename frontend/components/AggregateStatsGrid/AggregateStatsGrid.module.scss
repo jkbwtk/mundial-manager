@@ -1,0 +1,15 @@
+@use 'app' as *;
+@use 'layouts' as *;
+
+.container {
+  @include statsGrid;
+}
+
+.no-data {
+  display: block;
+
+  width: 100%;
+
+  text-align: center;
+  font-style: italic;
+}
