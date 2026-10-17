@@ -2,14 +2,12 @@ import { isNull, type SQL, sql } from 'drizzle-orm';
 import type { AnyPgColumn } from 'drizzle-orm/pg-core';
 import { integer, pgEnum, timestamp, uuid } from 'drizzle-orm/pg-core/columns';
 import { index, uniqueIndex } from 'drizzle-orm/pg-core/indexes';
-import { primaryKey } from 'drizzle-orm/pg-core/primary-keys';
 import { pgTable } from 'drizzle-orm/pg-core/table';
 import { tsvector } from '#backend/db/utils';
 import type { Labels } from '#shared/labels';
 import { MatchStatusEnum } from '#shared/types/api/match';
 import type { MatchEvent } from '#shared/types/api/matchEvent';
 import type { SeasonConfig } from '#shared/types/api/season';
-import type { StatsFrameModule } from '#shared/types/stats/statsFrame';
 
 const commonFields = {
   uuid: uuid().primaryKey().defaultRandom(),
@@ -345,48 +343,5 @@ export const matchTimelinesTable = pgTable(
     uniqueIndex().on(r.matchUuid),
     index().on(r.$createdAt),
     index().on(r.$deletedAt).where(isNull(r.$deletedAt)),
-  ],
-);
-
-export const statsFramesTable = pgTable(
-  'statsFrames',
-  (t) => ({
-    leagueUuid: t
-      .uuid()
-      .references(() => leaguesTable.uuid, { onDelete: 'cascade' })
-      .notNull(),
-    matchUuid: t
-      .uuid()
-      .references(() => matchesTable.uuid, { onDelete: 'cascade' })
-      .notNull(),
-
-    seq: t.integer().notNull(),
-    day: t.text(), // YYYY-MM-DD in the league timezone
-    matchStartDate: t.timestamp({
-      mode: 'date',
-      withTimezone: true,
-      precision: 6,
-    }),
-
-    module: t.text().$type<StatsFrameModule>().notNull(),
-    bucket: t.text().notNull(),
-    bucketKey: t.text().notNull(),
-    subject: t.text().notNull(),
-
-    payload: t.jsonb().$type<unknown>().notNull(),
-  }),
-  (r) => [
-    primaryKey({
-      columns: [
-        r.leagueUuid,
-        r.module,
-        r.bucket,
-        r.bucketKey,
-        r.subject,
-        r.seq,
-      ],
-    }),
-    index().on(r.leagueUuid, r.seq),
-    index().on(r.matchUuid).where(sql`${r.module} = 'CONTEXT'`),
   ],
 );

@@ -1,16 +1,5 @@
 import z from 'zod';
 
-export const PlayerStatsBucketEnum = {
-  DAY: 'DAY',
-  SEASON: 'SEASON',
-  ALL: 'ALL',
-} as const;
-
-export const PlayerStatsBucket = z.enum(PlayerStatsBucketEnum);
-export type PlayerStatsBucket = z.infer<typeof PlayerStatsBucket>;
-
-export const PlayerStatsBuckets = Object.values(PlayerStatsBucketEnum);
-
 export const PlayerStats = z.object({
   matches: z.number().int().nonnegative(),
   spectatedMatches: z.number().int().nonnegative(),
@@ -26,6 +15,8 @@ export const PlayerStats = z.object({
   goals: z.number().int().nonnegative(),
   ownGoals: z.number().int().nonnegative(),
   goalTypesCount: z.record(z.uuid(), z.number().int().nonnegative()),
+  stylePoints: z.number(),
+  mostStylePointsInMatch: z.number().nullable(),
 
   playtime: z.number().nonnegative(), // milliseconds
   participationTime: z.number().nonnegative(), // milliseconds
@@ -35,7 +26,11 @@ export const PlayerStats = z.object({
   currentLossStreak: z.number().int().nonnegative(),
   longestLossStreak: z.number().int().nonnegative(),
 
+  mostMatchesInDay: z.number().int().nonnegative(),
+
   _matchesWithDuration: z.number().int().nonnegative(),
   _matchesWithTimeline: z.number().int().nonnegative(),
+  _lastDay: z.string().nullable(),
+  _dayMatches: z.number().int().nonnegative(),
 });
 export type PlayerStats = z.infer<typeof PlayerStats>;

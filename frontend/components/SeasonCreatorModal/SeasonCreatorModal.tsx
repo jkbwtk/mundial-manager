@@ -128,6 +128,62 @@ export const seasonCreatorConfigFields: Omit<
           },
         },
       },
+      SKILL: {
+        label: 'Skill',
+        type: 'object',
+        fields: {
+          enabled: {
+            label: 'Enabled',
+            type: 'checkbox',
+          },
+          defaultRating: {
+            label: 'Default Rating',
+            placeholder: 'Default rating...',
+            type: 'number',
+          },
+          defaultRd: {
+            label: 'Default RD',
+            placeholder: 'Default RD...',
+            type: 'number',
+          },
+          driftPerDay: {
+            label: 'Drift Per Day',
+            placeholder: 'Drift per day...',
+            type: 'number',
+            step: 'any',
+          },
+          goalWeight: {
+            label: 'Goal Weight',
+            placeholder: 'Goal weight...',
+            type: 'number',
+            step: 'any',
+          },
+          extraPlayerAdvantage: {
+            label: 'Extra Player Advantage',
+            placeholder: 'Extra player advantage...',
+            type: 'number',
+          },
+          tolerance: {
+            label: 'Tolerance',
+            placeholder: 'Tolerance...',
+            type: 'number',
+            step: 'any',
+          },
+          maxSweeps: {
+            label: 'Max Sweeps',
+            placeholder: 'Max sweeps...',
+            type: 'number',
+            min: 1,
+          },
+          conservativeDeviations: {
+            label: 'Conservative Deviations',
+            placeholder: 'Conservative deviations...',
+            type: 'number',
+            step: 'any',
+            min: 0,
+          },
+        },
+      },
     },
   },
 };

@@ -1,6 +1,7 @@
 import type {
   EloParams,
   Glicko2Params,
+  SkillParams,
 } from '#shared/types/stats/ratingSystem';
 
 export const defaultEloParams = {
@@ -36,3 +37,19 @@ export const defaultGlicko2Params = {
 
   tau: 0.5,
 } satisfies Glicko2Params;
+
+export const defaultSkillParams = {
+  enabled: true,
+
+  defaultRating: 1500,
+  defaultRd: 100,
+
+  driftPerDay: 3,
+  goalWeight: 0.3,
+  extraPlayerAdvantage: 75,
+
+  tolerance: 0.0001,
+  maxSweeps: 50,
+
+  conservativeDeviations: 2,
+} satisfies SkillParams;

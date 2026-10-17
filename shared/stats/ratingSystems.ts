@@ -1,10 +1,13 @@
 import { defaultEloParams } from '#shared/defaults/ratingSystem';
+import { skillRatingSystem } from '#shared/stats/skillRating';
 import { average } from '#shared/stats/utils';
 import type {
   EloParams,
   EloRating,
   Glicko2Params,
   Glicko2Rating,
+  RatingMatch,
+  RatingResult,
   RatingSystem,
   RatingSystemDefinition,
 } from '#shared/types/stats/ratingSystem';
@@ -160,53 +163,145 @@ function calculateGlicko2Rating(
   };
 }
 
-export const eloRatingSystem = {
-  initial: (params) => ({ rating: params.defaultRating }),
+function getRatingSides<Rating extends EloRating>(
+  match: RatingMatch<unknown>,
+  ratings: Map<string, Rating>,
+  initial: Rating,
+  combine: (ratings: Rating[]) => Rating,
+) {
+  return match.sides.map((side) => {
+    const before = side.subjects.map((subject) => ratings.get(subject) ?? null);
 
-  combine: (ratings) => ({
-    rating: average(ratings.map((rating) => rating.rating)),
-  }),
+    return {
+      ...side,
+      before,
+      strength: combine(before.map((rating) => rating ?? initial)),
+    };
+  });
+}
 
-  update: (params, matchup) => ({
-    rating:
-      matchup.own.rating +
-      calculateEloDiff(
-        params,
-        matchup.side.rating,
-        matchup.opponent.rating,
-        matchup.score,
-        matchup.opponentScore,
-      ),
-  }),
-} satisfies RatingSystemDefinition<EloParams, EloRating>;
+function rateSides<Rating extends EloRating>(
+  match: RatingMatch<unknown>,
+  ratings: Map<string, Rating>,
+  initial: Rating,
+  combine: (ratings: Rating[]) => Rating,
+  update: (
+    own: Rating,
+    side: Rating,
+    opponent: Rating,
+    score: number,
+    opponentScore: number,
+  ) => Rating,
+): RatingResult<Rating>[] {
+  const sides = getRatingSides(match, ratings, initial, combine);
 
-export const glicko2RatingSystem = {
-  initial: (params) => ({
-    rating: params.defaultRating,
-    rd: params.defaultRd,
-    volatility: params.defaultVolatility,
-  }),
+  const results = sides.flatMap((side, index) => {
+    const opponent = sides[index === 0 ? 1 : 0]!;
 
-  combine: (ratings) => ({
+    return side.subjects.map((subject, subjectIndex) => {
+      const before = side.before[subjectIndex] ?? null;
+
+      return {
+        subject,
+        before,
+        after: update(
+          before ?? initial,
+          side.strength,
+          opponent.strength,
+          side.score,
+          opponent.score,
+        ),
+      };
+    });
+  });
+
+  for (const { subject, after } of results) {
+    ratings.set(subject, after);
+  }
+
+  return results;
+}
+
+function combineEloRatings(ratings: EloRating[]): EloRating {
+  return { rating: average(ratings.map((rating) => rating.rating)) };
+}
+
+function combineGlicko2Ratings(ratings: Glicko2Rating[]): Glicko2Rating {
+  return {
     rating: average(ratings.map((rating) => rating.rating)),
     rd: average(ratings.map((rating) => rating.rd)),
     volatility: average(ratings.map((rating) => rating.volatility)),
-  }),
+  };
+}
 
-  update: (params, matchup) =>
-    calculateGlicko2Rating(
-      params,
-      matchup.own,
-      matchup.opponent,
-      getMatchOutcome(matchup.score, matchup.opponentScore),
+function getInitialGlicko2Rating(params: Glicko2Params): Glicko2Rating {
+  return {
+    rating: params.defaultRating,
+    rd: params.defaultRd,
+    volatility: params.defaultVolatility,
+  };
+}
+
+export const eloRatingSystem = {
+  initial: (params) => ({ rating: params.defaultRating }),
+
+  create: () => new Map(),
+
+  rate: (ratings, match) =>
+    rateSides(
+      match,
+      ratings,
+      { rating: match.params.defaultRating },
+      combineEloRatings,
+      (own, side, opponent, score, opponentScore) => ({
+        rating:
+          own.rating +
+          calculateEloDiff(
+            match.params,
+            side.rating,
+            opponent.rating,
+            score,
+            opponentScore,
+          ),
+      }),
     ),
-} satisfies RatingSystemDefinition<Glicko2Params, Glicko2Rating>;
+} satisfies RatingSystemDefinition<
+  EloParams,
+  EloRating,
+  Map<string, EloRating>
+>;
 
-export const ratingSystemDefinitions: Record<
+export const glicko2RatingSystem = {
+  initial: getInitialGlicko2Rating,
+
+  create: () => new Map(),
+
+  rate: (ratings, match) =>
+    rateSides(
+      match,
+      ratings,
+      getInitialGlicko2Rating(match.params),
+      combineGlicko2Ratings,
+      (own, _side, opponent, score, opponentScore) =>
+        calculateGlicko2Rating(
+          match.params,
+          own,
+          opponent,
+          getMatchOutcome(score, opponentScore),
+        ),
+    ),
+} satisfies RatingSystemDefinition<
+  Glicko2Params,
+  Glicko2Rating,
+  Map<string, Glicko2Rating>
+>;
+
+export const RatingSystemDefinitions: Record<
   RatingSystem,
   // biome-ignore lint/suspicious/noExplicitAny: yeah
-  RatingSystemDefinition<any, any>
+  RatingSystemDefinition<any, any, any>
 > = {
   ELO: eloRatingSystem,
   GLICKO2: glicko2RatingSystem,
+  SKILL: skillRatingSystem,
 };

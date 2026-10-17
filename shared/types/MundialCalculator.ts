@@ -3,6 +3,7 @@ import type { Ball } from '#shared/types/api/ball';
 import type { GoalType } from '#shared/types/api/goalType';
 import type { League } from '#shared/types/api/league';
 import type { Match, MatchCreate, MatchUpdate } from '#shared/types/api/match';
+import { MatchEventGoal } from '#shared/types/api/matchEvent';
 import type {
   MatchTimeline,
   MatchTimelineSave,
@@ -28,6 +29,35 @@ export const CalculatorFinishEvent = z.object({
 });
 
 export type CalculatorFinishEvent = z.infer<typeof CalculatorFinishEvent>;
+
+export const LiveMatchGoal = MatchEventGoal.pick({
+  player: true,
+  side: true,
+  ownGoal: true,
+  goalType: true,
+});
+export type LiveMatchGoal = z.infer<typeof LiveMatchGoal>;
+
+export const LiveMatchPredictionInput = z.object({
+  playersSide1: z.uuid().array().min(1).max(8),
+  playersSide2: z.uuid().array().min(1).max(8),
+
+  goals: LiveMatchGoal.array().max(200), // in order
+});
+export type LiveMatchPredictionInput = z.infer<typeof LiveMatchPredictionInput>;
+
+export interface LiveMatchPrediction {
+  score: [side1: number, side2: number];
+
+  winProbability: number; // side 1, at the current score
+  preMatchWinProbability: number; // side 1
+  expectedScore: {
+    score: [side1: number, side2: number];
+    probability: number;
+  };
+
+  stylePoints: Record<string, number>;
+}
 
 export type CalculatorApi = {
   getTables(): Promise<Table[]>;

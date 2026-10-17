@@ -3,7 +3,7 @@ import { getMatchTimelineSteps } from '#shared/matchTimeline';
 import { getStatsMatchEnd, getStatsMatchSpan } from '#shared/stats/buckets';
 import type { MatchEventPause } from '#shared/types/api/matchEvent';
 import type { StatsBucketMatch } from '#shared/types/stats/bucket';
-import type { StatsMatch } from '#shared/types/stats/statsEngine';
+import type { StatsMatch } from '#shared/types/stats/statsRow';
 
 export function getStatsSessionSpan(
   matches: StatsBucketMatch[],
@@ -18,7 +18,7 @@ export function getStatsSessionSpan(
   return [Math.min(...starts), Math.max(...ends)];
 }
 
-export function getPresenceIncrement(
+export function getStatsPresenceIncrement(
   match: StatsBucketMatch,
   previousEnd: number | null,
 ): number {

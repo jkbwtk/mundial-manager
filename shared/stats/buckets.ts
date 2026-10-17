@@ -1,9 +1,8 @@
 import { defaultSeasonConfig } from '#shared/defaults/season';
 import { getExactStartDate, getKnownStartDate } from '#shared/matchLabels';
+import { DAY_MS } from '#shared/timeUtils';
 import type {
-  StatsBucket,
   StatsBucketContext,
-  StatsBucketKeys,
   StatsBucketMatch,
   StatsSeason,
   StatsSessionState,
@@ -13,8 +12,6 @@ const SESSION_INDEX_PAD = 3;
 
 const NO_SEASON_BUCKET_KEY = 'NONE';
 const NO_TABLE_SESSION_KEY = 'NONE';
-
-export const ALL_BUCKET_KEY = 'ALL';
 
 const dayFormats = new Map<string, Intl.DateTimeFormat>();
 
@@ -45,7 +42,11 @@ export function getStatsDayKey(date: Date, timeZone: string): string {
   return `${parts.year}-${parts.month}-${parts.day}`;
 }
 
-function getWeekKey(dayKey: string): string {
+export function getStatsDayIndex(dayKey: string): number {
+  return Date.parse(`${dayKey}T00:00:00Z`) / DAY_MS;
+}
+
+export function getStatsWeekKey(dayKey: string): string {
   const date = new Date(`${dayKey}T00:00:00Z`);
 
   date.setUTCDate(date.getUTCDate() - ((date.getUTCDay() + 6) % 7));
@@ -71,7 +72,23 @@ export function formatStatsSessionKey(key: string): string {
   return `${session[0]} #${session[1]}`;
 }
 
-export function getStatsSessionTable(
+export function formatStatsWeekKey(key: string): string {
+  const thursday = new Date(`${key}T00:00:00Z`);
+
+  thursday.setUTCDate(thursday.getUTCDate() + 3);
+
+  const year = thursday.getUTCFullYear();
+  const dayOfYear = (thursday.getTime() - Date.UTC(year, 0, 1)) / DAY_MS;
+  const week = Math.floor(dayOfYear / 7) + 1;
+
+  return `${year}-W${week.toString().padStart(2, '0')}`;
+}
+
+export function formatStatsMonthKey(key: string): string {
+  return key.replace('-', '-M');
+}
+
+export function getStatsSessionTableKey(
   match: Pick<StatsBucketMatch, 'tableUuid'>,
 ): string {
   return match.tableUuid ?? NO_TABLE_SESSION_KEY;
@@ -101,7 +118,7 @@ export function getStatsMatchEnd(match: StatsBucketMatch): number | null {
   return startDate.getTime() + getStatsMatchSpan(match);
 }
 
-export function resolveStatsSeason(
+export function getStatsSeason(
   match: Pick<StatsBucketMatch, 'startDate' | 'labels'>,
   seasons: StatsSeason[],
 ): StatsSeason | null {
@@ -116,7 +133,7 @@ export function resolveStatsSeason(
   );
 }
 
-function getStatsSessionKey(
+export function getStatsSessionKey(
   match: StatsBucketMatch,
   context: StatsBucketContext,
 ): string | null {
@@ -124,7 +141,7 @@ function getStatsSessionKey(
 
   if (startDate === null) return null;
 
-  const table = getStatsSessionTable(match);
+  const table = getStatsSessionTableKey(match);
   const previousSession = context.sessions[table] ?? null;
 
   const dayKey = getStatsDayKey(startDate, context.timeZone);
@@ -142,53 +159,16 @@ function getStatsSessionKey(
   return `${dayKey}#${index.toString().padStart(SESSION_INDEX_PAD, '0')}#${table}`;
 }
 
-function getSeasonKey(
+export function getStatsSeasonKey(
   match: StatsBucketMatch,
-  context: StatsBucketContext,
+  season: StatsSeason | null,
+  previous: string | null,
 ): string {
-  if (context.season !== null) return context.season.uuid;
-
-  const previous = context.previous.SEASON;
+  if (season !== null) return season.uuid;
 
   return previous?.startsWith(NO_SEASON_BUCKET_KEY)
     ? previous
     : `${NO_SEASON_BUCKET_KEY}#${match.uuid}`;
-}
-
-export function getStatsBucketEntries<Bucket extends StatsBucket>(
-  buckets: StatsBucketKeys,
-  allowed: readonly Bucket[],
-): [bucket: Bucket, bucketKey: string][] {
-  return allowed.flatMap((bucket) => {
-    const bucketKey = buckets[bucket];
-
-    return bucketKey === undefined ? [] : [[bucket, bucketKey]];
-  });
-}
-
-export function getStatsBuckets(
-  match: StatsBucketMatch,
-  context: StatsBucketContext,
-): StatsBucketKeys {
-  const startDate = getKnownStartDate(match);
-  const session = getStatsSessionKey(match, context);
-
-  const buckets: StatsBucketKeys = {
-    SEASON: getSeasonKey(match, context),
-    ALL: ALL_BUCKET_KEY,
-  };
-
-  if (session !== null) buckets.SESSION = session;
-
-  if (startDate !== null) {
-    const day = getStatsDayKey(startDate, context.timeZone);
-
-    buckets.DAY = day;
-    buckets.WEEK = getWeekKey(day);
-    buckets.MONTH = day.slice(0, 7);
-  }
-
-  return buckets;
 }
 
 export function getStatsSessionKeys(
@@ -202,8 +182,7 @@ export function getStatsSessionKeys(
   for (const match of matches) {
     const key = getStatsSessionKey(match, {
       timeZone,
-      season: resolveStatsSeason(match, seasons),
-      previous: {},
+      season: getStatsSeason(match, seasons),
       sessions,
     });
     const matchEnd = getStatsMatchEnd(match);
@@ -211,7 +190,7 @@ export function getStatsSessionKeys(
     if (key === null || matchEnd === null) continue;
 
     keys.set(match.uuid, key);
-    sessions[getStatsSessionTable(match)] = {
+    sessions[getStatsSessionTableKey(match)] = {
       key,
       matchEnd,
       players: {},

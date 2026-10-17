@@ -1,6 +1,7 @@
 import {
   defaultEloParams,
   defaultGlicko2Params,
+  defaultSkillParams,
 } from '#shared/defaults/ratingSystem';
 import type {
   MatchRules,
@@ -29,5 +30,6 @@ export const defaultSeasonConfig = {
   ratings: {
     ELO: defaultEloParams,
     GLICKO2: defaultGlicko2Params,
+    SKILL: defaultSkillParams,
   },
 } satisfies SeasonConfig;

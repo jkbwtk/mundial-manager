@@ -1,20 +1,23 @@
-import { getStatsBucketEntries } from '#shared/stats/buckets';
+import { getMatchPlayerUuids } from '#shared/matchPlayers';
+import type { MatchTimelineStats } from '#shared/matchTimeline';
 import {
   countValues,
   mergeCounts,
   mergeNullable,
+  mergeUnique,
   sum,
 } from '#shared/stats/utils';
 import { MatchStatusEnum } from '#shared/types/api/match';
-import { StatsBuckets } from '#shared/types/stats/bucket';
-import { AggregateStats } from '#shared/types/stats/generalStats';
-import type { StatsMatchContext } from '#shared/types/stats/statsEngine';
-import type { StatsModule } from '#shared/types/stats/statsModule';
+import type { AggregateStats } from '#shared/types/stats/generalStats';
+import type { StatsMatch } from '#shared/types/stats/statsRow';
 
-function calculateMatchStats(context: StatsMatchContext): AggregateStats {
-  const { match, timeline } = context;
-
-  const players = match.playersSide1.length + match.playersSide2.length;
+export function calculateMatchStats(
+  match: StatsMatch,
+  timeline: MatchTimelineStats,
+  sessionPresence: number,
+): AggregateStats {
+  const playerUuids = getMatchPlayerUuids(match);
+  const players = playerUuids.length;
   const goals = match.side1Score + match.side2Score;
   const duration = match.duration ?? 0;
   const hasDuration = duration > 0;
@@ -24,18 +27,20 @@ function calculateMatchStats(context: StatsMatchContext): AggregateStats {
     matches: 1,
     cancelledMatches: match.status === MatchStatusEnum.CANCELED ? 1 : 0,
 
+    players: playerUuids.toSorted(),
+
     goals,
     ownGoalCount: timeline.ownGoals,
     goalTypesCount: countValues(
       match.events.flatMap((event) =>
-        event.type === 'GOAL' ? event.goalType : [],
+        event.type === 'GOAL' && !event.ownGoal ? event.goalType : [],
       ),
     ),
 
     eventTypesCount: countValues(match.events.map((event) => event.type)),
 
     playtime: duration,
-    participationTime: context.sessionPresence,
+    participationTime: sessionPresence,
     pauseDuration: match.pauseDuration,
     individualPlaytime: duration * players,
 
@@ -54,13 +59,15 @@ function calculateMatchStats(context: StatsMatchContext): AggregateStats {
   };
 }
 
-function mergeAggregateStats(
+export function mergeAggregateStats(
   a: AggregateStats,
   b: AggregateStats,
 ): AggregateStats {
   return {
     matches: a.matches + b.matches,
     cancelledMatches: a.cancelledMatches + b.cancelledMatches,
+
+    players: mergeUnique(a.players, b.players),
 
     goals: a.goals + b.goals,
     ownGoalCount: a.ownGoalCount + b.ownGoalCount,
@@ -96,35 +103,3 @@ function mergeAggregateStats(
       a._playersWithoutDuration + b._playersWithoutDuration,
   };
 }
-
-export const generalStatsModule = {
-  state: AggregateStats,
-
-  getResumeFilters: (previous) => [
-    ...getStatsBucketEntries(previous.buckets, StatsBuckets).map(
-      ([bucket, bucketKey]) => ({ bucket, bucketKey }),
-    ),
-    ...Object.values(previous.sessions).map((session) => ({
-      bucket: 'SESSION',
-      bucketKey: session.key,
-    })),
-  ],
-
-  apply: (context, getState) => {
-    const stats = calculateMatchStats(context);
-
-    return getStatsBucketEntries(context.buckets, StatsBuckets).map(
-      ([bucket, bucketKey]) => {
-        const previous = getState({ bucket, bucketKey, subject: '' });
-
-        return {
-          bucket,
-          bucketKey,
-          subject: '',
-          state:
-            previous === null ? stats : mergeAggregateStats(previous, stats),
-        };
-      },
-    );
-  },
-} satisfies StatsModule<AggregateStats>;

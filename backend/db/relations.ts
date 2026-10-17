@@ -28,11 +28,6 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.goalTypesTable.leagueUuid,
       alias: 'goalTypes',
     }),
-    statsFrames: r.many.statsFramesTable({
-      from: r.leaguesTable.uuid,
-      to: r.statsFramesTable.leagueUuid,
-      alias: 'statsFrames',
-    }),
   },
   goalTypesTable: {
     league: r.one.leaguesTable({
@@ -140,11 +135,6 @@ export const relations = defineRelations(schema, (r) => ({
       alias: 'timeline',
       optional: true,
     }),
-    statsFrames: r.many.statsFramesTable({
-      from: r.matchesTable.uuid,
-      to: r.statsFramesTable.matchUuid,
-      alias: 'statsFrames',
-    }),
   },
   matchTimelinesTable: {
     league: r.one.leaguesTable({
@@ -155,20 +145,6 @@ export const relations = defineRelations(schema, (r) => ({
     }),
     match: r.one.matchesTable({
       from: r.matchTimelinesTable.matchUuid,
-      to: r.matchesTable.uuid,
-      alias: 'match',
-      optional: false,
-    }),
-  },
-  statsFramesTable: {
-    league: r.one.leaguesTable({
-      from: r.statsFramesTable.leagueUuid,
-      to: r.leaguesTable.uuid,
-      alias: 'league',
-      optional: false,
-    }),
-    match: r.one.matchesTable({
-      from: r.statsFramesTable.matchUuid,
       to: r.matchesTable.uuid,
       alias: 'match',
       optional: false,

@@ -1,15 +1,13 @@
-import { defaultPlayerStats } from '#shared/defaults/playerStats';
 import { getMatchSidePlayers, getMatchSideScores } from '#shared/matchTimeline';
-import { getStatsBucketEntries } from '#shared/stats/buckets';
-import { countValues, mergeCounts } from '#shared/stats/utils';
+import { countValues, mergeCounts, mergeNullable } from '#shared/stats/utils';
 import { MatchStatusEnum } from '#shared/types/api/match';
-import { type MatchSide, MatchSides } from '#shared/types/api/matchEvent';
-import {
-  PlayerStats,
-  PlayerStatsBuckets,
-} from '#shared/types/stats/playerStats';
-import type { StatsMatchContext } from '#shared/types/stats/statsEngine';
-import type { StatsModule } from '#shared/types/stats/statsModule';
+import { MatchSides } from '#shared/types/api/matchEvent';
+import type { PlayerStats } from '#shared/types/stats/playerStats';
+import type {
+  StatsMatch,
+  StatsRow,
+  StatsRowPlayer,
+} from '#shared/types/stats/statsRow';
 
 const MatchOutcomeEnum = {
   WIN: 'WIN',
@@ -22,31 +20,12 @@ type MatchOutcome = (typeof MatchOutcomeEnum)[keyof typeof MatchOutcomeEnum];
 
 const { WIN, LOSS, DRAW, CANCELED } = MatchOutcomeEnum;
 
-interface PlayerMatch {
-  presence: number; // milliseconds
-
-  outcome: MatchOutcome;
-  goalsFor: number;
-  goalsAgainst: number;
-
-  goals: number;
-  ownGoals: number;
-  goalTypes: string[];
-
-  playtime: number; // milliseconds
-  hasTimeline: boolean;
-}
-
-type PlayerStatsUpdate = (previous: PlayerStats) => PlayerStats;
-
-type PlayerStatsEntry = [uuid: string, update: PlayerStatsUpdate];
-
 function getMatchOutcome(
-  context: StatsMatchContext,
+  row: StatsRow,
   goalsFor: number,
   goalsAgainst: number,
 ): MatchOutcome {
-  if (context.match.status === MatchStatusEnum.CANCELED) return CANCELED;
+  if (row.match.status === MatchStatusEnum.CANCELED) return CANCELED;
   if (goalsFor === goalsAgainst) return DRAW;
 
   return goalsFor > goalsAgainst ? WIN : LOSS;
@@ -62,41 +41,64 @@ function getStreak(
   return isContinued ? streak + 1 : 0;
 }
 
-function getPlayerMatch(
-  context: StatsMatchContext,
-  uuid: string,
-  side: MatchSide,
-): PlayerMatch {
-  const { match } = context;
-  const [goalsFor, goalsAgainst] = getMatchSideScores(match, side);
+function getDayMatches(previous: PlayerStats, day: string | null): number {
+  if (day === null) return previous._dayMatches;
 
-  const playerGoals = match.events.flatMap((event) =>
-    event.type === 'GOAL' && event.player === uuid ? [event] : [],
-  );
-  const scoredGoals = playerGoals.filter((event) => !event.ownGoal);
-
-  return {
-    presence: context.playerPresence[uuid] ?? 0,
-
-    outcome: getMatchOutcome(context, goalsFor, goalsAgainst),
-    goalsFor,
-    goalsAgainst,
-
-    goals: scoredGoals.length,
-    ownGoals: playerGoals.length - scoredGoals.length,
-    goalTypes: scoredGoals.flatMap((event) => event.goalType),
-
-    playtime: match.duration ?? 0,
-    hasTimeline: match.events.length > 0,
-  };
+  return day === previous._lastDay ? previous._dayMatches + 1 : 1;
 }
 
-function calculatePlayerStats(
+export function calculateStatsRowPlayers(
+  match: StatsMatch,
+  presence: Record<string, number>,
+  stylePoints: Record<string, number>,
+): StatsRowPlayer[] {
+  const getEntry = (
+    uuid: string,
+    side: StatsRowPlayer['side'],
+  ): StatsRowPlayer => {
+    const goals = match.events.flatMap((event) =>
+      event.type === 'GOAL' && event.player === uuid ? [event] : [],
+    );
+    const scored = goals.filter((event) => !event.ownGoal);
+
+    return {
+      uuid,
+      side,
+
+      presence: presence[uuid] ?? 0,
+
+      goals: scored.length,
+      ownGoals: goals.length - scored.length,
+      goalTypes: scored.flatMap((event) => event.goalType),
+      stylePoints: stylePoints[uuid] ?? 0,
+    };
+  };
+
+  return [
+    ...MatchSides.flatMap((side) =>
+      getMatchSidePlayers(match, side).map((uuid) => getEntry(uuid, side)),
+    ),
+    ...match.spectators.map((uuid) => getEntry(uuid, null)),
+  ];
+}
+
+export function calculatePlayerStats(
   previous: PlayerStats,
-  player: PlayerMatch,
+  row: StatsRow,
+  player: StatsRowPlayer,
 ): PlayerStats {
-  const { outcome } = player;
+  if (player.side === null) {
+    return {
+      ...previous,
+      spectatedMatches: previous.spectatedMatches + 1,
+      participationTime: previous.participationTime + player.presence,
+    };
+  }
+
+  const [goalsFor, goalsAgainst] = getMatchSideScores(row.match, player.side);
+  const outcome = getMatchOutcome(row, goalsFor, goalsAgainst);
   const isCanceled = outcome === CANCELED;
+  const playtime = row.match.duration ?? 0;
   const currentWinStreak = getStreak(
     previous.currentWinStreak,
     isCanceled,
@@ -107,6 +109,7 @@ function calculatePlayerStats(
     isCanceled,
     outcome === LOSS,
   );
+  const dayMatches = getDayMatches(previous, row.day);
 
   return {
     matches: previous.matches + 1,
@@ -117,8 +120,8 @@ function calculatePlayerStats(
     draws: previous.draws + (outcome === DRAW ? 1 : 0),
     cancelledMatches: previous.cancelledMatches + (isCanceled ? 1 : 0),
 
-    goalsFor: previous.goalsFor + player.goalsFor,
-    goalsAgainst: previous.goalsAgainst + player.goalsAgainst,
+    goalsFor: previous.goalsFor + goalsFor,
+    goalsAgainst: previous.goalsAgainst + goalsAgainst,
 
     goals: previous.goals + player.goals,
     ownGoals: previous.ownGoals + player.ownGoals,
@@ -126,8 +129,16 @@ function calculatePlayerStats(
       previous.goalTypesCount,
       countValues(player.goalTypes),
     ),
+    stylePoints: previous.stylePoints + player.stylePoints,
+    mostStylePointsInMatch: isCanceled
+      ? previous.mostStylePointsInMatch
+      : mergeNullable(
+          previous.mostStylePointsInMatch,
+          player.stylePoints,
+          Math.max,
+        ),
 
-    playtime: previous.playtime + player.playtime,
+    playtime: previous.playtime + playtime,
     participationTime: previous.participationTime + player.presence,
 
     currentWinStreak,
@@ -135,63 +146,14 @@ function calculatePlayerStats(
     currentLossStreak,
     longestLossStreak: Math.max(previous.longestLossStreak, currentLossStreak),
 
+    mostMatchesInDay: Math.max(previous.mostMatchesInDay, dayMatches),
+
     _matchesWithDuration:
-      previous._matchesWithDuration + (player.playtime > 0 ? 1 : 0),
+      previous._matchesWithDuration + (playtime > 0 ? 1 : 0),
     _matchesWithTimeline:
-      previous._matchesWithTimeline + (player.hasTimeline ? 1 : 0),
+      previous._matchesWithTimeline +
+      (row.general._matchesWithTimeline > 0 ? 1 : 0),
+    _lastDay: row.day ?? previous._lastDay,
+    _dayMatches: dayMatches,
   };
 }
-
-function calculateSpectatorStats(
-  previous: PlayerStats,
-  presence: number,
-): PlayerStats {
-  return {
-    ...previous,
-    spectatedMatches: previous.spectatedMatches + 1,
-    participationTime: previous.participationTime + presence,
-  };
-}
-
-function getPlayerStatsUpdates(context: StatsMatchContext): PlayerStatsEntry[] {
-  const players = MatchSides.flatMap((side) =>
-    getMatchSidePlayers(context.match, side).map((uuid): PlayerStatsEntry => {
-      const player = getPlayerMatch(context, uuid, side);
-
-      return [uuid, (previous) => calculatePlayerStats(previous, player)];
-    }),
-  );
-  const spectators = context.match.spectators.map((uuid): PlayerStatsEntry => {
-    const presence = context.playerPresence[uuid] ?? 0;
-
-    return [uuid, (previous) => calculateSpectatorStats(previous, presence)];
-  });
-
-  return [...players, ...spectators];
-}
-
-export const playerStatsModule = {
-  state: PlayerStats,
-
-  getResumeFilters: (previous) =>
-    getStatsBucketEntries(previous.buckets, PlayerStatsBuckets).map(
-      ([bucket, bucketKey]) => ({ bucket, bucketKey }),
-    ),
-
-  apply: (context, getState) => {
-    const updates = getPlayerStatsUpdates(context);
-
-    return getStatsBucketEntries(context.buckets, PlayerStatsBuckets).flatMap(
-      ([bucket, bucketKey]) =>
-        updates.map(([uuid, update]) => ({
-          bucket,
-          bucketKey,
-          subject: uuid,
-          state: update(
-            getState({ bucket, bucketKey, subject: uuid }) ??
-              defaultPlayerStats,
-          ),
-        })),
-    );
-  },
-} satisfies StatsModule<PlayerStats>;

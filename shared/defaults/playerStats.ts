@@ -15,6 +15,8 @@ export const defaultPlayerStats: PlayerStats = {
   goals: 0,
   ownGoals: 0,
   goalTypesCount: {},
+  stylePoints: 0,
+  mostStylePointsInMatch: null,
 
   playtime: 0,
   participationTime: 0,
@@ -24,6 +26,10 @@ export const defaultPlayerStats: PlayerStats = {
   currentLossStreak: 0,
   longestLossStreak: 0,
 
+  mostMatchesInDay: 0,
+
   _matchesWithDuration: 0,
   _matchesWithTimeline: 0,
+  _lastDay: null,
+  _dayMatches: 0,
 };

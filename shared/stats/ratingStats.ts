@@ -1,27 +1,37 @@
 import { getMatchSidePlayers, getMatchSideScores } from '#shared/matchTimeline';
-import { ratingSystemDefinitions } from '#shared/stats/ratingSystems';
+import { RatingSystemDefinitions } from '#shared/stats/ratingSystems';
 import { MatchStatusEnum } from '#shared/types/api/match';
 import { type MatchSide, MatchSides } from '#shared/types/api/matchEvent';
+import type { SeasonConfig } from '#shared/types/api/season';
 import {
-  RatingStats,
-  RatingSubject,
+  type RatingStats,
+  type RatingSubject,
   RatingSubjects,
 } from '#shared/types/stats/ratingStats';
-import { RatingSystem, RatingSystems } from '#shared/types/stats/ratingSystem';
-import type { StatsMatchContext } from '#shared/types/stats/statsEngine';
-import type { StatsFrameKey } from '#shared/types/stats/statsFrame';
+import {
+  type RatingMatchSide,
+  type RatingSystem,
+  RatingSystems,
+} from '#shared/types/stats/ratingSystem';
 import type {
-  StatsModule,
-  StatsModuleEntry,
-  StatsStateGetter,
-} from '#shared/types/stats/statsModule';
+  StatsEngine,
+  StatsMatch,
+  StatsRatingChange,
+  StatsRatingState,
+} from '#shared/types/stats/statsRow';
+
+const RatingSystemSubjects: Record<RatingSystem, readonly RatingSubject[]> = {
+  ELO: RatingSubjects,
+  GLICKO2: RatingSubjects,
+  SKILL: ['HYBRID'],
+};
 
 function isRatingSubjectApplicable(
-  context: StatsMatchContext,
+  match: StatsMatch,
   subject: RatingSubject,
 ): boolean {
-  const { playersSide1, playersSide2 } = context.match;
-  const isSingles = playersSide1.length === 1 && playersSide2.length === 1;
+  const isSingles =
+    match.playersSide1.length === 1 && match.playersSide2.length === 1;
 
   switch (subject) {
     case 'PLAYER':
@@ -34,125 +44,111 @@ function isRatingSubjectApplicable(
   }
 }
 
-function getRatingSubjectUuids(
-  context: StatsMatchContext,
+function getRatingSide(
+  match: StatsMatch,
   subject: RatingSubject,
   side: MatchSide,
-): string[] {
-  const { match } = context;
+): RatingMatchSide {
+  const [score] = getMatchSideScores(match, side);
 
-  if (subject !== 'TEAM') return getMatchSidePlayers(match, side);
+  if (subject !== 'TEAM') {
+    return { subjects: getMatchSidePlayers(match, side), score };
+  }
 
-  return [
-    side === 'SIDE_1'
-      ? match.side1TeamConfigurationUuid
-      : match.side2TeamConfigurationUuid,
-  ];
+  return {
+    subjects: [
+      side === 'SIDE_1'
+        ? match.side1TeamConfigurationUuid
+        : match.side2TeamConfigurationUuid,
+    ],
+    score,
+  };
 }
 
-export function getRatingBucket(
+export function getStatsRatingState(
+  engine: StatsEngine,
   system: RatingSystem,
   subject: RatingSubject,
-): string {
-  return `${system}:${subject}`;
+  epoch: string,
+): StatsRatingState | null {
+  const current = engine.ratings.get(`${system}:${subject}`);
+
+  return current?.epoch === epoch ? current : null;
 }
 
-export function parseRatingBucket(
-  bucket: string,
-): [system: RatingSystem, subject: RatingSubject] | null {
-  const [system, subject] = bucket.split(':');
-  const parsedSystem = RatingSystem.safeParse(system);
-  const parsedSubject = RatingSubject.safeParse(subject);
-
-  if (!parsedSystem.success || !parsedSubject.success) return null;
-
-  return [parsedSystem.data, parsedSubject.data];
-}
-
-function calculateRatings(
-  context: StatsMatchContext,
-  getState: StatsStateGetter<RatingStats>,
+function getOrCreateRatingState(
+  engine: StatsEngine,
   system: RatingSystem,
-): StatsModuleEntry<RatingStats>[] {
-  const definition = ratingSystemDefinitions[system];
-  const params = context.config.ratings[system];
-  const bucketKey = context.current.ratingEpoch;
+  subject: RatingSubject,
+  epoch: string,
+): StatsRatingState {
+  const current = getStatsRatingState(engine, system, subject, epoch);
 
-  const getSubject = (key: StatsFrameKey) => {
-    const previous = getState(key);
+  if (current !== null) return current;
 
-    if (previous === null) {
-      return { key, matches: 0, rating: definition.initial(params) };
-    }
-
-    const { ratingChange: _ratingChange, matches, ...rating } = previous;
-
-    return { key, matches, rating };
+  const next = {
+    epoch,
+    state: RatingSystemDefinitions[system].create(),
+    ratings: new Map(),
   };
 
-  return RatingSubjects.flatMap((subject) => {
-    if (!isRatingSubjectApplicable(context, subject)) return [];
+  engine.ratings.set(`${system}:${subject}`, next);
 
-    const bucket = getRatingBucket(system, subject);
-    const sides = MatchSides.map((side) => {
-      const subjects = getRatingSubjectUuids(context, subject, side).map(
-        (uuid) => getSubject({ bucket, bucketKey, subject: uuid }),
+  return next;
+}
+
+export function calculateRatings(
+  engine: StatsEngine,
+  match: StatsMatch,
+  config: SeasonConfig,
+  seasonKey: string,
+): StatsRatingChange[] {
+  if (match.status === MatchStatusEnum.CANCELED) return [];
+
+  return RatingSystems.flatMap((system) => {
+    const params = config.ratings[system];
+    const definition = RatingSystemDefinitions[system];
+
+    if (!params.enabled) return [];
+
+    return RatingSystemSubjects[system].flatMap((subject) => {
+      if (!isRatingSubjectApplicable(match, subject)) return [];
+
+      const { epoch, state, ratings } = getOrCreateRatingState(
+        engine,
+        system,
+        subject,
+        system === 'SKILL' ? seasonKey : engine.ratingEpoch,
       );
+      const sides = MatchSides.map((side) =>
+        getRatingSide(match, subject, side),
+      ) as [RatingMatchSide, RatingMatchSide];
 
-      return {
-        subjects,
-        scores: getMatchSideScores(context.match, side),
-        strength: definition.combine(subjects.map(({ rating }) => rating)),
-      };
-    });
+      const players = new Set(sides.flatMap((side) => side.subjects));
 
-    return sides.flatMap((side, index) => {
-      const opponent = sides[index === 0 ? 1 : 0]!;
-      const [score, opponentScore] = side.scores;
+      return definition
+        .rate(state, { params, day: engine.day, sides })
+        .map(({ subject: uuid, before, after }): StatsRatingChange => {
+          const previous = before ?? definition.initial(params);
+          const next: RatingStats = {
+            ...after,
 
-      return side.subjects.map(({ key, matches, rating }) => {
-        const next = definition.update(params, {
-          own: rating,
-          side: side.strength,
-          opponent: opponent.strength,
-          score,
-          opponentScore,
+            ratingChange: after.rating - previous.rating,
+            matches:
+              (ratings.get(uuid)?.matches ?? 0) + (players.has(uuid) ? 1 : 0),
+          };
+
+          ratings.set(uuid, next);
+
+          return {
+            system,
+            subject,
+            uuid,
+            epoch,
+            before: previous,
+            after: next,
+          };
         });
-
-        return {
-          ...key,
-          state: {
-            ...next,
-
-            ratingChange: next.rating - rating.rating,
-            matches: matches + 1,
-          },
-        };
-      });
     });
   });
 }
-
-export const ratingStatsModule = {
-  state: RatingStats,
-
-  getResumeFilters: (previous) =>
-    RatingSystems.flatMap((system) =>
-      RatingSubjects.map((subject) => ({
-        bucket: getRatingBucket(system, subject),
-        bucketKey: previous.ratingEpoch,
-      })),
-    ),
-
-  apply: (context, getState) => {
-    if (context.match.status === MatchStatusEnum.CANCELED) return [];
-
-    const systems = RatingSystems.filter(
-      (system) => context.config.ratings[system].enabled,
-    );
-
-    return systems.flatMap((system) =>
-      calculateRatings(context, getState, system),
-    );
-  },
-} satisfies StatsModule<RatingStats>;

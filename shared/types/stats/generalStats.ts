@@ -5,6 +5,8 @@ export const AggregateStats = z.object({
   matches: z.number().int().nonnegative(),
   cancelledMatches: z.number().int().nonnegative(),
 
+  players: z.uuid().array(),
+
   goals: z.number().int().nonnegative(),
   ownGoalCount: z.number().int().nonnegative(),
   goalTypesCount: z.record(z.uuid(), z.number().int().nonnegative()),

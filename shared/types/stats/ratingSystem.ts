@@ -1,8 +1,10 @@
 import z from 'zod';
+import { defaultSkillParams } from '#shared/defaults/ratingSystem';
 
 export const RatingSystemEnum = {
   ELO: 'ELO',
   GLICKO2: 'GLICKO2',
+  SKILL: 'SKILL',
 } as const;
 
 export const RatingSystem = z.enum(RatingSystemEnum);
@@ -31,9 +33,27 @@ export const Glicko2Params = z.object({
 });
 export type Glicko2Params = z.infer<typeof Glicko2Params>;
 
+export const SkillParams = z.object({
+  enabled: z.boolean(),
+
+  defaultRating: z.number(),
+  defaultRd: z.number().positive(),
+
+  driftPerDay: z.number().nonnegative(),
+  goalWeight: z.number().positive(),
+  extraPlayerAdvantage: z.number(),
+
+  tolerance: z.number().positive(),
+  maxSweeps: z.int().positive(),
+
+  conservativeDeviations: z.number().nonnegative(),
+});
+export type SkillParams = z.infer<typeof SkillParams>;
+
 export const RatingSystemsConfig = z.object({
   ELO: EloParams,
   GLICKO2: Glicko2Params,
+  SKILL: SkillParams.default(defaultSkillParams),
 });
 export type RatingSystemsConfig = z.infer<typeof RatingSystemsConfig>;
 
@@ -49,17 +69,37 @@ export const Glicko2Rating = z.object({
 });
 export type Glicko2Rating = z.infer<typeof Glicko2Rating>;
 
-export interface RatingMatchup<Rating> {
-  own: Rating;
-  side: Rating;
-  opponent: Rating;
+export const SkillRating = z.object({
+  rating: z.number(),
+  rd: z.number().positive(),
+});
+export type SkillRating = z.infer<typeof SkillRating>;
 
+export interface RatingMatchSide {
+  subjects: string[];
   score: number;
-  opponentScore: number;
 }
 
-export interface RatingSystemDefinition<Params, Rating extends EloRating> {
+export interface RatingMatch<Params> {
+  params: Params;
+  day: number; // whole days since the epoch
+
+  sides: [RatingMatchSide, RatingMatchSide];
+}
+
+export interface RatingResult<Rating> {
+  subject: string;
+
+  before: Rating | null;
+  after: Rating;
+}
+
+export interface RatingSystemDefinition<
+  Params,
+  Rating extends EloRating,
+  State,
+> {
   initial: (params: Params) => Rating;
-  combine: (ratings: Rating[]) => Rating;
-  update: (params: Params, matchup: RatingMatchup<Rating>) => Rating;
+  create: () => State;
+  rate: (state: State, match: RatingMatch<Params>) => RatingResult<Rating>[];
 }
