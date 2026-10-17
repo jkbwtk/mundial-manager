@@ -2,12 +2,11 @@ import z from 'zod';
 import { createQueryMeta } from '#backend/types/trpc';
 import {
   defaultMatchRules,
-  defaultSeasonConfig,
   defaultStylePointsConfig,
 } from '#shared/defaults/season';
 import { Labels } from '#shared/labels';
 import { RatingSystemsConfig } from '#shared/types/stats/ratingSystem';
-import { PaginatedResponse, withDefaults } from '#shared/zod';
+import { PaginatedResponse } from '#shared/zod';
 
 export const MatchRules = z.object({
   target: z.int().positive(),
@@ -56,7 +55,7 @@ export const SeasonNullable = Season.nullable();
 export type SeasonNullable = z.infer<typeof SeasonNullable>;
 
 export const SeasonCreate = Season.omit({ uuid: true }).extend({
-  config: withDefaults(SeasonConfig, defaultSeasonConfig),
+  config: SeasonConfig.optional(), // the league default when omitted
 });
 export type SeasonCreate = z.infer<typeof SeasonCreate>;
 

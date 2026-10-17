@@ -1,4 +1,6 @@
 import type { DB, TX } from '#backend/db/database';
+import { GoalTypeModel } from '#backend/db/models/GoalTypeModel';
+import { LeagueModel } from '#backend/db/models/LeagueModel';
 import { ModelOps } from '#backend/db/models/ModelOps';
 import { seasonsTable } from '#backend/db/schema';
 import { SeasonSelectSchema } from '#backend/types/db/season';
@@ -6,12 +8,27 @@ import {
   ConvertDrizzleErrors,
   StrategyValidationError,
 } from '#blib/modelErrors';
+import { getSeasonGoalTypes } from '#shared/goalTypes';
+import { toZonedDayjs } from '#shared/timeUtils';
 import {
   Season,
   SeasonCreate,
   SeasonQueryMeta,
   SeasonUpdate,
 } from '#shared/types/api/season';
+
+type SeasonDates = Pick<SeasonCreate, 'startDate' | 'endDate'>;
+
+function getDayBounds<T extends SeasonDates>(
+  season: T,
+  timeZone: string | undefined,
+): T {
+  return {
+    ...season,
+    startDate: toZonedDayjs(season.startDate, timeZone).startOf('day').toDate(),
+    endDate: toZonedDayjs(season.endDate, timeZone).endOf('day').toDate(),
+  };
+}
 
 const SeasonOps = ModelOps({
   table: seasonsTable,
@@ -24,27 +41,45 @@ const SeasonOps = ModelOps({
 });
 
 export class SeasonModel extends SeasonOps {
-  @ConvertDrizzleErrors()
-  public static async create(
+  protected static override async prepareCreate(
     db: DB | TX,
     leagueUuid: string,
     data: SeasonCreate,
   ) {
-    return super.create(db, leagueUuid, data);
+    const league = await LeagueModel.getById(db, leagueUuid);
+    const goalTypes = await GoalTypeModel.getAll(db, leagueUuid);
+
+    const config = data.config ?? league?.instance.seasonConfig;
+    const next = getDayBounds(
+      {
+        ...data,
+        config: config && {
+          ...config,
+          goalTypes: getSeasonGoalTypes(goalTypes, config.goalTypes),
+        },
+      },
+      league?.instance.timezone,
+    );
+
+    return { next, row: next };
   }
 
-  @ConvertDrizzleErrors()
-  public static async update(
+  protected static override async prepareUpdate(
     db: DB | TX,
     leagueUuid: string,
-    data: SeasonUpdate,
+    previous: SeasonSelectSchema,
+    data: Record<string, unknown>,
   ) {
-    return super.update(db, leagueUuid, data);
-  }
+    const league = await LeagueModel.getById(db, leagueUuid);
+    const next = getDayBounds(
+      { ...previous, ...data } as SeasonCreate,
+      league?.instance.timezone,
+    );
 
-  @ConvertDrizzleErrors()
-  public static async delete(db: DB | TX, leagueUuid: string, uuid: string) {
-    return super.delete(db, leagueUuid, uuid);
+    return {
+      next,
+      row: { ...data, startDate: next.startDate, endDate: next.endDate },
+    };
   }
 
   @ConvertDrizzleErrors()
