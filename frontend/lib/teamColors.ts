@@ -1,3 +1,4 @@
+import { generateTeamColor } from '#flib/sheetUtils';
 import type { MatchSide } from '#shared/types/api/matchEvent';
 import type { Table } from '#shared/types/api/table';
 import { quickSwitch } from '#shared/utils';
@@ -31,4 +32,8 @@ export function getTableSideColor(
   if (!table) return variables.gray;
 
   return side === 'SIDE_1' ? table.side1Color : table.side2Color;
+}
+
+export function getSubjectColor(value: string): string {
+  return generateTeamColor(value);
 }
