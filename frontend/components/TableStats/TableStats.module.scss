@@ -1,0 +1,12 @@
+@use 'app' as *;
+
+.widget {
+  width: 100%;
+}
+
+.no-data {
+  display: block;
+
+  text-align: center;
+  font-style: italic;
+}
