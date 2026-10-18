@@ -37,8 +37,8 @@ import {
   MatchQueryMeta,
   MatchUpdate,
 } from '#shared/types/api/match';
-import { MatchEvent, type MatchSide } from '#shared/types/api/matchEvent';
-import type { MatchFull, MatchFullCreate } from '#shared/types/api/matchFull';
+import type { MatchEvent, MatchSide } from '#shared/types/api/matchEvent';
+import type { MatchFullCreate } from '#shared/types/api/matchFull';
 import {
   MatchTimelineErrorTypeEnum,
   type MatchTimelineSave,
@@ -205,47 +205,6 @@ export class MatchModel extends MatchOps {
     });
 
     return instance ?? null;
-  }
-
-  @ConvertDrizzleErrors()
-  public static async getAllFull(
-    db: DB | TX,
-    leagueUuid: string,
-    meta: MatchQueryMeta = {},
-  ): Promise<MatchFull[]> {
-    const instances = await db.query.matchesTable.findMany({
-      where: {
-        leagueUuid,
-        $deletedAt: {
-          isNull: true,
-        },
-      },
-
-      with: {
-        ball: true,
-        table: true,
-
-        timeline: {
-          where: {
-            leagueUuid,
-            $deletedAt: {
-              isNull: true,
-            },
-          },
-        },
-      },
-
-      orderBy: (meta.sorting?.direction === 'desc'
-        ? matchOrderByDesc
-        : matchOrderBy)(meta.sorting?.field),
-      limit: meta.pagination?.limit,
-      offset: meta.pagination?.offset,
-    });
-
-    return instances.map(({ timeline, ...instance }) => ({
-      ...instance,
-      events: MatchEvent.array().parse(timeline?.events ?? []),
-    }));
   }
 
   @ConvertDrizzleErrors()

@@ -93,25 +93,6 @@ export const matchesRouter = router({
       return instance;
     }),
 
-  getLegacy: leaguePermissionProcedure([
-    PermissionEnum.MATCHES_READ,
-    PermissionEnum.PLAYERS_READ,
-  ]).query(async ({ ctx }) => {
-    const matches = await MatchModel.getAllFull(ctx.db, ctx.league.uuid);
-    const players = await PlayerModel.getAll(ctx.db, ctx.league.uuid);
-    const playersDict = Object.fromEntries(
-      players.map((player) => [player.uuid, player]),
-    );
-    const goalTypes = await GoalTypeModel.getAll(ctx.db, ctx.league.uuid);
-    const goalTypesDict = Object.fromEntries(
-      goalTypes.map((goalType) => [goalType.uuid, goalType]),
-    );
-
-    return matches.map((match, index) =>
-      convertToLegacyMatch(match, playersDict, goalTypesDict, index + 1),
-    );
-  }),
-
   createLegacy: leaguePermissionProcedure(PermissionEnum.MATCHES_CREATE)
     .input(
       zodEncode(

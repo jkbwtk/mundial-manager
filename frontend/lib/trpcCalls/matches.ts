@@ -35,7 +35,7 @@ export const actionCreateMatch = action(async (match: MatchCreate) => {
   const newMatch = await trpcClient.matches.create.mutate(match);
 
   return json(Match.parse(newMatch), {
-    revalidate: ['queryMatches', 'queryLegacyMatches'],
+    revalidate: ['queryMatches'],
   });
 }, 'actionCreateMatch');
 
@@ -55,7 +55,7 @@ export const actionCreateFullMatch = action(
     const newMatch = await trpcClient.matches.createFull.mutate(fullMatch);
 
     return json(Match.parse(newMatch), {
-      revalidate: ['queryMatches', 'queryLegacyMatches'],
+      revalidate: ['queryMatches'],
     });
   },
   'actionCreateFullMatch',
@@ -65,12 +65,7 @@ export const actionUpdateMatch = action(async (match: MatchUpdate) => {
   const updatedMatch = await trpcClient.matches.update.mutate(match);
 
   return json(Match.parse(updatedMatch), {
-    revalidate: [
-      'queryMatches',
-      'queryMatchById',
-      'queryLegacyMatches',
-      'queryMatchTimeline',
-    ],
+    revalidate: ['queryMatches', 'queryMatchById', 'queryMatchTimeline'],
   });
 }, 'actionUpdateMatch');
 
@@ -89,20 +84,9 @@ export const actionDeleteMatch = action(async (uuid: string) => {
   const deletedMatch = await trpcClient.matches.delete.mutate({ uuid });
 
   return json(Match.parse(deletedMatch), {
-    revalidate: [
-      'queryMatches',
-      'queryMatchById',
-      'queryLegacyMatches',
-      'queryMatchTimeline',
-    ],
+    revalidate: ['queryMatches', 'queryMatchById', 'queryMatchTimeline'],
   });
 }, 'actionDeleteMatch');
-
-export const queryLegacyMatches = query(async () => {
-  const matches = await trpcClient.matches.getLegacy.query();
-
-  return LegacyMatch.array().parse(matches);
-}, 'queryLegacyMatches');
 
 export const actionCreateLegacyMatch = action(
   async (match: LegacyMatchCreate, syncId: string | null = null) => {
@@ -112,12 +96,7 @@ export const actionCreateLegacyMatch = action(
     });
 
     return json(LegacyMatch.parse(newMatch), {
-      revalidate: [
-        'queryMatches',
-        'queryMatchById',
-        'queryLegacyMatches',
-        'queryMatchesBySyncIds',
-      ],
+      revalidate: ['queryMatches', 'queryMatchById', 'queryMatchesBySyncIds'],
     });
   },
   'actionCreateLegacyMatch',
