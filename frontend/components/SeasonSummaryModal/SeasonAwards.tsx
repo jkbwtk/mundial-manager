@@ -1,18 +1,20 @@
 import { createMemo, For } from 'solid-js';
 import { Identicon } from '#components/Identicon';
 import { MaterialSymbol } from '#components/MaterialSymbol';
-import { useStatPaginator } from '#components/StatPaginatorWidget';
-import { createDeltaFrame } from '#flib/matchDataUtils';
+import { getAverageMatchDuration, getWinRate } from '#flib/derivedStats';
+import { createResilientAsync, ResilientSkip } from '#flib/resilientAsync';
 import type { SupportedMaterialSymbol } from '#flib/supportedMaterialSymbols';
-import type { MatchDataDeltaFrame, MatchDataFrame } from '#frontend/types';
+import { queryPlayersHeadToHead } from '#flib/trpcCalls';
 import { formatDuration } from '#shared/timeUtils';
+import type { HeadToHead } from '#shared/types/api/headToHead';
+import type { PlayerStats } from '#shared/types/stats/playerStats';
 import style from './SeasonSummaryModal.module.scss';
+import type { SeasonStanding, SeasonSummaryData } from './seasonSummaryData';
 
-interface Winner {
-  player: string;
-  value: number;
-
-  award: Award;
+interface AwardCandidates {
+  standings: SeasonStanding[];
+  playerStats: [playerUuid: string, stats: PlayerStats][];
+  headToHead: [playerUuid: string, records: HeadToHead[]][];
 }
 
 interface Award {
@@ -21,24 +23,31 @@ interface Award {
   icon: SupportedMaterialSymbol;
 
   formatValue: (value: number) => string;
-  pickWinner: (
-    stats: MatchDataFrame,
-    delta: MatchDataDeltaFrame,
-  ) => Winner | null;
+  getCandidates: (
+    candidates: AwardCandidates,
+  ) => [playerUuid: string, value: number][];
 }
 
-function getTop<T>(values: T[], compare: (a: T, b: T) => boolean): T | null {
-  if (values.length === 0) return null;
+interface Winner {
+  award: Award;
 
-  let top = values[0] as T;
+  playerUuid: string;
+  value: number;
+}
 
-  for (const val of values) {
-    if (compare(val, top)) {
-      top = val;
-    }
-  }
+const MIN_MATCHES_FOR_WIN_RATE = 5;
+const MIN_ADVERSARY_WINS = 5;
+const MIN_OWN_GOALS = 5;
 
-  return top;
+function getStatCandidates(
+  candidates: AwardCandidates,
+  getValue: (stats: PlayerStats) => number | null,
+): [playerUuid: string, value: number][] {
+  return candidates.playerStats.flatMap(([playerUuid, stats]) => {
+    const value = getValue(stats);
+
+    return value === null ? [] : [[playerUuid, value]];
+  });
 }
 
 const availableAwards: Award[] = [
@@ -48,16 +57,8 @@ const availableAwards: Award[] = [
     icon: 'trophy',
 
     formatValue: (val) => `${val.toFixed(1)} ELO`,
-    pickWinner(stats) {
-      const top = getTop(
-        Object.entries(stats.eloRatings.hybridElos),
-        (a, b) => a[1].rating > b[1].rating,
-      );
-
-      if (top === null) return null;
-
-      return { player: top[0], value: top[1].rating, award: this };
-    },
+    getCandidates: ({ standings }) =>
+      standings.map((standing) => [standing.playerUuid, standing.rating]),
   },
   {
     name: 'Top Scorer',
@@ -65,16 +66,21 @@ const availableAwards: Award[] = [
     icon: 'sports_soccer',
 
     formatValue: (val) => `${val} goals`,
-    pickWinner(_stats, delta) {
-      const top = getTop(
-        Object.values(delta.playerStats),
-        (a, b) => a.goalsFor > b.goalsFor,
-      );
+    getCandidates: (candidates) =>
+      getStatCandidates(candidates, (stats) => stats.goals || null),
+  },
+  {
+    name: 'Showman',
+    subtitle: 'Most style points in a match',
+    icon: 'auto_awesome',
 
-      if (top === null) return null;
-
-      return { player: top.name, value: top.goalsFor, award: this };
-    },
+    formatValue: (val) => `${Number(val.toFixed(1))} style points`,
+    getCandidates: (candidates) =>
+      getStatCandidates(candidates, (stats) =>
+        (stats.mostStylePointsInMatch ?? 0) > 0
+          ? stats.mostStylePointsInMatch
+          : null,
+      ),
   },
   {
     name: 'Slowpoke',
@@ -82,22 +88,8 @@ const availableAwards: Award[] = [
     icon: 'moon_stars',
 
     formatValue: (val) => `${formatDuration(val)} minutes`,
-    pickWinner(_stats, delta) {
-      const top = getTop(
-        Object.entries(delta.playerStats),
-        (a, b) =>
-          a[1].playtime / (a[1]._matchesWithDuration ?? 1) >
-          b[1].playtime / (b[1]._matchesWithDuration ?? 1),
-      );
-
-      if (top === null) return null;
-
-      return {
-        player: top[0],
-        value: top[1].playtime / (top[1]._matchesWithDuration ?? 1),
-        award: this,
-      };
-    },
+    getCandidates: (candidates) =>
+      getStatCandidates(candidates, getAverageMatchDuration),
   },
   {
     name: 'Marathoner',
@@ -105,20 +97,17 @@ const availableAwards: Award[] = [
     icon: 'timer',
 
     formatValue: (val) => `${val} matches`,
-    pickWinner(_stats, delta) {
-      const top = getTop(
-        Object.entries(delta.playerStats),
-        (a, b) => a[1].matches > b[1].matches,
-      );
+    getCandidates: (candidates) =>
+      getStatCandidates(candidates, (stats) => stats.matches),
+  },
+  {
+    name: 'Addict',
+    subtitle: 'Most matches in a single day',
+    icon: 'cyclone',
 
-      if (top === null) return null;
-
-      return {
-        player: top[0],
-        value: top[1].matches,
-        award: this,
-      };
-    },
+    formatValue: (val) => `${val} matches`,
+    getCandidates: (candidates) =>
+      getStatCandidates(candidates, (stats) => stats.mostMatchesInDay || null),
   },
   {
     name: 'Unbeatable',
@@ -126,22 +115,10 @@ const availableAwards: Award[] = [
     icon: 'stars_2',
 
     formatValue: (val) => `${(val * 100).toFixed(1)}%`,
-    pickWinner(_stats, delta) {
-      const top = getTop(
-        Object.entries(delta.playerStats).filter(
-          ([, stats]) => stats.matches >= 5,
-        ),
-        (a, b) => a[1].wins / a[1].matches > b[1].wins / b[1].matches,
-      );
-
-      if (top === null) return null;
-
-      return {
-        player: top[0],
-        value: top[1].wins / top[1].matches,
-        award: this,
-      };
-    },
+    getCandidates: (candidates) =>
+      getStatCandidates(candidates, (stats) =>
+        stats.matches >= MIN_MATCHES_FOR_WIN_RATE ? getWinRate(stats) : null,
+      ),
   },
   {
     name: 'Rising Star',
@@ -149,22 +126,12 @@ const availableAwards: Award[] = [
     icon: 'trending_up',
 
     formatValue: (val) => `+${val.toFixed(1)} ELO`,
-    pickWinner(_stats, delta) {
-      const top = getTop(
-        Object.entries(delta.eloRatings.hybridElos).filter(
-          ([, elo]) => elo.ratingChange > 0,
-        ),
-        (a, b) => a[1].ratingChange > b[1].ratingChange,
-      );
-
-      if (top === null) return null;
-
-      return {
-        player: top[0],
-        value: top[1].ratingChange,
-        award: this,
-      };
-    },
+    getCandidates: ({ standings }) =>
+      standings.flatMap((standing) =>
+        standing.ratingChange > 0
+          ? [[standing.playerUuid, standing.ratingChange]]
+          : [],
+      ),
   },
   {
     name: 'Adversary',
@@ -172,24 +139,12 @@ const availableAwards: Award[] = [
     icon: 'local_fire_department',
 
     formatValue: (val) => `${val} wins`,
-    pickWinner(_stats, delta) {
-      const top = getTop(
-        Object.entries(delta.playerStats)
-          .map(([name, s]) => ({
-            name,
-            best: Math.max(
-              0,
-              ...Object.values(s.matchesWonAgainst).filter((v) => v > 0),
-            ),
-          }))
-          .filter(({ best }) => best >= 5),
-        (a, b) => a.best > b.best,
-      );
+    getCandidates: ({ headToHead }) =>
+      headToHead.flatMap(([playerUuid, records]) => {
+        const best = Math.max(0, ...records.map((record) => record.wins));
 
-      if (top === null) return null;
-
-      return { player: top.name, value: top.best, award: this };
-    },
+        return best >= MIN_ADVERSARY_WINS ? [[playerUuid, best]] : [];
+      }),
   },
   {
     name: 'Own Goal King',
@@ -197,55 +152,55 @@ const availableAwards: Award[] = [
     icon: 'sentiment_very_dissatisfied',
 
     formatValue: (val) => `${val} own goals`,
-    pickWinner(_stats, delta) {
-      const top = getTop(
-        Object.entries(delta.playerStats).filter(([, s]) => s.ownGoals > 5),
-        (a, b) => a[1].ownGoals > b[1].ownGoals,
-      );
-
-      if (top === null) return null;
-
-      return { player: top[0], value: top[1].ownGoals, award: this };
-    },
+    getCandidates: (candidates) =>
+      getStatCandidates(candidates, (stats) =>
+        stats.ownGoals > MIN_OWN_GOALS ? stats.ownGoals : null,
+      ),
   },
-
-  // TODO: Move player stats to aggregate calculation
-  // {
-  //   name: 'Addict',
-  //   subtitle: 'Most matches in a single day',
-  //   icon: 'cyclone',
-
-  //   formatValue: (val) => `${val} matches`,
-  //   pickWinner(_stats, delta) {
-  //     const top = getTop(
-  //       Object.entries(delta.playerStats),
-  //       (a, b) => a[1].mostMatchesInDay > b[1].mostMatchesInDay,
-  //     );
-
-  //     if (top === null) return null;
-
-  //     return {
-  //       player: top[0],
-  //       value: top[1].mostMatchesInDay,
-  //       award: this,
-  //     };
-  //   },
-  // },
 ];
 
-export const SeasonAwards: Component = () => {
-  const [state] = useStatPaginator();
+function pickWinner(award: Award, candidates: AwardCandidates): Winner | null {
+  const top = award
+    .getCandidates(candidates)
+    .reduce<[string, number] | null>(
+      (best, candidate) =>
+        best === null || candidate[1] > best[1] ? candidate : best,
+      null,
+    );
 
-  const curr = createMemo(() => state.aggregateFrame.frame);
-  const prev = createMemo(() => state.aggregateFrame.previousFrame);
+  return top === null ? null : { award, playerUuid: top[0], value: top[1] };
+}
 
-  const delta = createMemo(() => createDeltaFrame(curr(), prev(), false));
+export interface SeasonAwardsProps {
+  data: SeasonSummaryData;
+}
 
-  const awards = createMemo(() =>
-    availableAwards
-      .map((award) => award.pickWinner(curr(), delta()))
-      .filter((winner): winner is Winner => winner !== null),
-  );
+export const SeasonAwards: Component<SeasonAwardsProps> = (props) => {
+  const { season, players, standings, playerStats } = props.data;
+
+  const headToHead = createResilientAsync(() => {
+    const current = season();
+
+    if (current === null) return ResilientSkip;
+
+    return {
+      playerUuids: playerStats().map(([uuid]) => uuid),
+      from: current.startDate,
+      to: current.endDate,
+    };
+  }, queryPlayersHeadToHead);
+
+  const awards = createMemo(() => {
+    const candidates: AwardCandidates = {
+      standings: standings(),
+      playerStats: playerStats(),
+      headToHead: headToHead.latest ?? [],
+    };
+
+    return availableAwards.flatMap(
+      (award) => pickWinner(award, candidates) ?? [],
+    );
+  });
 
   return (
     <div class={style.awardsContainer}>
@@ -267,10 +222,12 @@ export const SeasonAwards: Component = () => {
               </div>
 
               <div class={style.winner}>
-                <Identicon value={winner.player} size={2} />
+                <Identicon value={winner.playerUuid} size={2} />
 
                 <span class={style.awardInfo}>
-                  <span class={style.playerName}>{winner.player}</span>
+                  <span class={style.playerName}>
+                    {players.getLabel(winner.playerUuid)}
+                  </span>
                   <span class={style.awardValue}>
                     {winner.award.formatValue(winner.value)}
                   </span>

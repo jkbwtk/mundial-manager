@@ -51,6 +51,7 @@ export const MaterialSymbolCodepoints = {
   editor_choice: 'f528',
   moon_stars: 'f34f',
   cyclone: 'ebd5',
+  auto_awesome: 'e65f',
   shield: 'e9e0',
   gps_fixed: 'e55c',
   local_fire_department: 'ef55',

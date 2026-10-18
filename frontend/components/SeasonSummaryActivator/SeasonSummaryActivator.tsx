@@ -1,37 +1,53 @@
-import dayjs from 'dayjs';
-import { Show } from 'solid-js';
+import { createMemo, getOwner, Show } from 'solid-js';
 import { Button } from '#components/Button';
 import { SeasonSummaryModal } from '#components/SeasonSummaryModal';
 import { Widget } from '#components/Widget';
-import { getSeason } from '#flib/seasons';
+import { createNow } from '#flib/clock';
+import { useSeasonLookup } from '#flib/entityLookup';
+import { createResilientAsync } from '#flib/resilientAsync';
+import { queryStatsPeriods } from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
-import { useSheets } from '#providers/SheetsProvider';
 import style from './SeasonSummaryActivator.module.scss';
+
+const SUMMARY_AVAILABILITY_MS = 7 * 24 * 60 * 60 * 1000;
 
 export const SeasonSummaryActivator: Component = () => {
   const [, { open }] = useModal();
-  const [, { seasonStats }] = useSheets();
+  const owner = getOwner();
+  const seasons = useSeasonLookup();
+  const now = createNow(() => 'hour');
 
-  const currentSeason = () => getSeason(dayjs().unix());
-  const previousSeason = () =>
-    getSeason(currentSeason().startDate.subtract(1, 'day').unix());
+  const periods = createResilientAsync(
+    () => 'SEASON' as const,
+    queryStatsPeriods,
+  );
 
-  const now = () => dayjs();
-  const isAvailable = () =>
-    now().diff(currentSeason().startDate, 'day') < 7 &&
-    !!seasonStats()[previousSeason().number];
+  const previousSeason = createMemo(
+    () =>
+      seasons
+        .all()
+        .filter((season) => season.endDate.getTime() < now().valueOf())
+        .toSorted((a, b) => b.endDate.getTime() - a.endDate.getTime())
+        .at(0) ?? null,
+  );
+
+  const isAvailable = () => {
+    const season = previousSeason();
+
+    if (season === null || !periods.latest?.keys.includes(season.uuid)) {
+      return false;
+    }
+
+    return now().valueOf() - season.endDate.getTime() < SUMMARY_AVAILABILITY_MS;
+  };
 
   const openSummary = () => {
-    const page =
-      Array.from(Object.keys(seasonStats())).length -
-      Object.keys(seasonStats()).indexOf(previousSeason().number.toString()) -
-      1;
-
     open({
       props: {
         component: SeasonSummaryModal,
-        page,
+        seasonUuid: previousSeason()?.uuid,
       },
+      owner,
     });
   };
 
@@ -39,24 +55,14 @@ export const SeasonSummaryActivator: Component = () => {
     <Show when={isAvailable()}>
       <Widget
         class={style.widget}
-        // topLeftLabels={[
-        //   <span>
-        //     <MaterialSymbol symbol="trophy" color="yellow" filled />
-        //     Season Summary
-        //   </span>,
-        // ]}
         bottomRightLabels={[
-          <Button
-            severity="primary"
-            class={style.button}
-            onPointerUp={openSummary}
-          >
+          <Button severity="primary" class={style.button} onClick={openSummary}>
             Open
           </Button>,
         ]}
       >
         <div class={style.content}>
-          Summary for <strong>{previousSeason().label}</strong> is available
+          Summary for <strong>{previousSeason()?.name}</strong> is available
         </div>
       </Widget>
     </Show>

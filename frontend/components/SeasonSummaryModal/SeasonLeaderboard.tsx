@@ -1,11 +1,10 @@
-import { createMemo } from 'solid-js';
 import { DeltaDisplay } from '#components/DeltaDisplay';
 import { Identicon } from '#components/Identicon';
 import { MaterialSymbol } from '#components/MaterialSymbol';
-import { useStatPaginator } from '#components/StatPaginatorWidget';
 import { type Column, Table } from '#components/Table';
-import { createDeltaFrame } from '#flib/matchDataUtils';
+import { getGoalDifference, getWinRate } from '#flib/derivedStats';
 import style from './SeasonSummaryModal.module.scss';
+import type { SeasonSummaryData } from './seasonSummaryData';
 
 const columns: Column[] = [
   {
@@ -18,9 +17,9 @@ const columns: Column[] = [
     key: 'player',
     header: 'Player',
     align: 'left',
-    transform: (val) => (
+    transform: (val, row) => (
       <>
-        <Identicon value={val} size={1} /> {val}
+        <Identicon value={row.playerUuid} size={1} /> {val}
       </>
     ),
   },
@@ -51,39 +50,28 @@ const columns: Column[] = [
     key: 'winRate',
     header: 'Win%',
     align: 'right',
-    transform: (val) => (val ? `${val.toFixed(0)}%` : null),
+    transform: (val) => (val === null ? null : `${(val * 100).toFixed(0)}%`),
   },
 ];
 
-export const SeasonLeaderboard: Component = () => {
-  const [state] = useStatPaginator();
+export interface SeasonLeaderboardProps {
+  data: SeasonSummaryData;
+}
 
-  const curr = createMemo(() => state.aggregateFrame.frame);
-  const prev = createMemo(() => state.aggregateFrame.previousFrame);
-
-  const delta = createMemo(() => createDeltaFrame(curr(), prev(), false));
+export const SeasonLeaderboard: Component<SeasonLeaderboardProps> = (props) => {
+  const { players, standings } = props.data;
 
   const data = () =>
-    Object.entries(curr().eloRatings.hybridElos)
-      .map(([name]) => ({
-        player: name,
-        elo:
-          curr().eloRatings.hybridElos[name]?.rating ??
-          curr().season.config.defaultEloRating,
-        deltaElo: delta().eloRatings.hybridElos[name]?.ratingChange ?? 0,
-        wonLost: `${delta().playerStats[name]?.wins ?? 0}-${delta().playerStats[name]?.losses ?? 0}`,
-        winRate: delta().playerStats[name]
-          ? (delta().playerStats[name]!.wins /
-              (delta().playerStats[name]!.wins +
-                delta().playerStats[name]!.losses)) *
-            100
-          : 0,
-        deltaGoals:
-          (delta().playerStats[name]?.goalsFor ?? 0) -
-          (delta().playerStats[name]?.goalsAgainst ?? 0),
-      }))
-      .sort((a, b) => b.elo - a.elo)
-      .map((entry, index) => ({ ...entry, rank: index + 1 }));
+    standings().map((standing, index) => ({
+      rank: index + 1,
+      playerUuid: standing.playerUuid,
+      player: players.getLabel(standing.playerUuid),
+      elo: standing.rating,
+      deltaElo: standing.ratingChange,
+      deltaGoals: standing.stats ? getGoalDifference(standing.stats) : 0,
+      wonLost: `${standing.stats?.wins ?? 0}-${standing.stats?.losses ?? 0}`,
+      winRate: standing.stats ? getWinRate(standing.stats) : null,
+    }));
 
   return (
     <div class={style.leaderboardContainer}>
@@ -92,12 +80,7 @@ export const SeasonLeaderboard: Component = () => {
         Leaderboard
       </div>
 
-      <Table
-        class={style.leaderboard}
-        columns={columns}
-        data={data()}
-        classic={false}
-      />
+      <Table class={style.leaderboard} columns={columns} data={data()} />
     </div>
   );
 };

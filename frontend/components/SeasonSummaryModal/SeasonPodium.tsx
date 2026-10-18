@@ -1,18 +1,12 @@
-import { For, mergeProps, Show } from 'solid-js';
+import { For, Show } from 'solid-js';
 import { Identicon } from '#components/Identicon';
-import { useStatPaginatedFrame } from '#components/StatPaginatorWidget';
 import { Divider } from '#components/Widget';
-import type { RequiredDefaults } from '#shared/utils';
 import style from './SeasonSummaryModal.module.scss';
+import type { SeasonSummaryData } from './seasonSummaryData';
 
-export interface Result {
-  team: string;
-  rating: number;
+export interface SeasonPodiumProps {
+  data: SeasonSummaryData;
 }
-
-export type SeasonPodiumProps = {
-  showAll?: boolean;
-};
 
 function getPosition(place: number): string {
   switch (place) {
@@ -28,19 +22,10 @@ function getPosition(place: number): string {
   }
 }
 
-const defaultProps: RequiredDefaults<SeasonPodiumProps> = {
-  showAll: false,
-};
+const PODIUM_PLACES = 3;
 
-export const SeasonPodium: Component<SeasonPodiumProps> = (userProps) => {
-  const frame = useStatPaginatedFrame();
-  const props = mergeProps(defaultProps, userProps);
-
-  const results = () =>
-    Object.entries(frame().eloRatings.hybridElos)
-      .sort(([, a], [, b]) => b.rating - a.rating)
-      .map(([team, rating]) => ({ team, rating: rating.rating }))
-      .slice(0, props.showAll ? undefined : 3);
+export const SeasonPodium: Component<SeasonPodiumProps> = (props) => {
+  const results = () => props.data.standings().slice(0, PODIUM_PLACES);
 
   return (
     <div class={style.podiumContainer}>
@@ -59,9 +44,15 @@ export const SeasonPodium: Component<SeasonPodiumProps> = (userProps) => {
                 [style[`place${index() + 1}`]]: true,
               }}
             >
-              <Identicon class={style.icon} value={result.team} size={3} />
+              <Identicon
+                class={style.icon}
+                value={result.playerUuid}
+                size={3}
+              />
 
-              <span class={style.teamName}>{result.team}</span>
+              <span class={style.teamName}>
+                {props.data.players.getLabel(result.playerUuid)}
+              </span>
 
               <div class={style.step}>
                 <div class={style.position}>{getPosition(index() + 1)}</div>

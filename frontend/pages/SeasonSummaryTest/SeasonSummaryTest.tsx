@@ -1,4 +1,4 @@
-import { onCleanup, onMount } from 'solid-js';
+import { getOwner, onCleanup, onMount } from 'solid-js';
 
 import { Button } from '#components/Button';
 import { SeasonSummaryModal } from '#components/SeasonSummaryModal';
@@ -8,12 +8,14 @@ import style from './SeasonSummaryTest.module.scss';
 
 export const SeasonSummaryTest: Component = () => {
   const [, { open }] = useModal();
+  const owner = getOwner();
 
   const openSummary = () => {
     return open({
       props: {
         component: SeasonSummaryModal,
       },
+      owner,
     });
   };
 

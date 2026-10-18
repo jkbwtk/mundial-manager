@@ -1,36 +1,46 @@
-import dayjs, { type Dayjs } from 'dayjs';
-import { createMemo } from 'solid-js';
-import { useStatPaginatedFrame } from '#components/StatPaginatorWidget';
+import { Show } from 'solid-js';
 import { StatRow } from '#components/StatRow';
+import { useLeagueTimeZone } from '#flib/leagueTimeZone';
+import { formatDate, formatDuration } from '#shared/timeUtils';
 import style from './SeasonSummaryModal.module.scss';
+import type { SeasonSummaryData } from './seasonSummaryData';
 
-function unwrapDayjs(value: Dayjs) {
-  //@ts-expect-error
-  return dayjs(value.$d);
+export interface SummaryHeaderProps {
+  data: SeasonSummaryData;
 }
 
-export const SummaryHeader: Component = () => {
-  const frame = useStatPaginatedFrame();
+export const SummaryHeader: Component<SummaryHeaderProps> = (props) => {
+  const timeZone = useLeagueTimeZone();
 
-  const season = createMemo(() => frame().season);
+  const formatSeasonDate = (date: Date) => formatDate(date, timeZone());
 
   return (
     <div class={style.headerContainer}>
-      <div class={style.label}>{season().label}</div>
+      <Show when={props.data.season()}>
+        {(season) => (
+          <>
+            <div class={style.label}>{season().name}</div>
 
-      <div class={style.dates}>
-        {unwrapDayjs(season().startDate).format('MMM D, YYYY')} -{' '}
-        {unwrapDayjs(season().endDate).format('MMM D, YYYY')}
-      </div>
+            <div class={style.dates}>
+              {formatSeasonDate(season().startDate)} -{' '}
+              {formatSeasonDate(season().endDate)}
+            </div>
+          </>
+        )}
+      </Show>
 
-      <StatRow
-        items={[
-          { value: frame().seasonStats.matches, label: 'matches' },
-          { value: frame().seasonStats.players.length, label: 'players' },
-          { value: frame().seasonStats.goals, label: 'goals' },
-          { value: frame().seasonStats.playtimeFormatted, label: 'played' },
-        ]}
-      />
+      <Show when={props.data.stats()}>
+        {(stats) => (
+          <StatRow
+            items={[
+              { value: stats().matches, label: 'matches' },
+              { value: stats().players.length, label: 'players' },
+              { value: stats().goals, label: 'goals' },
+              { value: formatDuration(stats().playtime), label: 'played' },
+            ]}
+          />
+        )}
+      </Show>
     </div>
   );
 };
