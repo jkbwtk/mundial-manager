@@ -12,7 +12,6 @@ import { RootLayout } from '#pages/RootLayout';
 import { ChangelogProvider } from '#providers/ChangelogProvider';
 import { ConsoleUnitPrototypeProvider } from '#providers/ConsoleUnitPrototypeProvider';
 import { ModalDispatcher, ModalProvider } from '#providers/ModalProvider';
-import { SheetsProvider } from '#providers/SheetsProvider';
 import {
   SSRUtilsProvider,
   type SSRUtilsProviderProps,
@@ -42,26 +41,24 @@ const App: Component<AppProps> = (props) => {
             <MetaProvider>
               <ConsoleUnitPrototypeProvider>
                 <ToastProvider>
-                  <SheetsProvider>
-                    <ModalProvider>
-                      <ChangelogProvider>
-                        <ModalDispatcher>
-                          <AcrylicBackground />
-                          <Show when={isDev()}>
-                            <DevGrid />
-                          </Show>
+                  <ModalProvider>
+                    <ChangelogProvider>
+                      <ModalDispatcher>
+                        <AcrylicBackground />
+                        <Show when={isDev()}>
+                          <DevGrid />
+                        </Show>
 
-                          <Router
-                            url={isServer ? props.url : ''}
-                            root={RootLayout}
-                            preload={!isMobile()}
-                          >
-                            {routes}
-                          </Router>
-                        </ModalDispatcher>
-                      </ChangelogProvider>
-                    </ModalProvider>
-                  </SheetsProvider>
+                        <Router
+                          url={isServer ? props.url : ''}
+                          root={RootLayout}
+                          preload={!isMobile()}
+                        >
+                          {routes}
+                        </Router>
+                      </ModalDispatcher>
+                    </ChangelogProvider>
+                  </ModalProvider>
                 </ToastProvider>
               </ConsoleUnitPrototypeProvider>
             </MetaProvider>

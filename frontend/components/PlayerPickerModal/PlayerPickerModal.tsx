@@ -3,8 +3,8 @@ import { Break } from '#components/Break';
 import { Button } from '#components/Button';
 import { Input } from '#components/Input';
 import { Modal } from '#components/Modal';
+import { usePlayerLookup } from '#flib/entityLookup';
 import { useModalActions } from '#providers/ModalProvider';
-import { useSheets } from '#providers/SheetsProvider';
 import style from './PlayerPickerModal.module.scss';
 
 export interface PlayerPickerProps {
@@ -12,7 +12,7 @@ export interface PlayerPickerProps {
 }
 
 export const PlayerPickerModal: Component<PlayerPickerProps> = (props) => {
-  const [, { latest }] = useSheets();
+  const players = usePlayerLookup();
   const { closeModal } = useModalActions();
 
   const formId = createUniqueId();
@@ -38,18 +38,18 @@ export const PlayerPickerModal: Component<PlayerPickerProps> = (props) => {
       ]}
     >
       <form id={formId} class={style.pickerForm} onSubmit={handleSubmit}>
-        <For each={latest().generalStats.players}>
+        <For each={players.all()}>
           {(player) => (
             <div>
               <Input
-                id={player}
+                id={`${formId}-${player.uuid}`}
                 type="radio"
                 name="player"
-                value={player}
-                disabled={props.disabledPlayers?.includes(player)}
+                value={player.uuid}
+                disabled={props.disabledPlayers?.includes(player.uuid)}
                 required
               >
-                {player}
+                {player.name}
               </Input>
             </div>
           )}
