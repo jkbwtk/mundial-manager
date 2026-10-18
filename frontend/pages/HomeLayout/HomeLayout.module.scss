@@ -1,0 +1,93 @@
+@use 'app' as *;
+
+.container {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  min-height: 0;
+  max-height: 100%;
+
+  overflow-y: auto;
+  overscroll-behavior-y: none;
+  scrollbar-gutter: stable;
+}
+
+.container.document-scroll {
+  overflow: visible;
+}
+
+.container > .header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  flex-shrink: 0;
+
+  background-color: rgba($backgroundColor, 0.5);
+  backdrop-filter: blur(1rem);
+
+  padding: ch(1) cw(2);
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+
+  gap: 0 cw(3);
+
+  width: round(down, 100%, cw(1));
+}
+
+.mobile-controls {
+  position: sticky;
+  bottom: var(--mobile-nav-height, 0);
+  z-index: 10;
+
+  display: flex;
+  flex-direction: column;
+  gap: ch(0.5);
+
+  flex-shrink: 0;
+
+  margin-top: auto;
+  padding-top: ch(0.5);
+
+  overflow: clip;
+
+  background-color: rgba($backgroundColor, 0.5);
+  backdrop-filter: blur(1rem);
+}
+
+.mobile-controls > .tab-rule {
+  height: ch(1);
+  padding: 0 cw(1);
+
+  overflow: visible;
+}
+
+.tab {
+  color: $textColor;
+
+  &.active {
+    color: $textBrightColor;
+  }
+}
+
+.tabs {
+  display: flex;
+  gap: cw(1);
+}
+
+.period-bar {
+  flex: 1 1 cw(60);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+
+  flex: 1 0 auto;
+
+  container-type: inline-size;
+  container-name: home;
+}

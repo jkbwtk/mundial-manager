@@ -1,11 +1,6 @@
-import { Break } from '#components/Break';
 import { Button } from '#components/Button';
 import { InlineAction } from '#components/InlineAction';
 import { MaterialSymbol } from '#components/MaterialSymbol';
-import {
-  StatPaginatorWidget,
-  useStatPaginatedFrame,
-} from '#components/StatPaginatorWidget';
 import { customWidgetType, Divider, Widget } from '#components/Widget';
 import { WidgetAlt } from '#components/WidgetAlt';
 import style from './WidgetTest.module.scss';
@@ -129,12 +124,6 @@ const WidgetTest: Component = () => {
         Lorem ipsum dolor sit amet consectetur adipisicing elit.
         <input />
       </Widget>
-
-      <Break />
-
-      <StatPaginatorWidget statType="match" topRightLabels={'test'}>
-        {useStatPaginatedFrame()().matchStats.label}
-      </StatPaginatorWidget>
     </div>
   );
 };

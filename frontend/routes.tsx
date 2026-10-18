@@ -2,10 +2,23 @@ import { lazyRoute } from '#flib/lazyRoute';
 import { guardRoute } from '#flib/routeGuard';
 import type { ExtendedRouteDefinition } from '#frontend/types';
 import { errors, GenericErrorPage } from '#pages/GenericErrorPage';
+import { preloadChartsPage } from '#preloaders/ChartsPage';
+import { preloadHomeLayout } from '#preloaders/HomeLayout';
+import { preloadHomepage } from '#preloaders/Homepage';
 import { preloadMatchEventsDashboard } from '#preloaders/MatchEventsDashboard';
+import { preloadRatingsPage } from '#preloaders/RatingsPage';
 import { MatchRecordingPermissions, PermissionEnum } from '#shared/permissions';
 
+const HomeLayout = lazyRoute(
+  import.meta.glob('#pages/HomeLayout/HomeLayout.tsx'),
+);
 const Homepage = lazyRoute(import.meta.glob('#pages/Homepage/Homepage.tsx'));
+const RatingsPage = lazyRoute(
+  import.meta.glob('#pages/RatingsPage/RatingsPage.tsx'),
+);
+const ChartsPage = lazyRoute(
+  import.meta.glob('#pages/ChartsPage/ChartsPage.tsx'),
+);
 const MundialCalculator = lazyRoute(
   import.meta.glob('#pages/MundialCalculator/MundialCalculator.tsx'),
 );
@@ -86,12 +99,33 @@ const NotFoundPage = () => <GenericErrorPage config={errors.pageNotFound} />;
 export const dashboardRoutes: ExtendedRouteDefinition[] = [
   {
     path: '/',
-    component: Homepage,
+    component: HomeLayout,
+    preload: preloadHomeLayout,
     info: {
       name: 'Home',
       icon: 'home',
       permission: PermissionEnum.STATS_READ,
     },
+    children: [
+      {
+        path: '/',
+        component: Homepage,
+        preload: preloadHomepage,
+        info: { name: 'Overview', icon: 'home' },
+      },
+      {
+        path: '/charts',
+        component: ChartsPage,
+        preload: preloadChartsPage,
+        info: { name: 'Charts', icon: 'leaderboard' },
+      },
+      {
+        path: '/ratings',
+        component: RatingsPage,
+        preload: preloadRatingsPage,
+        info: { name: 'Ratings', icon: 'trending_up' },
+      },
+    ],
   },
   {
     path: '/mundial-calculator',
