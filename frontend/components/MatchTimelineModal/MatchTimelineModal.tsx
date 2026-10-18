@@ -1,169 +1,65 @@
-import { createMemo, For, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
-import { ColorBlock } from '#components/ColorBlock';
+import { Show } from 'solid-js';
 import {
-  BallOutEvent,
-  EquipmentFailureEvent,
-  GoalEvent,
-  PositionChangeEvent,
-} from '#components/MatchTimelineModal';
+  MatchSideName,
+  MatchTimelineTable,
+} from '#components/MatchTimelineTable';
 import { Modal } from '#components/Modal';
-import {
-  StatPaginatorWidget,
-  useStatPaginatedFrame,
-} from '#components/StatPaginatorWidget';
+import { Spinner } from '#components/Spinner';
 import { Divider } from '#components/Widget';
-import { getTeamColor, getTeamColorClass } from '#flib/teamColors';
-import { getTeamColors } from '#shared/matchUtils';
-import { formatDate, formatDuration } from '#shared/timeUtils';
-import type { Match, MatchEvent, MatchEventType } from '#shared/types/Sheets';
+import { useLeagueTimeZone } from '#flib/leagueTimeZone';
+import { createMatchTimelineLookup } from '#flib/matchTimelineLookup';
+import { createResilientAsync } from '#flib/resilientAsync';
+import { queryMatchTimeline } from '#flib/trpcCalls';
+import { formatKnownStartDatetime } from '#shared/matchLabels';
+import { getMatchWinningSide } from '#shared/matchTimeline';
+import { formatDuration } from '#shared/timeUtils';
+import type { MatchTimeline } from '#shared/types/api/matchTimeline';
 import style from './MatchTimelineModal.module.scss';
 
-export interface TimelineEntryProps {
-  match: Match;
-  event: MatchEvent;
-}
-
 export interface MatchTimelineModalProps {
-  page?: number;
+  matchUuid: string;
 }
 
-function getEventComponent(eventType: MatchEventType) {
-  switch (eventType) {
-    case 'GOAL':
-      return GoalEvent;
-    case 'BALL_OUT':
-      return BallOutEvent;
-    case 'POSITION_CHANGE':
-      return PositionChangeEvent;
-    case 'EQUIPMENT_FAILURE':
-      return EquipmentFailureEvent;
-    default:
-      return EquipmentFailureEvent;
-  }
+interface MatchTimelineHeaderProps {
+  timeline: MatchTimeline;
 }
 
-const MatchTimelineModalBase: Component = () => {
-  const frame = useStatPaginatedFrame();
+const MatchTimelineHeader: Component<MatchTimelineHeaderProps> = (props) => {
+  const timeZone = useLeagueTimeZone();
+  const lookup = createMatchTimelineLookup(() => props.timeline);
 
-  const match = createMemo(() => frame().match);
-  const teamColors = () => getTeamColors(match());
+  const match = () => props.timeline.match;
+  const winner = () => getMatchWinningSide(match());
 
   return (
     <>
       <div class={style.scoreContainer}>
         <div>
-          <span
-            classList={{
-              [style.teamName]: true,
-              [getTeamColorClass(teamColors()[0])]: true,
-            }}
-          >
-            {match().team1}
-          </span>{' '}
-          vs{' '}
-          <span
-            classList={{
-              [style.teamName]: true,
-              [getTeamColorClass(teamColors()[1])]: true,
-            }}
-          >
-            {match().team2}
-          </span>
+          <MatchSideName side="SIDE_1" lookup={lookup} /> vs{' '}
+          <MatchSideName side="SIDE_2" lookup={lookup} />
         </div>
         <div>
-          <span
-            classList={{
-              [style.highlightedScore]: match().score1 > match().score2,
-            }}
-          >
-            {match().score1}
+          <span classList={{ [style.highlightedScore]: winner() === 'SIDE_1' }}>
+            {match().side1Score}
           </span>{' '}
           :{' '}
-          <span
-            classList={{
-              [style.highlightedScore]: match().score2 > match().score1,
-            }}
-          >
-            {match().score2}
+          <span classList={{ [style.highlightedScore]: winner() === 'SIDE_2' }}>
+            {match().side2Score}
           </span>
         </div>
       </div>
+
       <Divider class={style.dashedDivider} />
+
       <div class={style.statsContainer}>
-        <Show when={match().duration}>
-          {(duration) => (
-            <>
-              <span>Duration:</span>
-              <strong>{formatDuration(duration())}</strong>
-            </>
-          )}
-        </Show>
+        <span>Duration:</span>
+        <strong>{formatDuration(match().duration ?? null)}</strong>
 
-        <Show when={match().date}>
-          <span>Date:</span>
-          <strong>{formatDate(match().date!)}</strong>
-        </Show>
+        <span>Date:</span>
+        <strong>{formatKnownStartDatetime(match(), timeZone())}</strong>
       </div>
-      <Divider />
-      <Show
-        when={match().replayMetadata !== null}
-        fallback={
-          <div class={style.noData}>
-            No timeline data available for this match.
-          </div>
-        }
-      >
-        <table class={style.timelineTable}>
-          <thead>
-            <tr class={style.timelineHeader}>
-              <th
-                classList={{
-                  [style.minWidth]: true,
-                  [style.time]: true,
-                }}
-              >
-                T+
-              </th>
-              <th
-                classList={{
-                  [style.minWidth]: true,
-                }}
-              >
-                <ColorBlock color={getTeamColor(teamColors()[0])} width={2} />
-              </th>
-              <th class={style.centerLineHeader} />
-              <th
-                classList={{
-                  [style.minWidth]: true,
-                }}
-              >
-                <ColorBlock color={getTeamColor(teamColors()[1])} width={2} />
-              </th>
-              <th class={style.description}>Description</th>
-              <th class={style.minWidth}>Score</th>
-            </tr>
-          </thead>
 
-          <tbody>
-            <For each={match().replayMetadata?.events}>
-              {(event) => (
-                <tr>
-                  <Dynamic
-                    component={
-                      getEventComponent(
-                        event.type,
-                      ) as Component<TimelineEntryProps>
-                    }
-                    match={match()}
-                    event={event}
-                  />
-                </tr>
-              )}
-            </For>
-          </tbody>
-        </table>
-      </Show>
+      <Divider />
     </>
   );
 };
@@ -171,15 +67,28 @@ const MatchTimelineModalBase: Component = () => {
 export const MatchTimelineModal: Component<MatchTimelineModalProps> = (
   props,
 ) => {
+  const timeline = createResilientAsync(
+    () => props.matchUuid,
+    queryMatchTimeline,
+  );
+
   return (
-    <StatPaginatorWidget
-      statType="match"
-      component={Modal}
-      page={props.page}
-      class={style.modal}
-      topLeftLabels="Match Timeline"
-    >
-      <MatchTimelineModalBase />
-    </StatPaginatorWidget>
+    <Modal class={style.modal} topLeftLabels="Match Timeline">
+      <Show
+        when={timeline.latest}
+        fallback={
+          <div class={style.loading}>
+            <Spinner />
+          </div>
+        }
+      >
+        {(source) => (
+          <>
+            <MatchTimelineHeader timeline={source()} />
+            <MatchTimelineTable timeline={source()} />
+          </>
+        )}
+      </Show>
+    </Modal>
   );
 };
