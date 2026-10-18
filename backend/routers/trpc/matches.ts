@@ -174,6 +174,7 @@ export const matchesRouter = router({
         Object.fromEntries(
           goalTypes.map((goalType) => [goalType.uuid, goalType]),
         ),
+        ctx.league.instance.timezone,
       );
     }),
 });

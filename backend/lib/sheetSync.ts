@@ -1,5 +1,6 @@
 import { convertToLegacyMatch } from '#backend/adapters/matchAdapter';
 import type { DB } from '#backend/db/database';
+import { LeagueModel } from '#backend/db/models/LeagueModel';
 import { MatchModel } from '#backend/db/models/MatchModel';
 import { SheetStore } from '#backend/SheetStore';
 import { logger } from '#shared/logger';
@@ -47,6 +48,7 @@ async function convertMatchForSheet(
   leagueUuid: string,
   matchUuid: string,
 ): Promise<LegacyMatchCreate> {
+  const league = await LeagueModel.getById(db, leagueUuid);
   const timeline = await MatchModel.getTimeline(db, leagueUuid, matchUuid);
 
   const legacyMatch = convertToLegacyMatch(
@@ -55,6 +57,7 @@ async function convertMatchForSheet(
     Object.fromEntries(
       timeline.goalTypes.map((goalType) => [goalType.uuid, goalType]),
     ),
+    league?.instance.timezone ?? 'UTC',
   );
 
   return LegacyMatch.parse(legacyMatch);

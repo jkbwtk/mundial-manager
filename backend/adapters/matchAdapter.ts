@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import z from 'zod';
 import { getPlayersFromTeam } from '#flib/sheetUtils';
 import { getLabelValue } from '#shared/labels';
@@ -8,7 +7,7 @@ import {
   StartDatePrecisionEnum,
 } from '#shared/matchLabels';
 import { getPauseDuration } from '#shared/matchUtils';
-import { msToSeconds, secondsToMs } from '#shared/timeUtils';
+import { msToSeconds, secondsToMs, toZonedDayjs } from '#shared/timeUtils';
 import type { GoalType } from '#shared/types/api/goalType';
 import type {
   MatchEvent,
@@ -277,6 +276,7 @@ export function convertToLegacyMatch(
   match: MatchFull,
   players: Record<string, Player>,
   goalTypes: Record<string, GoalType>,
+  timeZone: string,
   index?: number,
 ): z.input<typeof LegacyMatch> {
   const colors = getLegacyColorsFromTable(match.table ?? undefined);
@@ -304,7 +304,9 @@ export function convertToLegacyMatch(
     duration: msToSeconds(match.duration),
     pauseDuration: msToSeconds(match.pauseDuration ?? 0),
 
-    date: match.startDate ? dayjs(match.startDate).startOf('day').unix() : null,
+    date: match.startDate
+      ? toZonedDayjs(match.startDate, timeZone).startOf('day').unix()
+      : null,
     syncId: match.syncId,
 
     replayMetadata:
