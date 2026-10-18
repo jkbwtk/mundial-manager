@@ -68,7 +68,9 @@ export type CalculatorApi = {
   getActiveLeague(): Promise<League | null>;
   getCurrentSeason(): Promise<Season | null>;
 
-  // TODO: add live match predictions endpoint
+  getMatchPrediction(
+    input: LiveMatchPredictionInput,
+  ): Promise<LiveMatchPrediction | null>;
 
   createLegacyMatch(legacyMatch: CalculatorFinishEvent): void;
 

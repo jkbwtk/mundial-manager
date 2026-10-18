@@ -3,24 +3,30 @@ import { type Connection, connect, WindowMessenger } from 'penpal';
 import { getOwner, onCleanup, onMount } from 'solid-js';
 import { isServer } from 'solid-js/web';
 import { MatchSaveConfirmModal } from '#components/MatchSaveConfirmModal';
+import { onLeagueEvent } from '#flib/leagueEvents';
 import { convertCalculatorFinishEventToMatch } from '#flib/legacyMatches';
 import {
-  actionCreateMatch,
+  actionCreateMatchWithWebhook,
   actionDeleteMatch,
   actionSaveMatchTimeline,
-  actionUpdateMatch,
+  actionUpdateMatchWithWebhook,
   queryActiveLeague,
   queryBalls,
   queryCurrentSeason,
   queryGoalTypes,
+  queryMatchPrediction,
   queryPlayers,
   queryTables,
 } from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
+import { isGoalTypeEnabled } from '#shared/goalTypes';
+import { getLiveMatchPrediction } from '#shared/stats/matchPrediction';
+import type { MatchPrediction } from '#shared/types/api/stats';
 import {
   type CalculatorApi,
   CalculatorFinishEvent,
+  LiveMatchPredictionInput,
 } from '#shared/types/MundialCalculator';
 import style from './MundialCalculator.module.scss';
 
@@ -58,8 +64,35 @@ const MundialCalculator: Component = () => {
     openMatchModal(parsed.data);
   };
 
-  const createMatch = useAction(actionCreateMatch);
-  const updateMatch = useAction(actionUpdateMatch);
+  const predictions = new Map<string, Promise<MatchPrediction | null>>();
+
+  onLeagueEvent('STATS', () => predictions.clear());
+
+  const getLineupPrediction = (input: LiveMatchPredictionInput) => {
+    const lineup = {
+      playersSide1: input.playersSide1.toSorted(),
+      playersSide2: input.playersSide2.toSorted(),
+    };
+    const key = JSON.stringify(lineup);
+
+    return predictions.getOrInsertComputed(key, () =>
+      queryMatchPrediction(lineup).catch((err) => {
+        predictions.delete(key);
+
+        throw err;
+      }),
+    );
+  };
+
+  const getMatchPrediction = async (data: unknown) => {
+    const input = LiveMatchPredictionInput.parse(data);
+    const prediction = await getLineupPrediction(input);
+
+    return prediction && getLiveMatchPrediction(prediction, input);
+  };
+
+  const createMatch = useAction(actionCreateMatchWithWebhook);
+  const updateMatch = useAction(actionUpdateMatchWithWebhook);
   const deleteMatch = useAction(actionDeleteMatch);
 
   const saveMatchTimeline = useAction(actionSaveMatchTimeline);
@@ -96,10 +129,21 @@ const MundialCalculator: Component = () => {
         getTables: () => queryTables().then((r) => r.data),
         getBalls: () => queryBalls().then((r) => r.data),
         getPlayers: () => queryPlayers().then((r) => r.data),
-        getGoalTypes: () => queryGoalTypes().then((r) => r.data),
+        getGoalTypes: async () => {
+          const [goalTypes, season] = await Promise.all([
+            queryGoalTypes(),
+            queryCurrentSeason(),
+          ]);
+
+          return goalTypes.data.filter((goalType) =>
+            isGoalTypeEnabled(season?.config ?? null, goalType.uuid),
+          );
+        },
 
         getActiveLeague: () => queryActiveLeague(),
         getCurrentSeason: () => queryCurrentSeason(),
+
+        getMatchPrediction,
 
         createLegacyMatch: receiveFinishEvent,
 
