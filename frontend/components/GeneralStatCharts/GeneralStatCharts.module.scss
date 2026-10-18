@@ -2,41 +2,50 @@
 
 .charts-container {
   display: grid;
-  grid-template-columns: 1fr;
 
-  width: 100%;
-  max-width: 100%;
+  width: round(down, 100%, cw(1));
 
   container-type: inline-size;
   container-name: charts;
+}
 
-  .chart {
-    height: ch(30);
-    width: 100%;
-    max-width: 100%;
-  }
+.multi-chart-row {
+  display: flex;
+}
 
+.chart {
+  height: ch(30);
+  width: round(down, 100%, cw(1));
+}
+
+.multi-chart-row .chart {
+  width: round(down, calc(100% - cw(50)), cw(1));
+}
+
+.pie-chart-container {
+  width: cw(50);
+}
+
+.pie-chart {
+  height: ch(15);
+}
+
+.no-data {
+  display: block;
+
+  width: 100%;
+
+  text-align: center;
+  font-style: italic;
+}
+
+@container charts (max-width: 800px) {
   .multi-chart-row {
-    display: flex;
-    gap: cw(1);
+    flex-direction: column;
   }
 
+  .multi-chart-row .chart,
   .pie-chart-container {
-    height: ch(30);
-    width: cw(50);
-
-    .pie-chart {
-      height: ch(15);
-    }
-  }
-
-  @container charts (max-width: 800px) {
-    .multi-chart-row {
-      flex-direction: column;
-    }
-
-    .pie-chart-container {
-      width: 100%;
-    }
+    width: round(down, 100%, cw(1));
   }
 }
