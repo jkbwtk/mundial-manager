@@ -1,0 +1,27 @@
+@use 'app' as *;
+
+.container {
+  display: grid;
+  grid-template-columns: repeat(2, round(down, 50%, cw(1)));
+
+  width: 100%;
+}
+
+@container home (max-width: 900px) {
+  .container {
+    grid-template-columns: round(down, 100%, cw(1));
+  }
+}
+
+.chart {
+  height: ch(25);
+  width: 100%;
+}
+
+.label {
+  color: $textColor;
+}
+
+.active {
+  color: $textBrightColor;
+}

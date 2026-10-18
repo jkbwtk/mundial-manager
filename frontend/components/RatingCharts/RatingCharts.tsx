@@ -1,5 +1,4 @@
-import { createMemo, createSignal, For } from 'solid-js';
-import { Dropdown } from '#components/Dropdown';
+import { createMemo, createSignal, For, Show } from 'solid-js';
 import {
   axisTooltipDefaults,
   type ChartOptions,
@@ -11,152 +10,166 @@ import {
   legendDefaults,
   valueAxisDefaults,
 } from '#components/EChartWrapper';
-import {
-  type AggregateType,
-  AggregateTypeOptions,
-  StatPaginatorWidget,
-  useStatPaginatedAggregateFrame,
-  useStatPaginatedAggregateStats,
-} from '#components/StatPaginatorWidget';
+import { InlineAction } from '#components/InlineAction';
+import { Skeleton } from '#components/Skeleton';
 import { Widget } from '#components/Widget';
-import { generateTeamColor } from '#flib/sheetUtils';
-import style from './RatingChats.module.scss';
+import { type EntityLookup, usePlayerLookup } from '#flib/entityLookup';
+import { useLeagueTimeZone } from '#flib/leagueTimeZone';
+import { createResilientAsync } from '#flib/resilientAsync';
+import { getRatingHistoryQuery } from '#flib/statsPeriod';
+import { getSubjectColor } from '#flib/teamColors';
+import { queryRatingHistory } from '#flib/trpcCalls';
+import { useStatsPeriod } from '#providers/StatsPeriodProvider';
+import { formatDatetime } from '#shared/timeUtils';
+import type { Player } from '#shared/types/api/player';
+import type {
+  RatingHistory,
+  RatingHistorySeries,
+} from '#shared/types/api/stats';
+import type { RatingSubject } from '#shared/types/stats/ratingStats';
+import {
+  type RatingSystem,
+  RatingSystems,
+} from '#shared/types/stats/ratingSystem';
+import style from './RatingCharts.module.scss';
 
-export const RatingChartsBase: Component = () => {
-  const aggregate = useStatPaginatedAggregateFrame();
-  const stats = useStatPaginatedAggregateStats();
+const ChartedSubjects: RatingSubject[] = [
+  'PLAYER',
+  'HYBRID',
+  'TEAM_INDIVIDUAL',
+  'TEAM',
+];
 
-  const matchLabels = createMemo(() =>
-    aggregate().frames.map((f) => f.matchStats.label),
-  );
+const RatingSubjectLabels: Record<RatingSubject, string> = {
+  PLAYER: 'Player',
+  HYBRID: 'Hybrid',
+  TEAM_INDIVIDUAL: 'Team Individual',
+  TEAM: 'Team',
+};
 
-  const makeLineConfig = (
-    series: { name: string; data: (number | null)[] }[],
-  ): ChartOptions => ({
+const RatingSystemLabels: Record<RatingSystem, [key: string, rest: string]> = {
+  ELO: ['E', 'lo'],
+  GLICKO2: ['G', 'licko-2'],
+  SKILL: ['S', 'kill'],
+};
+
+function getSeriesData(
+  entry: RatingHistorySeries,
+  length: number,
+): (number | null)[] {
+  const data: (number | null)[] = Array.from({ length }, () => null);
+
+  for (const [index, rating] of entry.points) data[index] = rating;
+
+  for (const [index, value] of data.entries()) {
+    if (value === null && index > 0) data[index] = data[index - 1] ?? null;
+  }
+
+  return data;
+}
+
+function makeLineConfig(
+  history: RatingHistory,
+  series: RatingHistorySeries[],
+  labels: string[],
+  players: EntityLookup<Player>,
+): ChartOptions {
+  return {
     legend: legendDefaults,
     grid: gridDefaults,
     tooltip: {
       ...axisTooltipDefaults,
       formatter: formatLinearTooltip((param) => param.value.toFixed(2)),
     },
-    xAxis: { ...categoryAxisDefaults, data: matchLabels() },
+    xAxis: { ...categoryAxisDefaults, data: labels },
     yAxis: {
       ...valueAxisDefaults,
       axisLabel: { formatter: (val: number) => Math.round(val).toString() },
     },
-    series: series.map((s) => ({
-      name: s.name,
-      type: 'line' as const,
-      data: s.data,
-      lineStyle: { color: generateTeamColor(s.name) },
-      itemStyle: { color: generateTeamColor(s.name) },
-      connectNulls: false,
-    })),
+    series: series.map((entry) => {
+      const uuids = entry.playerUuids.toSorted((a, b) =>
+        players.getLabel(a).localeCompare(players.getLabel(b)),
+      );
+      const color =
+        entry.subject === 'TEAM'
+          ? getSubjectColor(entry.subjectUuid)
+          : players.get(entry.subjectUuid)?.color;
+
+      return {
+        name: uuids.map(players.getLabel).join(' & '),
+        type: 'line' as const,
+        data: getSeriesData(entry, history.matchStartDates.length),
+        lineStyle: { color },
+        itemStyle: { color },
+      };
+    }),
     dataZoom: dataZoomDefaults,
-  });
+  };
+}
 
-  const ratingConfigs = createMemo(() => {
-    const players = stats().players;
-    const teams = stats().teams;
+export const RatingCharts: Component = () => {
+  const [period] = useStatsPeriod();
+  const players = usePlayerLookup();
+  const timeZone = useLeagueTimeZone();
 
-    const frames = aggregate().frames;
+  const [system, setSystem] = createSignal<RatingSystem>('ELO');
 
-    const playerSeries = (
-      getRating: (f: (typeof frames)[number], key: string) => number | null,
-    ) =>
-      players.map((player) => ({
-        name: player,
-        data: frames.map((f) => getRating(f, player)),
-      }));
+  const history = createResilientAsync(
+    () => getRatingHistoryQuery(period.period),
+    queryRatingHistory,
+  );
 
-    const teamSeries = (
-      getRating: (f: (typeof frames)[number], key: string) => number | null,
-    ) =>
-      teams.map((team) => ({
-        name: team,
-        data: frames.map((f) => getRating(f, team)),
-      }));
+  const labels = createMemo(() =>
+    (history.latest?.matchStartDates ?? []).map((date, index) =>
+      date ? formatDatetime(date, timeZone()) : `#${index + 1}`,
+    ),
+  );
 
-    return [
-      {
-        label: 'Player Elo Chart',
-        series: playerSeries(
-          (f, p) => f.eloRatings.playerElos[p]?.rating ?? null,
-        ),
-      },
-      {
-        label: 'Hybrid Elo Chart',
-        series: playerSeries(
-          (f, p) => f.eloRatings.hybridElos[p]?.rating ?? null,
-        ),
-      },
-      {
-        label: 'Team Individual Elo Chart',
-        series: playerSeries(
-          (f, p) => f.eloRatings.teamIndividualElos[p]?.rating ?? null,
-        ),
-      },
-      {
-        label: 'Team Elo Chart',
-        series: teamSeries((f, t) => f.eloRatings.teamElos[t]?.rating ?? null),
-      },
-      {
-        label: 'Player Glicko-2 Chart',
-        series: playerSeries(
-          (f, p) => f.glicko2Ratings.playerGlicko2[p]?.rating ?? null,
-        ),
-      },
-      {
-        label: 'Hybrid Glicko-2 Chart',
-        series: playerSeries(
-          (f, p) => f.glicko2Ratings.hybridGlicko2[p]?.rating ?? null,
-        ),
-      },
-      {
-        label: 'Team Individual Glicko-2 Chart',
-        series: playerSeries(
-          (f, p) => f.glicko2Ratings.teamIndividualGlicko2[p]?.rating ?? null,
-        ),
-      },
-      {
-        label: 'Team Glicko-2 Chart',
-        series: teamSeries(
-          (f, t) => f.glicko2Ratings.teamGlicko2[t]?.rating ?? null,
-        ),
-      },
-    ].map(({ label, series }) => ({ label, config: makeLineConfig(series) }));
-  });
+  const getConfig = (subject: RatingSubject) => {
+    const current = history.latest;
+
+    if (!current) return null;
+
+    const series = current.series.filter(
+      (entry) => entry.system === system() && entry.subject === subject,
+    );
+
+    return makeLineConfig(current, series, labels(), players);
+  };
 
   return (
-    <div class={style.chartsContainer}>
-      <For each={ratingConfigs()}>
-        {({ label, config }) => (
-          <Widget topLeftLabels={label} class={style.eloChart}>
-            <EChartWrapper config={config} />
+    <div class={style.container}>
+      <For each={ChartedSubjects}>
+        {(subject) => (
+          <Widget
+            class={style.chart}
+            pending={history.pending()}
+            topLeftLabels={`${RatingSubjectLabels[subject]} Rating`}
+            topRightLabels={(subject === 'PLAYER' ? RatingSystems : []).map(
+              (value) => (
+                <span
+                  classList={{
+                    [style.label]: true,
+                    [style.active]: system() === value,
+                  }}
+                >
+                  <InlineAction
+                    symbol={RatingSystemLabels[value][0].toLowerCase()}
+                    content={RatingSystemLabels[value][0]}
+                    onAction={() => setSystem(value)}
+                  />
+                  {RatingSystemLabels[value][1]}
+                </span>
+              ),
+            )}
+          >
+            <Show when={getConfig(subject)} fallback={<Skeleton lines={20} />}>
+              {(config) => <EChartWrapper config={config()} />}
+            </Show>
           </Widget>
         )}
       </For>
     </div>
-  );
-};
-
-export const RatingCharts: Component = () => {
-  const [type, setType] = createSignal<AggregateType>('season');
-
-  return (
-    <StatPaginatorWidget
-      topLeftLabels="Period Rating Charts"
-      topRightLabels={
-        <Dropdown
-          options={AggregateTypeOptions}
-          value={type()}
-          onChange={setType}
-        />
-      }
-      statType={type()}
-    >
-      <RatingChartsBase />
-    </StatPaginatorWidget>
   );
 };
 
