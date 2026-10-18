@@ -1,13 +1,16 @@
 import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
-import { createMemo, createSignal } from 'solid-js';
+import { createMemo, createSignal, Show } from 'solid-js';
 import { Dropdown, type DropdownOption } from '#components/Dropdown';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import { ProgressBar } from '#components/ProgresBar';
 import { Divider, Widget } from '#components/Widget';
 import { type ClockUnit, createNow } from '#flib/clock';
-import { getSeason } from '#flib/seasons';
-import { formatDate } from '#shared/timeUtils';
+import { useSeasonLookup } from '#flib/entityLookup';
+import { useLeagueTimeZone } from '#flib/leagueTimeZone';
+import { formatDate, toZonedDayjs } from '#shared/timeUtils';
+import type { Season } from '#shared/types/api/season';
+import { clamp } from '#shared/utils';
 import weekDayPlugin from '#shared/weekDayPlugin';
 import style from './SeasonProgress.module.scss';
 
@@ -75,44 +78,60 @@ const granularityOptions = {
 } satisfies Record<Granularity, GranularityOption>;
 
 export const SeasonProgress: Component = () => {
+  const seasons = useSeasonLookup();
+
   const [granularity, setGranularity] = createSignal<Granularity>('workDay');
   const config = createMemo(() => granularityOptions[granularity()]);
   const now = createNow(() => config().tick);
+  const timeZone = useLeagueTimeZone();
+  const zonedNow = () => toZonedDayjs(now(), timeZone());
 
-  const season = createMemo(() => getSeason(now().unix()));
-  const nextSeason = createMemo(() =>
-    getSeason(season().endDate.add(1, 'day').unix()),
+  const season = createMemo(
+    () =>
+      seasons
+        .all()
+        .find(
+          (season) =>
+            now().valueOf() >= season.startDate.getTime() &&
+            now().valueOf() <= season.endDate.getTime(),
+        ) ?? null,
+  );
+  const nextSeason = createMemo(
+    () =>
+      seasons
+        .all()
+        .filter((season) => season.startDate.getTime() > now().valueOf())
+        .toSorted((a, b) => a.startDate.getTime() - b.startDate.getTime())
+        .at(0) ?? null,
   );
 
-  const stats = createMemo(() => {
-    const seasonStart = season().startDate.subtract(1, 'day');
+  const getProgress = (season: Season) => {
+    const seasonStart = toZonedDayjs(season.startDate, timeZone()).subtract(
+      1,
+      'day',
+    );
+    const seasonEnd = toZonedDayjs(season.endDate, timeZone());
 
-    const totalDuration = season().endDate.diff(seasonStart, granularity());
+    const totalDuration = seasonEnd.diff(seasonStart, granularity());
     const remainingDuration = Math.max(
       0,
-      season().endDate.diff(now(), granularity()),
+      seasonEnd.diff(zonedNow(), granularity()),
     );
     const elapsedDuration = totalDuration - remainingDuration;
-
-    const daysUntilNextSeason = Math.max(
-      0,
-      nextSeason().startDate.diff(now(), 'days'),
-    );
-
-    const progress = Math.min(
-      100,
-      Math.max(0, (elapsedDuration / totalDuration) * 100),
-    );
 
     return {
       totalDuration,
       elapsedDuration,
       remainingDuration,
-      progress,
-
-      daysUntilNextSeason,
+      progress: clamp(0, 100, (elapsedDuration / totalDuration) * 100),
     };
-  });
+  };
+
+  const daysUntil = (season: Season) =>
+    Math.max(
+      0,
+      toZonedDayjs(season.startDate, timeZone()).diff(zonedNow(), 'days'),
+    );
 
   return (
     <Widget
@@ -126,45 +145,64 @@ export const SeasonProgress: Component = () => {
       ]}
       class={style.widget}
     >
-      <div class={style.header}>
-        <span class={style.label}>{season().label}</span>
-        <span class={style.progress}>
-          {stats().progress.toFixed(config().precision)}%
-        </span>
-      </div>
+      <Show
+        when={season()}
+        fallback={<span class={style.noData}>No active season</span>}
+      >
+        {(season) => {
+          const stats = createMemo(() => getProgress(season()));
 
-      <div class={style.dates}>
-        <div>{formatDate(season().startDate.unix())}</div>
-        <MaterialSymbol symbol="arrow_forward" color="primary" />
-        <div>{formatDate(season().endDate.unix())}</div>
-      </div>
+          return (
+            <>
+              <div class={style.header}>
+                <span class={style.label}>{season().name}</span>
+                <span class={style.progress}>
+                  {stats().progress.toFixed(config().precision)}%
+                </span>
+              </div>
 
-      <ProgressBar min={0} max={100} value={stats().progress} />
+              <div class={style.dates}>
+                <div>{formatDate(season().startDate, timeZone())}</div>
+                <MaterialSymbol symbol="arrow_forward" color="primary" />
+                <div>{formatDate(season().endDate, timeZone())}</div>
+              </div>
 
-      <div class={style.section}>
-        <span>Progress:</span>
-        <strong>
-          {config().format(stats().elapsedDuration)} /{' '}
-          {config().format(stats().totalDuration)} {config().unit}
-          {stats().totalDuration === 1 ? '' : 's'}
-        </strong>
+              <ProgressBar min={0} max={100} value={stats().progress} />
 
-        <span>Remaining:</span>
-        <strong>
-          {config().format(stats().remainingDuration)} {config().unit}
-          {stats().remainingDuration === 1 ? '' : 's'}
-        </strong>
-      </div>
+              <div class={style.section}>
+                <span>Progress:</span>
+                <strong>
+                  {config().format(stats().elapsedDuration)} /{' '}
+                  {config().format(stats().totalDuration)} {config().unit}
+                  {stats().totalDuration === 1 ? '' : 's'}
+                </strong>
+
+                <span>Remaining:</span>
+                <strong>
+                  {config().format(stats().remainingDuration)} {config().unit}
+                  {stats().remainingDuration === 1 ? '' : 's'}
+                </strong>
+              </div>
+            </>
+          );
+        }}
+      </Show>
+
       <Divider />
       <div class={style.section}>
         <span>Next Season:</span>
-        <strong> {nextSeason().label}</strong>
+        <strong> {nextSeason()?.name ?? 'None'}</strong>
 
-        <span>Starts in</span>
-        <strong>
-          {stats().daysUntilNextSeason}{' '}
-          {stats().daysUntilNextSeason === 1 ? 'day' : 'days'}
-        </strong>
+        <Show when={nextSeason()}>
+          {(next) => (
+            <>
+              <span>Starts in</span>
+              <strong>
+                {daysUntil(next())} {daysUntil(next()) === 1 ? 'day' : 'days'}
+              </strong>
+            </>
+          )}
+        </Show>
       </div>
     </Widget>
   );

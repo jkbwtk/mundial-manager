@@ -1,7 +1,7 @@
 @use 'app' as *;
 
 .widget {
-  width: round(down, 100%, cw(1));
+  width: 100%;
 }
 
 .header {
@@ -42,4 +42,13 @@
     text-align: right;
     color: $textDimColor;
   }
+}
+
+.no-data {
+  display: block;
+
+  width: 100%;
+
+  text-align: center;
+  font-style: italic;
 }
