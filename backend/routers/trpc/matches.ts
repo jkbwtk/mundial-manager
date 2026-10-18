@@ -93,6 +93,30 @@ export const matchesRouter = router({
       return instance;
     }),
 
+  importLegacy: leaguePermissionProcedure(PermissionEnum.MATCHES_CREATE)
+    .input(zodEncode(LegacyMatchCreate))
+    .output(Match)
+    .mutation(async ({ ctx, input }) => {
+      const [players, tables, goalTypes] = await Promise.all([
+        PlayerModel.getAll(ctx.db, ctx.league.uuid),
+        TableModel.getAll(ctx.db, ctx.league.uuid),
+        GoalTypeModel.getAll(ctx.db, ctx.league.uuid),
+      ]);
+
+      return MatchModel.createFull(
+        ctx.db,
+        ctx.league.uuid,
+        convertFromLegacyMatch(
+          input,
+          Object.fromEntries(tables.map((table) => [table.uuid, table])),
+          Object.fromEntries(players.map((player) => [player.name, player])),
+          Object.fromEntries(
+            goalTypes.map((goalType) => [goalType.key, goalType]),
+          ),
+        ),
+      );
+    }),
+
   createLegacy: leaguePermissionProcedure(PermissionEnum.MATCHES_CREATE)
     .input(
       zodEncode(

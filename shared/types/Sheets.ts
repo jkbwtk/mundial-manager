@@ -212,3 +212,64 @@ export interface LegacySeason {
   startDate: Dayjs;
   endDate: Dayjs;
 }
+
+const SheetDurationRegex = /^(\d+):(\d{2})$/;
+const SheetDateRegex = /^(\d{2})\.(\d{2})\.(\d{4})$/;
+
+export const MatchRow = z.string().transform((row, ctx) => {
+  const [
+    team1,
+    team2,
+    score1,
+    score2,
+    ,
+    winningColor,
+    duration,
+    date,
+    ,
+    replayMetadata,
+  ] = row.split('\t').map((cell) => cell.trim() || undefined);
+
+  const durationParts = duration?.match(SheetDurationRegex);
+  const dateParts = date?.match(SheetDateRegex);
+
+  const match = MatchCreate.safeParse({
+    team1,
+    team2,
+    score1: Number(score1),
+    score2: Number(score2),
+    winningColor,
+    duration: durationParts
+      ? (Number(durationParts[1]) * 60 + Number(durationParts[2])) / (24 * 60)
+      : null,
+    date: dateParts
+      ? (Date.UTC(
+          Number(dateParts[3]),
+          Number(dateParts[2]) - 1,
+          Number(dateParts[1]),
+        ) -
+          Date.UTC(1899, 11, 30)) /
+        (24 * 60 * 60 * 1000)
+      : null,
+    replayMetadata,
+  });
+
+  if (!match.success) {
+    for (const issue of match.error.issues) {
+      ctx.issues.push({
+        code: 'custom',
+        message: `Invalid ${issue.path.join('.')}`,
+        input: row,
+      });
+    }
+
+    return z.NEVER;
+  }
+
+  return match.data;
+});
+
+export const MatchImport = z.object({
+  row: MatchRow,
+});
+export type MatchImport = z.infer<typeof MatchImport>;

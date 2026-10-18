@@ -2,6 +2,7 @@ import { useAction } from '@solidjs/router';
 import { batch, getOwner, Show } from 'solid-js';
 import { AnchorButton, Button } from '#components/Button';
 import { useConfirmModal } from '#components/ConfirmModal';
+import { LegacyMatchImportModal } from '#components/LegacyMatchImportModal';
 import { MatchCreatorModal } from '#components/MatchCreatorModal';
 import { PAGINATOR_DEFAULT_LIMIT, Paginator } from '#components/Paginator';
 import { SessionPresenceModal } from '#components/SessionPresenceModal';
@@ -52,6 +53,16 @@ export const MatchesDashboard: Component = () => {
     open({
       props: {
         component: MatchCreatorModal,
+      },
+      owner,
+      closeOnBackgroundClick: false,
+    });
+  };
+
+  const handleImportLegacyMatch = () => {
+    open({
+      props: {
+        component: LegacyMatchImportModal,
       },
       owner,
       closeOnBackgroundClick: false,
@@ -167,7 +178,7 @@ export const MatchesDashboard: Component = () => {
             disabled={
               !can([PermissionEnum.MATCHES_UPDATE, PermissionEnum.PLAYERS_READ])
             }
-            onPointerUp={() => handleEditPresence(item)}
+            onClick={() => handleEditPresence(item)}
             loading={handleEditPresence.loading()}
           >
             Presence
@@ -199,7 +210,7 @@ export const MatchesDashboard: Component = () => {
           <Show when={item.uuid}>
             <Button
               disabled={!can(PermissionEnum.MATCHES_UPDATE)}
-              onPointerUp={() => handleEditMatch(item)}
+              onClick={() => handleEditMatch(item)}
             >
               Edit
             </Button>
@@ -236,7 +247,7 @@ export const MatchesDashboard: Component = () => {
           <Button
             severity="danger"
             disabled={!can(PermissionEnum.MATCHES_DELETE)}
-            onPointerUp={() => handleDeleteMatch(item)}
+            onClick={() => handleDeleteMatch(item)}
             loading={handleDeleteMatch.loading()}
           >
             Delete
@@ -250,7 +261,10 @@ export const MatchesDashboard: Component = () => {
     <div class={style.outerContainer}>
       <div class={style.controls}>
         <Show when={can(PermissionEnum.MATCHES_CREATE)}>
-          <Button onPointerUp={handleCreateMatch}>Create Match</Button>
+          <Button onClick={handleCreateMatch}>Create Match</Button>
+          <Button severity="secondary" onClick={handleImportLegacyMatch}>
+            Import Match
+          </Button>
         </Show>
       </div>
 

@@ -10,6 +10,7 @@ import type { MatchFullCreate } from '#shared/types/api/matchFull';
 import {
   Match as LegacyMatch,
   type MatchCreate as LegacyMatchCreate,
+  type MatchImport as LegacyMatchImport,
 } from '#shared/types/Sheets';
 import { PaginatedResponse } from '#shared/zod';
 
@@ -87,6 +88,19 @@ export const actionDeleteMatch = action(async (uuid: string) => {
     revalidate: ['queryMatches', 'queryMatchById', 'queryMatchTimeline'],
   });
 }, 'actionDeleteMatch');
+
+export const actionImportLegacyMatch = action(
+  async (legacyImport: LegacyMatchImport) => {
+    const newMatch = await trpcClient.matches.importLegacy.mutate(
+      legacyImport.row,
+    );
+
+    return json(Match.parse(newMatch), {
+      revalidate: ['queryMatches'],
+    });
+  },
+  'actionImportLegacyMatch',
+);
 
 export const actionCreateLegacyMatch = action(
   async (match: LegacyMatchCreate, syncId: string | null = null) => {
