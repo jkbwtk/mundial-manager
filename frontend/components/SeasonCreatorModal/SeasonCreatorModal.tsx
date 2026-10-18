@@ -1,6 +1,18 @@
+import { createAsync } from '@solidjs/router';
+import { Show } from 'solid-js';
 import type { FormField } from '#components/Form';
 import { ModalForm, type ModalFormLabels } from '#components/ModalForm';
-import { actionCreateSeason, actionUpdateSeason } from '#flib/trpcCalls';
+import { useGoalTypeLookup } from '#flib/entityLookup';
+import {
+  actionCreateSeason,
+  actionUpdateSeason,
+  queryActiveLeague,
+} from '#flib/trpcCalls';
+import {
+  formatGoalTypeLabel,
+  getSeasonGoalTypes,
+  sortGoalTypeTree,
+} from '#shared/goalTypes';
 import { msToSeconds, secondsToMs } from '#shared/timeUtils';
 import {
   type Season,
@@ -193,6 +205,40 @@ export const SeasonCreatorModal: Component<SeasonCreatorModalProps> = (
 ) => {
   const isCreating = props.season === undefined;
 
+  const league = createAsync(() => queryActiveLeague());
+  const goalTypes = useGoalTypeLookup();
+
+  const getConfig = (config: SeasonConfig | undefined) =>
+    config && {
+      ...config,
+      goalTypes: getSeasonGoalTypes(goalTypes.all(), config.goalTypes),
+    };
+
+  const goalTypeFields = () =>
+    Object.fromEntries(
+      sortGoalTypeTree(goalTypes.all()).map(
+        (goalType): [string, FormField<SeasonConfig['goalTypes'][string]>] => [
+          goalType.uuid,
+          {
+            label: formatGoalTypeLabel(goalType),
+            type: 'object',
+            fields: {
+              enabled: {
+                label: 'Enabled',
+                type: 'checkbox',
+              },
+              stylePoints: {
+                label: 'Style Points',
+                placeholder: 'Style points...',
+                type: 'number',
+                min: 0,
+              },
+            },
+          },
+        ],
+      ),
+    );
+
   const config: ModalFormLabels = isCreating
     ? {
         title: 'Season Creator',
@@ -210,53 +256,65 @@ export const SeasonCreatorModal: Component<SeasonCreatorModalProps> = (
       };
 
   return (
-    <ModalForm
-      class={style.modal}
-      instance={props.season}
-      model={isCreating ? SeasonCreate : SeasonUpdate}
-      // @ts-expect-error
-      action={isCreating ? actionCreateSeason : actionUpdateSeason}
-      {...config}
-      fields={{
-        uuid: {
-          label: 'UUID',
-          type: 'text',
-          hidden: true,
-          implicitDefault: props.season?.uuid,
-        },
-        name: {
-          label: 'Name',
-          placeholder: 'Season name...',
-          type: 'text',
-        },
-        startDate: {
-          label: 'Start Date',
-          type: 'date',
-        },
-        endDate: {
-          label: 'End Date',
-          type: 'date',
-        },
-        config: {
-          label: 'Config',
-          type: 'object',
-          fields: {
-            ...seasonCreatorConfigFields,
-            goalTypes: {
-              label: 'Goal Types',
+    <Show when={league()}>
+      {(league) => (
+        <ModalForm
+          class={style.modal}
+          instance={
+            props.season === undefined
+              ? undefined
+              : { ...props.season, config: getConfig(props.season.config) }
+          }
+          initialValues={
+            isCreating
+              ? { config: getConfig(league().seasonConfig) }
+              : undefined
+          }
+          model={isCreating ? SeasonCreate : SeasonUpdate}
+          // @ts-expect-error
+          action={isCreating ? actionCreateSeason : actionUpdateSeason}
+          {...config}
+          fields={{
+            uuid: {
+              label: 'UUID',
               type: 'text',
               hidden: true,
-              implicitDefault: props.season?.config.goalTypes ?? {},
+              implicitDefault: props.season?.uuid,
             },
-          },
-        },
-        labels: {
-          label: 'Labels',
-          type: 'text',
-          hidden: true,
-          implicitDefault: props.season?.labels ?? {},
-        },
-      }}
-    />
+            name: {
+              label: 'Name',
+              placeholder: 'Season name...',
+              type: 'text',
+            },
+            startDate: {
+              label: 'Start Date',
+              type: 'date',
+            },
+            endDate: {
+              label: 'End Date',
+              type: 'date',
+            },
+            config: {
+              label: 'Config',
+              type: 'object',
+              fields: {
+                ...seasonCreatorConfigFields,
+                goalTypes: {
+                  label: 'Goal Types',
+                  type: 'object',
+                  fields: goalTypeFields(),
+                },
+              },
+            },
+            labels: {
+              label: 'Labels',
+              type: 'text',
+              hidden: true,
+              implicitDefault: props.season?.labels ?? {},
+            },
+          }}
+        />
+      )}
+    </Show>
   );
 };
