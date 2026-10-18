@@ -1,8 +1,5 @@
 import dayjs from 'dayjs';
-import isBetween from 'dayjs/plugin/isBetween';
-import type { LegacySeasonConfig, Season } from '#frontend/types';
-
-dayjs.extend(isBetween);
+import type { LegacySeason, LegacySeasonConfig } from '#shared/types/Sheets';
 
 export const legacySeasonConfig: LegacySeasonConfig = {
   resetRatings: true,
@@ -35,25 +32,25 @@ export const legacySeasonConfig: LegacySeasonConfig = {
   },
 };
 
-export const defaultSeason: Season = {
+export const defaultSeason: LegacySeason = {
   number: 0,
   label: 'Pre-season',
 
   config: structuredClone(legacySeasonConfig),
 
-  startDate: dayjs('1970-01-01').startOf('day'),
-  endDate: dayjs('2025-12-21').endOf('day'),
+  startDate: dayjs('1970-01-01'),
+  endDate: dayjs('2025-12-21'),
 };
 
-export const seasons: Season[] = [
+export const seasons: LegacySeason[] = [
   {
     number: 1.1,
     label: 'Season 26Q1',
 
     config: structuredClone(defaultSeason.config),
 
-    startDate: dayjs('2026-01-05').startOf('day'),
-    endDate: dayjs('2026-03-15').endOf('day'),
+    startDate: dayjs('2026-01-05'),
+    endDate: dayjs('2026-03-15'),
   },
   {
     number: 1.2,
@@ -61,8 +58,8 @@ export const seasons: Season[] = [
 
     config: structuredClone(defaultSeason.config),
 
-    startDate: dayjs('2026-03-16').startOf('day'),
-    endDate: dayjs('2026-05-24').endOf('day'),
+    startDate: dayjs('2026-03-16'),
+    endDate: dayjs('2026-05-24'),
   },
   {
     number: 1.3,
@@ -70,8 +67,8 @@ export const seasons: Season[] = [
 
     config: structuredClone(defaultSeason.config),
 
-    startDate: dayjs('2026-05-25').startOf('day'),
-    endDate: dayjs('2026-08-02').endOf('day'),
+    startDate: dayjs('2026-05-25'),
+    endDate: dayjs('2026-08-02'),
   },
   {
     number: 1.4,
@@ -79,16 +76,16 @@ export const seasons: Season[] = [
 
     config: structuredClone(defaultSeason.config),
 
-    startDate: dayjs('2026-08-03').startOf('day'),
-    endDate: dayjs('2026-10-11').endOf('day'),
+    startDate: dayjs('2026-08-03'),
+    endDate: dayjs('2026-10-11'),
   },
   {
     number: 1.5,
     label: 'Season 26Q5',
     config: structuredClone(defaultSeason.config),
 
-    startDate: dayjs('2026-10-12').startOf('day'),
-    endDate: dayjs('2026-12-20').endOf('day'),
+    startDate: dayjs('2026-10-12'),
+    endDate: dayjs('2026-12-20'),
   },
   {
     number: 1.6,
@@ -96,23 +93,7 @@ export const seasons: Season[] = [
 
     config: structuredClone(defaultSeason.config),
 
-    startDate: dayjs('2026-12-21').startOf('day'),
-    endDate: dayjs('2027-01-03').endOf('day'),
+    startDate: dayjs('2026-12-21'),
+    endDate: dayjs('2027-01-03'),
   },
 ];
-
-export function getSeason(dateUnix: number | null): Season {
-  if (dateUnix === null) {
-    return defaultSeason;
-  }
-
-  const date = dayjs.unix(dateUnix);
-
-  for (const season of seasons) {
-    if (date.isBetween(season.startDate, season.endDate, null, '[]')) {
-      return season;
-    }
-  }
-
-  return defaultSeason;
-}
