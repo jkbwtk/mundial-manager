@@ -1,0 +1,24 @@
+@use 'app' as *;
+
+.widget {
+  width: 100%;
+}
+
+.positive {
+  color: $greenBright;
+}
+
+.negative {
+  color: $redBright;
+}
+
+.dim {
+  color: $textDimColor;
+}
+
+.no-data {
+  display: block;
+
+  text-align: center;
+  font-style: italic;
+}
