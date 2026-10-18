@@ -319,12 +319,7 @@ export const SessionPresenceModal: Component<SessionPresenceModalProps> = (
         </div>
 
         <div class={style.tableContainer}>
-          <Table
-            class={style.table}
-            columns={columns()}
-            data={people()}
-            classic={false}
-          />
+          <Table class={style.table} columns={columns()} data={people()} />
         </div>
 
         <FieldShell path="spectators" label="Spectators" required={false}>

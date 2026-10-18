@@ -217,7 +217,6 @@ export const LeagueDashboard: Component = () => {
             class={style.table}
             columns={column}
             data={sortedGoalTypes()}
-            classic={false}
           />
         </div>
       </Widget>

@@ -282,7 +282,6 @@ export const MatchesDashboard: Component = () => {
           class={style.table}
           columns={column}
           data={matches.latest?.data ?? []}
-          classic={false}
           sorting={queryMetaState.sorting}
           onSort={handleOnSort}
         />

@@ -197,7 +197,6 @@ export const BallsDashboard: Component = () => {
           class={style.table}
           columns={column}
           data={balls.latest?.data ?? []}
-          classic={false}
           sorting={queryMetaState.sorting}
           onSort={handleOnSort}
         />

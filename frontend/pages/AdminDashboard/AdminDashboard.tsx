@@ -218,7 +218,6 @@ export const AdminDashboard: Component = () => {
           class={style.leaguesTable}
           columns={column}
           data={leagues()?.data ?? []}
-          classic={false}
         />
       </div>
     </Widget>

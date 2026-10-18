@@ -201,7 +201,6 @@ export const SeasonsDashboard: Component = () => {
           class={style.table}
           columns={column}
           data={seasons.latest?.data ?? []}
-          classic={false}
           sorting={queryMetaState.sorting}
           onSort={handleOnSort}
         />

@@ -199,7 +199,6 @@ export const TablesDashboard: Component = () => {
           class={style.table}
           columns={column}
           data={tables.latest?.data ?? []}
-          classic={false}
           sorting={queryMetaState.sorting}
           onSort={handleOnSort}
         />

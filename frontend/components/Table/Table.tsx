@@ -1,6 +1,6 @@
 import {
-  children,
   createEffect,
+  createMemo,
   createSignal,
   For,
   type JSX,
@@ -34,7 +34,6 @@ export interface TableSorting<S extends string = string> {
 export type TableBaseProps<S extends string = string> = {
   columns: Column[];
   data: Record<string, unknown>[];
-  classic?: boolean;
   sorting?: TableSorting<S> | null;
   onSort?: (sorting: TableSorting<S>) => void;
 };
@@ -42,6 +41,11 @@ export type TableBaseProps<S extends string = string> = {
 export interface TableProps<S extends string = string>
   extends Omit<JSX.HTMLAttributes<HTMLTableElement>, 'children'>,
     TableBaseProps<S> {}
+
+interface TableColumnEntry {
+  column: Column;
+  isLast: boolean;
+}
 
 const defaultColumn: RequiredDefaults<Column> = {
   align: 'left',
@@ -53,7 +57,6 @@ const defaultColumn: RequiredDefaults<Column> = {
 };
 
 const defaultProps: RequiredDefaults<TableBaseProps> = {
-  classic: true,
   sorting: null,
   onSort: () => {},
 };
@@ -69,7 +72,6 @@ export const Table = <S extends string = string>(
     'onSort',
     'class',
     'classList',
-    'classic',
   ]);
 
   const [sorting, setSorting] = createSignal(props.sorting ?? null);
@@ -80,6 +82,13 @@ export const Table = <S extends string = string>(
       (current) => setSorting(current ?? null),
       { defer: true },
     ),
+  );
+
+  const columnEntries = createMemo((): TableColumnEntry[] =>
+    props.columns.map((column, index) => ({
+      column,
+      isLast: index === props.columns.length - 1,
+    })),
   );
 
   const sortSymbol = (): SupportedMaterialSymbol => {
@@ -118,7 +127,6 @@ export const Table = <S extends string = string>(
       {...tableProps}
       classList={{
         [style.table]: true,
-        [style.classic]: props.classic,
 
         [props.class ?? '']: !!props.class,
         ...(props.classList ?? {}),
@@ -126,8 +134,8 @@ export const Table = <S extends string = string>(
     >
       <thead>
         <tr class={style.header}>
-          <For each={props.columns}>
-            {(column, index) => {
+          <For each={columnEntries()}>
+            {({ column, isLast }) => {
               return (
                 <th
                   style={{
@@ -141,10 +149,10 @@ export const Table = <S extends string = string>(
                     [style.alignLeft]: column.align === 'left',
                     [style.alignCenter]: column.align === 'center',
                     [style.alignRight]: column.align === 'right',
-                    [style.verticalBorder]: index() < props.columns.length - 1,
+                    [style.verticalBorder]: !isLast,
                     [`data-column-${column.key}`]: true,
                   }}
-                  onMouseUp={() => handleSort(column)}
+                  onClick={() => handleSort(column)}
                 >
                   {column.header}
 
@@ -166,20 +174,13 @@ export const Table = <S extends string = string>(
       <tbody>
         <For each={props.data}>
           {(row, rowIndex) => (
-            <tr
-              classList={{
-                [style.highlightable]: true,
-                [`data-row-${rowIndex()}`]: true,
-              }}
-            >
-              <For each={props.columns}>
-                {(column, colIndex) => {
+            <tr classList={{ [`data-row-${rowIndex()}`]: true }}>
+              <For each={columnEntries()}>
+                {({ column, isLast }) => {
                   const value = column.transform
                     ? column.transform(row[column.key], row)
-                    : row[column.key];
-
-                  // @ts-expect-error
-                  const resolved = children(() => value ?? '-');
+                    : (row[column.key] as JSX.Element);
+                  const content = value ?? '-';
 
                   return (
                     <td
@@ -189,12 +190,11 @@ export const Table = <S extends string = string>(
                         [style.alignCenter]: column.align === 'center',
                         [style.alignRight]: column.align === 'right',
                         [style.sortable]: column.sortable,
-                        [style.verticalBorder]:
-                          colIndex() < props.columns.length - 1,
+                        [style.verticalBorder]: !isLast,
                         [`data-column-${column.key}`]: true,
                       }}
                     >
-                      {resolved()}
+                      {content}
                     </td>
                   );
                 }}
