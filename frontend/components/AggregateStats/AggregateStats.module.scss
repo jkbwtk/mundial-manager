@@ -1,29 +1,7 @@
 @use 'app' as *;
 
 .widget {
-  width: round(down, 100%, cw(1));
-}
-
-.container {
-  display: grid;
-  grid-template-columns: auto auto;
-
-  align-items: end;
-
-  column-gap: cw(1);
-
-  span {
-    text-align: right;
-  }
-}
-
-.players-label {
-  display: inline-block;
-
   width: 100%;
-  text-align: center;
-
-  color: $textBrightColor;
 }
 
 .player-list {

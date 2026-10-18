@@ -101,7 +101,6 @@
   }
 
   .hth-table {
-    border-collapse: collapse;
     width: calc(100% - cw(2));
 
     margin: 0 cw(1);
@@ -109,21 +108,7 @@
     thead {
       td {
         font-weight: bold;
-        color: $textBrightColor;
       }
-    }
-
-    .min-width {
-      width: 1%;
-      white-space: nowrap;
-    }
-
-    .align-right {
-      text-align: right;
-    }
-
-    .align-center {
-      text-align: center;
     }
 
     .comparison {
@@ -138,13 +123,13 @@
         text-align: left;
       }
     }
-
-    td {
-      padding: 0;
-
-      &:not(:last-child) {
-        padding-right: cw(1);
-      }
-    }
   }
+}
+
+.content {
+  transition: opacity 0.2s ease-in-out;
+}
+
+.pending {
+  opacity: 0.5;
 }

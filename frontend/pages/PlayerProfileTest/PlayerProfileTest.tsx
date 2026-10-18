@@ -1,35 +1,37 @@
-import { For } from 'solid-js';
+import { For, getOwner } from 'solid-js';
 import { Button } from '#components/Button';
 import { PlayerLink } from '#components/PlayerLink';
 import { PlayerProfileModal } from '#components/PlayerProfileModal';
 import { Divider } from '#components/Widget';
+import { usePlayerLookup } from '#flib/entityLookup';
 import { useModal } from '#providers/ModalProvider';
-import { useSheets } from '#providers/SheetsProvider';
 import style from './PlayerProfileTest.module.scss';
 
 const PlayerProfileTest: Component = () => {
   const [, { open }] = useModal();
-  const [, { latest }] = useSheets();
+  const owner = getOwner();
+  const players = usePlayerLookup();
 
-  const openPlayerProfileModal = (playerName: string) => {
+  const openPlayerProfileModal = (playerUuid: string) => {
     open({
       props: {
         component: PlayerProfileModal,
-        name: playerName,
+        playerUuid,
       },
+      owner,
     });
   };
 
   return (
     <div class={style.container}>
       <strong>Players: </strong>
-      <For each={latest().generalStats.players}>
+      <For each={players.all()}>
         {(player) => (
           <Button
             severity="secondary"
-            onPointerUp={() => openPlayerProfileModal(player)}
+            onClick={() => openPlayerProfileModal(player.uuid)}
           >
-            {player}
+            {player.name}
           </Button>
         )}
       </For>
@@ -38,10 +40,10 @@ const PlayerProfileTest: Component = () => {
 
       <strong>PlayerLink test</strong>
 
-      <For each={latest().generalStats.players}>
+      <For each={players.all()}>
         {(player) => (
           <div>
-            - <PlayerLink name={player} />
+            - <PlayerLink uuid={player.uuid} name={player.name} />
           </div>
         )}
       </For>

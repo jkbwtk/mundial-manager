@@ -16,12 +16,12 @@ export const MatchSideName: Component<MatchSideNameProps> = (props) => (
     class={style.teamName}
     style={{ '--team-color': props.lookup.getSideColor(props.side) }}
   >
-    <For each={props.lookup.getSidePlayerNames(props.side)}>
-      {(name, index) => (
+    <For each={props.lookup.getSortedSidePlayers(props.side)}>
+      {(uuid, index) => (
         <>
           {index() > 0 ? ' ' : ''}
-          <Show when={props.links} fallback={name}>
-            <PlayerLink name={name} />
+          <Show when={props.links} fallback={props.lookup.getPlayerName(uuid)}>
+            <PlayerLink uuid={uuid} name={props.lookup.getPlayerName(uuid)} />
           </Show>
         </>
       )}

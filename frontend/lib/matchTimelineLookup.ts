@@ -17,7 +17,7 @@ export interface MatchTimelineLookup {
   goalTypes: Accessor<GoalType[]>;
 
   getSidePlayers: (side: MatchSide) => readonly string[];
-  getSidePlayerNames: (side: MatchSide) => string[];
+  getSortedSidePlayers: (side: MatchSide) => string[];
   getSideColor: (side: MatchSide) => string;
 }
 
@@ -61,8 +61,10 @@ export function createMatchTimelineLookup(
   const getSidePlayers = (side: MatchSide) =>
     getMatchSidePlayers(timeline().match, side);
 
-  const getSidePlayerNames = (side: MatchSide) =>
-    getSidePlayers(side).map(getPlayerName).sort();
+  const getSortedSidePlayers = (side: MatchSide) =>
+    getSidePlayers(side).toSorted((a, b) =>
+      getPlayerName(a).localeCompare(getPlayerName(b)),
+    );
 
   const getSideColor = (side: MatchSide) =>
     getTableSideColor(timeline().table, side);
@@ -77,7 +79,7 @@ export function createMatchTimelineLookup(
     goalTypes,
 
     getSidePlayers,
-    getSidePlayerNames,
+    getSortedSidePlayers,
     getSideColor,
   };
 }
