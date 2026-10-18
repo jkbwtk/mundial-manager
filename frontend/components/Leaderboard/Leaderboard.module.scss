@@ -2,7 +2,7 @@
 
 .container {
   align-self: flex-start;
-  width: round(down, calc(100% + 1px), cw(1));
+  width: 100%;
 }
 
 .header {
@@ -13,36 +13,6 @@
   transform: translateX(-50%);
 
   white-space: nowrap;
-}
-
-.list {
-  border-collapse: collapse;
-  width: inherit;
-
-  .min-width {
-    width: 1%;
-    white-space: nowrap;
-  }
-
-  td {
-    padding: 0;
-
-    &:not(:last-child) {
-      padding-right: cw(1);
-    }
-  }
-}
-
-.positive {
-  color: $greenBright;
-}
-
-.negative {
-  color: $redBright;
-}
-
-.delta-symbol {
-  user-select: none;
 }
 
 .label {
