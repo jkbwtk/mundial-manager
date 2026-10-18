@@ -1,4 +1,5 @@
 import { ModalForm } from '#components/ModalForm';
+import { seasonCreatorConfigFields } from '#components/SeasonCreatorModal';
 import { timeZoneOptions } from '#flib/timeZones';
 import { actionUpdateActiveLeague } from '#flib/trpcCalls';
 import { type League, LeagueSettingsUpdate } from '#shared/types/api/league';
@@ -38,6 +39,19 @@ export const LeagueSettingsModal: Component<LeagueSettingsModalProps> = (
           type: 'dropdown',
           options: timeZoneOptions,
           searchable: true,
+        },
+        seasonConfig: {
+          label: 'Season Defaults',
+          type: 'object',
+          fields: {
+            ...seasonCreatorConfigFields,
+            goalTypes: {
+              label: 'Goal Types',
+              type: 'text',
+              hidden: true,
+              implicitDefault: props.league.seasonConfig.goalTypes,
+            },
+          },
         },
       }}
     />
