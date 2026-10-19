@@ -24,15 +24,13 @@ WORKDIR /app
 
 ENV NGINX_ENVSUBST_OUTPUT_DIR=/etc/nginx/
 
-RUN apk add --no-cache supervisor libatomic
+RUN apk add --no-cache bash tini nodejs-current
 
 COPY nginx.conf /etc/nginx/templates/nginx.conf.template
-COPY supervisord.conf /etc/supervisord.conf
+COPY --chmod=755 start.sh /usr/local/bin/start.sh
 
 ENV NODE_ENV=production
 ENV DIST_DIR=.
-
-COPY --from=build /usr/local/bin/node /usr/local/bin/node
 
 COPY --from=build /build/static /app
 COPY --from=build /build/dist/client /app/private/client
@@ -43,4 +41,7 @@ COPY --from=build /build/drizzle /app/private/backend/migrations
 RUN chmod u+x /app/private/backend/server.js
 
 
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
+STOPSIGNAL SIGTERM
+
+ENTRYPOINT ["/sbin/tini", "--", "/docker-entrypoint.sh"]
+CMD ["start.sh"]
