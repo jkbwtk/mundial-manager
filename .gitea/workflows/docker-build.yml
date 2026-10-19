@@ -26,10 +26,35 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Resolve image tags
+        id: image
+        shell: bash
+        env:
+          IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          EVENT_NAME: ${{ github.event_name }}
+          REF: ${{ github.ref }}
+          REF_NAME: ${{ github.ref_name }}
+          COMMIT_SHA: ${{ github.sha }}
+        run: |
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            tags=(dev)
+          elif [[ "$REF" == refs/tags/* ]]; then
+            tags=("$REF_NAME" latest)
+          else
+            tags=("${COMMIT_SHA::7}" staging)
+          fi
+
+          {
+            echo "tags<<EOF"
+            for tag in "${tags[@]}"; do
+              echo "$IMAGE:$tag"
+            done
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:dev
+          tags: ${{ steps.image.outputs.tags }}
