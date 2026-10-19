@@ -58,7 +58,7 @@ export async function createRouter() {
         directives: {
           scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
           mediaSrc: ["'self'", 'data:'],
-          frameSrc: [environment.VITE_CALCULATOR_URL],
+          frameSrc: [environment.CALCULATOR_URL],
         },
       },
     }),

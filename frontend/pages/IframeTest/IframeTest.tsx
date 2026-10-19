@@ -6,12 +6,13 @@ import { MatchSaveConfirmModal } from '#components/MatchSaveConfirmModal';
 import { Divider } from '#components/Widget';
 import { usePlayerLookup } from '#flib/entityLookup';
 import { convertCalculatorFinishEventToMatch } from '#flib/legacyMatches';
+import { createResilientAsync } from '#flib/resilientAsync';
+import { queryCalculatorUrl } from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
 import { CalculatorFinishEvent } from '#shared/types/MundialCalculator';
 import style from './IframeTest.module.scss';
 
-const AVAILABLE_URLS = [
-  import.meta.env.VITE_CALCULATOR_URL,
+const IFRAME_TEST_URLS = [
   'http://localhost:4200/tests/iframe-test',
   'http://127.0.0.1/tests/iframe-test',
 ];
@@ -21,11 +22,14 @@ const IframeTest: Component = () => {
   const players = usePlayerLookup();
   const owner = getOwner();
 
+  const calculatorUrl = createResilientAsync(queryCalculatorUrl);
+
   // biome-ignore lint/style/useConst: yeah
   let ref: HTMLIFrameElement = null!;
   const [index, setIndex] = createSignal(0);
 
-  const url = () => AVAILABLE_URLS[index()];
+  const urls = () => [calculatorUrl() ?? '', ...IFRAME_TEST_URLS];
+  const url = () => urls()[index()];
 
   const openMatchModal = (data: CalculatorFinishEvent) => {
     open({
@@ -84,7 +88,7 @@ const IframeTest: Component = () => {
       <div class={style.controls}>
         <Button
           severity="secondary"
-          onClick={() => setIndex((i) => (i + 1) % AVAILABLE_URLS.length)}
+          onClick={() => setIndex((i) => (i + 1) % urls().length)}
         >
           Next URL
         </Button>{' '}

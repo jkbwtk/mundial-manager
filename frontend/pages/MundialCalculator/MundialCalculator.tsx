@@ -5,6 +5,7 @@ import { isServer } from 'solid-js/web';
 import { MatchSaveConfirmModal } from '#components/MatchSaveConfirmModal';
 import { onLeagueEvent } from '#flib/leagueEvents';
 import { convertCalculatorFinishEventToMatch } from '#flib/legacyMatches';
+import { createResilientAsync } from '#flib/resilientAsync';
 import {
   actionCreateMatchWithWebhook,
   actionDeleteMatch,
@@ -12,6 +13,7 @@ import {
   actionUpdateMatchWithWebhook,
   queryActiveLeague,
   queryBalls,
+  queryCalculatorUrl,
   queryCurrentSeason,
   queryGoalTypes,
   queryMatchPrediction,
@@ -30,12 +32,12 @@ import {
 } from '#shared/types/MundialCalculator';
 import style from './MundialCalculator.module.scss';
 
-const CALCULATOR_URL = import.meta.env.VITE_CALCULATOR_URL;
-
 const MundialCalculator: Component = () => {
   const [, { open }] = useModal();
   const [, actions] = useToast();
   const owner = getOwner();
+
+  const calculatorUrl = createResilientAsync(queryCalculatorUrl);
 
   let iframeRef!: HTMLIFrameElement;
 
@@ -182,7 +184,7 @@ const MundialCalculator: Component = () => {
   return (
     <iframe
       ref={iframeRef}
-      src={CALCULATOR_URL}
+      src={calculatorUrl()}
       title="Mundial Calculator"
       class={style.iframe}
       sandbox="allow-scripts allow-same-origin allow-forms"

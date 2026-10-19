@@ -1,9 +1,15 @@
+import z from 'zod';
+import { environment } from '#backend/environment';
 import { procedure, router } from '#blib/trpc';
 import { getGrantedPermissions } from '#shared/permissions';
 import { Identity } from '#shared/types/api/identity';
 
 export const systemRouter = router({
   ping: procedure.query(() => 'pong'),
+
+  calculatorUrl: procedure
+    .output(z.url())
+    .query(() => environment.CALCULATOR_URL),
 
   identity: procedure.output(Identity).query(async ({ ctx }) => {
     const jwt = await ctx.jwt;

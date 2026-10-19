@@ -47,7 +47,7 @@ export const Environment = z.object({
 
   DATABASE_LOGGING: z.stringbool().default(false),
 
-  VITE_CALCULATOR_URL: z.string(),
+  CALCULATOR_URL: z.url(),
 
   RABBITMQ_ENABLED: z.stringbool().default(true),
 

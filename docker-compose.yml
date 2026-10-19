@@ -27,8 +27,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        - VITE_CALCULATOR_URL=${VITE_CALCULATOR_URL:-http://localhost}
     ports:
       - ${NGINX_PORT:-8090}:80
     depends_on:
@@ -62,6 +60,7 @@ services:
       - PUB_KEY_PATH=${PUB_KEY_PATH}
       - PRIV_KEY_PATH=${PRIV_KEY_PATH}
       - BASE_SITE_URL=${BASE_SITE_URL}
+      - CALCULATOR_URL=${CALCULATOR_URL:-http://localhost}
       - RABBITMQ_ENABLED=${RABBITMQ_ENABLED:-}
       - RABBITMQ_USER=${RABBITMQ_USER:-rabbit}
       - RABBITMQ_PASS=${RABBITMQ_PASS:-rb_password}
@@ -86,8 +85,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        - VITE_CALCULATOR_URL=${VITE_CALCULATOR_URL:-http://localhost}
     command: ["node", "/app/private/backend/worker"]
     depends_on:
       db:
@@ -110,8 +107,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        - VITE_CALCULATOR_URL=${VITE_CALCULATOR_URL:-http://localhost}
     command: ["node", "/app/private/backend/server", "migrate"]
     depends_on:
       db:

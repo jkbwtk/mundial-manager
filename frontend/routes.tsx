@@ -6,6 +6,7 @@ import { preloadChartsPage } from '#preloaders/ChartsPage';
 import { preloadHomeLayout } from '#preloaders/HomeLayout';
 import { preloadHomepage } from '#preloaders/Homepage';
 import { preloadMatchEventsDashboard } from '#preloaders/MatchEventsDashboard';
+import { preloadMundialCalculator } from '#preloaders/MundialCalculator';
 import { preloadRatingsPage } from '#preloaders/RatingsPage';
 import { MatchRecordingPermissions, PermissionEnum } from '#shared/permissions';
 
@@ -130,6 +131,7 @@ export const dashboardRoutes: ExtendedRouteDefinition[] = [
   {
     path: '/mundial-calculator',
     component: MundialCalculator,
+    preload: preloadMundialCalculator,
     info: {
       name: 'Mundial Calculator',
       icon: 'timer_play',

@@ -13,9 +13,6 @@ RUN --mount=type=cache,target=/root/.pnpm-store pnpm ci
 
 FROM dependencies AS build
 
-ARG VITE_CALCULATOR_URL
-ENV VITE_CALCULATOR_URL=${VITE_CALCULATOR_URL}
-
 COPY . .
 
 RUN pnpm cli fetch && \
@@ -34,9 +31,6 @@ COPY supervisord.conf /etc/supervisord.conf
 
 ENV NODE_ENV=production
 ENV DIST_DIR=.
-
-ARG VITE_CALCULATOR_URL
-ENV VITE_CALCULATOR_URL=${VITE_CALCULATOR_URL}
 
 COPY --from=build /usr/local/bin/node /usr/local/bin/node
 
