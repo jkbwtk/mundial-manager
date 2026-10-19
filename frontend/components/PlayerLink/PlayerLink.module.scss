@@ -3,6 +3,8 @@
 .link {
   text-decoration: underline;
 
+  width: fit-content;
+
   @supports (text-decoration: dashed) {
     text-decoration: dashed underline;
   }
