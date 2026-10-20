@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import Cookies from 'cookies';
 import { Router } from 'express';
 import { environment } from '#backend/environment';
@@ -8,31 +7,11 @@ import {
   getJWTCookieOptions,
   sign,
 } from '#blib/jwt';
-import { createMagicLink, MAGIC_LINK_TOKEN_KEY } from '#blib/magicLink';
+import { MAGIC_LINK_TOKEN_KEY } from '#blib/magicLink';
 import { logger } from '#shared/logger';
-import { RoleEnum } from '#shared/permissions';
-
-function createAdminMagicLink() {
-  return createMagicLink({
-    uuid: randomUUID(),
-
-    origin: 'magic-router-admin-jwt',
-
-    role: RoleEnum.ADMIN,
-    leagueUuid: null,
-
-    redirectTo: '/admin',
-  });
-}
 
 export async function createMagicRouter() {
   const magicRouter = Router();
-
-  const adminJWT = await createAdminMagicLink();
-
-  logger.info('Admin magic link generated, %s', adminJWT, {
-    label: ['magic-router'],
-  });
 
   magicRouter.get('/', async (req, res) => {
     const cookies = new Cookies(req, res);
