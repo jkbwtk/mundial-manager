@@ -1,15 +1,28 @@
 import { Match, Suspense, Switch } from 'solid-js';
 import { Breadcrumbs } from '#components/Breadcrumbs';
+import { BuildDetails } from '#components/BuildDetails';
 import { LogoSmall } from '#components/LogoSmall';
 import { Sidebar } from '#components/Sidebar';
 import { Divider } from '#components/Widget';
+import { getBuildInfo } from '#flib/buildInfo';
 import { isDev } from '#flib/utils';
 import { routes } from '#frontend/routes';
+import { BuildChannelEnum } from '#frontend/types';
 import { useChangelog } from '#providers/ChangelogProvider';
 import style from './DashboardLayout.module.scss';
 
 export const DashboardDesktopLayout: ParentComponent = (props) => {
   const [, { latestVersion, latestCommitHash }] = useChangelog();
+
+  const prereleaseBuildInfo = () => {
+    const buildInfo = getBuildInfo();
+
+    if (buildInfo?.channel === BuildChannelEnum.RELEASE) {
+      return null;
+    }
+
+    return buildInfo;
+  };
 
   return (
     <div class={style.desktopContainer}>
@@ -37,6 +50,9 @@ export const DashboardDesktopLayout: ParentComponent = (props) => {
           >
             <Match when={isDev()}>
               <div>Development build</div>
+            </Match>
+            <Match when={prereleaseBuildInfo()}>
+              {(buildInfo) => <BuildDetails buildInfo={buildInfo()} />}
             </Match>
           </Switch>
         </div>

@@ -1,0 +1,10 @@
+@use 'app' as *;
+
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.channel {
+  color: $textBrightColor;
+}

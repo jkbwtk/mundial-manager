@@ -13,6 +13,13 @@ RUN --mount=type=cache,target=/root/.pnpm-store pnpm ci
 
 FROM dependencies AS build
 
+ARG VITE_BUILD_CHANNEL
+ARG VITE_BUILD_COMMIT_SHA
+ARG VITE_BUILD_DATE
+ARG VITE_BUILD_TAGS
+ARG VITE_BUILD_RUNNER
+ARG VITE_BUILD_RUN_NUMBER
+
 COPY . .
 
 RUN pnpm cli fetch && \
