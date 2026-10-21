@@ -80,9 +80,11 @@ export const BallCreatorModal: Component<BallCreatorModalProps> = (props) => {
         },
         labels: {
           label: 'Labels',
-          type: 'text',
-          hidden: true,
+          type: 'record',
+          hidden: false,
           implicitDefault: props.ball?.labels ?? {},
+          keyPlaceholder: 'Label...',
+          valuePlaceholder: 'Value...',
         },
       }}
     />

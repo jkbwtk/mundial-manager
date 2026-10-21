@@ -64,16 +64,18 @@ export const TableCreatorModal: Component<TableCreatorModalProps> = (props) => {
           label: 'Side 2 color',
           type: 'color',
         },
-        labels: {
-          label: 'Labels',
-          type: 'text',
-          hidden: true,
-          implicitDefault: props.table?.labels ?? {},
-        },
         description: {
           label: 'Description',
           placeholder: 'Table description...',
           type: 'textArea',
+        },
+        labels: {
+          label: 'Labels',
+          type: 'record',
+          hidden: false,
+          implicitDefault: props.table?.labels ?? {},
+          keyPlaceholder: 'Label...',
+          valuePlaceholder: 'Value...',
         },
       }}
     />

@@ -101,9 +101,11 @@ export const GoalTypeCreatorModal: Component<GoalTypeCreatorModalProps> = (
         },
         labels: {
           label: 'Labels',
-          type: 'text',
-          hidden: true,
+          type: 'record',
+          hidden: false,
           implicitDefault: props.goalType?.labels ?? {},
+          keyPlaceholder: 'Label...',
+          valuePlaceholder: 'Value...',
         },
       }}
     />

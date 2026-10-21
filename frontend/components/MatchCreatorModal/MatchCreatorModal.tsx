@@ -165,9 +165,11 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
         },
         labels: {
           label: 'Labels',
-          type: 'text',
-          hidden: true,
+          type: 'record',
+          hidden: false,
           implicitDefault: props.match?.labels ?? {},
+          keyPlaceholder: 'Label...',
+          valuePlaceholder: 'Value...',
         },
       }}
     />

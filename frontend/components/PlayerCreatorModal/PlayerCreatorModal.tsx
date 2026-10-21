@@ -63,9 +63,11 @@ export const PlayerCreatorModal: Component<PlayerCreatorModalProps> = (
         },
         labels: {
           label: 'Labels',
-          type: 'text',
-          hidden: true,
+          type: 'record',
+          hidden: false,
           implicitDefault: props.player?.labels ?? {},
+          keyPlaceholder: 'Label...',
+          valuePlaceholder: 'Value...',
         },
       }}
     />

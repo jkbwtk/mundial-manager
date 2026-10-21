@@ -308,9 +308,11 @@ export const SeasonCreatorModal: Component<SeasonCreatorModalProps> = (
             },
             labels: {
               label: 'Labels',
-              type: 'text',
-              hidden: true,
+              type: 'record',
+              hidden: false,
               implicitDefault: props.season?.labels ?? {},
+              keyPlaceholder: 'Label...',
+              valuePlaceholder: 'Value...',
             },
           }}
         />
