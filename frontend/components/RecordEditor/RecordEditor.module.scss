@@ -63,10 +63,29 @@
   color: $textDimColor;
 }
 
-.value-input {
+.value {
+  display: flex;
+  align-items: center;
   flex-grow: 1;
   flex-basis: cw(8);
+
   min-width: cw(6);
+}
+
+.value-input {
+  flex-grow: 1;
+
+  min-width: 0;
+}
+
+.null-value {
+  color: $textDimColor;
+}
+
+.type-button {
+  flex-shrink: 0;
+
+  margin-left: cw(1);
 }
 
 .remove-button {

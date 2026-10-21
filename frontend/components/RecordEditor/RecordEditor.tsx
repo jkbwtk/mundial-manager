@@ -4,9 +4,11 @@ import {
   createSignal,
   createUniqueId,
   type JSX,
+  Match,
   on,
   onMount,
   Show,
+  Switch,
 } from 'solid-js';
 import { Button } from '#components/Button';
 import { Input } from '#components/Input';
@@ -18,16 +20,23 @@ import {
 } from '#flib/solidHelpers';
 import style from './RecordEditor.module.scss';
 
+export type RecordEditorValueType = 'string' | 'number' | 'boolean' | 'null';
+
+export type RecordEditorValue = string | number | boolean | null;
+
 interface RecordEntry {
   id: string;
   key: string;
-  value: number | undefined;
+  type: RecordEditorValueType;
+  value: RecordEditorValue | undefined;
 }
 
 export interface RecordEditorProps {
   name?: string;
-  value?: Record<string, number>;
-  onChange?: (value: Record<string, number>) => void;
+  value?: Record<string, RecordEditorValue>;
+  onChange?: (value: Record<string, RecordEditorValue>) => void;
+
+  valueTypes?: RecordEditorValueType[];
 
   keyPlaceholder?: string;
   valuePlaceholder?: string;
@@ -39,11 +48,59 @@ export interface RecordEditorProps {
   useDirectives?: ComponentUseDirectiveHack<HTMLInputElement>[];
 }
 
-const entriesFromValue = (value: Record<string, number> | undefined) =>
+const valueTypeOrder: RecordEditorValueType[] = [
+  'string',
+  'number',
+  'boolean',
+  'null',
+];
+
+const valueTypeLabels: Record<RecordEditorValueType, string> = {
+  string: 'Aa',
+  number: '12',
+  boolean: 'TF',
+  null: '--',
+};
+
+const getValueType = (value: RecordEditorValue): RecordEditorValueType =>
+  value === null ? 'null' : (typeof value as RecordEditorValueType);
+
+const convertValue = (
+  value: RecordEditorValue | undefined,
+  type: RecordEditorValueType,
+): RecordEditorValue | undefined => {
+  switch (type) {
+    case 'string':
+      return value === undefined || value === null ? undefined : String(value);
+
+    case 'number': {
+      if (typeof value === 'number') return value;
+      if (typeof value !== 'string' || value.trim() === '') return undefined;
+
+      const parsed = Number(value);
+
+      return Number.isFinite(parsed) ? parsed : undefined;
+    }
+
+    case 'boolean':
+      return typeof value === 'boolean' ? value : false;
+
+    case 'null':
+      return null;
+
+    default:
+      throw new Error(`Unsupported record value type: ${type}`);
+  }
+};
+
+const entriesFromValue = (
+  value: Record<string, RecordEditorValue> | undefined,
+) =>
   Object.entries(value ?? {}).map(
     ([key, entryValue]): RecordEntry => ({
       id: createUniqueId(),
       key,
+      type: getValueType(entryValue),
       value: entryValue,
     }),
   );
@@ -55,8 +112,14 @@ export const RecordEditor: Component<RecordEditorProps> = (props) => {
     entriesFromValue(props.value),
   );
 
+  const valueTypes = createMemo(() =>
+    valueTypeOrder.filter((type) =>
+      (props.valueTypes ?? ['number']).includes(type),
+    ),
+  );
+
   const currentValue = createMemo(() => {
-    const result: Record<string, number> = {};
+    const result: Record<string, RecordEditorValue> = {};
 
     for (const entry of entries()) {
       const key = entry.key.trim();
@@ -114,7 +177,12 @@ export const RecordEditor: Component<RecordEditorProps> = (props) => {
   const addEntry = () => {
     setEntries((prev) => [
       ...prev,
-      { id: createUniqueId(), key: '', value: undefined },
+      {
+        id: createUniqueId(),
+        key: '',
+        type: valueTypes()[0] ?? 'number',
+        value: undefined,
+      },
     ]);
   };
 
@@ -128,9 +196,22 @@ export const RecordEditor: Component<RecordEditorProps> = (props) => {
     );
   };
 
-  const updateValue = (id: string, value: number | undefined) => {
+  const updateValue = (id: string, value: RecordEditorValue | undefined) => {
     setEntries((prev) =>
       prev.map((entry) => (entry.id === id ? { ...entry, value } : entry)),
+    );
+  };
+
+  const cycleType = (id: string) => {
+    setEntries((prev) =>
+      prev.map((entry) => {
+        if (entry.id !== id) return entry;
+
+        const types = valueTypes();
+        const type = types[(types.indexOf(entry.type) + 1) % types.length]!;
+
+        return { ...entry, type, value: convertValue(entry.value, type) };
+      }),
     );
   };
 
@@ -201,24 +282,84 @@ export const RecordEditor: Component<RecordEditorProps> = (props) => {
 
                   <span class={style.separator}>→</span>
 
-                  <Input
-                    classList={{ [style.valueInput]: true }}
-                    type="number"
-                    step="any"
-                    placeholder={props.valuePlaceholder ?? 'Value...'}
-                    value={entry().value ?? ''}
-                    disabled={props.disabled}
-                    invalid={isMissingValue(entry())}
-                    onInput={(ev) => {
-                      const raw = ev.currentTarget.value;
+                  <div class={style.value}>
+                    <Switch>
+                      <Match when={entry().type === 'number'}>
+                        <Input
+                          classList={{ [style.valueInput]: true }}
+                          type="number"
+                          step="any"
+                          placeholder={props.valuePlaceholder ?? 'Value...'}
+                          value={(entry().value as number | undefined) ?? ''}
+                          disabled={props.disabled}
+                          invalid={isMissingValue(entry())}
+                          onInput={(ev) => {
+                            const raw = ev.currentTarget.value;
 
-                      updateValue(
-                        entry().id,
-                        raw.trim() === '' ? undefined : Number(raw),
-                      );
-                    }}
-                    onBlur={notifyBlur}
-                  />
+                            updateValue(
+                              entry().id,
+                              raw.trim() === '' ? undefined : Number(raw),
+                            );
+                          }}
+                          onBlur={notifyBlur}
+                        />
+                      </Match>
+
+                      <Match when={entry().type === 'string'}>
+                        <Input
+                          classList={{ [style.valueInput]: true }}
+                          type="text"
+                          placeholder={props.valuePlaceholder ?? 'Value...'}
+                          value={(entry().value as string | undefined) ?? ''}
+                          disabled={props.disabled}
+                          invalid={isMissingValue(entry())}
+                          onInput={(ev) => {
+                            const raw = ev.currentTarget.value;
+
+                            updateValue(
+                              entry().id,
+                              raw.trim() === '' ? undefined : raw,
+                            );
+                          }}
+                          onBlur={notifyBlur}
+                        />
+                      </Match>
+
+                      <Match when={entry().type === 'boolean'}>
+                        <Input
+                          type="checkbox"
+                          checked={entry().value === true}
+                          disabled={props.disabled}
+                          onChange={(ev) =>
+                            updateValue(entry().id, ev.currentTarget.checked)
+                          }
+                          onBlur={notifyBlur}
+                        />
+                      </Match>
+
+                      <Match when={entry().type === 'null'}>
+                        <span class={style.nullValue}>null</span>
+                      </Match>
+                    </Switch>
+                  </div>
+
+                  <Show when={valueTypes().length > 1}>
+                    <Button
+                      type="button"
+                      severity="secondary"
+                      padding={0}
+                      class={style.typeButton}
+                      aria-label={`Value type: ${entry().type}`}
+                      title={entry().type}
+                      disabled={props.disabled}
+                      onClick={() => {
+                        cycleType(entry().id);
+                        notifyBlur();
+                      }}
+                    >
+                      {valueTypeLabels[entry().type]}
+                    </Button>
+                  </Show>
 
                   <button
                     type="button"
