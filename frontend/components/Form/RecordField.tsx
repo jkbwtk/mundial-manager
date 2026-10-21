@@ -1,6 +1,7 @@
 import type { ComponentProps } from 'solid-js';
 import { RecordEditor } from '#components/RecordEditor';
 import { FieldShell, fieldInputClassList } from './FieldShell';
+import { getRecordValueTypes } from './fieldUtils';
 import type { FormFieldProps } from './types';
 
 export const RecordField: Component<FormFieldProps<'record'>> = (props) => (
@@ -16,6 +17,7 @@ export const RecordField: Component<FormFieldProps<'record'>> = (props) => (
         (props.value as ComponentProps<typeof RecordEditor>['value']) ??
         undefined
       }
+      valueTypes={getRecordValueTypes(props.schemaNode)}
       keyPlaceholder={props.field.keyPlaceholder}
       valuePlaceholder={props.field.valuePlaceholder}
       useDirectives={props.directives}

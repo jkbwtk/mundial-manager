@@ -1,8 +1,11 @@
+import type { RecordEditorValueType } from '#components/RecordEditor';
+import { arrayFrom } from '#shared/utils';
 import type {
   FieldMeta,
   FormField,
   FormFieldMap,
   FormFieldOfType,
+  JSONSchemaNode,
 } from './types';
 
 export const getVisibleFields = (fields: object) =>
@@ -17,6 +20,20 @@ export const formatFieldValue = (
   field.format === undefined || value === undefined || value === null
     ? value
     : field.format(value);
+
+export const getRecordValueTypes = (
+  schemaNode: JSONSchemaNode | undefined,
+): RecordEditorValueType[] | undefined => {
+  const valueNode = schemaNode?.additionalProperties;
+
+  if (typeof valueNode !== 'object' || valueNode.type === undefined) {
+    return undefined;
+  }
+
+  return arrayFrom(valueNode.type).map(
+    (type) => (type === 'integer' ? 'number' : type) as RecordEditorValueType,
+  );
+};
 
 export const collectFieldMeta = (
   fields: FormFieldMap,
