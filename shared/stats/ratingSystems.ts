@@ -97,6 +97,7 @@ function calculateGlicko2Rating(
   own: Glicko2Rating,
   opponent: Glicko2Rating,
   outcome: number,
+  stakesModifier: number,
 ): Glicko2Rating {
   const mu = (own.rating - GLICKO2_CENTER) / GLICKO2_SCALE;
   const phi = own.rd / GLICKO2_SCALE;
@@ -154,7 +155,8 @@ function calculateGlicko2Rating(
   const volatility = Math.exp(a / 2);
   const phiStar = Math.sqrt(phi * phi + volatility * volatility);
   const nextPhi = 1 / Math.sqrt(1 / (phiStar * phiStar) + 1 / v);
-  const nextMu = mu + nextPhi * nextPhi * weight * (outcome - expected);
+  const nextMu =
+    mu + stakesModifier * nextPhi * nextPhi * weight * (outcome - expected);
 
   return {
     rating: nextMu * GLICKO2_SCALE + GLICKO2_CENTER,
@@ -289,6 +291,7 @@ export const glicko2RatingSystem = {
           own,
           opponent,
           getMatchOutcome(score, opponentScore),
+          match.stakesModifier,
         ),
     ),
 } satisfies RatingSystemDefinition<
