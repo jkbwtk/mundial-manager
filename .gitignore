@@ -44,3 +44,5 @@ materialSymbols.scss
 
 .claude/
 .devcontainer/.gitconfig.host
+
+external/
