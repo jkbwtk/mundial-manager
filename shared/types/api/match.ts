@@ -39,6 +39,8 @@ export const Match = z.object({
 
   hidden: z.boolean(),
 
+  stakesModifier: z.number().int().min(1),
+
   playersSide1: uuidArray.check(z.minLength(1), z.maxLength(4)),
   playersSide2: uuidArray.check(z.minLength(1), z.maxLength(4)),
 

@@ -136,6 +136,7 @@ export function convertFromLegacyMatch(
 
     status: 'FINISHED',
     hidden: false,
+    stakesModifier: 1,
     syncId,
 
     playersSide1: getPlayersFromTeam(

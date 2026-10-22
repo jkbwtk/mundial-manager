@@ -11,5 +11,7 @@ export const matchCreateDefaults = {
 
   hidden: false,
 
+  stakesModifier: 1,
+
   syncId: null,
 } satisfies DeepPartial<Match>;

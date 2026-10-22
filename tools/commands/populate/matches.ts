@@ -274,6 +274,7 @@ export async function populateMatches(options: PopulateOptions): Promise<void> {
         spectators,
         status: 'FINISHED',
         hidden: false,
+        stakesModifier: 1,
         syncId: null,
         labels: {},
         events: eventsResult.events,

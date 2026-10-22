@@ -306,6 +306,8 @@ export const matchesTable = pgTable(
 
     hidden: t.boolean().notNull().default(false),
 
+    stakesModifier: t.integer().default(1).notNull(),
+
     syncId: t.text(),
 
     labels: t.jsonb().$type<Labels>().notNull().default(sql`'{}'::jsonb`),

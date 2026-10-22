@@ -1,0 +1,1 @@
+ALTER TABLE "matches" ADD COLUMN "stakesModifier" integer DEFAULT 1 NOT NULL;
