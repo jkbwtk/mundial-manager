@@ -116,6 +116,12 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
           label: 'Hidden',
           type: 'checkbox',
         },
+        stakesModifier: {
+          label: 'Stakes Modifier',
+          type: 'number',
+          step: 1,
+          min: 1,
+        },
         tableUuid: {
           label: 'Table',
           type: 'resourcePicker',
