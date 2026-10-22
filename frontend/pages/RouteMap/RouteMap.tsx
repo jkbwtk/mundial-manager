@@ -2,6 +2,7 @@ import { A, type RouteDefinition } from '@solidjs/router';
 import { For } from 'solid-js';
 import { Directory, type TreeNode } from '#components/FileTree';
 import { Widget } from '#components/Widget';
+import { joinPaths } from '#flib/utils';
 import { arrayFrom } from '#shared/utils';
 import { routes } from '../../routes';
 import style from './RouteMap.module.scss';
@@ -30,14 +31,14 @@ const RouteMap: Component = () => {
     ...arrayFrom(route.children ?? [])
       .map((child) => ({
         ...child,
-        path: (route.path ?? '') + (child.path ?? ''),
+        path: joinPaths('/', route.path ?? '', child.path ?? ''),
       }))
       .flatMap(mapFlatRoutes),
   ];
 
   const flatRoutes = routes
     .flatMap(mapFlatRoutes)
-    .filter((route) => route.component);
+    .filter((route) => route.component && !route.children);
 
   return (
     <div class={style.container}>
