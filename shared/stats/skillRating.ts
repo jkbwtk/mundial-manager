@@ -21,6 +21,7 @@ interface SkillEntry {
 interface SkillGame {
   nodes: [SkillNode[], SkillNode[]];
   goals: [number, number];
+  stakesModifier: number;
 }
 
 interface SkillPlayer {
@@ -73,6 +74,7 @@ function addSkillGame(model: SkillModel, match: RatingMatch<SkillParams>) {
   const game: SkillGame = {
     nodes: [[], []],
     goals: [match.sides[0].score, match.sides[1].score],
+    stakesModifier: match.stakesModifier,
   };
 
   for (const side of [0, 1] as const) {
@@ -112,15 +114,14 @@ function updateSkillPlayer(player: SkillPlayer, params: SkillParams): number {
       const own = game.nodes[side];
       const delta = getStrengthDifference(own, game.nodes[1 - side]!, params);
       const share = 1 / own.length;
+      const weight = params.goalWeight * game.stakesModifier;
       const scored = game.goals[side];
       const conceded = game.goals[1 - side]!;
 
       nodeGradient +=
-        params.goalWeight *
-        share *
-        (scored * sigmoid(-delta) - conceded * sigmoid(delta));
+        weight * share * (scored * sigmoid(-delta) - conceded * sigmoid(delta));
       nodeCurvature +=
-        params.goalWeight *
+        weight *
         (scored + conceded) *
         sigmoid(delta) *
         sigmoid(-delta) *
