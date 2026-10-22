@@ -262,7 +262,8 @@ export const eloRatingSystem = {
             opponent.rating,
             score,
             opponentScore,
-          ),
+          ) *
+            match.stakesModifier,
       }),
     ),
 } satisfies RatingSystemDefinition<

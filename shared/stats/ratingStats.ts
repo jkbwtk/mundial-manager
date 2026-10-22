@@ -127,7 +127,12 @@ export function calculateRatings(
       const players = new Set(sides.flatMap((side) => side.subjects));
 
       return definition
-        .rate(state, { params, day: engine.day, sides })
+        .rate(state, {
+          params,
+          day: engine.day,
+          sides,
+          stakesModifier: match.stakesModifier,
+        })
         .map(({ subject: uuid, before, after }): StatsRatingChange => {
           const previous = before ?? definition.initial(params);
           const next: RatingStats = {

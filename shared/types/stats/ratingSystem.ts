@@ -84,6 +84,8 @@ export interface RatingMatch<Params> {
   params: Params;
   day: number; // whole days since the epoch
 
+  stakesModifier: number;
+
   sides: [RatingMatchSide, RatingMatchSide];
 }
 
