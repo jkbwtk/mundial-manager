@@ -1,4 +1,5 @@
 import {
+  getMatchSurrenderSide,
   hasOpenMatchPause,
   type MatchTimelineEntry,
 } from '#shared/matchTimeline';
@@ -17,9 +18,17 @@ export function deriveMatchStatus(
     return MatchStatusEnum.CANCELED;
   }
 
+  if (getMatchSurrenderSide(context.events) !== null) {
+    return MatchStatusEnum.SURRENDERED;
+  }
+
   if (context.duration !== null) return MatchStatusEnum.FINISHED;
 
-  if (context.events.length === 0) return current;
+  if (context.events.length === 0) {
+    return current === MatchStatusEnum.SURRENDERED
+      ? MatchStatusEnum.FINISHED
+      : current;
+  }
 
   return hasOpenMatchPause(context.events)
     ? MatchStatusEnum.PAUSED

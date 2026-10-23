@@ -29,7 +29,7 @@ const MatchTimelineHeader: Component<MatchTimelineHeaderProps> = (props) => {
   const lookup = createMatchTimelineLookup(() => props.timeline);
 
   const match = () => props.timeline.match;
-  const winner = () => getMatchWinningSide(match());
+  const winner = () => getMatchWinningSide(match(), props.timeline.events);
 
   return (
     <>

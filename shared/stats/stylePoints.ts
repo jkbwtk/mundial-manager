@@ -69,7 +69,7 @@ export function calculateMatchStylePoints(
     deficits.SIDE_2 = Math.max(deficits.SIDE_2, score[0] - score[1]);
   }
 
-  const winner = getMatchWinningSide(match);
+  const winner = getMatchWinningSide(match, match.events);
 
   if (match.status !== 'FINISHED' || winner === null) return points;
 

@@ -68,7 +68,7 @@ const MatchStatsDetails: Component<MatchStatsDetailsProps> = (props) => {
   const lookup = createMatchTimelineLookup(() => props.timeline);
 
   const match = () => props.timeline.match;
-  const winner = () => getMatchWinningSide(match());
+  const winner = () => getMatchWinningSide(match(), props.timeline.events);
   const stats = createMemo(() =>
     getMatchTimelineStats(props.timeline.events, match().duration ?? null),
   );

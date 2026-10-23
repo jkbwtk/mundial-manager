@@ -73,7 +73,7 @@ export function calculateStatsRowLuck(
 
   const winProbability = createMatchWinProbability(goalShare, rules);
   const expectedWin = winProbability([0, 0]);
-  const winner = getMatchWinningSide(match);
+  const winner = getMatchWinningSide(match, match.events);
 
   return {
     rules,

@@ -11,6 +11,7 @@ import { PaginatedResponse } from '#shared/zod';
 export const MatchRules = z.object({
   target: z.int().positive(),
   winByTwo: z.boolean(),
+  surrenderPenalty: z.int().nonnegative().default(0), // goals
 });
 export type MatchRules = z.infer<typeof MatchRules>;
 

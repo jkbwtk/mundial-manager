@@ -13,6 +13,7 @@ import {
   type MatchTimelineIssueSeverity,
   MatchTimelineIssueSeverityEnum,
 } from '#shared/types/api/matchTimeline';
+import type { MatchRules } from '#shared/types/api/season';
 
 export type MatchTimelineEntry = MatchEventCreate & {
   uuid?: string;
@@ -106,6 +107,25 @@ const PlayEventTypes: Set<MatchEventType> = new Set([
   // 'BALL_CHANGE',
 ]);
 
+const MatchEndEventTypes: Set<MatchEventType> = new Set([
+  'CANCEL',
+  'SURRENDER',
+]);
+
+const MatchEndErrorTypes: Record<
+  'CANCEL' | 'SURRENDER',
+  [duplicate: MatchTimelineErrorType, after: MatchTimelineErrorType]
+> = {
+  CANCEL: [
+    MatchTimelineErrorTypeEnum.CANCEL_DUPLICATE,
+    MatchTimelineErrorTypeEnum.EVENT_AFTER_CANCEL,
+  ],
+  SURRENDER: [
+    MatchTimelineErrorTypeEnum.SURRENDER_DUPLICATE,
+    MatchTimelineErrorTypeEnum.EVENT_AFTER_SURRENDER,
+  ],
+};
+
 const { ERROR, WARNING } = MatchTimelineIssueSeverityEnum;
 
 export function getMatchTimelineErrorMessage(errorType: string): string {
@@ -161,7 +181,7 @@ export function getMatchTimelineContext(
   };
 }
 
-function getOppositeSide(side: MatchSide): MatchSide {
+export function getOppositeSide(side: MatchSide): MatchSide {
   return side === 'SIDE_1' ? 'SIDE_2' : 'SIDE_1';
 }
 
@@ -188,17 +208,54 @@ export function getMatchSideScores(
 }
 
 function getTieBreakPriority(type: MatchEventType): number {
-  return type === 'CANCEL' ? 1 : 0;
+  return MatchEndEventTypes.has(type) ? 1 : 0;
+}
+
+export function getMatchSurrenderSide(
+  events: MatchTimelineEntry[],
+): MatchSide | null {
+  const surrender = sortMatchTimeline(events).find(
+    (event) => event.type === 'SURRENDER',
+  );
+
+  return surrender?.type === 'SURRENDER' ? surrender.side : null;
 }
 
 export function getMatchWinningSide(
   match: Pick<Match, 'status' | 'side1Score' | 'side2Score'>,
+  events: MatchTimelineEntry[],
 ): MatchSide | null {
+  if (match.status === 'SURRENDERED') {
+    const side = getMatchSurrenderSide(events);
+
+    return side === null ? null : getOppositeSide(side);
+  }
+
   if (match.status === 'CANCELED' || match.side1Score === match.side2Score) {
     return null;
   }
 
   return match.side1Score > match.side2Score ? 'SIDE_1' : 'SIDE_2';
+}
+
+export function getMatchRatedScore(
+  match: Pick<Match, 'status' | 'side1Score' | 'side2Score'>,
+  events: MatchTimelineEntry[],
+  rules: MatchRules,
+): [side1: number, side2: number] {
+  const surrendered =
+    match.status === 'SURRENDERED' ? getMatchSurrenderSide(events) : null;
+
+  if (surrendered === null) return [match.side1Score, match.side2Score];
+
+  const [loserScore, winnerScore] = getMatchSideScores(match, surrendered);
+  const forfeitScore =
+    Math.max(winnerScore, rules.target, loserScore + (rules.winByTwo ? 2 : 1)) +
+    rules.surrenderPenalty;
+
+  return surrendered === 'SIDE_1'
+    ? [loserScore, forfeitScore]
+    : [forfeitScore, loserScore];
 }
 
 export function sortMatchTimeline<T extends MatchTimelineEntry>(
@@ -388,17 +445,21 @@ export const matchTimelineValidationStrategies = {
     }
   },
 
-  noEventsAfterCancel: ({ steps, played, report }) => {
+  noEventsAfterEnd: ({ steps, played, report }) => {
+    const end = played.at(-1)?.event.type;
+
+    if (end !== 'CANCEL' && end !== 'SURRENDER') return;
+
+    const [duplicate, after] = MatchEndErrorTypes[end];
+
     for (const { event } of steps.slice(played.length)) {
-      const isCancel = event.type === 'CANCEL';
+      const isDuplicate = event.type === end;
 
       report(
         ERROR,
-        isCancel
-          ? MatchTimelineErrorTypeEnum.CANCEL_DUPLICATE
-          : MatchTimelineErrorTypeEnum.EVENT_AFTER_CANCEL,
+        isDuplicate ? duplicate : after,
         event,
-        isCancel ? 'type' : 'offset',
+        isDuplicate ? 'type' : 'offset',
       );
     }
   },
@@ -436,7 +497,12 @@ export const matchTimelineValidationStrategies = {
       }
     }
 
-    if (openPause !== null && played.at(-1)?.event.type !== 'CANCEL') {
+    const end = played.at(-1)?.event.type;
+
+    if (
+      openPause !== null &&
+      (end === undefined || !MatchEndEventTypes.has(end))
+    ) {
       report(
         WARNING,
         MatchTimelineErrorTypeEnum.PAUSE_NOT_RESUMED,
@@ -535,12 +601,14 @@ export function validateMatchTimeline(
   );
 
   const steps = getMatchTimelineSteps(events);
-  const cancelIndex = steps.findIndex((step) => step.event.type === 'CANCEL');
+  const endIndex = steps.findIndex((step) =>
+    MatchEndEventTypes.has(step.event.type),
+  );
 
   const state: MatchTimelineValidationState = {
     events,
     steps,
-    played: cancelIndex === -1 ? steps : steps.slice(0, cancelIndex + 1),
+    played: endIndex === -1 ? steps : steps.slice(0, endIndex + 1),
     context,
 
     report: (severity, errorType, event, field = null) => {

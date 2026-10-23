@@ -205,7 +205,7 @@ function calculateStatsRow(engine: StatsEngine, match: StatsMatch): StatsRow {
       stylePoints,
     ),
     balls: calculateStatsRowBalls(match),
-    winningSide: getMatchWinningSide(match),
+    winningSide: getMatchWinningSide(match, match.events),
 
     ratings,
     luck: calculateStatsRowLuckFromRatings(match, config, ratings),

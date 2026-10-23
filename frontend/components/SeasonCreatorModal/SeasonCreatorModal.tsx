@@ -57,6 +57,13 @@ export const seasonCreatorConfigFields: Omit<
         label: 'Win By Two',
         type: 'checkbox',
       },
+      surrenderPenalty: {
+        label: 'Surrender Penalty',
+        placeholder: 'Forfeit goals...',
+        type: 'number',
+        unit: 'goals',
+        min: 0,
+      },
     },
   },
   stylePoints: {

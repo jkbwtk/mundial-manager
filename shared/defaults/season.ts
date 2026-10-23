@@ -12,6 +12,7 @@ import type {
 export const defaultMatchRules = {
   target: 10,
   winByTwo: true,
+  surrenderPenalty: 0, // goals
 } satisfies MatchRules;
 
 export const defaultStylePointsConfig = {
