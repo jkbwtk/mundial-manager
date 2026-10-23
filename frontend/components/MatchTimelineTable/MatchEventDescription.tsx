@@ -60,7 +60,9 @@ export const MatchEventDescription: Component<MatchEventDescriptionProps> = (
     </Match>
 
     <Match when={narrowMatchEvent(props.event, 'EQUIPMENT_FAILURE')}>
-      {(equipmentFailure) => equipmentFailure().details ?? 'Equipment failure'}
+      {(equipmentFailure) => (
+        <>{equipmentFailure().details ?? 'Equipment failure'}</>
+      )}
     </Match>
 
     <Match when={narrowMatchEvent(props.event, 'PAUSE')}>
