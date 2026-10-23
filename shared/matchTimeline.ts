@@ -85,6 +85,8 @@ const MatchTimelineErrorMessages: Record<MatchTimelineErrorType, string> = {
   EVENT_AFTER_MATCH_END: 'Event happens after the match end',
   CANCEL_DUPLICATE: 'Timeline can contain only one "CANCEL" event',
   EVENT_AFTER_CANCEL: 'Event happens after the match was cancelled',
+  SURRENDER_DUPLICATE: 'Timeline can contain only one "SURRENDER" event',
+  EVENT_AFTER_SURRENDER: 'Event happens after a side surrendered',
   PAUSE_ALREADY_ACTIVE: 'Match is already paused',
   RESUME_WITHOUT_PAUSE: 'Match is resumed without being paused',
   PAUSE_NOT_RESUMED: 'Pause is never resumed',

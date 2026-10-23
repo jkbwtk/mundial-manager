@@ -30,6 +30,7 @@ export const MatchEventTypeLabels: Record<MatchEventType, string> = {
   PAUSE: 'Pause',
   RESUME: 'Resume',
   CANCEL: 'Cancel',
+  SURRENDER: 'Surrender',
 };
 
 export const MatchEventTypeSymbols: Record<
@@ -44,6 +45,7 @@ export const MatchEventTypeSymbols: Record<
   PAUSE: 'pause',
   RESUME: 'play_arrow',
   CANCEL: 'cancel',
+  SURRENDER: 'flag',
 };
 
 export const MatchSideLabels: Record<MatchSide, string> = {
@@ -56,6 +58,7 @@ export function getMatchEventLane(event: MatchEvent): MatchSide | null {
     case 'GOAL':
       return getGoalScoringSide(event);
     case 'POSITION_CHANGE':
+    case 'SURRENDER':
       return event.side;
     default:
       return null;
@@ -116,6 +119,9 @@ export function createMatchEvent(
     case 'EQUIPMENT_FAILURE':
     case 'CANCEL':
       return { ...base, type, details: null };
+
+    case 'SURRENDER':
+      return { ...base, type, side, details: null };
 
     default:
       return { ...base, type };

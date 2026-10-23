@@ -16,11 +16,29 @@ export const MatchStatusEnum = {
   ONGOING: 'ONGOING',
   PAUSED: 'PAUSED',
   FINISHED: 'FINISHED',
+  SURRENDERED: 'SURRENDERED',
   CANCELED: 'CANCELED',
 } as const;
 
 export const MatchStatus = z.enum(MatchStatusEnum);
 export type MatchStatus = z.infer<typeof MatchStatus>;
+
+export const MatchStatuses = Object.values(MatchStatusEnum);
+
+export const LiveMatchStatuses: MatchStatus[] = [
+  MatchStatusEnum.ONGOING,
+  MatchStatusEnum.PAUSED,
+];
+
+export const DecidedMatchStatuses: MatchStatus[] = [
+  MatchStatusEnum.FINISHED,
+  MatchStatusEnum.SURRENDERED,
+];
+
+export const EndedMatchStatuses: MatchStatus[] = [
+  ...DecidedMatchStatuses,
+  MatchStatusEnum.CANCELED,
+];
 
 export const Match = z.object({
   uuid: z.uuid(),

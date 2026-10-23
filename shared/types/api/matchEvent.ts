@@ -20,6 +20,7 @@ export const MatchEventTypeEnum = {
   PAUSE: 'PAUSE',
   RESUME: 'RESUME',
   CANCEL: 'CANCEL',
+  SURRENDER: 'SURRENDER',
 } as const;
 
 export const MatchEventType = z.enum(MatchEventTypeEnum);
@@ -85,6 +86,13 @@ export const MatchEventCancel = MatchEventBase.extend({
 });
 export type MatchEventCancel = z.infer<typeof MatchEventCancel>;
 
+export const MatchEventSurrender = MatchEventBase.extend({
+  type: z.literal(MatchEventTypeEnum.SURRENDER),
+  side: MatchSide, // the surrendering side
+  details: z.string().nullable().default(null),
+});
+export type MatchEventSurrender = z.infer<typeof MatchEventSurrender>;
+
 export const MatchEvent = z.discriminatedUnion('type', [
   MatchEventGoal,
   MatchEventPositionChange,
@@ -94,6 +102,7 @@ export const MatchEvent = z.discriminatedUnion('type', [
   MatchEventPause,
   MatchEventResume,
   MatchEventCancel,
+  MatchEventSurrender,
 ]);
 export type MatchEvent = z.infer<typeof MatchEvent>;
 
@@ -106,5 +115,6 @@ export const MatchEventCreate = z.discriminatedUnion('type', [
   MatchEventPause.omit({ uuid: true }),
   MatchEventResume.omit({ uuid: true }),
   MatchEventCancel.omit({ uuid: true }),
+  MatchEventSurrender.omit({ uuid: true }),
 ]);
 export type MatchEventCreate = z.infer<typeof MatchEventCreate>;
