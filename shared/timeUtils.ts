@@ -20,6 +20,18 @@ export function toZonedDayjs(
   return timeZone ? value.tz(timeZone) : value;
 }
 
+export function addZonedDays(
+  date: Date | number,
+  days: number,
+  timeZone?: string,
+): Date {
+  const wallTime = toZonedDayjs(date, timeZone)
+    .add(days, 'day')
+    .format('YYYY-MM-DDTHH:mm:ss.SSS');
+
+  return dayjs.tz(wallTime, timeZone).toDate();
+}
+
 export function formatDuration(ms: number | null): string {
   if (ms === null || ms < 0) {
     return '--:--';
