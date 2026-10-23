@@ -1,5 +1,6 @@
-import { createMemo, type JSX, onCleanup, onMount } from 'solid-js';
+import { createMemo, type JSX, onCleanup, onMount, Show } from 'solid-js';
 import { isServer } from 'solid-js/web';
+import { Dropdown } from '#components/Dropdown';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import style from './Paginator.module.scss';
 
@@ -8,6 +9,7 @@ export interface PaginatorProps {
   limit: number;
   offset: number;
   setOffset: (offset: number) => void;
+  setLimit?: (limit: number) => void;
 
   keyboardNavigation?: boolean;
 
@@ -16,6 +18,7 @@ export interface PaginatorProps {
 }
 
 export const PAGINATOR_DEFAULT_LIMIT = 50;
+export const PAGINATOR_LIMITS = [20, 50, 100, 250, 500];
 
 export const Paginator: Component<PaginatorProps> = (props) => {
   const lastOffset = createMemo(
@@ -135,6 +138,23 @@ export const Paginator: Component<PaginatorProps> = (props) => {
           />
         </button>{' '}
       </span>
+
+      <Show when={props.setLimit}>
+        {(setLimit) => (
+          <span class={style.limit}>
+            <Dropdown
+              ariaLabel="Page size"
+              options={PAGINATOR_LIMITS.map((limit) => ({
+                label: `${limit}`,
+                value: limit,
+              }))}
+              value={props.limit}
+              onChange={(limit) => setLimit()(limit)}
+            />
+            <span>per page</span>
+          </span>
+        )}
+      </Show>
     </span>
   );
 };

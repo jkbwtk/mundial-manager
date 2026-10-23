@@ -192,6 +192,7 @@ export const SeasonsDashboard: Component = () => {
         limit={queryMetaState.pagination.limit}
         offset={queryMetaState.pagination.offset}
         setOffset={(offset) => setQueryMeta('pagination', 'offset', offset)}
+        setLimit={(limit) => setQueryMeta('pagination', { limit, offset: 0 })}
       />
 
       <Divider />
