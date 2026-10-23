@@ -139,6 +139,10 @@ export function useSearchParamsState<T extends z.ZodObject>(
   const separator = options.separator ?? DEFAULT_SEARCH_PARAM_SEPARATOR;
   const scope = options.prefix ? `${options.prefix}${separator}` : '';
 
+  const isStateParam = (param: string) =>
+    param.startsWith(scope) &&
+    param.slice(scope.length).split(separator)[0]! in options.schema.shape;
+
   const readSearchParams = () =>
     parseSearchParams(treeify(searchParams, scope, separator), options);
 
@@ -152,10 +156,18 @@ export function useSearchParamsState<T extends z.ZodObject>(
       (current) => {
         if (getValueHash(readSearchParams()) === getValueHash(current)) return;
 
-        setSearchParams(flatten(current, scope, separator), {
-          replace: true,
-          state: { [SEARCH_PARAMS_STATE_MARKER]: true },
-        });
+        const next = flatten(current, scope, separator);
+        const removed = Object.keys(searchParams).flatMap((param) =>
+          isStateParam(param) && !(param in next) ? [[param, undefined]] : [],
+        );
+
+        setSearchParams(
+          { ...Object.fromEntries(removed), ...next },
+          {
+            replace: true,
+            state: { [SEARCH_PARAMS_STATE_MARKER]: true },
+          },
+        );
       },
       { defer: true },
     ),
