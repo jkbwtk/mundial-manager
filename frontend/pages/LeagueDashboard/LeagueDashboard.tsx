@@ -76,7 +76,7 @@ export const LeagueDashboard: Component = () => {
       header: 'Name',
       align: 'left',
       transform: (_, item: GoalType) =>
-        `${item.parentUuid ? '↳ ' : ''}${formatGoalTypeLabel(item)}`,
+        `${item.parentUuid ? '└ ' : ''}${formatGoalTypeLabel(item)}`,
     },
     {
       key: 'key',

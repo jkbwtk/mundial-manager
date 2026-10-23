@@ -64,7 +64,7 @@ export const MatchEventInspector: Component<MatchEventInspectorProps> = (
 
   const goalTypeOptions = createMemo((): DropdownOption[] =>
     lookup.goalTypes().map((goalType) => ({
-      label: `${goalType.parentUuid ? '↳ ' : ''}${formatGoalTypeLabel(goalType)}`,
+      label: `${goalType.parentUuid ? '└ ' : ''}${formatGoalTypeLabel(goalType)}`,
       value: goalType.uuid,
     })),
   );
