@@ -34,6 +34,7 @@ const CoreRanges: CodePointRange[] = [
   [0x2212, 0x2212], // −
   [0x2500, 0x257f], // Box Drawing
   [0x25c8, 0x25c8], // ◈
+  [0x25cf, 0x25cf], // ● live indicator
   [0x27e6, 0x27ef], // Mathematical brackets ⟪ ⟫
   [0xfffd, 0xfffd], // Replacement character
 ];
