@@ -36,6 +36,7 @@ type DropdownCommonProps<T> = {
   options: DropdownOption<T>[];
   disabled?: boolean;
   ariaLabel?: string;
+  placeholder?: string;
   invalid?: boolean;
   name?: string;
   anchor?: DropdownAnchor;
@@ -405,7 +406,7 @@ export const Dropdown: DropdownSignature = <T = string>(
               'min-width': `${minLabelTriggerWidth()}px`,
             }}
           >
-            <TextMarquee>{selectedLabels()}</TextMarquee>
+            <TextMarquee>{selectedLabels() || props.placeholder}</TextMarquee>
           </span>
         }{' '}
         <span aria-hidden="true">
