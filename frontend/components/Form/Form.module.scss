@@ -1,4 +1,5 @@
 @use 'app' as *;
+@use 'layouts' as *;
 
 .container {
   display: flex;
@@ -18,16 +19,9 @@
   }
 
   .field-input {
-    width: 100%;
-    display: inline-flex;
-    align-items: center;
+    @include fillControl;
 
     resize: vertical;
-
-    & > input {
-      flex-grow: 1;
-      min-width: 0;
-    }
   }
 
   &.inline {

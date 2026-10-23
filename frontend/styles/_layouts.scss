@@ -12,3 +12,14 @@
     text-align: right;
   }
 }
+
+@mixin fillControl {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+
+  & > input {
+    flex-grow: 1;
+    min-width: 0;
+  }
+}
