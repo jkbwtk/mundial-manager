@@ -9,7 +9,7 @@ export interface QueryMetaOptions<
 }
 
 export const Pagination = z.object({
-  limit: z.coerce.number().int().positive().max(200),
+  limit: z.coerce.number().int().positive().max(500),
   offset: z.coerce.number().int().nonnegative(),
 });
 export type Pagination = z.infer<typeof Pagination>;
