@@ -1,26 +1,25 @@
 import { defaultHeadToHeadRecord } from '#shared/defaults/headToHead';
-import { getMatchSidePlayers, getMatchSideScores } from '#shared/matchTimeline';
+import { getMatchSidePlayers, getOppositeSide } from '#shared/matchTimeline';
 import type {
   HeadToHead,
   HeadToHeadRecord,
 } from '#shared/types/api/headToHead';
 import type { Match } from '#shared/types/api/match';
-import { MatchSides } from '#shared/types/api/matchEvent';
+import { type MatchSide, MatchSides } from '#shared/types/api/matchEvent';
 
-type HeadToHeadMatch = Pick<
-  Match,
-  'playersSide1' | 'playersSide2' | 'side1Score' | 'side2Score'
->;
+type HeadToHeadMatch = Pick<Match, 'playersSide1' | 'playersSide2'> & {
+  winningSide: MatchSide | null;
+};
 
 type HeadToHeadOutcome = keyof HeadToHeadRecord;
 
 function getHeadToHeadOutcome(
-  score: number,
-  opponentScore: number,
+  side: MatchSide,
+  winningSide: MatchSide | null,
 ): HeadToHeadOutcome {
-  if (score === opponentScore) return 'draws';
+  if (winningSide === null) return 'draws';
 
-  return score > opponentScore ? 'wins' : 'losses';
+  return winningSide === side ? 'wins' : 'losses';
 }
 
 function addHeadToHeadOutcome<Record extends HeadToHeadRecord>(
@@ -43,10 +42,9 @@ export function calculateHeadToHead(
 
     if (side === undefined) continue;
 
-    const opponentSide = side === 'SIDE_1' ? 'SIDE_2' : 'SIDE_1';
+    const opponentSide = getOppositeSide(side);
     const opponents = getMatchSidePlayers(match, opponentSide);
-    const [score, opponentScore] = getMatchSideScores(match, side);
-    const outcome = getHeadToHeadOutcome(score, opponentScore);
+    const outcome = getHeadToHeadOutcome(side, match.winningSide);
     const isSingles =
       match.playersSide1.length === 1 && match.playersSide2.length === 1;
 

@@ -42,7 +42,10 @@ import {
   calculateTableSummaries,
 } from '#shared/stats/statsSummary';
 import type { HeadToHead, HeadToHeadQuery } from '#shared/types/api/headToHead';
-import { MatchStatusEnum } from '#shared/types/api/match';
+import {
+  DecidedMatchStatuses,
+  EndedMatchStatuses,
+} from '#shared/types/api/match';
 import { SeasonConfig } from '#shared/types/api/season';
 import type {
   GeneralStatsSeries,
@@ -104,8 +107,6 @@ const STATS_STORE_SIZE = 8;
 const STATS_PERIOD_CACHE_SIZE = 32;
 const STATS_TOUCH_WAIT_MS = 500;
 
-const StatsMatchStatuses = [MatchStatusEnum.FINISHED, MatchStatusEnum.CANCELED];
-
 const StatsInputTables = [seasonsTable, goalTypesTable];
 
 const statsTimelineJoin = and(
@@ -118,7 +119,7 @@ const slots = new Map<string, StatsStoreSlot>();
 function getStatsMatchConditions(leagueUuid: string, filter?: SQL): SQL {
   return and(
     eq(matchesTable.leagueUuid, leagueUuid),
-    inArray(matchesTable.status, StatsMatchStatuses),
+    inArray(matchesTable.status, EndedMatchStatuses),
     isNull(matchesTable.$deletedAt),
     filter,
   )!;
@@ -177,6 +178,16 @@ function getMatchPeriodRows(
 
   return rows.filter(
     (candidate) => candidate.day === row.day && candidate.index <= row.index,
+  );
+}
+
+function getHeadToHeadMatches(
+  rows: StatsRow[],
+): Parameters<typeof calculateHeadToHead>[0] {
+  return rows.flatMap((row) =>
+    DecidedMatchStatuses.includes(row.match.status)
+      ? [{ ...row.match, winningSide: row.winningSide }]
+      : [],
   );
 }
 
@@ -560,12 +571,7 @@ export class StatsModel {
       ratings: calculateRatingSummaries(rows, rows).filter(
         (entry) => entry.uuid === playerUuid,
       ),
-      headToHead: calculateHeadToHead(
-        rows.flatMap((row) =>
-          row.match.status === MatchStatusEnum.FINISHED ? [row.match] : [],
-        ),
-        playerUuid,
-      ),
+      headToHead: calculateHeadToHead(getHeadToHeadMatches(rows), playerUuid),
     };
   }
 
@@ -581,10 +587,8 @@ export class StatsModel {
       (query.to === undefined || startDate <= query.to);
 
     return calculateHeadToHead(
-      rows.flatMap(({ match }) =>
-        match.status === MatchStatusEnum.FINISHED && isInRange(match.startDate)
-          ? [match]
-          : [],
+      getHeadToHeadMatches(
+        rows.filter(({ match }) => isInRange(match.startDate)),
       ),
       query.playerUuid,
     );

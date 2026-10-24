@@ -8,6 +8,7 @@ export const PlayerStats = z.object({
   losses: z.number().int().nonnegative(),
   draws: z.number().int().nonnegative(),
   cancelledMatches: z.number().int().nonnegative(),
+  surrenders: z.number().int().nonnegative(),
 
   goalsFor: z.number().int().nonnegative(),
   goalsAgainst: z.number().int().nonnegative(),

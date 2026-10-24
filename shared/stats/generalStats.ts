@@ -26,6 +26,7 @@ export function calculateMatchStats(
   return {
     matches: 1,
     cancelledMatches: match.status === MatchStatusEnum.CANCELED ? 1 : 0,
+    surrenderedMatches: match.status === MatchStatusEnum.SURRENDERED ? 1 : 0,
 
     players: playerUuids.toSorted(),
 
@@ -66,6 +67,7 @@ export function mergeAggregateStats(
   return {
     matches: a.matches + b.matches,
     cancelledMatches: a.cancelledMatches + b.cancelledMatches,
+    surrenderedMatches: a.surrenderedMatches + b.surrenderedMatches,
 
     players: mergeUnique(a.players, b.players),
 

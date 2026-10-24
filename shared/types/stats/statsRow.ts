@@ -62,6 +62,7 @@ export interface StatsRatingChange {
 
 export interface StatsRowLuck {
   rules: MatchRules;
+  score: [side1: number, side2: number]; // rated, forfeits included
 
   expectedWins: [side1: number, side2: number];
   winner: MatchSide | null;

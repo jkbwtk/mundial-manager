@@ -145,6 +145,7 @@ export type PlayerProfileStats = z.infer<typeof PlayerProfileStats>;
 export const GeneralStatsSeriesFieldEnum = {
   matches: 'matches',
   cancelledMatches: 'cancelledMatches',
+  surrenderedMatches: 'surrenderedMatches',
   goals: 'goals',
   ownGoalCount: 'ownGoalCount',
   playtime: 'playtime',

@@ -1,4 +1,5 @@
 import {
+  getMatchRatedScore,
   getMatchTimelineSteps,
   getMatchWinningSide,
 } from '#shared/matchTimeline';
@@ -64,26 +65,27 @@ export function calculateStatsRowLuck(
   rules: MatchRules,
   goalShare: number,
 ): StatsRowLuck | null {
-  if (
-    match.status === 'CANCELED' ||
-    match.side1Score + match.side2Score === 0
-  ) {
+  const score = getMatchRatedScore(match, match.events, rules);
+
+  if (match.status === 'CANCELED' || score[0] + score[1] === 0) {
     return null;
   }
 
   const winProbability = createMatchWinProbability(goalShare, rules);
   const expectedWin = winProbability([0, 0]);
   const winner = getMatchWinningSide(match, match.events);
+  const hasComeback =
+    winner !== null &&
+    match.status !== 'SURRENDERED' &&
+    match.events.length > 0;
 
   return {
     rules,
+    score,
 
     expectedWins: [expectedWin, 1 - expectedWin],
     winner,
-    comeback:
-      winner === null || match.events.length === 0
-        ? null
-        : getComeback(match, winProbability, winner),
+    comeback: hasComeback ? getComeback(match, winProbability, winner) : null,
   };
 }
 
@@ -115,10 +117,8 @@ export function calculateLuckStats(
       accumulator.matches += 1;
       accumulator.wins += won ? 1 : 0;
       accumulator.expectedWins += luck.expectedWins[index];
-      accumulator.goalsFor +=
-        index === 0 ? row.match.side1Score : row.match.side2Score;
-      accumulator.goalsAgainst +=
-        index === 0 ? row.match.side2Score : row.match.side1Score;
+      accumulator.goalsFor += luck.score[index];
+      accumulator.goalsAgainst += luck.score[1 - index]!;
       const rulesKey = `${luck.rules.target}:${luck.rules.winByTwo}`;
 
       accumulator.rules.set(rulesKey, [

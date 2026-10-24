@@ -4,6 +4,7 @@ import { MatchEventType } from '#shared/types/api/matchEvent';
 export const AggregateStats = z.object({
   matches: z.number().int().nonnegative(),
   cancelledMatches: z.number().int().nonnegative(),
+  surrenderedMatches: z.number().int().nonnegative(),
 
   players: z.uuid().array(),
 

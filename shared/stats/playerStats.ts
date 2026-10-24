@@ -1,7 +1,7 @@
 import { getMatchSidePlayers, getMatchSideScores } from '#shared/matchTimeline';
 import { countValues, mergeCounts, mergeNullable } from '#shared/stats/utils';
 import { MatchStatusEnum } from '#shared/types/api/match';
-import { MatchSides } from '#shared/types/api/matchEvent';
+import { type MatchSide, MatchSides } from '#shared/types/api/matchEvent';
 import type { PlayerStats } from '#shared/types/stats/playerStats';
 import type {
   StatsMatch,
@@ -22,10 +22,16 @@ const { WIN, LOSS, DRAW, CANCELED } = MatchOutcomeEnum;
 
 function getMatchOutcome(
   row: StatsRow,
+  side: MatchSide,
   goalsFor: number,
   goalsAgainst: number,
 ): MatchOutcome {
   if (row.match.status === MatchStatusEnum.CANCELED) return CANCELED;
+
+  if (row.match.status === MatchStatusEnum.SURRENDERED) {
+    return row.winningSide === side ? WIN : LOSS;
+  }
+
   if (goalsFor === goalsAgainst) return DRAW;
 
   return goalsFor > goalsAgainst ? WIN : LOSS;
@@ -96,8 +102,10 @@ export function calculatePlayerStats(
   }
 
   const [goalsFor, goalsAgainst] = getMatchSideScores(row.match, player.side);
-  const outcome = getMatchOutcome(row, goalsFor, goalsAgainst);
+  const outcome = getMatchOutcome(row, player.side, goalsFor, goalsAgainst);
   const isCanceled = outcome === CANCELED;
+  const isSurrendered =
+    row.match.status === MatchStatusEnum.SURRENDERED && outcome === LOSS;
   const playtime = row.match.duration ?? 0;
   const currentWinStreak = getStreak(
     previous.currentWinStreak,
@@ -119,6 +127,7 @@ export function calculatePlayerStats(
     losses: previous.losses + (outcome === LOSS ? 1 : 0),
     draws: previous.draws + (outcome === DRAW ? 1 : 0),
     cancelledMatches: previous.cancelledMatches + (isCanceled ? 1 : 0),
+    surrenders: previous.surrenders + (isSurrendered ? 1 : 0),
 
     goalsFor: previous.goalsFor + goalsFor,
     goalsAgainst: previous.goalsAgainst + goalsAgainst,

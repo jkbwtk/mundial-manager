@@ -1,4 +1,8 @@
-import { getMatchSidePlayers, getMatchSideScores } from '#shared/matchTimeline';
+import {
+  getMatchRatedScore,
+  getMatchSidePlayers,
+  getMatchSideScores,
+} from '#shared/matchTimeline';
 import { RatingSystemDefinitions } from '#shared/stats/ratingSystems';
 import { MatchStatusEnum } from '#shared/types/api/match';
 import { type MatchSide, MatchSides } from '#shared/types/api/matchEvent';
@@ -105,6 +109,13 @@ export function calculateRatings(
 ): StatsRatingChange[] {
   if (match.status === MatchStatusEnum.CANCELED) return [];
 
+  const [side1Score, side2Score] = getMatchRatedScore(
+    match,
+    match.events,
+    config.rules,
+  );
+  const rated = { ...match, side1Score, side2Score };
+
   return RatingSystems.flatMap((system) => {
     const params = config.ratings[system];
     const definition = RatingSystemDefinitions[system];
@@ -121,7 +132,7 @@ export function calculateRatings(
         system === 'SKILL' ? seasonKey : engine.ratingEpoch,
       );
       const sides = MatchSides.map((side) =>
-        getRatingSide(match, subject, side),
+        getRatingSide(rated, subject, side),
       ) as [RatingMatchSide, RatingMatchSide];
 
       const players = new Set(sides.flatMap((side) => side.subjects));

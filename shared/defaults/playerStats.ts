@@ -8,6 +8,7 @@ export const defaultPlayerStats: PlayerStats = {
   losses: 0,
   draws: 0,
   cancelledMatches: 0,
+  surrenders: 0,
 
   goalsFor: 0,
   goalsAgainst: 0,
