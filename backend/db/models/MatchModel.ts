@@ -33,6 +33,7 @@ import {
 } from '#shared/matchTimeline';
 import { getStatsMatchSpan } from '#shared/stats/buckets';
 import {
+  LiveMatchStatuses,
   Match,
   MatchCreate,
   MatchQueryMeta,
@@ -498,6 +499,43 @@ export class MatchModel extends MatchOps {
             },
           });
         }
+      },
+
+      oneLiveMatchPerTable: async ({ db, leagueUuid, next, previous }) => {
+        if (!next.tableUuid || !LiveMatchStatuses.includes(next.status)) return;
+
+        const liveMatch = await db.query.matchesTable.findFirst({
+          where: {
+            AND: [
+              {
+                leagueUuid,
+                tableUuid: next.tableUuid,
+                status: {
+                  in: LiveMatchStatuses,
+                },
+                $deletedAt: {
+                  isNull: true,
+                },
+              },
+              ...(previous ? [{ NOT: { uuid: previous.uuid } }] : []),
+            ],
+          },
+          columns: {
+            uuid: true,
+          },
+        });
+
+        if (!liveMatch) return;
+
+        throw new StrategyValidationError(
+          'Another match is already being played on this table',
+          {
+            tableUuid: {
+              value: next.tableUuid,
+              errorType: 'TABLE_IN_USE',
+            },
+          },
+        );
       },
 
       noTableOverlap: async ({ db, leagueUuid, next, previous }) => {
