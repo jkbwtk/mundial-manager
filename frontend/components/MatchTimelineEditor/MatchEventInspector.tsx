@@ -113,7 +113,10 @@ export const MatchEventInspector: Component<MatchEventInspectorProps> = (
 
   const handleSideChange = (side: MatchSide) => {
     draft.updateEvent(props.uuid, (event) => {
-      if (event.type === 'POSITION_CHANGE') return { ...event, side };
+      if (event.type === 'POSITION_CHANGE' || event.type === 'SURRENDER') {
+        return { ...event, side };
+      }
+
       if (event.type !== 'GOAL') return event;
 
       const players = lookup.getSidePlayers(side);
@@ -358,10 +361,29 @@ export const MatchEventInspector: Component<MatchEventInspectorProps> = (
                 'EQUIPMENT_FAILURE',
                 'PAUSE',
                 'CANCEL',
+                'SURRENDER',
               )}
             >
               {(detailed) => (
                 <>
+                  <Show when={narrowMatchEvent(detailed(), 'SURRENDER')}>
+                    {(surrender) => (
+                      <FieldShell
+                        path="side"
+                        label="Surrendering side"
+                        required
+                      >
+                        <ButtonGroup
+                          ariaLabel="Surrendering side"
+                          options={sideOptions()}
+                          value={surrender().side}
+                          invalid={isInvalid('side')}
+                          onChange={handleSideChange}
+                        />
+                      </FieldShell>
+                    )}
+                  </Show>
+
                   <FieldShell path="details" label="Details" required={false}>
                     <TextArea
                       classList={fieldInputClassList}

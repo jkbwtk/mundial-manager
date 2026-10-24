@@ -93,6 +93,10 @@ $columns: max-content cw(2) cw(2) cw(2) minmax(0, 1fr) max-content;
     color: $textDimColor;
   }
 
+  &.surrendered:not(.selected) {
+    background-color: color-mix(in srgb, $yellow 15%, transparent);
+  }
+
   &.dragged {
     z-index: 2;
 

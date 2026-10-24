@@ -13,6 +13,7 @@ import type {
 } from '#flib/matchTimelineDraft';
 import type { MatchTimelineLookup } from '#flib/matchTimelineLookup';
 import type { SupportedMaterialSymbol } from '#flib/supportedMaterialSymbols';
+import { getMatchRatedScore } from '#shared/matchTimeline';
 import type { MatchSide } from '#shared/types/api/matchEvent';
 import type { MatchTimelineIssueSeverity } from '#shared/types/api/matchTimeline';
 import { MatchEventDescription } from './MatchEventDescription';
@@ -52,6 +53,21 @@ export const MatchTimelineRow: Component<MatchTimelineRowProps> = (props) => {
   const hasTimeErrors = () =>
     props.draft?.getEventSeverity(uuid(), 'offset') === 'ERROR';
 
+  const score = (): [number, number] | null => {
+    const { event } = props.step;
+
+    if (event.type === 'GOAL') return props.step.score;
+    if (event.type !== 'SURRENDER') return null;
+
+    const [side1Score, side2Score] = props.step.score;
+
+    return getMatchRatedScore(
+      { status: 'SURRENDERED', side1Score, side2Score },
+      [event],
+      props.lookup.timeline().rules,
+    );
+  };
+
   const handleClick = () => {
     props.draft?.setSelectedUuid(isSelected() ? null : uuid());
   };
@@ -76,6 +92,7 @@ export const MatchTimelineRow: Component<MatchTimelineRowProps> = (props) => {
         [style.interactive]: isEditable(),
         [style.selected]: isSelected(),
         [style.paused]: props.step.paused,
+        [style.surrendered]: props.step.event.type === 'SURRENDER',
         [style.dragged]: props.reorder.isDragged(uuid()),
         [style.dropBefore]: props.reorder.isDropTarget(uuid(), 'before'),
         [style.dropAfter]: props.reorder.isDropTarget(uuid(), 'after'),
@@ -127,10 +144,14 @@ export const MatchTimelineRow: Component<MatchTimelineRowProps> = (props) => {
       </span>
 
       <span class={style.score}>
-        <Show when={props.step.event.type === 'GOAL'}>
-          <span>{props.step.score[0]}</span>
-          <span>:</span>
-          <span>{props.step.score[1]}</span>
+        <Show when={score()}>
+          {(current) => (
+            <>
+              <span>{current()[0]}</span>
+              <span>:</span>
+              <span>{current()[1]}</span>
+            </>
+          )}
         </Show>
       </span>
 

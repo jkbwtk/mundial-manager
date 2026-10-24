@@ -15,6 +15,7 @@ import {
   DatabaseError,
   StrategyValidationError,
 } from '#blib/modelErrors';
+import { defaultSeasonConfig } from '#shared/defaults/season';
 import { isGoalTypeEnabled } from '#shared/goalTypes';
 import {
   getExactStartDate,
@@ -305,6 +306,7 @@ export class MatchModel extends MatchOps {
       players,
       balls,
       goalTypes,
+      rules: (seasonConfig ?? defaultSeasonConfig).rules,
       issues: [
         ...validateMatchTimeline(events, getMatchTimelineContext(match)),
         ...getMissingReferenceIssues(events, {

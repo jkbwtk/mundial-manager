@@ -27,6 +27,8 @@ const QuickAddEntries: QuickAddEntry[] = [
   { type: 'EQUIPMENT_FAILURE' },
   { type: 'BALL_CHANGE' },
   { type: 'CANCEL' },
+  { type: 'SURRENDER', side: 'SIDE_1' },
+  { type: 'SURRENDER', side: 'SIDE_2' },
 ];
 
 export const MatchEventQuickAdd: Component = () => {

@@ -84,5 +84,15 @@ export const MatchEventDescription: Component<MatchEventDescriptionProps> = (
         </>
       )}
     </Match>
+
+    <Match when={narrowMatchEvent(props.event, 'SURRENDER')}>
+      {(surrender) => (
+        <>
+          <MatchSideName side={surrender().side} lookup={props.lookup} />{' '}
+          surrendered
+          <Details text={surrender().details} />
+        </>
+      )}
+    </Match>
   </Switch>
 );

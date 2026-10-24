@@ -5,6 +5,7 @@ import { GoalType } from '#shared/types/api/goalType';
 import { Match } from '#shared/types/api/match';
 import { MatchEvent } from '#shared/types/api/matchEvent';
 import { Player } from '#shared/types/api/player';
+import { MatchRules } from '#shared/types/api/season';
 import { Table } from '#shared/types/api/table';
 
 export const MatchTimelineIssueSeverityEnum = {
@@ -61,6 +62,7 @@ export const MatchTimeline = z.object({
   balls: Ball.array(),
   goalTypes: GoalType.array(),
 
+  rules: MatchRules,
   issues: MatchTimelineIssue.array(),
 });
 export type MatchTimeline = z.infer<typeof MatchTimeline>;
