@@ -8,6 +8,7 @@ import {
   inArray,
   isNull,
   type SQL,
+  sql,
 } from 'drizzle-orm';
 import type z from 'zod';
 import type { DB, TX } from '#backend/db/database';
@@ -104,6 +105,10 @@ export interface ModelOpsMetadata<
     where: (search: string) => SQL;
     orderBy: SQL[];
   };
+  filterSql?: (
+    table: Table,
+    meta: z.infer<QueryMetaSchemaType>,
+  ) => SQL | undefined;
 }
 
 export function ModelOps<
@@ -162,6 +167,7 @@ export function ModelOps<
             ModelOps.searchSql && meta.search
               ? ModelOps.searchSql.where(meta.search)
               : undefined,
+            metadata.filterSql?.(ModelOps.table, meta),
           ),
         );
 
@@ -188,6 +194,7 @@ export function ModelOps<
               eq(ModelOps.tableUnion.leagueUuid, leagueUuid),
               isNull(ModelOps.tableUnion.$deletedAt),
               where(meta.search),
+              metadata.filterSql?.(ModelOps.table, meta),
             ),
           )
           .orderBy((t) => [
@@ -212,6 +219,8 @@ export function ModelOps<
             $deletedAt: {
               isNull: true,
             },
+            RAW: (table: Table) =>
+              metadata.filterSql?.(table, meta) ?? sql`true`,
           },
           orderBy: {
             [meta.sorting?.field ?? '$createdAt']:

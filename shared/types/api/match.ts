@@ -92,7 +92,23 @@ export const MatchesBySyncIds = z.object({
 });
 export type MatchesBySyncIds = z.infer<typeof MatchesBySyncIds>;
 
+export const MatchFilters = z.object({
+  status: z
+    .preprocess(
+      (value) => (typeof value === 'string' ? [value] : value),
+      MatchStatus.array().max(MatchStatuses.length),
+    )
+    .optional(),
+  tableUuid: z.uuid().optional(),
+  playerUuid: z.uuid().optional(),
+  from: z.coerce.number().int().optional(), // milliseconds since epoch, inclusive
+  to: z.coerce.number().int().optional(), // milliseconds since epoch, exclusive
+});
+export type MatchFilters = z.infer<typeof MatchFilters>;
+
 export const MatchQueryMeta = createQueryMeta({
   sortFields: ['startDate', 'duration', 'pauseDuration', 'status'] as const,
+}).extend({
+  filters: MatchFilters.optional(),
 });
 export type MatchQueryMeta = z.infer<typeof MatchQueryMeta>;

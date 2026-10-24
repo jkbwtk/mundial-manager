@@ -1,4 +1,4 @@
-import { sql } from 'drizzle-orm';
+import { and, eq, gte, inArray, lt, or, sql } from 'drizzle-orm';
 import type { DB, TX } from '#backend/db/database';
 import { BallModel } from '#backend/db/models/BallModel';
 import { GoalTypeModel } from '#backend/db/models/GoalTypeModel';
@@ -56,6 +56,24 @@ const MatchOps = ModelOps({
   createSchema: MatchCreate,
   updateSchema: MatchUpdate,
   queryMetaSchema: MatchQueryMeta,
+  filterSql: (table, { filters }) => {
+    if (!filters) return undefined;
+
+    const { status, tableUuid, playerUuid, from, to } = filters;
+
+    return and(
+      status && status.length > 0 ? inArray(table.status, status) : undefined,
+      tableUuid ? eq(table.tableUuid, tableUuid) : undefined,
+      playerUuid
+        ? or(
+            sql`${playerUuid} = any(${table.playersSide1})`,
+            sql`${playerUuid} = any(${table.playersSide2})`,
+          )
+        : undefined,
+      from === undefined ? undefined : gte(table.startDate, new Date(from)),
+      to === undefined ? undefined : lt(table.startDate, new Date(to)),
+    );
+  },
 });
 
 export class MatchModel extends MatchOps {
