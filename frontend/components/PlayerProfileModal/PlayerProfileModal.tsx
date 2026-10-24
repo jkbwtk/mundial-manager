@@ -81,6 +81,7 @@ const sections: PlayerProfileRow[][] = [
     { label: 'Wins', getValue: (profile) => profile.all?.wins },
     { label: 'Losses', getValue: (profile) => profile.all?.losses },
     { label: 'Draws', getValue: (profile) => profile.all?.draws },
+    { label: 'Surrenders', getValue: (profile) => profile.all?.surrenders },
     {
       label: 'Win/Loss Ratio',
       getValue: (profile) =>

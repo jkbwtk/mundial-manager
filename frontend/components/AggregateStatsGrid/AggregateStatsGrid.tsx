@@ -138,6 +138,14 @@ export const AggregateStatsGrid: Component<AggregateStatsGridProps> = (
                   value: <AnimatedText>{stats().players.length}</AnimatedText>,
                   label: 'players',
                 },
+                ...(stats().surrenderedMatches > 0
+                  ? [
+                      {
+                        value: stats().surrenderedMatches,
+                        label: 'surrendered',
+                      },
+                    ]
+                  : []),
                 ...(stats().cancelledMatches > 0
                   ? [
                       {
