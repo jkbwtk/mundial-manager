@@ -1,0 +1,52 @@
+@use 'app' as *;
+
+.action-menu {
+  display: inline-flex;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+
+  min-width: cw(18);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: cw(1);
+
+  width: 100%;
+  padding: 0 cw(1);
+
+  text-align: left;
+  white-space: nowrap;
+
+  color: $textColor;
+
+  cursor: pointer;
+
+  transition: background-color 0.1s, color 0.1s;
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: $textBrightColor;
+      color: $backgroundColor;
+    }
+  }
+
+  &:focus-visible {
+    background-color: $textBrightColor;
+    color: $backgroundColor;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    color: $textDimColor;
+    background-color: transparent;
+  }
+
+  &.danger {
+    color: $redBright;
+  }
+}
