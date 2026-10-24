@@ -1,0 +1,46 @@
+@use 'app' as *;
+
+.match-side-label {
+  display: flex;
+  align-items: flex-start;
+  gap: cw(1);
+
+  min-width: 0;
+
+  color: $textColor;
+
+  &.end {
+    flex-direction: row-reverse;
+
+    .names {
+      align-items: flex-end;
+
+      text-align: right;
+    }
+  }
+
+  &.stacked {
+    .names {
+      display: flex;
+      flex-direction: column;
+    }
+  }
+
+  &.highlight {
+    color: $textBrightColor;
+  }
+}
+
+.swatch {
+  flex-shrink: 0;
+}
+
+.names,
+.name {
+  min-width: 0;
+  max-width: 100%;
+  overflow: clip;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
