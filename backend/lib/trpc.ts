@@ -6,6 +6,7 @@ import { LeagueModel } from '#backend/db/models/LeagueModel';
 import { StatsModel } from '#backend/db/models/StatsModel';
 import { HttpError } from '#backend/errors/http';
 import type { JWTContext } from '#backend/types/auth';
+import { runWithAfterCommit } from '#blib/afterCommit';
 import { getCookieSecurity, getJWTContextFromCookies } from '#blib/jwt';
 import { memoized } from '#blib/memoized';
 import { ModelError } from '#blib/modelErrors';
@@ -147,13 +148,17 @@ export const leagueScopedProcedure = restrictedProcedure.use(async (opts) => {
     });
   }
 
-  const result = await opts.next({
-    ctx: {
-      league,
-    },
-  });
+  const [result, flushAfterCommit] = await runWithAfterCommit(() =>
+    opts.next({
+      ctx: {
+        league,
+      },
+    }),
+  );
 
   if (opts.type === 'mutation' && result.ok) {
+    flushAfterCommit();
+
     await StatsModel.touchAfterWrite(opts.ctx.db, league.uuid);
   }
 
