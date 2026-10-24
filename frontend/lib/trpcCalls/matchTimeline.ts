@@ -19,7 +19,12 @@ export const actionSaveMatchTimeline = action(
       await trpcClient.matchTimelines.saveByMatchId.mutate(timeline);
 
     return json(MatchTimeline.parse(savedTimeline), {
-      revalidate: ['queryMatchTimeline', 'queryMatches', 'queryMatchById'],
+      revalidate: [
+        'queryMatchTimeline',
+        'queryMatches',
+        'queryMatchById',
+        'queryActiveMatches',
+      ],
     });
   },
   'actionSaveMatchTimeline',

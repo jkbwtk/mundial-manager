@@ -9,6 +9,7 @@ import { SeasonModel } from '#backend/db/models/SeasonModel';
 import { TableModel } from '#backend/db/models/TableModel';
 import { matchesTable, teamConfigurationsTable } from '#backend/db/schema';
 import { MatchSelectSchema } from '#backend/types/db/match';
+import { queueActiveMatchesPublish } from '#blib/activeMatches';
 import { getMissingReferenceIssues } from '#blib/matchTimelineIssues';
 import {
   ConvertDrizzleErrors,
@@ -587,6 +588,12 @@ export class MatchModel extends MatchOps {
       },
     },
 
+    postCreate: {
+      queueActiveMatchesPublish: ({ leagueUuid }) => {
+        queueActiveMatchesPublish(leagueUuid);
+      },
+    },
+
     preUpdate: {
       syncIdImmutable: ({ next, previous }) => {
         if (next.syncId === previous.syncId) return;
@@ -606,6 +613,16 @@ export class MatchModel extends MatchOps {
         );
 
         MatchTimelineModel.assertValidTimeline(updated, events);
+      },
+
+      queueActiveMatchesPublish: ({ leagueUuid }) => {
+        queueActiveMatchesPublish(leagueUuid);
+      },
+    },
+
+    postDelete: {
+      queueActiveMatchesPublish: ({ leagueUuid }) => {
+        queueActiveMatchesPublish(leagueUuid);
       },
     },
   });

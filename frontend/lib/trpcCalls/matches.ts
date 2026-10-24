@@ -36,7 +36,7 @@ export const actionCreateMatch = action(async (match: MatchCreate) => {
   const newMatch = await trpcClient.matches.create.mutate(match);
 
   return json(Match.parse(newMatch), {
-    revalidate: ['queryMatches'],
+    revalidate: ['queryMatches', 'queryActiveMatches'],
   });
 }, 'actionCreateMatch');
 
@@ -45,7 +45,7 @@ export const actionCreateMatchWithWebhook = action(
     const newMatch = await trpcClient.matches.createWithWebhook.mutate(match);
 
     return json(Match.parse(newMatch), {
-      revalidate: ['queryMatches'],
+      revalidate: ['queryMatches', 'queryActiveMatches'],
     });
   },
   'actionCreateMatchWithWebhook',
@@ -56,7 +56,7 @@ export const actionCreateFullMatch = action(
     const newMatch = await trpcClient.matches.createFull.mutate(fullMatch);
 
     return json(Match.parse(newMatch), {
-      revalidate: ['queryMatches'],
+      revalidate: ['queryMatches', 'queryActiveMatches'],
     });
   },
   'actionCreateFullMatch',
@@ -66,7 +66,12 @@ export const actionUpdateMatch = action(async (match: MatchUpdate) => {
   const updatedMatch = await trpcClient.matches.update.mutate(match);
 
   return json(Match.parse(updatedMatch), {
-    revalidate: ['queryMatches', 'queryMatchById', 'queryMatchTimeline'],
+    revalidate: [
+      'queryMatches',
+      'queryActiveMatches',
+      'queryMatchById',
+      'queryMatchTimeline',
+    ],
   });
 }, 'actionUpdateMatch');
 
@@ -75,7 +80,12 @@ export const actionUpdateMatchWithWebhook = action(
     const updatedMatch = await trpcClient.matches.update.mutate(match);
 
     return json(Match.parse(updatedMatch), {
-      revalidate: ['queryMatches', 'queryMatchById', 'queryMatchTimeline'],
+      revalidate: [
+        'queryMatches',
+        'queryActiveMatches',
+        'queryMatchById',
+        'queryMatchTimeline',
+      ],
     });
   },
   'actionUpdateMatchWithWebhook',
@@ -85,7 +95,12 @@ export const actionDeleteMatch = action(async (uuid: string) => {
   const deletedMatch = await trpcClient.matches.delete.mutate({ uuid });
 
   return json(Match.parse(deletedMatch), {
-    revalidate: ['queryMatches', 'queryMatchById', 'queryMatchTimeline'],
+    revalidate: [
+      'queryMatches',
+      'queryActiveMatches',
+      'queryMatchById',
+      'queryMatchTimeline',
+    ],
   });
 }, 'actionDeleteMatch');
 
@@ -96,7 +111,7 @@ export const actionImportLegacyMatch = action(
     );
 
     return json(Match.parse(newMatch), {
-      revalidate: ['queryMatches'],
+      revalidate: ['queryMatches', 'queryActiveMatches'],
     });
   },
   'actionImportLegacyMatch',
@@ -110,7 +125,12 @@ export const actionCreateLegacyMatch = action(
     });
 
     return json(LegacyMatch.parse(newMatch), {
-      revalidate: ['queryMatches', 'queryMatchById', 'queryMatchesBySyncIds'],
+      revalidate: [
+        'queryMatches',
+        'queryActiveMatches',
+        'queryMatchById',
+        'queryMatchesBySyncIds',
+      ],
     });
   },
   'actionCreateLegacyMatch',

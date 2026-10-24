@@ -69,6 +69,27 @@ export class MatchTimelineModel extends MatchTimelineOps {
   }
 
   @ConvertDrizzleErrors()
+  public static async getByMatchIds(
+    db: DB | TX,
+    leagueUuid: string,
+    matchUuids: string[],
+  ) {
+    if (matchUuids.length === 0) return [];
+
+    return db.query.matchTimelinesTable.findMany({
+      where: {
+        leagueUuid,
+        matchUuid: {
+          in: matchUuids,
+        },
+        $deletedAt: {
+          isNull: true,
+        },
+      },
+    });
+  }
+
+  @ConvertDrizzleErrors()
   public static async getEventsByMatchId(
     db: DB | TX,
     leagueUuid: string,

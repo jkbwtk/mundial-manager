@@ -1,3 +1,4 @@
+import { activeMatchesRouter } from '#backend/routers/trpc/activeMatches';
 import { adminRouter } from '#backend/routers/trpc/admin';
 import { ballsRouter } from '#backend/routers/trpc/balls';
 import { eventsRouter } from '#backend/routers/trpc/events';
@@ -24,6 +25,7 @@ export const appRouter = router({
   matches: matchesRouter,
   matchSessions: matchSessionsRouter,
   matchTimelines: matchTimelinesRouter,
+  activeMatches: activeMatchesRouter,
   stats: statsRouter,
   events: eventsRouter,
   admin: adminRouter,

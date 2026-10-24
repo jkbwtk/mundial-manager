@@ -2,9 +2,9 @@ import { onCleanup } from 'solid-js';
 import { isServer } from 'solid-js/web';
 import { onReconnect } from '#flib/network';
 import { trpcClient } from '#flib/trpcClient';
-import type {
+import {
   LeagueEvent,
-  LeagueEventTopic,
+  type LeagueEventTopic,
 } from '#shared/types/api/leagueEvent';
 
 type LeagueEventHandler<Topic extends LeagueEventTopic> = (
@@ -44,7 +44,7 @@ function syncSubscription(force = false): void {
   subscription = trpcClient.events.onLeagueEvent.subscribe(
     { topics },
     {
-      onData: dispatchLeagueEvent,
+      onData: (data) => dispatchLeagueEvent(LeagueEvent.parse(data)),
       onError: (err) => {
         console.error('League event stream error:', err);
       },

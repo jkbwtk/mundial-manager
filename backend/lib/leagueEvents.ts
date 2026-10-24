@@ -1,4 +1,5 @@
 import type { DB } from '#backend/db/database';
+import { ActiveMatchModel } from '#backend/db/models/ActiveMatchModel';
 import { StatsModel } from '#backend/db/models/StatsModel';
 import { type Permission, PermissionEnum } from '#shared/permissions';
 import type {
@@ -15,12 +16,17 @@ export const LeagueEventTopicPermissions: Record<
   Permission[]
 > = {
   STATS: [PermissionEnum.STATS_READ],
+  ACTIVE_MATCHES: [PermissionEnum.MATCHES_READ],
 };
 
 const leagueEventSnapshots: Record<LeagueEventTopic, LeagueEventSnapshot> = {
   STATS: async (db, leagueUuid) => ({
     topic: 'STATS',
     version: await StatsModel.getVersion(db, leagueUuid),
+  }),
+  ACTIVE_MATCHES: async (db, leagueUuid) => ({
+    topic: 'ACTIVE_MATCHES',
+    matches: await ActiveMatchModel.getAll(db, leagueUuid),
   }),
 };
 
