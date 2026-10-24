@@ -13,6 +13,7 @@ import { Button } from '#components/Button';
 import { ColorBlock } from '#components/ColorBlock';
 import { InlineAction } from '#components/InlineAction';
 import { MatchTimelineModal } from '#components/MatchTimelineModal';
+import { MaterialSymbol } from '#components/MaterialSymbol';
 import { Skeleton } from '#components/Skeleton';
 import { TableLabel } from '#components/TableLabel';
 import { Divider, Widget } from '#components/Widget';
@@ -32,6 +33,8 @@ import {
   getKnownStartDate,
 } from '#shared/matchLabels';
 import {
+  getMatchRatedScore,
+  getMatchSurrenderSide,
   getMatchTimelineStats,
   getMatchWinningSide,
 } from '#shared/matchTimeline';
@@ -48,7 +51,15 @@ interface MatchSideRowProps {
   lookup: MatchTimelineLookup;
   side: MatchSide;
   winner: boolean;
+  surrendered: boolean;
 }
+
+const SurrenderFlag: Component = () => (
+  <>
+    {' '}
+    <MaterialSymbol symbol="flag" color="yellow" />
+  </>
+);
 
 const MatchSideRow: Component<MatchSideRowProps> = (props) => (
   <strong classList={{ [style.highlight]: props.winner }}>
@@ -59,6 +70,9 @@ const MatchSideRow: Component<MatchSideRowProps> = (props) => (
         .map(props.lookup.getPlayerName)
         .join(' ')}
     </AnimatedText>
+    <Show when={props.surrendered}>
+      <SurrenderFlag />
+    </Show>
   </strong>
 );
 
@@ -69,6 +83,18 @@ const MatchStatsDetails: Component<MatchStatsDetailsProps> = (props) => {
 
   const match = () => props.timeline.match;
   const winner = () => getMatchWinningSide(match(), props.timeline.events);
+  const surrendered = () =>
+    match().status === 'SURRENDERED'
+      ? getMatchSurrenderSide(props.timeline.events)
+      : null;
+  const finalScore = () =>
+    surrendered() === null
+      ? null
+      : getMatchRatedScore(
+          match(),
+          props.timeline.events,
+          props.timeline.rules,
+        );
   const stats = createMemo(() =>
     getMatchTimelineStats(props.timeline.events, match().duration ?? null),
   );
@@ -116,6 +142,7 @@ const MatchStatsDetails: Component<MatchStatsDetailsProps> = (props) => {
           lookup={lookup}
           side="SIDE_1"
           winner={winner() === 'SIDE_1'}
+          surrendered={surrendered() === 'SIDE_1'}
         />
 
         <span>Side 2:</span>
@@ -123,6 +150,7 @@ const MatchStatsDetails: Component<MatchStatsDetailsProps> = (props) => {
           lookup={lookup}
           side="SIDE_2"
           winner={winner() === 'SIDE_2'}
+          surrendered={surrendered() === 'SIDE_2'}
         />
 
         <span>Score:</span>
@@ -130,11 +158,34 @@ const MatchStatsDetails: Component<MatchStatsDetailsProps> = (props) => {
           <span classList={{ [style.highlight]: winner() === 'SIDE_1' }}>
             {match().side1Score}
           </span>
+          <Show when={surrendered() === 'SIDE_1'}>
+            <SurrenderFlag />{' '}
+          </Show>
           :
           <span classList={{ [style.highlight]: winner() === 'SIDE_2' }}>
             {match().side2Score}
           </span>
+          <Show when={surrendered() === 'SIDE_2'}>
+            <SurrenderFlag />
+          </Show>
         </strong>
+
+        <Show when={finalScore()}>
+          {(score) => (
+            <>
+              <span>Final Score:</span>
+              <strong>
+                <span classList={{ [style.highlight]: winner() === 'SIDE_1' }}>
+                  {score()[0]}
+                </span>
+                :
+                <span classList={{ [style.highlight]: winner() === 'SIDE_2' }}>
+                  {score()[1]}
+                </span>
+              </strong>
+            </>
+          )}
+        </Show>
 
         <span>Winning Color:</span>
         <Show
@@ -155,6 +206,13 @@ const MatchStatsDetails: Component<MatchStatsDetailsProps> = (props) => {
               </strong>
             </>
           )}
+        </Show>
+
+        <Show when={match().stakesModifier > 1}>
+          <span>Stakes Modifier:</span>
+          <strong>
+            <AnimatedText>×{match().stakesModifier}</AnimatedText>
+          </strong>
         </Show>
 
         <Show when={match().pauseDuration > 0}>
