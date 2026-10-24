@@ -120,6 +120,7 @@ function getStatsMatchConditions(leagueUuid: string, filter?: SQL): SQL {
   return and(
     eq(matchesTable.leagueUuid, leagueUuid),
     inArray(matchesTable.status, EndedMatchStatuses),
+    eq(matchesTable.hidden, false),
     isNull(matchesTable.$deletedAt),
     filter,
   )!;
