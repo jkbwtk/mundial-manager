@@ -27,6 +27,11 @@ import { getStatsDayKey, getStatsSeason } from '#shared/stats/buckets';
 import { calculateHeadToHead } from '#shared/stats/headToHead';
 import { getMatchPrediction } from '#shared/stats/matchPrediction';
 import {
+  calculateLineupHeadToHead,
+  calculateMatchPreviewPlayer,
+} from '#shared/stats/matchPreview';
+import { getStatsRatingState } from '#shared/stats/ratingStats';
+import {
   getStatsPeriodKeys,
   getStatsPeriodRows,
 } from '#shared/stats/statsPeriod';
@@ -52,6 +57,7 @@ import type {
   GeneralStatsSeriesQuery,
   MatchPrediction,
   MatchPredictionQuery,
+  MatchPreview,
   PeriodMatch,
   PeriodMatchQuery,
   PeriodStats,
@@ -603,6 +609,32 @@ export class StatsModel {
     const { engine } = await this.getEntry(db, leagueUuid);
 
     return getMatchPrediction(engine, query, new Date());
+  }
+
+  public static async getMatchPreview(
+    db: DB,
+    leagueUuid: string,
+    query: MatchPredictionQuery,
+  ): Promise<MatchPreview> {
+    const { engine, rows } = await this.getEntry(db, leagueUuid);
+    const elo = getStatsRatingState(
+      engine,
+      'ELO',
+      'HYBRID',
+      engine.ratingEpoch,
+    );
+
+    return {
+      prediction: getMatchPrediction(engine, query, new Date()),
+      headToHead: calculateLineupHeadToHead(rows, query),
+      players: [...query.playersSide1, ...query.playersSide2].map((uuid) =>
+        calculateMatchPreviewPlayer(
+          rows,
+          uuid,
+          elo?.ratings.get(uuid)?.rating ?? null,
+        ),
+      ),
+    };
   }
 
   public static async getGeneralStatsSeries(

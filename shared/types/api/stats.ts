@@ -229,3 +229,45 @@ export const MatchPrediction = z.object({
   players: MatchPredictionPlayer.array(),
 });
 export type MatchPrediction = z.infer<typeof MatchPrediction>;
+
+export const MatchPreviewOutcomeEnum = {
+  WIN: 'WIN',
+  DRAW: 'DRAW',
+  LOSS: 'LOSS',
+} as const;
+
+export const MatchPreviewOutcome = z.enum(MatchPreviewOutcomeEnum);
+export type MatchPreviewOutcome = z.infer<typeof MatchPreviewOutcome>;
+
+export const LineupHeadToHead = z.object({
+  wins: z.number().int().nonnegative(), // side 1 of the query
+  draws: z.number().int().nonnegative(),
+  losses: z.number().int().nonnegative(),
+
+  last: z
+    .object({
+      matchUuid: z.uuid(),
+      startDate: z.coerce.date().nullable(),
+      score: z.tuple([z.number().int(), z.number().int()]), // side 1 of the query first
+      outcome: MatchPreviewOutcome,
+    })
+    .nullable(),
+});
+export type LineupHeadToHead = z.infer<typeof LineupHeadToHead>;
+
+export const MatchPreviewPlayer = z.object({
+  uuid: z.uuid(),
+
+  elo: z.number().nullable(), // hybrid
+  currentWinStreak: z.number().int().nonnegative(),
+  currentLossStreak: z.number().int().nonnegative(),
+  recent: MatchPreviewOutcome.array().max(5), // newest first
+});
+export type MatchPreviewPlayer = z.infer<typeof MatchPreviewPlayer>;
+
+export const MatchPreview = z.object({
+  prediction: MatchPrediction.nullable(),
+  headToHead: LineupHeadToHead,
+  players: MatchPreviewPlayer.array(),
+});
+export type MatchPreview = z.infer<typeof MatchPreview>;

@@ -7,6 +7,7 @@ import {
   GeneralStatsSeriesQuery,
   MatchPrediction,
   MatchPredictionQuery,
+  MatchPreview,
   PeriodMatch,
   PeriodMatchQuery,
   PeriodStats,
@@ -67,6 +68,13 @@ export const statsRouter = router({
     .output(MatchPrediction.nullable())
     .query(async ({ ctx, input }) => {
       return StatsModel.getMatchPrediction(ctx.db, ctx.league.uuid, input);
+    }),
+
+  getMatchPreview: leaguePermissionProcedure(PermissionEnum.STATS_READ)
+    .input(MatchPredictionQuery)
+    .output(MatchPreview)
+    .query(async ({ ctx, input }) => {
+      return StatsModel.getMatchPreview(ctx.db, ctx.league.uuid, input);
     }),
 
   getGeneralStatsSeries: leaguePermissionProcedure(PermissionEnum.STATS_READ)

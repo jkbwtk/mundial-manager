@@ -6,6 +6,7 @@ import {
   type GeneralStatsSeriesQuery,
   MatchPrediction,
   type MatchPredictionQuery,
+  MatchPreview,
   PeriodMatch,
   type PeriodMatchQuery,
   PeriodStats,
@@ -62,6 +63,12 @@ export const queryMatchPrediction = query(
   'queryMatchPrediction',
 );
 
+export const queryMatchPreview = query(async (input: MatchPredictionQuery) => {
+  const preview = await trpcClient.stats.getMatchPreview.query(input);
+
+  return MatchPreview.parse(preview);
+}, 'queryMatchPreview');
+
 export const queryHeadToHead = query(async (input: HeadToHeadQuery) => {
   const records = await trpcClient.stats.getHeadToHead.query(input);
 
@@ -107,6 +114,7 @@ export const StatsQueryKeys = [
   'queryPlayerProfileStats',
   'queryHeadToHead',
   'queryMatchPrediction',
+  'queryMatchPreview',
   'queryGeneralStatsSeries',
   'queryRatingHistory',
 ];
