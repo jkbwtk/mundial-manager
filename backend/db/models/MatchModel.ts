@@ -36,6 +36,8 @@ import {
   Match,
   MatchCreate,
   MatchQueryMeta,
+  type MatchStatus,
+  MatchStatusEnum,
   MatchUpdate,
 } from '#shared/types/api/match';
 import type { MatchEvent, MatchSide } from '#shared/types/api/matchEvent';
@@ -129,23 +131,15 @@ export class MatchModel extends MatchOps {
     leagueUuid: string,
     data: MatchCreate,
   ) {
-    const next = {
-      ...data,
-      status: deriveMatchStatus(data.status, {
-        duration: data.duration,
-        events: [],
-      }),
-    } satisfies MatchCreate;
-
     return {
-      next,
+      next: data,
       row: {
-        ...next,
+        ...data,
         ...(await this.getTeamConfigurationColumns(
           db,
           leagueUuid,
-          next.playersSide1,
-          next.playersSide2,
+          data.playersSide1,
+          data.playersSide2,
         )),
       },
     };
@@ -162,17 +156,20 @@ export class MatchModel extends MatchOps {
       ...data,
     } as MatchCreate;
 
-    const next = {
-      ...merged,
-      status: deriveMatchStatus(merged.status, {
-        duration: merged.duration,
-        events: await MatchTimelineModel.getEventsByMatchId(
-          db,
-          leagueUuid,
-          previous.uuid,
-        ),
-      }),
-    } satisfies MatchCreate;
+    const next =
+      data.status === undefined
+        ? {
+            ...merged,
+            status: deriveMatchStatus(merged.status, {
+              duration: merged.duration,
+              events: await MatchTimelineModel.getEventsByMatchId(
+                db,
+                leagueUuid,
+                previous.uuid,
+              ),
+            }),
+          }
+        : merged;
 
     return {
       next,
@@ -240,18 +237,23 @@ export class MatchModel extends MatchOps {
     const instance = await db.transaction(async (tx) => {
       const { events, ...matchData } = data;
 
-      const match = await this.create(tx, leagueUuid, matchData);
+      if (events.length === 0) return this.create(tx, leagueUuid, matchData);
 
-      if (events.length === 0) return match;
+      const match = await this.create(tx, leagueUuid, {
+        ...matchData,
+        status: deriveMatchStatus(matchData.status, {
+          duration: matchData.duration,
+          events: [],
+        }),
+      });
 
-      const stored = await MatchTimelineModel.saveForMatch(
+      return this.syncTimeline(
         tx,
         leagueUuid,
         match,
-        events,
+        await MatchTimelineModel.saveForMatch(tx, leagueUuid, match, events),
+        matchData.status,
       );
-
-      return this.syncTimeline(tx, leagueUuid, match, stored);
     });
 
     return instance;
@@ -348,11 +350,13 @@ export class MatchModel extends MatchOps {
     leagueUuid: string,
     match: MatchSelectSchema,
     events: MatchEvent[],
+    status?: MatchStatus,
   ) {
     const [side1Score, side2Score] = getMatchTimelineScore(events);
 
     return this.update(db, leagueUuid, {
       uuid: match.uuid,
+      status,
       pauseDuration: getMatchTimelinePauseDuration(events),
       side1Score,
       side2Score,
@@ -361,6 +365,45 @@ export class MatchModel extends MatchOps {
 
   public static strategies = MatchOps.defineStrategies({
     preWrite: {
+      statusMatchesTimeline: async ({ db, leagueUuid, op, next, previous }) => {
+        const events =
+          op === 'create'
+            ? []
+            : await MatchTimelineModel.getEventsByMatchId(
+                db,
+                leagueUuid,
+                previous.uuid,
+              );
+        const derived = deriveMatchStatus(next.status, {
+          duration: next.duration,
+          events,
+        });
+
+        if (derived === next.status) return;
+
+        if (next.status === MatchStatusEnum.SURRENDERED) {
+          throw new StrategyValidationError(
+            'Surrendered match requires a surrender event',
+            {
+              status: {
+                value: next.status,
+                errorType: 'SURRENDER_EVENT_MISSING',
+              },
+            },
+          );
+        }
+
+        throw new StrategyValidationError(
+          'Match status does not match its timeline',
+          {
+            status: {
+              value: next.status,
+              errorType: 'STATUS_DOES_NOT_MATCH_TIMELINE',
+            },
+          },
+        );
+      },
+
       spectatorsNotPlaying: ({ next }) => {
         const players = new Set(getMatchPlayerUuids(next));
         const playingSpectators = next.spectators.filter((uuid) =>
@@ -507,23 +550,6 @@ export class MatchModel extends MatchOps {
         );
 
         MatchTimelineModel.assertValidTimeline(updated, events);
-
-        const derived = deriveMatchStatus(updated.status, {
-          duration: updated.duration,
-          events,
-        });
-
-        if (derived !== updated.status) {
-          throw new StrategyValidationError(
-            'Match status does not match its timeline',
-            {
-              status: {
-                value: updated.status,
-                errorType: 'STATUS_DOES_NOT_MATCH_TIMELINE',
-              },
-            },
-          );
-        }
       },
     },
   });

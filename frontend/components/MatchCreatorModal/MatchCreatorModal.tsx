@@ -109,7 +109,6 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
         status: {
           label: 'Status',
           type: 'dropdown',
-          // Overwritten by the lifecycle derived from a stored timeline
           options: statusMap,
         },
         hidden: {

@@ -6,9 +6,11 @@ import {
   type StartDatePrecision,
   StartDatePrecisionEnum,
 } from '#shared/matchLabels';
+import { deriveMatchStatus } from '#shared/matchStatus';
 import { getPauseDuration } from '#shared/matchUtils';
 import { msToSeconds, secondsToMs, toZonedDayjs } from '#shared/timeUtils';
 import type { GoalType } from '#shared/types/api/goalType';
+import { MatchStatusEnum } from '#shared/types/api/match';
 import type {
   MatchEvent,
   MatchEventCreate,
@@ -122,19 +124,34 @@ export function convertFromLegacyMatch(
   const swapRequired = table ? checkIfSwapRequired(match, table) : false;
   const { startDate, precision } = resolveLegacyStartDate(match);
   const replay = match.replayMetadata;
+  const duration = secondsToMs(match.duration);
+  const events = replay
+    ? replay.events
+        .map((event) =>
+          convertFromLegacyMatchEvent(
+            match,
+            event,
+            players,
+            goalTypes,
+            replay.startedAt,
+            swapRequired,
+          ),
+        )
+        .filter((event) => event !== null)
+    : [];
 
   return {
     tableUuid: table?.uuid,
 
     startDate,
 
-    duration: secondsToMs(match.duration),
+    duration,
     pauseDuration: replay ? secondsToMs(getPauseDuration(replay.events)) : 0,
 
     side1Score: swapRequired ? match.score2 : match.score1,
     side2Score: swapRequired ? match.score1 : match.score2,
 
-    status: 'FINISHED',
+    status: deriveMatchStatus(MatchStatusEnum.FINISHED, { duration, events }),
     hidden: false,
     stakesModifier: 1,
     syncId,
@@ -153,20 +170,7 @@ export function convertFromLegacyMatch(
     ),
 
     spectators: [],
-    events: replay
-      ? replay.events
-          .map((event) =>
-            convertFromLegacyMatchEvent(
-              match,
-              event,
-              players,
-              goalTypes,
-              replay.startedAt,
-              swapRequired,
-            ),
-          )
-          .filter((event) => event !== null)
-      : [],
+    events,
 
     labels: {
       legacyImportSwap: swapRequired,
