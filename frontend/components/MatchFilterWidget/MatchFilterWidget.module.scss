@@ -1,0 +1,56 @@
+@use 'app' as *;
+@use 'layouts' as *;
+
+.widget {
+  flex-shrink: 0;
+
+  width: round(down, 100%, cw(1));
+}
+
+.container {
+  display: grid;
+  grid-template-columns: cw(8) minmax(0, cw(36)) cw(8) minmax(0, cw(36));
+  align-items: center;
+  gap: 0 cw(1);
+
+  &.mobile {
+    grid-template-columns: cw(7) minmax(0, 1fr);
+  }
+
+  .date {
+    @include fillControl;
+  }
+}
+
+.label {
+  text-align: right;
+
+  color: $textDimColor;
+}
+
+.statuses {
+  display: flex;
+  align-items: flex-start;
+  gap: cw(1);
+
+  .label {
+    flex-shrink: 0;
+
+    width: cw(8);
+  }
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 cw(1);
+
+  min-width: 0;
+}
+
+.status {
+  &.selected {
+    color: $backgroundColor;
+    background-color: $textBrightColor;
+  }
+}
