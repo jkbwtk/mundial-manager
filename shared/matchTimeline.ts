@@ -340,6 +340,22 @@ export function getMatchTimelinePauses<T extends MatchTimelineEntry>(
   return pauses;
 }
 
+export function getMatchLiveElapsed(
+  startDate: Date,
+  events: MatchTimelineEntry[],
+  now: number,
+): number {
+  const elapsed = now - startDate.getTime();
+
+  let paused = 0;
+
+  for (const pause of getMatchTimelinePauses(getMatchTimelineSteps(events))) {
+    paused += Math.min(pause.to ?? elapsed, elapsed) - pause.from;
+  }
+
+  return Math.max(0, elapsed - paused);
+}
+
 export function isMatchPausedAt(
   pauses: MatchTimelinePause[],
   offset: number,

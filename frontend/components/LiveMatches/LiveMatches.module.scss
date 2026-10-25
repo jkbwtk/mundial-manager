@@ -1,0 +1,302 @@
+@use 'app' as *;
+
+.widget {
+  width: 100%;
+}
+
+.dashed-divider {
+  --divider-border-style: dashed;
+}
+
+.dimmed {
+  color: $textDimColor;
+}
+
+.live-dot {
+  color: $primaryBrightColor;
+
+  animation: pulse-live 1.6s ease-in-out infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+.clock {
+  font-weight: bold;
+
+  color: $textBrightColor;
+
+  &.paused {
+    color: $textDimColor;
+  }
+
+  &.stale {
+    color: $yellow;
+  }
+}
+
+.win-bar {
+  display: block;
+
+  height: ch(1);
+
+  :where(&) {
+    --side-1-color: #{$textBrightColor};
+    --side-2-color: #{$textDimColor};
+  }
+
+  background-image: linear-gradient(
+    to right,
+    var(--side-1-color) 0 calc(var(--share) * 100%),
+    var(--side-2-color) calc(var(--share) * 100%) 100%
+  );
+  background-size: 100% ch(0.5);
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: $borderRadius;
+}
+
+.ticker {
+  display: flex;
+  align-items: stretch;
+  gap: cw(1);
+
+  height: 100%;
+  min-width: 0;
+}
+
+.ticker-rows {
+  display: grid;
+  grid-template-columns:
+    max-content max-content minmax(0, cw(12)) minmax(0, cw(20))
+    max-content minmax(0, cw(20)) cw(5);
+  align-content: end;
+  column-gap: cw(1);
+
+  min-width: 0;
+}
+
+.ticker-row {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: center;
+
+  height: ch(1);
+  min-width: 0;
+  padding: 0 cw(1);
+
+  white-space: nowrap;
+
+  color: $textColor;
+  border-radius: $borderRadius;
+
+  cursor: pointer;
+
+  transition: background-color 0.1s, color 0.1s;
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: $textBrightColor;
+      color: $backgroundColor;
+
+      * {
+        color: $backgroundColor;
+      }
+    }
+  }
+
+  &:focus-visible {
+    background-color: $textBrightColor;
+    color: $backgroundColor;
+
+    * {
+      color: $backgroundColor;
+    }
+  }
+
+  & > :last-child {
+    text-align: right;
+  }
+}
+
+.ticker-table {
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+}
+
+.ticker-score {
+  color: $textBrightColor;
+}
+
+.ticker-divider {
+  height: 100%;
+}
+
+.upcoming-counter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding-right: cw(1);
+
+  white-space: nowrap;
+
+  color: $textBrightColor;
+
+  .dimmed {
+    transition: color 0.1s;
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      .dimmed {
+        color: $textBrightColor;
+      }
+    }
+  }
+
+  &:focus-visible {
+    .dimmed {
+      color: $textBrightColor;
+    }
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: ch(0.5);
+
+  min-width: 0;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: cw(1);
+
+  white-space: nowrap;
+}
+
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: cw(1);
+
+  min-width: 0;
+}
+
+.card-table {
+  min-width: 0;
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  color: $textDimColor;
+}
+
+.scoreline {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr) max-content minmax(cw(16), 1.2fr) max-content
+    minmax(0, 1fr);
+  grid-template-areas:
+    'side1 score1 bar score2 side2'
+    'side1 caption caption caption side2';
+  align-items: center;
+  column-gap: cw(1);
+
+  &.mobile {
+    grid-template-columns: max-content minmax(0, 1fr) minmax(0, 1fr) max-content;
+    grid-template-areas:
+      'side1 side1 side2 side2'
+      'score1 bar bar score2'
+      'caption caption caption caption';
+  }
+}
+
+.side1 {
+  grid-area: side1;
+  align-self: start;
+}
+
+.side2 {
+  grid-area: side2;
+  align-self: start;
+}
+
+.score1,
+.score2 {
+  color: $textBrightColor;
+}
+
+.score1 {
+  grid-area: score1;
+}
+
+.score2 {
+  grid-area: score2;
+}
+
+.bar {
+  grid-area: bar;
+}
+
+.caption {
+  display: grid;
+  grid-template-columns: 1fr max-content 1fr;
+  gap: cw(1);
+
+  grid-area: caption;
+  align-self: start;
+
+  & > :last-child {
+    text-align: right;
+  }
+
+  white-space: nowrap;
+
+  color: $textDimColor;
+}
+
+.feed {
+  display: flex;
+  gap: cw(1);
+
+  min-width: 0;
+
+  white-space: nowrap;
+}
+
+.feed-items {
+  display: flex;
+  justify-content: flex-end;
+  column-gap: cw(2);
+
+  flex: 1;
+
+  min-width: 0;
+  overflow: hidden;
+
+  mask-image: linear-gradient(to right, transparent, black cw(4));
+
+  & > * {
+    flex-shrink: 0;
+  }
+}
+
+@keyframes pulse-live {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
+}
