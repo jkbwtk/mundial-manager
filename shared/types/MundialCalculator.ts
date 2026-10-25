@@ -2,7 +2,13 @@ import z from 'zod';
 import type { Ball } from '#shared/types/api/ball';
 import type { GoalType } from '#shared/types/api/goalType';
 import type { League } from '#shared/types/api/league';
-import type { Match, MatchCreate, MatchUpdate } from '#shared/types/api/match';
+import type {
+  Match,
+  MatchCreate,
+  MatchPaginated,
+  MatchQueryMeta,
+  MatchUpdate,
+} from '#shared/types/api/match';
 import { MatchEventGoal } from '#shared/types/api/matchEvent';
 import type {
   MatchTimeline,
@@ -10,6 +16,10 @@ import type {
 } from '#shared/types/api/matchTimeline';
 import type { Player } from '#shared/types/api/player';
 import type { Season } from '#shared/types/api/season';
+import type {
+  MatchPredictionQuery,
+  MatchPreview,
+} from '#shared/types/api/stats';
 import type { Table } from '#shared/types/api/table';
 import { MatchEvent as LegacyMatchEvent } from '#shared/types/Sheets';
 
@@ -73,6 +83,10 @@ export type CalculatorApi = {
   ): Promise<LiveMatchPrediction | null>;
 
   createLegacyMatch(legacyMatch: CalculatorFinishEvent): void;
+
+  getMatches(meta: MatchQueryMeta): Promise<MatchPaginated>;
+  getMatchTimeline(matchUuid: string): Promise<MatchTimeline>;
+  getMatchPreview(lineup: MatchPredictionQuery): Promise<MatchPreview>;
 
   createMatch(match: MatchCreate): Promise<Match>;
   updateMatch(match: MatchUpdate): Promise<Match>;

@@ -1,35 +1,67 @@
-import { createSignal, getOwner, onCleanup, onMount } from 'solid-js';
-import { isServer } from 'solid-js/web';
-import { Break } from '#components/Break';
+import { createMemo, createSignal, For, getOwner } from 'solid-js';
 import { Button } from '#components/Button';
 import { MatchSaveConfirmModal } from '#components/MatchSaveConfirmModal';
 import { Divider } from '#components/Widget';
-import { usePlayerLookup } from '#flib/entityLookup';
+import { useCalculatorHost } from '#flib/calculatorHost';
 import { convertCalculatorFinishEventToMatch } from '#flib/legacyMatches';
 import { createResilientAsync } from '#flib/resilientAsync';
 import { queryCalculatorUrl } from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
-import { CalculatorFinishEvent } from '#shared/types/MundialCalculator';
+import type { CalculatorFinishEvent } from '#shared/types/MundialCalculator';
 import style from './IframeTest.module.scss';
 
-const IFRAME_TEST_URLS = [
-  'http://localhost:4200/tests/iframe-test',
-  'http://127.0.0.1/tests/iframe-test',
-];
+const SIMULATOR_PATH = '/tests/calculator-simulator-test';
 
-const IframeTest: Component = () => {
+const HostStateEnum = {
+  CONNECTING: 'CONNECTING',
+  CONNECTED: 'CONNECTED',
+  FAILED: 'FAILED',
+} as const;
+
+type HostState = (typeof HostStateEnum)[keyof typeof HostStateEnum];
+
+interface CalculatorHostFrameProps {
+  src: string;
+
+  onFinishEvent: (event: CalculatorFinishEvent) => void;
+  onStateChange: (state: HostState) => void;
+}
+
+const CalculatorHostFrame: Component<CalculatorHostFrameProps> = (props) => {
+  let ref!: HTMLIFrameElement;
+
+  useCalculatorHost({
+    iframe: () => ref,
+    onFinishEvent: props.onFinishEvent,
+    onConnect: () => props.onStateChange(HostStateEnum.CONNECTED),
+    onConnectError: (err) => {
+      console.error('Calculator host connection error:', err);
+      props.onStateChange(HostStateEnum.FAILED);
+    },
+  });
+
+  return (
+    <iframe
+      ref={ref}
+      src={props.src}
+      title="Calculator Host Test"
+      class={style.iframe}
+      sandbox="allow-scripts allow-same-origin allow-forms"
+    />
+  );
+};
+
+export const IframeTest: Component = () => {
   const [, { open }] = useModal();
-  const players = usePlayerLookup();
   const owner = getOwner();
 
   const calculatorUrl = createResilientAsync(queryCalculatorUrl);
 
-  // biome-ignore lint/style/useConst: yeah
-  let ref: HTMLIFrameElement = null!;
   const [index, setIndex] = createSignal(0);
+  const [state, setState] = createSignal<HostState>(HostStateEnum.CONNECTING);
 
-  const urls = () => [calculatorUrl() ?? '', ...IFRAME_TEST_URLS];
-  const url = () => urls()[index()];
+  const urls = () => [SIMULATOR_PATH, calculatorUrl.latest ?? ''];
+  const url = createMemo(() => urls()[index()] ?? '');
 
   const openMatchModal = (data: CalculatorFinishEvent) => {
     open({
@@ -42,81 +74,31 @@ const IframeTest: Component = () => {
     });
   };
 
-  const handleMessage = (ev: MessageEvent) => {
-    console.log(ev);
-
-    const parsed = CalculatorFinishEvent.safeParse(ev.data);
-
-    if (parsed.success) {
-      console.log('Received CalculatorFinishEvent from iframe:', parsed.data);
-
-      openMatchModal(parsed.data);
-    } else {
-      console.log(parsed.error);
-    }
+  const switchUrl = () => {
+    setState(HostStateEnum.CONNECTING);
+    setIndex((current) => (current + 1) % urls().length);
   };
-
-  const sendMessage = () => {
-    ref.contentWindow?.postMessage({ info: 'Test message' }, '*');
-  };
-
-  const sendPlayers = () => {
-    ref.contentWindow?.postMessage(
-      { players: players.all().map((player) => player.name) },
-      '*',
-    );
-  };
-
-  const sendToParent = () => {
-    window.parent.postMessage({ info: 'iframe test message' }, '*');
-  };
-
-  onMount(() => {
-    if (isServer === false) {
-      window.addEventListener('message', handleMessage);
-    }
-  });
-
-  onCleanup(() => {
-    if (isServer === false) {
-      window.removeEventListener('message', handleMessage);
-    }
-  });
 
   return (
     <div class={style.container}>
       <div class={style.controls}>
-        <Button
-          severity="secondary"
-          onClick={() => setIndex((i) => (i + 1) % urls().length)}
-        >
+        <Button severity="secondary" onClick={switchUrl}>
           Next URL
         </Button>{' '}
-        <strong>URL:</strong> <code>{url()}</code>
-        <Break />
-        <Button severity="secondary" onClick={sendMessage}>
-          Send Message
-        </Button>
-        <Button
-          severity="secondary"
-          disabled={players.all().length === 0}
-          onClick={sendPlayers}
-        >
-          Send Players
-        </Button>
-        <Button severity="secondary" onClick={sendToParent}>
-          Send to Parent
-        </Button>
+        <strong>URL:</strong> <code>{url()}</code> <strong>Host:</strong>{' '}
+        {state()}
       </div>
       <Divider />
       <div class={style.iframeContainer}>
-        <iframe
-          ref={ref}
-          src={url()}
-          title="Test Iframe"
-          class={style.iframe}
-          sandbox="allow-scripts allow-same-origin allow-forms"
-        />
+        <For each={[url()]}>
+          {(src) => (
+            <CalculatorHostFrame
+              src={src}
+              onFinishEvent={openMatchModal}
+              onStateChange={setState}
+            />
+          )}
+        </For>
       </div>
     </div>
   );
