@@ -1,13 +1,21 @@
-import { useAction } from '@solidjs/router';
-import { batch, getOwner, Show } from 'solid-js';
-import { AnchorButton, Button } from '#components/Button';
+import { revalidate, useAction, useNavigate } from '@solidjs/router';
+import { batch, createEffect, createMemo, getOwner, on, Show } from 'solid-js';
+import { reconcile } from 'solid-js/store';
+import { ActionMenu } from '#components/ActionMenu';
+import { Button } from '#components/Button';
 import { useConfirmModal } from '#components/ConfirmModal';
 import { LegacyMatchImportModal } from '#components/LegacyMatchImportModal';
+import { LiveMatchClock } from '#components/LiveMatches';
 import { MatchCreatorModal } from '#components/MatchCreatorModal';
+import { MatchFilterWidget } from '#components/MatchFilterWidget';
+import { MatchSideLabel } from '#components/MatchSideLabel';
+import { useMatchSummaryModal } from '#components/MatchSummaryModal';
 import { PAGINATOR_DEFAULT_LIMIT, Paginator } from '#components/Paginator';
 import { SessionPresenceModal } from '#components/SessionPresenceModal';
 import { type Column, Table } from '#components/Table';
 import { Divider } from '#components/Widget';
+import { useActiveMatches } from '#flib/activeMatches';
+import { useTableLookup } from '#flib/entityLookup';
 import { useCan } from '#flib/identity';
 import { useLeagueTimeZone } from '#flib/leagueTimeZone';
 import { createResilientAsync } from '#flib/resilientAsync';
@@ -17,11 +25,26 @@ import { actionDeleteMatch, queryMatches } from '#flib/trpcCalls';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
 import { formatKnownStartDatetime } from '#shared/matchLabels';
+import { getMatchWinningSide } from '#shared/matchTimeline';
 import { PermissionEnum } from '#shared/permissions';
 import { formatDuration } from '#shared/timeUtils';
-import { type Match, MatchQueryMeta } from '#shared/types/api/match';
+import {
+  type Match,
+  type MatchFilters,
+  MatchQueryMeta,
+  type MatchStatus,
+} from '#shared/types/api/match';
 import { shortUUID } from '#shared/utils';
 import style from './MatchesDashboard.module.scss';
+
+const MatchesDashboardStatusClasses: Record<MatchStatus, string> = {
+  SCHEDULED: style.scheduled,
+  ONGOING: style.ongoing,
+  PAUSED: style.paused,
+  FINISHED: '',
+  SURRENDERED: style.surrendered,
+  CANCELED: style.cancelled,
+};
 
 export const MatchesDashboard: Component = () => {
   const timeZone = useLeagueTimeZone();
@@ -43,10 +66,23 @@ export const MatchesDashboard: Component = () => {
   });
 
   const matches = createResilientAsync(queryMeta, queryMatches);
+  const activeMatches = useActiveMatches();
+  const tables = useTableLookup();
+  const navigate = useNavigate();
+
+  const activeByUuid = createMemo(
+    () => new Map(activeMatches().map((active) => [active.match.uuid, active])),
+  );
+
+  const rows = () =>
+    (matches.latest?.data ?? []).map(
+      (match) => activeByUuid().get(match.uuid)?.match ?? match,
+    );
 
   const deleteMatch = useAction(actionDeleteMatch);
   const openConfirmModal = useConfirmModal();
   const owner = getOwner();
+  const openSummary = useMatchSummaryModal();
   const can = useCan();
 
   const handleCreateMatch = () => {
@@ -69,12 +105,62 @@ export const MatchesDashboard: Component = () => {
     });
   };
 
+  const handleFiltersChange = (filters: MatchFilters) => {
+    batch(() => {
+      setQueryMeta('filters', reconcile(filters));
+      setQueryMeta('pagination', 'offset', 0);
+    });
+  };
+
   const handleOnSort = (sorting: NonNullable<MatchQueryMeta['sorting']>) => {
     batch(() => {
       setQueryMeta('sorting', sorting);
       setQueryMeta('pagination', 'offset', 0);
     });
   };
+
+  const getActive = (uuid: string) => activeByUuid().get(uuid) ?? null;
+
+  const getWinner = (match: Match) =>
+    getMatchWinningSide(match, getActive(match.uuid)?.events ?? []);
+
+  const openPresence = (match: Match) => {
+    open({
+      props: { component: SessionPresenceModal, matchUuid: match.uuid },
+      owner,
+      closeOnBackgroundClick: false,
+    });
+  };
+
+  const openEditor = (match: Match) => {
+    open({
+      props: { component: MatchCreatorModal, match },
+      owner,
+      closeOnBackgroundClick: false,
+    });
+  };
+
+  const handleDeleteMatch = useHandleButtonAction(
+    async (match: Match) => {
+      const confirmed = await openConfirmModal({
+        title: 'Delete Match',
+        message: 'Delete this match?',
+        subject: shortUUID(match.uuid),
+        confirmText: 'Delete',
+        severity: 'danger',
+      });
+
+      if (!confirmed) return;
+
+      await deleteMatch(match.uuid);
+
+      actions.success(`Deleted match: ${shortUUID(match.uuid)}`);
+    },
+    (err) => {
+      console.error('Match deletion error:', err);
+      actions.error('Failed to delete match');
+    },
+  );
 
   const column: Column[] = [
     {
@@ -90,6 +176,24 @@ export const MatchesDashboard: Component = () => {
       align: 'center',
       sortable: true,
       width: 12,
+      transform: (val: Match['status']) => (
+        <span class={MatchesDashboardStatusClasses[val]}>{val}</span>
+      ),
+    },
+    {
+      key: 'side1',
+      header: 'Side 1',
+      align: 'right',
+      width: 20,
+      transform: (_val, row: Match) => (
+        <MatchSideLabel
+          match={row}
+          side="SIDE_1"
+          align="end"
+          compact
+          highlight={getWinner(row) === 'SIDE_1'}
+        />
+      ),
     },
     {
       key: 'score',
@@ -99,11 +203,33 @@ export const MatchesDashboard: Component = () => {
       transform: (_val, row: Match) => `${row.side1Score}:${row.side2Score}`,
     },
     {
+      key: 'side2',
+      header: 'Side 2',
+      align: 'left',
+      width: 20,
+      transform: (_val, row: Match) => (
+        <MatchSideLabel
+          match={row}
+          side="SIDE_2"
+          compact
+          highlight={getWinner(row) === 'SIDE_2'}
+        />
+      ),
+    },
+    {
+      key: 'table',
+      header: 'Table',
+      align: 'left',
+      width: 14,
+      transform: (_val, row: Match) =>
+        row.tableUuid ? tables.getLabel(row.tableUuid) : '-',
+    },
+    {
       key: 'startDate',
       header: 'Start Date',
       align: 'center',
       sortable: true,
-      width: 23,
+      width: 21,
       transform: (_val, row: Match) =>
         formatKnownStartDatetime(row, timeZone()),
     },
@@ -113,14 +239,25 @@ export const MatchesDashboard: Component = () => {
       align: 'center',
       sortable: true,
       width: 10,
-      transform: (val) => formatDuration(val),
+      transform: (val, row: Match) => (
+        <Show when={getActive(row.uuid)} fallback={formatDuration(val)}>
+          {(active) => (
+            <Show
+              when={active().match.status !== 'SCHEDULED'}
+              fallback={formatDuration(val)}
+            >
+              <LiveMatchClock active={active()} />
+            </Show>
+          )}
+        </Show>
+      ),
     },
     {
       key: 'pauseDuration',
-      header: 'Pause Duration',
+      header: 'Pause',
       align: 'center',
       sortable: true,
-      width: 18,
+      width: 8,
       transform: (val) => formatDuration(val),
     },
     {
@@ -137,142 +274,83 @@ export const MatchesDashboard: Component = () => {
       transform: () => '',
     },
     {
-      key: 'events',
-      header: 'Events',
+      key: 'actions',
+      header: '',
       align: 'center',
-      width: 10,
-      transform: (_, item: Match) => {
-        return (
-          <AnchorButton
-            severity="secondary"
-            href={`/match-events/${item.uuid}`}
-          >
-            Events
-          </AnchorButton>
-        );
-      },
-    },
-    {
-      key: 'presence',
-      header: 'Presence',
-      align: 'center',
-      width: 12,
-      transform: (_, item) => {
-        const handleEditPresence = useHandleButtonAction(
-          async (match: Match) => {
-            open({
-              props: {
-                component: SessionPresenceModal,
-                matchUuid: match.uuid,
-              },
-              owner,
-              closeOnBackgroundClick: false,
-            });
-          },
-          () => actions.error('Failed to open Session Presence'),
-        );
-
-        return (
-          <Button
-            severity="secondary"
-            disabled={
-              !can([PermissionEnum.MATCHES_UPDATE, PermissionEnum.PLAYERS_READ])
-            }
-            onClick={() => handleEditPresence(item)}
-            loading={handleEditPresence.loading()}
-          >
-            Presence
-          </Button>
-        );
-      },
-    },
-    {
-      key: 'edit',
-      header: 'Edit',
-      align: 'center',
-      width: 10,
-      transform: (_, item) => {
-        const handleEditMatch = useHandleButtonAction(
-          async (match: Match) => {
-            open({
-              props: {
-                component: MatchCreatorModal,
-                match,
-              },
-              owner,
-              closeOnBackgroundClick: false,
-            });
-          },
-          () => actions.error('Failed to open Match Editor'),
-        );
-
-        return (
-          <Show when={item.uuid}>
-            <Button
-              disabled={!can(PermissionEnum.MATCHES_UPDATE)}
-              onClick={() => handleEditMatch(item)}
-            >
-              Edit
-            </Button>
-          </Show>
-        );
-      },
-    },
-    {
-      key: 'delete',
-      header: 'Delete',
-      align: 'center',
-      width: 10,
-      transform: (_, item) => {
-        const handleDeleteMatch = useHandleButtonAction(
-          async (match: Match) => {
-            const confirmed = await openConfirmModal({
-              title: 'Delete Match',
-              message: 'Delete this match?',
-              subject: shortUUID(match.uuid),
-              confirmText: 'Delete',
-              severity: 'danger',
-            });
-
-            if (!confirmed) return;
-
-            await deleteMatch(match.uuid);
-
-            actions.success(`Deleted match: ${shortUUID(match.uuid)}`);
-          },
-          () => actions.error('Failed to delete match'),
-        );
-
-        return (
-          <Button
-            severity="danger"
-            disabled={!can(PermissionEnum.MATCHES_DELETE)}
-            onClick={() => handleDeleteMatch(item)}
-            loading={handleDeleteMatch.loading()}
-          >
-            Delete
-          </Button>
-        );
-      },
+      width: 6,
+      transform: (_, item: Match) => (
+        <ActionMenu
+          label={`Match ${shortUUID(item.uuid)} actions`}
+          items={[
+            {
+              label: 'Summary',
+              symbol: 'visibility',
+              onSelect: () => openSummary(item.uuid),
+            },
+            {
+              label: 'Timeline',
+              symbol: 'timeline',
+              onSelect: () => navigate(`/match-events/${item.uuid}`),
+            },
+            {
+              label: 'Presence',
+              symbol: 'groups',
+              disabled: !can([
+                PermissionEnum.MATCHES_UPDATE,
+                PermissionEnum.PLAYERS_READ,
+              ]),
+              onSelect: () => openPresence(item),
+            },
+            {
+              label: 'Edit',
+              symbol: 'edit',
+              disabled: !can(PermissionEnum.MATCHES_UPDATE),
+              onSelect: () => openEditor(item),
+            },
+            {
+              label: 'Delete',
+              symbol: 'delete',
+              danger: true,
+              disabled:
+                !can(PermissionEnum.MATCHES_DELETE) ||
+                handleDeleteMatch.loading(),
+              onSelect: () => handleDeleteMatch(item),
+            },
+          ]}
+        />
+      ),
     },
   ];
 
+  createEffect(
+    on(
+      () => [...activeByUuid().keys()].toSorted().join(),
+      () => revalidate('queryMatches'),
+      { defer: true },
+    ),
+  );
+
   return (
     <div class={style.outerContainer}>
-      <div class={style.controls}>
-        <Show when={can(PermissionEnum.MATCHES_CREATE)}>
-          <Button onClick={handleCreateMatch}>Create Match</Button>
-          <Button severity="secondary" onClick={handleImportLegacyMatch}>
-            Import Match
-          </Button>
-        </Show>
-      </div>
+      <MatchFilterWidget
+        value={queryMetaState.filters ?? {}}
+        onChange={handleFiltersChange}
+        actions={
+          <Show when={can(PermissionEnum.MATCHES_CREATE)}>
+            <Button onClick={handleCreateMatch}>Create Match</Button>
+            <Button severity="secondary" onClick={handleImportLegacyMatch}>
+              Import Match
+            </Button>
+          </Show>
+        }
+      />
 
       <Paginator
         total={matches.latest?.total ?? 0}
         limit={queryMetaState.pagination.limit}
         offset={queryMetaState.pagination.offset}
         setOffset={(offset) => setQueryMeta('pagination', 'offset', offset)}
+        setLimit={(limit) => setQueryMeta('pagination', { limit, offset: 0 })}
       />
 
       <Divider />
@@ -281,7 +359,7 @@ export const MatchesDashboard: Component = () => {
         <Table
           class={style.table}
           columns={column}
-          data={matches.latest?.data ?? []}
+          data={rows()}
           sorting={queryMetaState.sorting}
           onSort={handleOnSort}
         />
