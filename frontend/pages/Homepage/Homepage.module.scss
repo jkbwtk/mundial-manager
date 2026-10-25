@@ -8,6 +8,12 @@
   width: 100%;
 }
 
+@container home (min-width: 1201px) {
+  .period {
+    order: 1;
+  }
+}
+
 @container home (max-width: 1200px) {
   .container {
     grid-template-columns: repeat(2, round(down, 50%, cw(1)));
@@ -48,23 +54,31 @@
     order: 4;
   }
 
-  .match {
+  .live {
     order: 5;
   }
 
-  .tables {
+  .upcoming {
     order: 6;
   }
 
-  .balls {
+  .match {
     order: 7;
   }
 
-  .leaderboards {
+  .tables {
     order: 8;
   }
 
-  .luck {
+  .balls {
     order: 9;
+  }
+
+  .leaderboards {
+    order: 10;
+  }
+
+  .luck {
+    order: 11;
   }
 }
