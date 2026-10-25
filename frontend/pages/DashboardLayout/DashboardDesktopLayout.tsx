@@ -1,7 +1,9 @@
 import { Match, Suspense, Switch } from 'solid-js';
 import { Breadcrumbs } from '#components/Breadcrumbs';
 import { BuildDetails } from '#components/BuildDetails';
+import { LiveMatchTicker } from '#components/LiveMatches';
 import { LogoSmall } from '#components/LogoSmall';
+import { PermissionGuard } from '#components/PermissionGuard';
 import { Sidebar } from '#components/Sidebar';
 import { Divider } from '#components/Widget';
 import { getBuildInfo } from '#flib/buildInfo';
@@ -9,6 +11,7 @@ import { isDev } from '#flib/utils';
 import { routes } from '#frontend/routes';
 import { BuildChannelEnum } from '#frontend/types';
 import { useChangelog } from '#providers/ChangelogProvider';
+import { PermissionEnum } from '#shared/permissions';
 import style from './DashboardLayout.module.scss';
 
 export const DashboardDesktopLayout: ParentComponent = (props) => {
@@ -34,6 +37,11 @@ export const DashboardDesktopLayout: ParentComponent = (props) => {
 
       <div class={style.info}>
         <Breadcrumbs class={style.breadcrumbs} />
+        <PermissionGuard permission={PermissionEnum.MATCHES_READ}>
+          <Suspense>
+            <LiveMatchTicker class={style.ticker} />
+          </Suspense>
+        </PermissionGuard>
       </div>
 
       <Divider class={style.horizontalDivider} />

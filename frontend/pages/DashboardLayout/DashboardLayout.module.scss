@@ -47,9 +47,17 @@
 
 .info {
   display: flex;
+  gap: cw(2);
+
+  min-width: 0;
 
   .breadcrumbs {
+    flex-shrink: 0;
     align-self: flex-end;
+  }
+
+  .ticker {
+    margin-left: auto;
   }
 }
 
