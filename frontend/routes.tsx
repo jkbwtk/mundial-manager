@@ -60,6 +60,11 @@ const WidgetTest = lazyRoute(
 const IframeTest = lazyRoute(
   import.meta.glob('#pages/IframeTest/IframeTest.tsx'),
 );
+const CalculatorSimulatorTest = lazyRoute(
+  import.meta.glob(
+    '#pages/CalculatorSimulatorTest/CalculatorSimulatorTest.tsx',
+  ),
+);
 const ModalTest = lazyRoute(import.meta.glob('#pages/ModalTest/ModalTest.tsx'));
 const ChangelogTest = lazyRoute(
   import.meta.glob('#pages/ChangelogTest/ChangelogTest.tsx'),
@@ -315,6 +320,11 @@ export const testRoutes: ExtendedRouteDefinition[] = [
     path: '/loading-test',
     info: { name: 'Loading Test' },
     component: LoadingTest,
+  },
+  {
+    path: '/calculator-simulator-test',
+    info: { name: 'Calculator Simulator Test' },
+    component: CalculatorSimulatorTest,
   },
 ];
 

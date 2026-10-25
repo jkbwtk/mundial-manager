@@ -1,0 +1,109 @@
+@use 'app' as *;
+
+.container {
+  display: flex;
+  flex-direction: column;
+
+  max-height: 100%;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  scrollbar-gutter: stable;
+}
+
+.widget {
+  width: round(down, 100%, cw(1));
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  container-type: inline-size;
+  container-name: simulator;
+}
+
+@container simulator (max-width: 900px) {
+  .columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+.setup {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: center;
+  gap: ch(0.5) cw(1);
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: ch(0.5) cw(1);
+}
+
+.dashed-divider {
+  --divider-border-style: dashed;
+}
+
+.state {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  column-gap: cw(1);
+
+  margin-top: ch(1);
+
+  span {
+    text-align: right;
+  }
+}
+
+.list-label {
+  align-self: start;
+}
+
+.scenarios {
+  display: flex;
+  flex-direction: column;
+  gap: ch(0.5);
+}
+
+.scenario {
+  display: grid;
+  grid-template-columns: max-content cw(8) minmax(0, 1fr);
+  align-items: start;
+  gap: cw(1);
+}
+
+.log {
+  max-height: ch(16);
+
+  overflow-y: auto;
+}
+
+.passed {
+  color: $greenBright;
+}
+
+.failed {
+  color: $redBright;
+}
+
+.running {
+  color: $yellowBright;
+}
+
+.dimmed {
+  color: $textDimColor;
+}
+
+.no-data {
+  display: block;
+
+  margin-top: ch(1);
+
+  text-align: center;
+  font-style: italic;
+  color: $textDimColor;
+}
