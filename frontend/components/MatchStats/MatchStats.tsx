@@ -12,6 +12,7 @@ import { BallLabel } from '#components/BallLabel';
 import { Button } from '#components/Button';
 import { ColorBlock } from '#components/ColorBlock';
 import { InlineAction } from '#components/InlineAction';
+import { useMatchSummaryModal } from '#components/MatchSummaryModal';
 import { MatchTimelineModal } from '#components/MatchTimelineModal';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import { Skeleton } from '#components/Skeleton';
@@ -318,6 +319,7 @@ export const MatchStats: Component = () => {
   const [, { open }] = useModal();
   const [period] = useStatsPeriod();
   const owner = getOwner();
+  const openSummary = useMatchSummaryModal();
 
   const [offset, setOffset] = createSignal(0);
 
@@ -327,6 +329,8 @@ export const MatchStats: Component = () => {
   );
 
   const total = () => match.latest?.total ?? 0;
+
+  const matchUuid = () => match.latest?.timeline.match.uuid ?? null;
 
   const recordedMatchUuid = () => {
     const timeline = match.latest?.timeline;
@@ -354,7 +358,17 @@ export const MatchStats: Component = () => {
       class={style.widget}
       topLeftLabels="Match Stats"
       pending={match.pending()}
-      bottomLeftLabels={
+      bottomLeftLabels={[
+        <Show when={matchUuid()}>
+          {(matchUuid) => (
+            <Button
+              severity="secondary"
+              onClick={() => openSummary(matchUuid())}
+            >
+              Summary
+            </Button>
+          )}
+        </Show>,
         <Show when={recordedMatchUuid()}>
           {(matchUuid) => (
             <Button
@@ -364,8 +378,8 @@ export const MatchStats: Component = () => {
               Timeline
             </Button>
           )}
-        </Show>
-      }
+        </Show>,
+      ]}
       bottomRightLabels={
         <Show when={total() > 1}>
           <span>
