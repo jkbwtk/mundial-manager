@@ -59,6 +59,11 @@ export interface MatchTimelineStats {
   biggestLead: number;
 }
 
+export interface MatchGoalRun {
+  player: string;
+  length: number;
+}
+
 export interface MatchTimelineValidationState {
   events: MatchTimelineEntry[];
   steps: MatchTimelineStep<MatchTimelineEntry>[];
@@ -426,6 +431,32 @@ export function getMatchTimelineStats(
     leadChanges,
     biggestLead,
   };
+}
+
+export function getMatchGoalRuns(events: MatchTimelineEntry[]): MatchGoalRun[] {
+  const runs: MatchGoalRun[] = [];
+
+  let runSide: MatchSide | null = null;
+  let runLength = 0;
+
+  for (const { event } of getMatchTimelineSteps(events)) {
+    if (event.type !== 'GOAL') continue;
+
+    const side = getGoalScoringSide(event);
+
+    if (runSide === side) {
+      runLength += 1;
+    } else if (!event.ownGoal || runSide === null) {
+      runSide = side;
+      runLength = 1;
+    }
+
+    if (!event.ownGoal && runSide === side) {
+      runs.push({ player: event.player, length: runLength });
+    }
+  }
+
+  return runs;
 }
 
 export const matchTimelineValidationStrategies = {

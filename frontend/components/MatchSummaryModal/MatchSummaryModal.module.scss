@@ -1,0 +1,276 @@
+@use 'app' as *;
+@use 'backgrounds' as *;
+
+.modal {
+  --modal-width: #{cw(80)};
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+
+  padding: ch(2) 0;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: ch(1);
+}
+
+.side {
+  width: round(down, 100%, cw(1));
+
+  container-type: inline-size;
+  container-name: side;
+
+  --widget-border-color: var(--team-color);
+}
+
+.players {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  column-gap: cw(1);
+
+  &:has(> :only-child) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.player-divider {
+  display: none;
+
+  grid-column: 1 / -1;
+
+  --divider-border-style: dashed;
+
+  &.row-divider {
+    display: block;
+  }
+}
+
+.column-divider {
+  --divider-border-style: dashed;
+}
+
+.surrendered-side {
+  --widget-border-style: dashed;
+}
+
+.team-name {
+  padding: 0 cw(1);
+
+  text-transform: uppercase;
+
+  color: $backgroundColor;
+  background-color: var(--team-color);
+  border-radius: $borderRadius;
+
+  &.surrender-chip {
+    background-color: $yellowBright;
+  }
+}
+
+.player {
+  display: flex;
+  flex-direction: column;
+  gap: ch(0.5);
+}
+
+.player-header {
+  display: flex;
+  justify-content: space-between;
+  gap: cw(1);
+
+  color: $textBrightColor;
+}
+
+.goals {
+  color: var(--team-color);
+}
+
+.own-goals {
+  color: $redBright;
+}
+
+.share {
+  display: grid;
+  grid-template-columns: 1fr max-content;
+  align-items: center;
+  gap: cw(1);
+
+  color: $textDimColor;
+}
+
+.meter {
+  position: relative;
+
+  height: ch(1);
+
+  @include textLineBackground($dividerColor);
+
+  &::before {
+    content: '';
+
+    position: absolute;
+    inset: 0 auto 0 0;
+
+    width: round(down, calc(var(--share) * 100%), cw(1));
+
+    @include textLineBackground(var(--team-color));
+  }
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: ch(0.5) cw(1);
+}
+
+.chip {
+  padding: 0 cw(1);
+
+  white-space: nowrap;
+
+  color: $textBrightColor;
+  border-radius: $borderRadius;
+
+  @include stripedBackground;
+}
+
+
+.scoreboard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: ch(0.5);
+}
+
+.status {
+  text-transform: uppercase;
+  font-weight: bold;
+
+  color: $textDimColor;
+
+  &.live {
+    color: $textBrightColor;
+  }
+
+  &.cancelled {
+    color: $redBright;
+  }
+
+  &.surrendered {
+    color: $yellowBright;
+  }
+}
+
+.score {
+  display: flex;
+  align-items: center;
+  gap: cw(1);
+
+  font-weight: bold;
+
+  color: $textBrightColor;
+}
+
+.side-score {
+  min-width: cw(4);
+  padding: 0 cw(1);
+
+  text-align: center;
+
+  color: var(--team-color);
+  border-radius: $borderRadius;
+  box-shadow: inset 0 0 0 $borderSize var(--team-color);
+
+  &.winner {
+    color: $backgroundColor;
+    background-color: var(--team-color);
+  }
+}
+
+.date {
+  color: $textDimColor;
+}
+
+.surrender-note {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  text-align: center;
+}
+
+@container side (max-width: 500px) {
+  .players {
+    grid-template-columns: 1fr;
+  }
+
+  .player-divider {
+    display: block;
+  }
+
+  .column-divider {
+    display: none;
+  }
+}
+
+.live-dot {
+  color: $primaryBrightColor;
+
+  animation: pulse-summary-live 1.6s ease-in-out infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+.win-line {
+  display: grid;
+  grid-template-columns: max-content minmax(0, cw(30)) max-content;
+  align-items: center;
+  gap: cw(1);
+}
+
+.preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  text-align: center;
+}
+
+.form {
+  display: flex;
+  gap: cw(1);
+}
+
+.form-outcome {
+  width: cw(2);
+
+  text-align: center;
+  font-weight: bold;
+
+  color: $textDimColor;
+
+  &.form-win {
+    color: $greenBright;
+  }
+
+  &.form-loss {
+    color: $redBright;
+  }
+}
+
+@keyframes pulse-summary-live {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
+}
