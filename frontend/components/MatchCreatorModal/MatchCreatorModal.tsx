@@ -26,6 +26,7 @@ import style from './MatchCreatorModal.module.scss';
 
 export interface MatchCreatorModalProps {
   match?: Match;
+  initialValues?: Partial<MatchCreate>;
 }
 
 export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
@@ -58,6 +59,7 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
     <ModalForm
       class={style.modal}
       instance={props.match}
+      initialValues={isCreating ? props.initialValues : undefined}
       model={isCreating ? MatchCreate : MatchUpdate}
       // @ts-expect-error
       action={isCreating ? actionCreateMatch : actionUpdateMatch}

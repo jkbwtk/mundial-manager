@@ -1,0 +1,100 @@
+@use 'app' as *;
+
+.widget {
+  width: 100%;
+}
+
+.list {
+  display: grid;
+  grid-template-columns:
+    max-content minmax(0, 1fr) max-content minmax(0, 1fr) max-content;
+  column-gap: cw(1);
+}
+
+.row {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: center;
+
+  width: 100%;
+  padding: 0 cw(1);
+
+  text-align: left;
+  white-space: nowrap;
+
+  color: $textColor;
+  border-radius: $borderRadius;
+
+  cursor: pointer;
+
+  transition: background-color 0.1s, color 0.1s;
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: $textBrightColor;
+      color: $backgroundColor;
+
+      * {
+        color: $backgroundColor;
+      }
+    }
+  }
+
+  &:focus-visible {
+    background-color: $textBrightColor;
+    color: $backgroundColor;
+  }
+
+  &.overdue {
+    .time {
+      color: $yellow;
+    }
+  }
+
+  &.paused {
+    .time {
+      color: $textDimColor;
+    }
+  }
+}
+
+.time {
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  color: $textBrightColor;
+}
+
+.odds {
+  text-align: right;
+}
+
+.dimmed {
+  color: $textDimColor;
+}
+
+.more {
+  color: $textBrightColor;
+
+  @media (hover: hover) {
+    &:hover {
+      text-decoration: dashed underline;
+    }
+  }
+
+  &:focus-visible {
+    text-decoration: dashed underline;
+  }
+}
+
+.no-data {
+  display: block;
+
+  width: 100%;
+
+  text-align: center;
+  font-style: italic;
+  color: $textDimColor;
+}
