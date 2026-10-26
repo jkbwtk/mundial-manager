@@ -19,6 +19,7 @@ import type {
   matchesTable,
   matchTimelinesTable,
   playersTable,
+  pushSubscriptionsTable,
   seasonsTable,
   tablesTable,
 } from '#backend/db/schema';
@@ -38,7 +39,8 @@ export type LeagueScopedTablesUnion =
   | typeof goalTypesTable
   | typeof playersTable
   | typeof matchesTable
-  | typeof matchTimelinesTable;
+  | typeof matchTimelinesTable
+  | typeof pushSubscriptionsTable;
 
 export type StrategyContext<Fields> = {
   db: DB | TX;

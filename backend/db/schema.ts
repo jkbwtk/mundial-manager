@@ -5,8 +5,10 @@ import { index, uniqueIndex } from 'drizzle-orm/pg-core/indexes';
 import { pgTable } from 'drizzle-orm/pg-core/table';
 import { tsvector } from '#backend/db/utils';
 import type { Labels } from '#shared/labels';
+import { RoleEnum } from '#shared/permissions';
 import { MatchStatusEnum } from '#shared/types/api/match';
 import type { MatchEvent } from '#shared/types/api/matchEvent';
+import { PushNotificationTypeEnum } from '#shared/types/api/pushNotification';
 import type { SeasonConfig } from '#shared/types/api/season';
 
 const commonFields = {
@@ -349,6 +351,49 @@ export const matchTimelinesTable = pgTable(
   (r) => [
     index().on(r.leagueUuid),
     uniqueIndex().on(r.matchUuid),
+    index().on(r.$createdAt),
+    index().on(r.$deletedAt).where(isNull(r.$deletedAt)),
+  ],
+);
+
+export const roleEnum = pgEnum('role', RoleEnum);
+
+export const pushNotificationTypeEnum = pgEnum(
+  'pushNotificationType',
+  PushNotificationTypeEnum,
+);
+
+export const pushSubscriptionsTable = pgTable(
+  'pushSubscriptions',
+  (t) => ({
+    leagueUuid: t
+      .uuid()
+      .references(() => leaguesTable.uuid, { onDelete: 'cascade' })
+      .notNull(),
+
+    clientUuid: t.uuid().notNull(),
+    role: roleEnum().notNull(),
+
+    endpoint: t.text().notNull(),
+    p256dh: t.text().notNull(),
+    auth: t.text().notNull(),
+
+    notificationTypes: pushNotificationTypeEnum()
+      .array()
+      .notNull()
+      .default(sql`ARRAY[]::"pushNotificationType"[]`),
+    expiresAt: t
+      .timestamp({ mode: 'date', withTimezone: true, precision: 6 })
+      .notNull(),
+
+    labels: t.jsonb().$type<Labels>().notNull().default(sql`'{}'::jsonb`),
+
+    ...commonFields,
+  }),
+  (r) => [
+    index().on(r.leagueUuid),
+    uniqueIndex().on(r.leagueUuid, r.clientUuid).where(isNull(r.$deletedAt)),
+    uniqueIndex().on(r.leagueUuid, r.endpoint).where(isNull(r.$deletedAt)),
     index().on(r.$createdAt),
     index().on(r.$deletedAt).where(isNull(r.$deletedAt)),
   ],

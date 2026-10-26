@@ -28,6 +28,11 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.goalTypesTable.leagueUuid,
       alias: 'goalTypes',
     }),
+    pushSubscriptions: r.many.pushSubscriptionsTable({
+      from: r.leaguesTable.uuid,
+      to: r.pushSubscriptionsTable.leagueUuid,
+      alias: 'pushSubscriptions',
+    }),
   },
   goalTypesTable: {
     league: r.one.leaguesTable({
@@ -147,6 +152,14 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.matchTimelinesTable.matchUuid,
       to: r.matchesTable.uuid,
       alias: 'match',
+      optional: false,
+    }),
+  },
+  pushSubscriptionsTable: {
+    league: r.one.leaguesTable({
+      from: r.pushSubscriptionsTable.leagueUuid,
+      to: r.leaguesTable.uuid,
+      alias: 'league',
       optional: false,
     }),
   },
