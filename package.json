@@ -63,6 +63,7 @@
     "solid-js": "^1.9.15",
     "solid-transition-group": "^0.3.0",
     "stable-hash": "^0.0.6",
+    "web-push": "^3.6.7",
     "zod": "^4.6.5"
   },
   "devDependencies": {
@@ -83,6 +84,7 @@
     "@types/on-headers": "^1.0.4",
     "@types/pg": "^8.23.1",
     "@types/semver": "^7.8.0",
+    "@types/web-push": "^3.6.4",
     "@vitest/coverage-v8": "^5.0.1",
     "change-case": "^5.4.4",
     "compression": "^1.8.2",
