@@ -10,6 +10,7 @@ import { TableModel } from '#backend/db/models/TableModel';
 import { matchesTable, teamConfigurationsTable } from '#backend/db/schema';
 import { MatchSelectSchema } from '#backend/types/db/match';
 import { queueActiveMatchesPublish } from '#blib/activeMatches';
+import { queueMatchNotification } from '#blib/matchNotifications';
 import { getMissingReferenceIssues } from '#blib/matchTimelineIssues';
 import {
   ConvertDrizzleErrors,
@@ -589,6 +590,10 @@ export class MatchModel extends MatchOps {
     },
 
     postCreate: {
+      queueStatusNotification: ({ leagueUuid, created }) => {
+        queueMatchNotification(leagueUuid, null, created);
+      },
+
       queueActiveMatchesPublish: ({ leagueUuid }) => {
         queueActiveMatchesPublish(leagueUuid);
       },
@@ -613,6 +618,10 @@ export class MatchModel extends MatchOps {
         );
 
         MatchTimelineModel.assertValidTimeline(updated, events);
+      },
+
+      queueStatusNotification: ({ leagueUuid, previous, updated }) => {
+        queueMatchNotification(leagueUuid, previous, updated);
       },
 
       queueActiveMatchesPublish: ({ leagueUuid }) => {
