@@ -56,6 +56,7 @@ services:
       - POSTGRES_PASS=${POSTGRES_PASS:-mm_password}
       - POSTGRES_DB=${POSTGRES_DB:-MM_DEV_DB}
       - JWT_COOKIE_NAME=${JWT_COOKIE_NAME}
+      - CLIENT_COOKIE_NAME=${CLIENT_COOKIE_NAME:-mm_client}
       - KEY_PASSPHRASE=${KEY_PASSPHRASE}
       - PUB_KEY_PATH=${PUB_KEY_PATH}
       - PRIV_KEY_PATH=${PRIV_KEY_PATH}
@@ -66,6 +67,9 @@ services:
       - RABBITMQ_PASS=${RABBITMQ_PASS:-rb_password}
       - RABBITMQ_HOST=rabbit
       - RABBITMQ_PORT=5672
+      - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY:-}
+      - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY:-}
+      - VAPID_SUBJECT=${VAPID_SUBJECT:-}
     volumes:
       - ./static/public:/app/public:ro
       - ./static/auth:/app/auth:ro

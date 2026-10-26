@@ -2,6 +2,12 @@ import { z } from 'zod';
 import { EnvironmentConfigurationError } from '#backend/errors/configuration';
 import { lazyObject } from '#blib/lazyObject';
 
+const optionalString = z
+  .string()
+  .nullable()
+  .default(null)
+  .transform((value) => (value === '' ? null : value));
+
 export const Environment = z.object({
   PRODUCTION: z.boolean().default(true),
 
@@ -23,6 +29,7 @@ export const Environment = z.object({
   POSTGRES_DB: z.string().min(1),
 
   JWT_COOKIE_NAME: z.string().min(1),
+  CLIENT_COOKIE_NAME: z.string().min(1).default('mm_client'),
 
   KEY_PASSPHRASE: z.string().min(1).optional(),
   PUB_KEY_PATH: z.string().min(1),
@@ -55,6 +62,13 @@ export const Environment = z.object({
   RABBITMQ_PASS: z.string().min(1).optional(),
   RABBITMQ_HOST: z.string().min(1).optional(),
   RABBITMQ_PORT: z.coerce.number().int().positive().max(65535).optional(),
+
+  VAPID_PUBLIC_KEY: optionalString,
+  VAPID_PRIVATE_KEY: optionalString,
+  VAPID_SUBJECT: optionalString.refine(
+    (subject) => subject === null || /^(mailto:|https:\/\/)/.test(subject),
+    'VAPID subject must be a mailto: or https:// URL',
+  ),
 });
 
 export type Environment = z.infer<typeof Environment>;
@@ -84,6 +98,21 @@ export const environment = lazyObject(() => {
   ) {
     throw new EnvironmentConfigurationError(
       'Missing RabbitMQ configuration despite RABBITMQ_ENABLED being set to true',
+    );
+  }
+
+  const vapidValues = [
+    env.VAPID_PUBLIC_KEY,
+    env.VAPID_PRIVATE_KEY,
+    env.VAPID_SUBJECT,
+  ];
+
+  if (
+    vapidValues.some((value) => value === null) &&
+    vapidValues.some((value) => value !== null)
+  ) {
+    throw new EnvironmentConfigurationError(
+      'Incomplete VAPID configuration, set all of VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY and VAPID_SUBJECT or none',
     );
   }
 
