@@ -1,6 +1,9 @@
 import Cookies from 'cookies';
 import { Router } from 'express';
+import { db } from '#backend/db/database';
+import { PushSubscriptionModel } from '#backend/db/models/PushSubscriptionModel';
 import { environment } from '#backend/environment';
+import { getClientUuid } from '#blib/clientCookie';
 import {
   getCookieSecurity,
   getJWTContext,
@@ -38,6 +41,25 @@ export async function createMagicRouter() {
         newJwt,
         getJWTCookieOptions(getCookieSecurity(req), new Date(jwt.exp * 1000)),
       );
+
+      const clientUuid = getClientUuid(cookies);
+
+      if (jwt.leagueUuid !== null && clientUuid !== null) {
+        await PushSubscriptionModel.refreshClient(db, jwt.leagueUuid, {
+          clientUuid,
+          role: jwt.role,
+          expiresAt: new Date(jwt.exp * 1000),
+        }).catch((err) => {
+          logger.warn(
+            'Failed to refresh push subscription of client %s',
+            clientUuid,
+            {
+              label: ['magic-router'],
+              error: err,
+            },
+          );
+        });
+      }
 
       res.redirect(jwt.redirectTo ?? environment.BASE_SITE_URL);
     }

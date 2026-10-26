@@ -8,6 +8,7 @@ import { matchesRouter } from '#backend/routers/trpc/matches';
 import { matchSessionsRouter } from '#backend/routers/trpc/matchSessions';
 import { matchTimelinesRouter } from '#backend/routers/trpc/matchTimelines';
 import { playersRouter } from '#backend/routers/trpc/players';
+import { pushSubscriptionsRouter } from '#backend/routers/trpc/pushSubscriptions';
 import { seasonsRouter } from '#backend/routers/trpc/seasons';
 import { statsRouter } from '#backend/routers/trpc/stats';
 import { systemRouter } from '#backend/routers/trpc/system';
@@ -28,6 +29,7 @@ export const appRouter = router({
   activeMatches: activeMatchesRouter,
   stats: statsRouter,
   events: eventsRouter,
+  pushSubscriptions: pushSubscriptionsRouter,
   admin: adminRouter,
 });
 
