@@ -25,10 +25,18 @@ export default defineConfig({
     }),
     VitePWA({
       registerType: 'autoUpdate',
-      selfDestroying: true,
       includeAssets: ['favicon.ico', 'favicon.png'],
       injectRegister: null,
       strategies: 'injectManifest',
+      srcDir: 'frontend',
+      filename: 'sw.ts',
+      injectManifest: {
+        injectionPoint: undefined,
+      },
+      devOptions: {
+        enabled: isDev,
+        type: 'module',
+      },
       manifest: {
         name: 'Mundial Manager',
         short_name: 'Mundial',
@@ -36,6 +44,8 @@ export default defineConfig({
         theme_color: '#a62130',
         background_color: '#0d0d0d',
         display: 'standalone',
+        id: '/',
+        scope: '/',
         start_url: '/',
         icons: [
           {
