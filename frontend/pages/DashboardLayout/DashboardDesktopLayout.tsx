@@ -3,8 +3,9 @@ import { Breadcrumbs } from '#components/Breadcrumbs';
 import { BuildDetails } from '#components/BuildDetails';
 import { LiveMatchTicker } from '#components/LiveMatches';
 import { LogoSmall } from '#components/LogoSmall';
+import { useNotificationSettingsModal } from '#components/NotificationSettingsModal';
 import { PermissionGuard } from '#components/PermissionGuard';
-import { Sidebar } from '#components/Sidebar';
+import { Sidebar, SidebarButton } from '#components/Sidebar';
 import { Divider } from '#components/Widget';
 import { getBuildInfo } from '#flib/buildInfo';
 import { isDev } from '#flib/utils';
@@ -16,6 +17,7 @@ import style from './DashboardLayout.module.scss';
 
 export const DashboardDesktopLayout: ParentComponent = (props) => {
   const [, { latestVersion, latestCommitHash }] = useChangelog();
+  const openNotificationSettings = useNotificationSettingsModal();
 
   const prereleaseBuildInfo = () => {
     const buildInfo = getBuildInfo();
@@ -47,7 +49,15 @@ export const DashboardDesktopLayout: ParentComponent = (props) => {
       <Divider class={style.horizontalDivider} />
 
       <div class={style.nav}>
-        <Sidebar routes={routes} />
+        <Sidebar routes={routes}>
+          <PermissionGuard permission={PermissionEnum.MATCHES_READ}>
+            <SidebarButton
+              symbol="notifications"
+              label="Notifications"
+              onClick={openNotificationSettings}
+            />
+          </PermissionGuard>
+        </Sidebar>
         <div class={style.inDevelopment}>
           <Switch
             fallback={

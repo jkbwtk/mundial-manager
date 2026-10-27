@@ -8,7 +8,7 @@ export interface SidebarProps {
   routes: ExtendedRouteDefinition[];
 }
 
-export const Sidebar: Component<SidebarProps> = (props) => {
+export const Sidebar: ParentComponent<SidebarProps> = (props) => {
   const isVisibleRoute = useIsVisibleRoute();
 
   return (
@@ -16,6 +16,8 @@ export const Sidebar: Component<SidebarProps> = (props) => {
       <For each={props.routes.filter(isVisibleRoute)}>
         {(route) => <SidebarSwitch route={route} pathFragments={['/']} />}
       </For>
+
+      {props.children}
     </nav>
   );
 };
