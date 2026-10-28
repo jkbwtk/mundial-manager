@@ -24,29 +24,51 @@ import type { Player } from '#shared/types/api/player';
 import type { Table } from '#shared/types/api/table';
 import style from './MatchCreatorModal.module.scss';
 
+type MatchCreatorMode = 'create' | 'schedule' | 'update';
+
 export interface MatchCreatorModalProps {
   match?: Match;
   initialValues?: Partial<MatchCreate>;
+
+  schedule?: boolean;
+}
+
+const MatchCreatorLabels: Record<MatchCreatorMode, ModalFormLabels> = {
+  create: {
+    title: 'Match Creator',
+    submitButtonText: 'Create',
+    successMessage: 'Match created successfully!',
+    errorMessage: 'Failed to create match. Please try again.',
+    logLabel: 'Match creation error:',
+  },
+  schedule: {
+    title: 'Match Scheduler',
+    submitButtonText: 'Schedule',
+    successMessage: 'Match scheduled successfully!',
+    errorMessage: 'Failed to schedule match. Please try again.',
+    logLabel: 'Match scheduling error:',
+  },
+  update: {
+    title: 'Match Editor',
+    submitButtonText: 'Update',
+    successMessage: 'Match updated successfully!',
+    errorMessage: 'Failed to update match. Please try again.',
+    logLabel: 'Match update error:',
+  },
+};
+
+function getMatchCreatorMode(props: MatchCreatorModalProps): MatchCreatorMode {
+  if (props.match !== undefined) return 'update';
+
+  return props.schedule ? 'schedule' : 'create';
 }
 
 export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
-  const isCreating = props.match === undefined;
+  const mode = getMatchCreatorMode(props);
+  const isCreating = mode !== 'update';
+  const isScheduling = mode === 'schedule';
 
-  const config: ModalFormLabels = isCreating
-    ? {
-        title: 'Match Creator',
-        submitButtonText: 'Create',
-        successMessage: 'Match created successfully!',
-        errorMessage: 'Failed to create match. Please try again.',
-        logLabel: 'Match creation error:',
-      }
-    : {
-        title: 'Match Editor',
-        submitButtonText: 'Update',
-        successMessage: 'Match updated successfully!',
-        errorMessage: 'Failed to update match. Please try again.',
-        logLabel: 'Match update error:',
-      };
+  const config = MatchCreatorLabels[mode];
 
   const statusMap: DropdownOption[] = Object.values(MatchStatusEnum).map(
     (status) => ({
@@ -73,6 +95,7 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
         },
         duration: {
           label: 'Duration',
+          hidden: isScheduling,
           type: 'number',
           placeholder: 'Match duration...',
           unit: 's',
@@ -82,6 +105,7 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
         },
         pauseDuration: {
           label: 'Pause Duration',
+          hidden: isScheduling,
           type: 'number',
           placeholder: 'Pause duration...',
           unit: 's',
@@ -96,6 +120,7 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
         },
         side1Score: {
           label: 'Side 1 Score',
+          hidden: isScheduling,
           type: 'number',
           placeholder: 'Side 1 score...',
           step: 1,
@@ -103,6 +128,7 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
         },
         side2Score: {
           label: 'Side 2 Score',
+          hidden: isScheduling,
           type: 'number',
           placeholder: 'Side 2 score...',
           step: 1,
@@ -110,11 +136,13 @@ export const MatchCreatorModal: Component<MatchCreatorModalProps> = (props) => {
         },
         status: {
           label: 'Status',
+          hidden: isScheduling,
           type: 'dropdown',
           options: statusMap,
         },
         hidden: {
           label: 'Hidden',
+          hidden: isScheduling,
           type: 'checkbox',
         },
         stakesModifier: {
