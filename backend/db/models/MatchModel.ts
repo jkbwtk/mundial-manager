@@ -25,7 +25,7 @@ import {
   StartDatePrecisionEnum,
 } from '#shared/matchLabels';
 import { getMatchPlayerUuids } from '#shared/matchPlayers';
-import { deriveMatchStatus } from '#shared/matchStatus';
+import { deriveMatchStatus, getMatchStateIssues } from '#shared/matchStatus';
 import {
   getMatchTimelineContext,
   getMatchTimelinePauseDuration,
@@ -40,7 +40,6 @@ import {
   MatchCreate,
   MatchQueryMeta,
   type MatchStatus,
-  MatchStatusEnum,
   MatchUpdate,
 } from '#shared/types/api/match';
 import type { MatchEvent, MatchSide } from '#shared/types/api/matchEvent';
@@ -386,7 +385,7 @@ export class MatchModel extends MatchOps {
 
   public static strategies = MatchOps.defineStrategies({
     preWrite: {
-      statusMatchesTimeline: async ({ db, leagueUuid, op, next, previous }) => {
+      stateMatchesTimeline: async ({ db, leagueUuid, op, next, previous }) => {
         const events =
           op === 'create'
             ? []
@@ -395,33 +394,18 @@ export class MatchModel extends MatchOps {
                 leagueUuid,
                 previous.uuid,
               );
-        const derived = deriveMatchStatus(next.status, {
-          duration: next.duration,
-          events,
-        });
+        const issues = getMatchStateIssues(next, events);
 
-        if (derived === next.status) return;
-
-        if (next.status === MatchStatusEnum.SURRENDERED) {
-          throw new StrategyValidationError(
-            'Surrendered match requires a surrender event',
-            {
-              status: {
-                value: next.status,
-                errorType: 'SURRENDER_EVENT_MISSING',
-              },
-            },
-          );
-        }
+        if (issues.length === 0) return;
 
         throw new StrategyValidationError(
-          'Match status does not match its timeline',
-          {
-            status: {
-              value: next.status,
-              errorType: 'STATUS_DOES_NOT_MATCH_TIMELINE',
-            },
-          },
+          'Match state does not match its status or timeline',
+          Object.fromEntries(
+            issues.map((issue) => [
+              issue.field,
+              { value: next[issue.field], errorType: issue.errorType },
+            ]),
+          ),
         );
       },
 
