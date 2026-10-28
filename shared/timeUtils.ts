@@ -11,6 +11,49 @@ dayjs.extend(timezone);
 
 export const DAY_MS = 86_400_000;
 
+type ZonedPartType = 'year' | 'month' | 'day' | 'hour' | 'minute' | 'second';
+
+type ZonedParts = Record<ZonedPartType, string>;
+
+const LOCAL_TIME_ZONE_KEY = '';
+
+const zonedFormats = new Map<string, Intl.DateTimeFormat>();
+
+function getZonedFormat(timeZone?: string): Intl.DateTimeFormat {
+  const key = timeZone ?? LOCAL_TIME_ZONE_KEY;
+  const cached = zonedFormats.get(key);
+
+  if (cached !== undefined) return cached;
+
+  const format = new Intl.DateTimeFormat('en-CA', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hourCycle: 'h23',
+  });
+
+  zonedFormats.set(key, format);
+
+  return format;
+}
+
+function getZonedParts(
+  timestamp: Date | number, // epoch milliseconds when a number
+  timeZone?: string,
+): ZonedParts {
+  const parts = {} as ZonedParts;
+
+  for (const part of getZonedFormat(timeZone).formatToParts(timestamp)) {
+    if (part.type !== 'literal') parts[part.type as ZonedPartType] = part.value;
+  }
+
+  return parts;
+}
+
 export function toZonedDayjs(
   date: Date | number | Dayjs, // epoch milliseconds when a number
   timeZone?: string,
@@ -61,7 +104,9 @@ export function formatDate(
     return '----/--/--';
   }
 
-  return toZonedDayjs(timestamp, timeZone).format('YYYY-MM-DD');
+  const { year, month, day } = getZonedParts(timestamp, timeZone);
+
+  return `${year}-${month}-${day}`;
 }
 
 export function formatTime(
@@ -72,7 +117,9 @@ export function formatTime(
     return '--:--';
   }
 
-  return toZonedDayjs(timestamp, timeZone).format('HH:mm');
+  const { hour, minute } = getZonedParts(timestamp, timeZone);
+
+  return `${hour}:${minute}`;
 }
 
 export function formatDatetime(
@@ -83,7 +130,12 @@ export function formatDatetime(
     return '----/--/-- --:--:--';
   }
 
-  return toZonedDayjs(timestamp, timeZone).format('YYYY-MM-DD HH:mm:ss');
+  const { year, month, day, hour, minute, second } = getZonedParts(
+    timestamp,
+    timeZone,
+  );
+
+  return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
 }
 
 export function secondsToMs<T extends number | null | undefined>(
