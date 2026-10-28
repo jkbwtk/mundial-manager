@@ -1,10 +1,16 @@
 import { For, type JSX, Show } from 'solid-js';
 import { ColorBlock } from '#components/ColorBlock';
-import { usePlayerLookup, useTableLookup } from '#flib/entityLookup';
+import {
+  type EntityLookup,
+  usePlayerLookup,
+  useTableLookup,
+} from '#flib/entityLookup';
 import { getTableSideColor } from '#flib/teamColors';
 import { getMatchSidePlayers } from '#shared/matchTimeline';
 import type { Match } from '#shared/types/api/match';
 import type { MatchSide } from '#shared/types/api/matchEvent';
+import type { Player } from '#shared/types/api/player';
+import type { Table } from '#shared/types/api/table';
 import style from './MatchSideLabel.module.scss';
 
 export type MatchSideLabelAlign = 'start' | 'end';
@@ -12,6 +18,9 @@ export type MatchSideLabelAlign = 'start' | 'end';
 export interface MatchSideLabelProps {
   match: Pick<Match, 'tableUuid' | 'playersSide1' | 'playersSide2'>;
   side: MatchSide;
+
+  players?: EntityLookup<Player>;
+  tables?: EntityLookup<Table>;
 
   align?: MatchSideLabelAlign;
   compact?: boolean;
@@ -23,8 +32,8 @@ export interface MatchSideLabelProps {
 }
 
 export const MatchSideLabel: Component<MatchSideLabelProps> = (props) => {
-  const players = usePlayerLookup();
-  const tables = useTableLookup();
+  const players = props.players ?? usePlayerLookup();
+  const tables = props.tables ?? useTableLookup();
 
   const align = () => props.align ?? 'start';
 
