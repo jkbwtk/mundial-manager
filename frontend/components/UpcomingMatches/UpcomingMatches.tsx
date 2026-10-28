@@ -115,7 +115,8 @@ export const UpcomingMatches: Component<UpcomingMatchesProps> = (props) => {
     open({
       props: {
         component: MatchCreatorModal,
-        initialValues: { status: 'SCHEDULED', startDate: new Date() },
+        schedule: true,
+        initialValues: { startDate: new Date() },
       },
       owner,
       closeOnBackgroundClick: false,
