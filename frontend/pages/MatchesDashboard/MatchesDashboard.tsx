@@ -15,7 +15,7 @@ import { SessionPresenceModal } from '#components/SessionPresenceModal';
 import { type Column, Table } from '#components/Table';
 import { Divider } from '#components/Widget';
 import { useActiveMatches } from '#flib/activeMatches';
-import { useTableLookup } from '#flib/entityLookup';
+import { usePlayerLookup, useTableLookup } from '#flib/entityLookup';
 import { useCan } from '#flib/identity';
 import { useLeagueTimeZone } from '#flib/leagueTimeZone';
 import { createResilientAsync } from '#flib/resilientAsync';
@@ -67,6 +67,7 @@ export const MatchesDashboard: Component = () => {
 
   const matches = createResilientAsync(queryMeta, queryMatches);
   const activeMatches = useActiveMatches();
+  const players = usePlayerLookup();
   const tables = useTableLookup();
   const navigate = useNavigate();
 
@@ -188,6 +189,8 @@ export const MatchesDashboard: Component = () => {
       transform: (_val, row: Match) => (
         <MatchSideLabel
           match={row}
+          players={players}
+          tables={tables}
           side="SIDE_1"
           align="end"
           compact
@@ -210,6 +213,8 @@ export const MatchesDashboard: Component = () => {
       transform: (_val, row: Match) => (
         <MatchSideLabel
           match={row}
+          players={players}
+          tables={tables}
           side="SIDE_2"
           compact
           highlight={getWinner(row) === 'SIDE_2'}
