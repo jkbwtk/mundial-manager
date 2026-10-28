@@ -40,6 +40,22 @@ export const EndedMatchStatuses: MatchStatus[] = [
   MatchStatusEnum.CANCELED,
 ];
 
+export const MatchStateErrorTypeEnum = {
+  STATUS_DOES_NOT_MATCH_TIMELINE: 'STATUS_DOES_NOT_MATCH_TIMELINE',
+  SURRENDER_EVENT_MISSING: 'SURRENDER_EVENT_MISSING',
+  CANCEL_EVENT_MISSING: 'CANCEL_EVENT_MISSING',
+  PAUSE_EVENT_MISSING: 'PAUSE_EVENT_MISSING',
+  SCHEDULED_WITH_DURATION: 'SCHEDULED_WITH_DURATION',
+  SCHEDULED_WITH_SCORE: 'SCHEDULED_WITH_SCORE',
+  SCHEDULED_WITH_PAUSE: 'SCHEDULED_WITH_PAUSE',
+  LIVE_WITHOUT_START_DATE: 'LIVE_WITHOUT_START_DATE',
+  SCORE_DOES_NOT_MATCH_TIMELINE: 'SCORE_DOES_NOT_MATCH_TIMELINE',
+  PAUSE_DOES_NOT_MATCH_TIMELINE: 'PAUSE_DOES_NOT_MATCH_TIMELINE',
+} as const;
+
+export const MatchStateErrorType = z.enum(MatchStateErrorTypeEnum);
+export type MatchStateErrorType = z.infer<typeof MatchStateErrorType>;
+
 export const Match = z.object({
   uuid: z.uuid(),
   tableUuid: z.uuid().nullish(),
