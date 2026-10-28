@@ -36,8 +36,7 @@ type PushUnavailableReason =
 
 const PushUnavailableMessages: Record<PushUnavailableReason, string> = {
   UNSUPPORTED: 'This browser does not support push notifications.',
-  INSTALL_REQUIRED:
-    'On Safari, notifications only work in the installed app.',
+  INSTALL_REQUIRED: 'On Safari, notifications only work in the installed app.',
   IOS_OUTDATED:
     'Notifications need iOS 16.4 or newer. Update your device to enable them.',
   DENIED:
@@ -45,8 +44,7 @@ const PushUnavailableMessages: Record<PushUnavailableReason, string> = {
   NOT_CONFIGURED: 'Push notifications are not configured on this server.',
 };
 
-const IOS_DENIED_MESSAGE =
-  'Notifications are blocked.';
+const IOS_DENIED_MESSAGE = 'Notifications are blocked.';
 
 export const NotificationSettingsModal: Component = () => {
   const [, actions] = useToast();
