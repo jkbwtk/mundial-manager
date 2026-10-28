@@ -7,6 +7,9 @@ export const matchCreateDefaults = {
   duration: null,
   pauseDuration: 0,
 
+  side1Score: 0,
+  side2Score: 0,
+
   status: 'SCHEDULED',
 
   hidden: false,
