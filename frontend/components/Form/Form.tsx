@@ -21,6 +21,7 @@ export const Form = <
     () =>
       toJSONSchema(props.model, {
         unrepresentable: 'any',
+        io: 'input',
       }) as JSONSchemaNode,
   );
 
