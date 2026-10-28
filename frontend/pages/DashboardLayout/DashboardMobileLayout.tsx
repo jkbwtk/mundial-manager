@@ -5,11 +5,9 @@ import style from './DashboardLayout.module.scss';
 export const DashboardMobileLayout: ParentComponent = (props) => {
   return (
     <div class={style.mobileContainer}>
-      <Suspense>{props.children}</Suspense>
+      <MobileNavBar />
 
-      <div class={style.mobileNav}>
-        <MobileNavBar />
-      </div>
+      <Suspense>{props.children}</Suspense>
     </div>
   );
 };

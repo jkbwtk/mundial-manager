@@ -15,10 +15,10 @@
 }
 
 .mobile-container {
-  --mobile-nav-height: calc(#{ch(3)} + env(safe-area-inset-bottom));
+  --mobile-nav-height: env(safe-area-inset-bottom);
 
   display: grid;
-  grid-template-rows: 1fr max-content;
+  grid-template-rows: max-content 1fr;
 
   min-height: 100dvh;
   width: round(down, 100dvw, cw(1));
@@ -26,18 +26,6 @@
   max-width: 100dvw;
 
   overflow-x: clip;
-
-  padding-top: env(safe-area-inset-top);
-}
-
-.mobile-nav {
-  position: sticky;
-  bottom: 0;
-  z-index: 10;
-
-  padding-bottom: env(safe-area-inset-bottom);
-
-  background-color: $backgroundColor;
 }
 
 .logo {

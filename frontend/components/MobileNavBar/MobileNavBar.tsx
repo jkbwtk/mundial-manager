@@ -1,129 +1,139 @@
-import { A } from '@solidjs/router';
-import { type JSX, Show } from 'solid-js';
+import { useLocation } from '@solidjs/router';
+import {
+  createEffect,
+  createSignal,
+  createUniqueId,
+  type JSX,
+  on,
+  onCleanup,
+  Show,
+} from 'solid-js';
+import { isServer } from 'solid-js/web';
+import { Breadcrumbs } from '#components/Breadcrumbs';
+import { AnchorButton, Button } from '#components/Button';
+import { LogoSmall } from '#components/LogoSmall';
 import { MaterialSymbol } from '#components/MaterialSymbol';
+import { useNotificationSettingsModal } from '#components/NotificationSettingsModal';
+import { PermissionGuard } from '#components/PermissionGuard';
+import { Sidebar, SidebarButton } from '#components/Sidebar';
+import { Divider } from '#components/Widget';
 import { useCan } from '#flib/identity';
+import { routes } from '#frontend/routes';
 import { MatchRecordingPermissions, PermissionEnum } from '#shared/permissions';
 import style from './MobileNavBar.module.scss';
 
-interface MobileNavbarProps {
+export interface MobileNavBarProps {
   class?: string;
-  classList?: JSX.CustomAttributes<HTMLDivElement>['classList'];
+  classList?: JSX.CustomAttributes<HTMLElement>['classList'];
 }
 
-export const MobileNavBar: Component<MobileNavbarProps> = (props) => {
+export const MobileNavBar: Component<MobileNavBarProps> = (props) => {
   const can = useCan();
+  const location = useLocation();
+  const openNotificationSettings = useNotificationSettingsModal();
+
+  const id = createUniqueId();
+
+  const [open, setOpen] = createSignal(false);
+
+  const toggleMenu = () => setOpen((isOpen) => !isOpen);
+  const closeMenu = () => setOpen(false);
+
+  const handleOpenNotificationSettings = () => {
+    closeMenu();
+    openNotificationSettings();
+  };
+
+  createEffect(on(() => location.pathname, closeMenu, { defer: true }));
+
+  createEffect(
+    on(open, (isOpen) => {
+      if (isServer || !isOpen) return;
+
+      const handleKeyDown = (ev: KeyboardEvent) => {
+        if (ev.key !== 'Escape') return;
+
+        ev.preventDefault();
+        closeMenu();
+      };
+
+      document.addEventListener('keydown', handleKeyDown);
+
+      onCleanup(() => document.removeEventListener('keydown', handleKeyDown));
+    }),
+  );
 
   return (
-    <div
-      classList={{
-        [style.container]: true,
-        [props.class!]: !!props.class,
-
-        ...(props.classList ?? {}),
-      }}
-    >
-      <Show when={can(PermissionEnum.SEASONS_READ)}>
-        <A
-          href="/seasons"
-          classList={{
-            [style.entry]: true,
-            'no-style': true,
-          }}
-        >
-          <MaterialSymbol symbol="date_range" />
-        </A>
-      </Show>
-      <Show when={can(PermissionEnum.TABLES_READ)}>
-        <A
-          href="/tables"
-          classList={{
-            [style.entry]: true,
-            'no-style': true,
-          }}
-        >
-          <MaterialSymbol symbol="table_restaurant" />
-        </A>
-      </Show>
-      <Show when={can(PermissionEnum.BALLS_READ)}>
-        <A
-          href="/balls"
-          classList={{
-            [style.entry]: true,
-            'no-style': true,
-          }}
-        >
-          <MaterialSymbol symbol="sports_soccer" />
-        </A>
-      </Show>
-
-      <A
-        href="/"
-        end={true}
+    <>
+      <header
         classList={{
-          [style.entry]: true,
-          [style.homepage]: true,
-          'no-style': true,
+          [style.container]: true,
+          [props.class ?? '']: !!props.class,
+          ...(props.classList ?? {}),
         }}
       >
-        <MaterialSymbol symbol="dashboard" />
-      </A>
+        <div class={style.bar}>
+          <Button
+            type="button"
+            severity="secondary"
+            padding={0}
+            aria-label="Menu"
+            aria-expanded={open()}
+            aria-controls={`${id}-drawer`}
+            onClick={toggleMenu}
+          >
+            <MaterialSymbol symbol={open() ? 'close' : 'menu'} />
+          </Button>
 
-      <Show when={can(MatchRecordingPermissions)}>
-        <A
-          classList={{
-            [style.calculatorLink]: true,
-            'no-style': true,
-          }}
-          href="/mundial-calculator"
-        >
-          +
-        </A>
-      </Show>
+          <Breadcrumbs class={style.breadcrumbs} />
 
-      <Show when={can(PermissionEnum.PLAYERS_READ)}>
-        <A
-          href="/players"
-          classList={{
-            [style.entry]: true,
-            'no-style': true,
-          }}
-        >
-          <MaterialSymbol symbol="groups" />
-        </A>
-      </Show>
-      <Show when={can(PermissionEnum.MATCHES_READ)}>
-        <A
-          href="/matches"
-          classList={{
-            [style.entry]: true,
-            'no-style': true,
-          }}
-        >
-          <MaterialSymbol symbol="gps_fixed" />
-        </A>
-      </Show>
-      <Show when={can(PermissionEnum.GOAL_TYPES_READ)}>
-        <A
-          href="/league"
-          classList={{
-            [style.entry]: true,
-            'no-style': true,
-          }}
-        >
-          <MaterialSymbol symbol="trophy" />
-        </A>
-      </Show>
-      <Show when={can(PermissionEnum.LEAGUES_READ)}>
-        <A
-          href="/admin"
-          classList={{
-            [style.entry]: true,
-            'no-style': true,
-          }}
-        >
-          <MaterialSymbol symbol="admin_panel_settings" />
-        </A>
-      </Show>
-    </div>
+          <Show when={can(MatchRecordingPermissions)}>
+            <AnchorButton
+              href="/mundial-calculator"
+              severity="secondary"
+              padding={0}
+              aria-label="Record match"
+            >
+              <span class={style.record}>+</span>
+            </AnchorButton>
+          </Show>
+        </div>
+
+        <Divider />
+      </header>
+
+      <div
+        aria-hidden="true"
+        classList={{
+          [style.backdrop]: true,
+          [style.open]: open(),
+        }}
+        onClick={closeMenu}
+      />
+
+      <aside
+        id={`${id}-drawer`}
+        classList={{
+          [style.drawer]: true,
+          [style.open]: open(),
+        }}
+      >
+        <div class={style.logo}>
+          <LogoSmall />
+        </div>
+
+        <Divider />
+
+        <Sidebar routes={routes}>
+          <PermissionGuard permission={PermissionEnum.MATCHES_READ}>
+            <SidebarButton
+              symbol="notifications"
+              label="Notifications"
+              onClick={handleOpenNotificationSettings}
+            />
+          </PermissionGuard>
+        </Sidebar>
+      </aside>
+    </>
   );
 };
