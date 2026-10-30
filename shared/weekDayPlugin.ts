@@ -1,6 +1,7 @@
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
+import { DAY_MS } from '#shared/timeUtils';
 
 dayjs.extend(isoWeek);
 
@@ -37,15 +38,17 @@ export default (
       const start = (this > that ? that : this).startOf('day');
       const goal = (this > that ? this : that).startOf('day');
 
-      let current = start.add(1, 'day');
-      let count = 0;
+      const days = Math.round(
+        (Date.UTC(goal.year(), goal.month(), goal.date()) -
+          Date.UTC(start.year(), start.month(), start.date())) /
+          DAY_MS,
+      );
+      const startWeekday = start.isoWeekday();
 
-      while (!current.isAfter(goal)) {
-        if (current.isWorkDay()) {
-          count += 1;
-        }
+      let count = Math.floor(days / 7) * 5;
 
-        current = current.add(1, 'day');
+      for (let offset = 1; offset <= days % 7; offset += 1) {
+        if (((startWeekday + offset - 1) % 7) + 1 < 6) count += 1;
       }
 
       return this > that ? count : -count;
