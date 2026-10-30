@@ -4,7 +4,7 @@ import { BallCreatorModal } from '#components/BallCreatorModal';
 import { Button } from '#components/Button';
 import { ColorBlock } from '#components/ColorBlock';
 import { useConfirmModal } from '#components/ConfirmModal';
-import { PAGINATOR_DEFAULT_LIMIT, Paginator } from '#components/Paginator';
+import { Paginator } from '#components/Paginator';
 import { type Column, Table } from '#components/Table';
 import { Divider } from '#components/Widget';
 import { useCan } from '#flib/identity';
@@ -12,10 +12,11 @@ import { createResilientAsync } from '#flib/resilientAsync';
 import { useSearchParamsState } from '#flib/searchParamsState';
 import { useHandleButtonAction } from '#flib/solidHelpers';
 import { actionDeleteBall, queryBalls } from '#flib/trpcCalls';
+import { ballsDashboardSearchState } from '#preloaders/BallsDashboard';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
 import { PermissionEnum } from '#shared/permissions';
-import { type Ball, BallQueryMeta } from '#shared/types/api/ball';
+import type { Ball, BallQueryMeta } from '#shared/types/api/ball';
 import { shortUUID } from '#shared/utils';
 import style from './BallsDashboard.module.scss';
 
@@ -23,15 +24,9 @@ export const BallsDashboard: Component = () => {
   const [, actions] = useToast();
   const [, { open }] = useModal();
 
-  const [queryMeta, queryMetaState, setQueryMeta] = useSearchParamsState({
-    schema: BallQueryMeta.required({ pagination: true }),
-    defaultState: {
-      pagination: {
-        limit: PAGINATOR_DEFAULT_LIMIT,
-        offset: 0,
-      },
-    },
-  });
+  const [queryMeta, queryMetaState, setQueryMeta] = useSearchParamsState(
+    ballsDashboardSearchState,
+  );
 
   const balls = createResilientAsync(queryMeta, queryBalls);
 

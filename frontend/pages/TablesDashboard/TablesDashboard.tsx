@@ -3,7 +3,7 @@ import { batch, getOwner, Show } from 'solid-js';
 import { Button } from '#components/Button';
 import { ColorBlock } from '#components/ColorBlock';
 import { useConfirmModal } from '#components/ConfirmModal';
-import { PAGINATOR_DEFAULT_LIMIT, Paginator } from '#components/Paginator';
+import { Paginator } from '#components/Paginator';
 import { type Column, Table } from '#components/Table';
 import { TableCreatorModal } from '#components/TableCreatorModal';
 import { Divider } from '#components/Widget';
@@ -12,12 +12,13 @@ import { createResilientAsync } from '#flib/resilientAsync';
 import { useSearchParamsState } from '#flib/searchParamsState';
 import { useHandleButtonAction } from '#flib/solidHelpers';
 import { actionDeleteTable, queryTables } from '#flib/trpcCalls';
+import { tablesDashboardSearchState } from '#preloaders/TablesDashboard';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
 import { PermissionEnum } from '#shared/permissions';
-import {
+import type {
   TableQueryMeta,
-  type Table as TableType,
+  Table as TableType,
 } from '#shared/types/api/table';
 import { shortUUID } from '#shared/utils';
 import style from './TablesDashboard.module.scss';
@@ -26,15 +27,9 @@ export const TablesDashboard: Component = () => {
   const [, actions] = useToast();
   const [, { open }] = useModal();
 
-  const [queryMeta, queryMetaState, setQueryMeta] = useSearchParamsState({
-    schema: TableQueryMeta.required({ pagination: true }),
-    defaultState: {
-      pagination: {
-        limit: PAGINATOR_DEFAULT_LIMIT,
-        offset: 0,
-      },
-    },
-  });
+  const [queryMeta, queryMetaState, setQueryMeta] = useSearchParamsState(
+    tablesDashboardSearchState,
+  );
 
   const tables = createResilientAsync(queryMeta, queryTables);
 

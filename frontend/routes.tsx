@@ -3,13 +3,18 @@ import { guardRoute } from '#flib/routeGuard';
 import type { ExtendedRouteDefinition } from '#frontend/types';
 import { errors, GenericErrorPage } from '#pages/GenericErrorPage';
 import { preloadAdminDashboard } from '#preloaders/AdminDashboard';
+import { preloadBallsDashboard } from '#preloaders/BallsDashboard';
 import { preloadChartsPage } from '#preloaders/ChartsPage';
 import { preloadHomeLayout } from '#preloaders/HomeLayout';
 import { preloadHomepage } from '#preloaders/Homepage';
 import { preloadLeagueDashboard } from '#preloaders/LeagueDashboard';
 import { preloadMatchEventsDashboard } from '#preloaders/MatchEventsDashboard';
+import { preloadMatchesDashboard } from '#preloaders/MatchesDashboard';
 import { preloadMundialCalculator } from '#preloaders/MundialCalculator';
+import { preloadPlayersDashboard } from '#preloaders/PlayersDashboard';
 import { preloadRatingsPage } from '#preloaders/RatingsPage';
+import { preloadSeasonsDashboard } from '#preloaders/SeasonsDashboard';
+import { preloadTablesDashboard } from '#preloaders/TablesDashboard';
 import { MatchRecordingPermissions, PermissionEnum } from '#shared/permissions';
 
 const HomeLayout = lazyRoute(
@@ -168,6 +173,7 @@ export const dashboardRoutes: ExtendedRouteDefinition[] = [
   {
     path: '/seasons',
     component: SeasonsDashboard,
+    preload: preloadSeasonsDashboard,
     info: {
       name: 'Seasons',
       icon: 'date_range',
@@ -177,6 +183,7 @@ export const dashboardRoutes: ExtendedRouteDefinition[] = [
   {
     path: '/tables',
     component: TablesDashboard,
+    preload: preloadTablesDashboard,
     info: {
       name: 'Tables',
       icon: 'table_restaurant',
@@ -186,6 +193,7 @@ export const dashboardRoutes: ExtendedRouteDefinition[] = [
   {
     path: '/balls',
     component: BallsDashboard,
+    preload: preloadBallsDashboard,
     info: {
       name: 'Balls',
       icon: 'sports_soccer',
@@ -195,6 +203,7 @@ export const dashboardRoutes: ExtendedRouteDefinition[] = [
   {
     path: '/players',
     component: PlayersDashboard,
+    preload: preloadPlayersDashboard,
     info: {
       name: 'Players',
       icon: 'groups',
@@ -204,6 +213,7 @@ export const dashboardRoutes: ExtendedRouteDefinition[] = [
   {
     path: '/matches',
     component: MatchesDashboard,
+    preload: preloadMatchesDashboard,
     info: {
       name: 'Matches',
       icon: 'gps_fixed',

@@ -3,7 +3,7 @@ import { batch, getOwner, Show } from 'solid-js';
 import { Button } from '#components/Button';
 import { ColorBlock } from '#components/ColorBlock';
 import { useConfirmModal } from '#components/ConfirmModal';
-import { PAGINATOR_DEFAULT_LIMIT, Paginator } from '#components/Paginator';
+import { Paginator } from '#components/Paginator';
 import { PlayerCreatorModal } from '#components/PlayerCreatorModal';
 import { type Column, Table } from '#components/Table';
 import { Divider } from '#components/Widget';
@@ -12,10 +12,11 @@ import { createResilientAsync } from '#flib/resilientAsync';
 import { useSearchParamsState } from '#flib/searchParamsState';
 import { useHandleButtonAction } from '#flib/solidHelpers';
 import { actionDeletePlayer, queryPlayers } from '#flib/trpcCalls';
+import { playersDashboardSearchState } from '#preloaders/PlayersDashboard';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
 import { PermissionEnum } from '#shared/permissions';
-import { type Player, PlayerQueryMeta } from '#shared/types/api/player';
+import type { Player, PlayerQueryMeta } from '#shared/types/api/player';
 import { shortUUID } from '#shared/utils';
 import style from './PlayersDashboard.module.scss';
 
@@ -23,15 +24,9 @@ export const PlayersDashboard: Component = () => {
   const [, actions] = useToast();
   const [, { open }] = useModal();
 
-  const [queryMeta, queryMetaState, setQueryMeta] = useSearchParamsState({
-    schema: PlayerQueryMeta.required({ pagination: true }),
-    defaultState: {
-      pagination: {
-        limit: PAGINATOR_DEFAULT_LIMIT,
-        offset: 0,
-      },
-    },
-  });
+  const [queryMeta, queryMetaState, setQueryMeta] = useSearchParamsState(
+    playersDashboardSearchState,
+  );
 
   const players = createResilientAsync(queryMeta, queryPlayers);
 

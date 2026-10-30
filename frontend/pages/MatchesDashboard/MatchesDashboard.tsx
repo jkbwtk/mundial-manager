@@ -10,7 +10,7 @@ import { MatchCreatorModal } from '#components/MatchCreatorModal';
 import { MatchFilterWidget } from '#components/MatchFilterWidget';
 import { MatchSideLabel } from '#components/MatchSideLabel';
 import { useMatchSummaryModal } from '#components/MatchSummaryModal';
-import { PAGINATOR_DEFAULT_LIMIT, Paginator } from '#components/Paginator';
+import { Paginator } from '#components/Paginator';
 import { SessionPresenceModal } from '#components/SessionPresenceModal';
 import { type Column, Table } from '#components/Table';
 import { Divider } from '#components/Widget';
@@ -22,17 +22,18 @@ import { createResilientAsync } from '#flib/resilientAsync';
 import { useSearchParamsState } from '#flib/searchParamsState';
 import { useHandleButtonAction } from '#flib/solidHelpers';
 import { actionDeleteMatch, queryMatches } from '#flib/trpcCalls';
+import { matchesDashboardSearchState } from '#preloaders/MatchesDashboard';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
 import { formatKnownStartDatetime } from '#shared/matchLabels';
 import { getMatchWinningSide } from '#shared/matchTimeline';
 import { PermissionEnum } from '#shared/permissions';
 import { formatDuration } from '#shared/timeUtils';
-import {
-  type Match,
-  type MatchFilters,
+import type {
+  Match,
+  MatchFilters,
   MatchQueryMeta,
-  type MatchStatus,
+  MatchStatus,
 } from '#shared/types/api/match';
 import { shortUUID } from '#shared/utils';
 import style from './MatchesDashboard.module.scss';
@@ -51,19 +52,9 @@ export const MatchesDashboard: Component = () => {
   const [, actions] = useToast();
   const [, { open }] = useModal();
 
-  const [queryMeta, queryMetaState, setQueryMeta] = useSearchParamsState({
-    schema: MatchQueryMeta.required({ pagination: true }),
-    defaultState: {
-      pagination: {
-        limit: PAGINATOR_DEFAULT_LIMIT,
-        offset: 0,
-      },
-      sorting: {
-        direction: 'desc',
-        field: 'startDate',
-      },
-    },
-  });
+  const [queryMeta, queryMetaState, setQueryMeta] = useSearchParamsState(
+    matchesDashboardSearchState,
+  );
 
   const matches = createResilientAsync(queryMeta, queryMatches);
   const activeMatches = useActiveMatches();

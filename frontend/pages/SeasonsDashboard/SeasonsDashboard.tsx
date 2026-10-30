@@ -2,7 +2,7 @@ import { useAction } from '@solidjs/router';
 import { batch, getOwner, Show } from 'solid-js';
 import { Button } from '#components/Button';
 import { useConfirmModal } from '#components/ConfirmModal';
-import { PAGINATOR_DEFAULT_LIMIT, Paginator } from '#components/Paginator';
+import { Paginator } from '#components/Paginator';
 import { SeasonCreatorModal } from '#components/SeasonCreatorModal';
 import { type Column, Table } from '#components/Table';
 import { Divider } from '#components/Widget';
@@ -16,11 +16,12 @@ import {
   queryCurrentSeason,
   querySeasons,
 } from '#flib/trpcCalls';
+import { seasonsDashboardSearchState } from '#preloaders/SeasonsDashboard';
 import { useModal } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
 import { PermissionEnum } from '#shared/permissions';
 import { formatDate } from '#shared/timeUtils';
-import { type Season, SeasonQueryMeta } from '#shared/types/api/season';
+import type { Season, SeasonQueryMeta } from '#shared/types/api/season';
 import { shortUUID } from '#shared/utils';
 import style from './SeasonsDashboard.module.scss';
 
@@ -29,19 +30,9 @@ export const SeasonsDashboard: Component = () => {
   const [, actions] = useToast();
   const [, { open }] = useModal();
 
-  const [queryMeta, queryMetaState, setQueryMeta] = useSearchParamsState({
-    schema: SeasonQueryMeta.required({ pagination: true }),
-    defaultState: {
-      pagination: {
-        limit: PAGINATOR_DEFAULT_LIMIT,
-        offset: 0,
-      },
-      sorting: {
-        direction: 'asc',
-        field: 'startDate',
-      },
-    },
-  });
+  const [queryMeta, queryMetaState, setQueryMeta] = useSearchParamsState(
+    seasonsDashboardSearchState,
+  );
 
   const seasons = createResilientAsync(queryMeta, querySeasons);
   const currentSeason = createResilientAsync(queryCurrentSeason);
