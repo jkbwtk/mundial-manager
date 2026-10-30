@@ -6,6 +6,7 @@ import {
   type JSX,
   mergeProps,
   on,
+  onMount,
   Show,
   splitProps,
 } from 'solid-js';
@@ -47,6 +48,8 @@ interface TableColumnEntry {
   isLast: boolean;
 }
 
+export const TABLE_SSR_ROW_LIMIT = 50;
+
 const defaultColumn: RequiredDefaults<Column> = {
   align: 'left',
   minWidth: 'auto',
@@ -75,6 +78,12 @@ export const Table = <S extends string = string>(
   ]);
 
   const [sorting, setSorting] = createSignal(props.sorting ?? null);
+  const [mounted, setMounted] = createSignal(false);
+
+  const rows = () =>
+    mounted() ? props.data : props.data.slice(0, TABLE_SSR_ROW_LIMIT);
+
+  onMount(() => setMounted(true));
 
   createEffect(
     on(
@@ -172,7 +181,7 @@ export const Table = <S extends string = string>(
       </thead>
 
       <tbody>
-        <For each={props.data}>
+        <For each={rows()}>
           {(row, rowIndex) => (
             <tr classList={{ [`data-row-${rowIndex()}`]: true }}>
               <For each={columnEntries()}>
