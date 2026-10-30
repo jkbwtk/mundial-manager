@@ -1,4 +1,5 @@
 #!/bin/bash
+trap '' HUP
 
 /docker-entrypoint.sh nginx -g 'daemon off;' &
 nginx_pid=$!
