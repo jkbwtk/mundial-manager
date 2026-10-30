@@ -10,6 +10,7 @@ import { createTRPCRouter } from '#backend/routers/trpc/trpcRouter';
 import { getCookieSecurity } from '#blib/jwt';
 import {
   createErrorMiddleware,
+  createResponseAbortSignal,
   jwtMiddleware,
   requestLogger,
 } from '#blib/middlewares';
@@ -44,6 +45,7 @@ export async function createDevRouter() {
     const url = req.originalUrl;
     // @ts-expect-error
     const jwt = Promise.resolve(req.jwt ?? null);
+    const signal = createResponseAbortSignal(res);
 
     const trpcCaller = appRouter.createCaller(
       {
@@ -54,7 +56,10 @@ export async function createDevRouter() {
         db,
       },
       {
+        signal,
         onError: (opts) => {
+          if (opts.error.code !== 'INTERNAL_SERVER_ERROR') return;
+
           logger.error('Error during TRPC call', {
             label: ['ssr', opts.path],
             error: opts.error,
@@ -72,6 +77,8 @@ export async function createDevRouter() {
       const fetchEvent = createFetchEvent(req, res);
 
       const rendered = await render(url, trpcCaller, fetchEvent);
+
+      if (signal.aborted) return;
 
       const html = transformedTemplate
         .replace('<!--app-title-->', rendered.title)

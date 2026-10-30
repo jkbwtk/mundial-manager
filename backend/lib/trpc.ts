@@ -74,8 +74,24 @@ function assertPermissions(
   });
 }
 
+function assertNotAborted(signal: AbortSignal | undefined): void {
+  if (!signal?.aborted) return;
+
+  throw new TRPCError({
+    code: 'CLIENT_CLOSED_REQUEST',
+    message: 'Client closed the request',
+  });
+}
+
 export const baseProcedure = t.procedure.use(async (opts) => {
+  assertNotAborted(opts.signal);
+
   const result = await opts.next();
+
+  // lets pending socket close events land before the caller renders the result
+  await new Promise(setImmediate);
+
+  assertNotAborted(opts.signal);
 
   if (
     !result.ok &&

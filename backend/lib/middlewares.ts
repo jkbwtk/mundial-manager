@@ -3,6 +3,7 @@ import Cookies from 'cookies';
 import type {
   ErrorRequestHandler,
   RequestHandler,
+  Response,
 } from 'express-serve-static-core';
 import onFinished from 'on-finished';
 import onHeaders from 'on-headers';
@@ -146,6 +147,16 @@ export const requestLogger: RequestHandler = (req, res, next) => {
 
   next();
 };
+
+export function createResponseAbortSignal(res: Response): AbortSignal {
+  const controller = new AbortController();
+
+  res.once('close', () => {
+    if (!res.writableFinished) controller.abort();
+  });
+
+  return controller.signal;
+}
 
 export const jwtMiddleware: RequestHandler = async (req, res, next) => {
   const cookies = new Cookies(req, res);
