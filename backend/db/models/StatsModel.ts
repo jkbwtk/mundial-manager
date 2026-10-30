@@ -121,6 +121,7 @@ const statsTimelineJoin = and(
 )!;
 
 const slots = new Map<string, StatsStoreSlot>();
+const pendingVersionParts = new Map<string, Promise<StatsVersionParts>>();
 
 function getStatsMatchConditions(leagueUuid: string, filter?: SQL): SQL {
   return and(
@@ -231,6 +232,23 @@ export class StatsModel {
     );
 
     return result.rows[0]!;
+  }
+
+  protected static getCurrentVersionParts(
+    db: DB,
+    leagueUuid: string,
+  ): Promise<StatsVersionParts> {
+    const pending = pendingVersionParts.get(leagueUuid);
+
+    if (pending !== undefined) return pending;
+
+    const parts = this.getVersionParts(db, leagueUuid).finally(() =>
+      pendingVersionParts.delete(leagueUuid),
+    );
+
+    pendingVersionParts.set(leagueUuid, parts);
+
+    return parts;
   }
 
   @ConvertDrizzleErrors()
@@ -438,7 +456,10 @@ export class StatsModel {
 
     if (slot.entry === null) return this.touch(db, leagueUuid);
 
-    const { inputs, checksum } = await this.getVersionParts(db, leagueUuid);
+    const { inputs, checksum } = await this.getCurrentVersionParts(
+      db,
+      leagueUuid,
+    );
 
     if (`${inputs}/${checksum}` !== slot.entry.version) {
       this.touch(db, leagueUuid);
