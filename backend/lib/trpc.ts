@@ -98,7 +98,6 @@ export const procedure = baseProcedure.use(async (opts) => {
     path: opts.path,
     ok: result.ok,
     responseTime: performance.now() - t1,
-    contentLength: result.ok ? JSON.stringify(result.data).length : -1,
   });
 
   return result;

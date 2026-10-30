@@ -26,7 +26,6 @@ export type TrpcLogEntry = {
   type: string;
   path: string;
   ok: boolean;
-  contentLength: number;
   responseTime: number;
 };
 
@@ -105,8 +104,6 @@ const pretyCall = (requestLevel: string, entry: TransformableEntry) => {
     chalk.bold.italic(request.responseTime.toFixed(3)),
     'ms',
   );
-  message += chalk.gray(' - ');
-  message += chalk.cyan(chalk.bold.italic(request.contentLength), 'bytes');
 
   entry.message = message;
 
