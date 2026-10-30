@@ -2,9 +2,11 @@ import { lazyRoute } from '#flib/lazyRoute';
 import { guardRoute } from '#flib/routeGuard';
 import type { ExtendedRouteDefinition } from '#frontend/types';
 import { errors, GenericErrorPage } from '#pages/GenericErrorPage';
+import { preloadAdminDashboard } from '#preloaders/AdminDashboard';
 import { preloadChartsPage } from '#preloaders/ChartsPage';
 import { preloadHomeLayout } from '#preloaders/HomeLayout';
 import { preloadHomepage } from '#preloaders/Homepage';
+import { preloadLeagueDashboard } from '#preloaders/LeagueDashboard';
 import { preloadMatchEventsDashboard } from '#preloaders/MatchEventsDashboard';
 import { preloadMundialCalculator } from '#preloaders/MundialCalculator';
 import { preloadRatingsPage } from '#preloaders/RatingsPage';
@@ -146,6 +148,7 @@ export const dashboardRoutes: ExtendedRouteDefinition[] = [
   {
     path: '/admin',
     component: AdminDashboard,
+    preload: preloadAdminDashboard,
     info: {
       name: 'Admin',
       icon: 'admin_panel_settings',
@@ -155,6 +158,7 @@ export const dashboardRoutes: ExtendedRouteDefinition[] = [
   {
     path: '/league',
     component: LeagueDashboard,
+    preload: preloadLeagueDashboard,
     info: {
       name: 'League',
       icon: 'trophy',
