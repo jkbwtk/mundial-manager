@@ -126,6 +126,16 @@ function parseSearchParams<T extends z.ZodObject>(
   return structuredClone(Object.fromEntries(entries));
 }
 
+export function readSearchParamsState<T extends z.ZodObject>(
+  searchParams: SearchParams,
+  options: SearchParamsStateOptions<T>,
+): z.infer<T> {
+  const separator = options.separator ?? DEFAULT_SEARCH_PARAM_SEPARATOR;
+  const scope = options.prefix ? `${options.prefix}${separator}` : '';
+
+  return parseSearchParams(treeify(searchParams, scope, separator), options);
+}
+
 export function useSearchParamsState<T extends z.ZodObject>(
   options: SearchParamsStateOptions<T>,
 ): [
@@ -143,8 +153,7 @@ export function useSearchParamsState<T extends z.ZodObject>(
     param.startsWith(scope) &&
     param.slice(scope.length).split(separator)[0]! in options.schema.shape;
 
-  const readSearchParams = () =>
-    parseSearchParams(treeify(searchParams, scope, separator), options);
+  const readSearchParams = () => readSearchParamsState(searchParams, options);
 
   const [store, setStore] = createStore<z.infer<T>>(readSearchParams());
 
