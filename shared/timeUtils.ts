@@ -166,9 +166,14 @@ export function msToDays<T extends number | null | undefined>(
   return (ms == null ? ms : ms / DAY_MS) as any;
 }
 
+const validTimeZones = new Set<string>();
+
 export function isValidTimeZone(timeZone: string): boolean {
+  if (validTimeZones.has(timeZone)) return true;
+
   try {
     new Intl.DateTimeFormat('en', { timeZone });
+    validTimeZones.add(timeZone);
 
     return true;
   } catch {
