@@ -11,10 +11,12 @@ import { parseServerFieldErrors } from '#flib/formValidation';
 import { MATCH_EVENT_TIME_STEP_MS } from '#flib/matchEvents';
 import { createUndoHistory } from '#flib/undoHistory';
 import {
+  getMatchSidePlayers,
   getMatchTimelineContext,
   getMatchTimelineErrorMessage,
   getMatchTimelinePauses,
   getMatchTimelineSteps,
+  getOppositeSide,
   hasMatchTimelineErrors,
   isMatchPausedAt,
   isMatchTimelineError,
@@ -22,8 +24,12 @@ import {
   type MatchTimelineStep,
   validateMatchTimeline,
 } from '#shared/matchTimeline';
-import type { Match } from '#shared/types/api/match';
-import { MatchEvent } from '#shared/types/api/matchEvent';
+import { MATCH_SIDE_MAX_PLAYERS, type Match } from '#shared/types/api/match';
+import {
+  MatchEvent,
+  type MatchSide,
+  MatchSides,
+} from '#shared/types/api/matchEvent';
 import {
   type MatchTimeline,
   type MatchTimelineErrorType,
@@ -138,9 +144,19 @@ export interface MatchTimelineDraft {
   nudgeEvent: (uuid: string, shift: number) => void;
   moveEvent: (uuid: string, index: number) => void;
   shiftEvent: (uuid: string, direction: -1 | 1) => void;
+
+  swapSides: () => void;
+  replacePlayer: (from: string, to: string) => void;
+  canTransferPlayer: (player: string, side: MatchSide) => boolean;
+  transferPlayer: (player: string, side: MatchSide) => void;
 }
 
 const { ERROR, WARNING } = MatchTimelineIssueSeverityEnum;
+
+const SidePlayersKeys: Record<MatchSide, 'playersSide1' | 'playersSide2'> = {
+  SIDE_1: 'playersSide1',
+  SIDE_2: 'playersSide2',
+};
 
 const OffsetSteps = [MATCH_EVENT_TIME_STEP_MS];
 
@@ -197,6 +213,14 @@ function getChangedMatchFields(
         getValueHash(value) !==
         getValueHash(reference[field as keyof MatchTimelineMatchChanges]),
     ),
+  );
+}
+
+function getPlayerSide(match: Match, player: string): MatchSide | null {
+  return (
+    MatchSides.find((side) =>
+      getMatchSidePlayers(match, side).includes(player),
+    ) ?? null
   );
 }
 
@@ -686,6 +710,87 @@ export function createMatchTimelineDraft(
     commitEvents(reordered);
   };
 
+  const swapSides = () => {
+    const current = match();
+
+    if (current === null) return;
+
+    commit({
+      match: {
+        ...state().match,
+        playersSide1: current.playersSide2,
+        playersSide2: current.playersSide1,
+      },
+      events: events().map((event) =>
+        'side' in event
+          ? { ...event, side: getOppositeSide(event.side) }
+          : event,
+      ),
+    });
+  };
+
+  const replacePlayer = (from: string, to: string) => {
+    const current = match();
+
+    if (current === null) return;
+
+    const side = getPlayerSide(current, from);
+
+    if (side === null || getPlayerSide(current, to) !== null) return;
+
+    const key = SidePlayersKeys[side];
+
+    commit({
+      match: {
+        ...state().match,
+        [key]: current[key].map((uuid) => (uuid === from ? to : uuid)),
+        spectators: current.spectators.filter((uuid) => uuid !== to),
+      },
+      events: events().map((event) =>
+        event.type === 'GOAL' && event.player === from
+          ? { ...event, player: to }
+          : event,
+      ),
+    });
+  };
+
+  const canTransferPlayer = (player: string, side: MatchSide) => {
+    const current = match();
+
+    if (current === null) return false;
+
+    const from = getPlayerSide(current, player);
+
+    if (from === null || from === side) return false;
+
+    return (
+      getMatchSidePlayers(current, from).length > 1 &&
+      getMatchSidePlayers(current, side).length < MATCH_SIDE_MAX_PLAYERS
+    );
+  };
+
+  const transferPlayer = (player: string, side: MatchSide) => {
+    const current = match();
+
+    if (current === null || !canTransferPlayer(player, side)) return;
+
+    const fromKey = SidePlayersKeys[getOppositeSide(side)];
+    const toKey = SidePlayersKeys[side];
+
+    commit({
+      match: {
+        ...state().match,
+        [fromKey]: current[fromKey].filter((uuid) => uuid !== player),
+        [toKey]: [...current[toKey], player],
+      },
+      events: events().map((event) =>
+        event.type === 'GOAL' && event.player === player
+          ? { ...event, side }
+          : event,
+      ),
+    });
+  };
+
   createEffect(
     on(timeline, (source) => {
       if (!source) return;
@@ -763,5 +868,10 @@ export function createMatchTimelineDraft(
     nudgeEvent,
     moveEvent,
     shiftEvent,
+
+    swapSides,
+    replacePlayer,
+    canTransferPlayer,
+    transferPlayer,
   };
 }
