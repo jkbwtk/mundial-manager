@@ -24,7 +24,11 @@ import {
   type MatchTimelineStep,
   validateMatchTimeline,
 } from '#shared/matchTimeline';
-import { MATCH_SIDE_MAX_PLAYERS, type Match } from '#shared/types/api/match';
+import {
+  EndedMatchStatuses,
+  MATCH_SIDE_MAX_PLAYERS,
+  type Match,
+} from '#shared/types/api/match';
 import {
   MatchEvent,
   type MatchSide,
@@ -149,6 +153,8 @@ export interface MatchTimelineDraft {
   replacePlayer: (from: string, to: string) => void;
   canTransferPlayer: (player: string, side: MatchSide) => boolean;
   transferPlayer: (player: string, side: MatchSide) => void;
+  canSyncDuration: Accessor<boolean>;
+  syncDuration: () => void;
 }
 
 const { ERROR, WARNING } = MatchTimelineIssueSeverityEnum;
@@ -791,6 +797,27 @@ export function createMatchTimelineDraft(
     });
   };
 
+  const canSyncDuration = () => {
+    const current = match();
+
+    return (
+      current !== null &&
+      steps().length > 0 &&
+      EndedMatchStatuses.includes(current.status)
+    );
+  };
+
+  const syncDuration = () => {
+    const last = steps().at(-1);
+
+    if (!canSyncDuration() || last === undefined) return;
+
+    commit({
+      match: { ...state().match, duration: Math.max(0, last.activeElapsed) },
+      events: events(),
+    });
+  };
+
   createEffect(
     on(timeline, (source) => {
       if (!source) return;
@@ -873,5 +900,7 @@ export function createMatchTimelineDraft(
     replacePlayer,
     canTransferPlayer,
     transferPlayer,
+    canSyncDuration,
+    syncDuration,
   };
 }
