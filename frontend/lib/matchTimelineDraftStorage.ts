@@ -1,4 +1,10 @@
-import { type Accessor, createEffect, createSignal, on } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+  on,
+} from 'solid-js';
 import z from 'zod';
 import { createDraftStore, persistDraft } from '#flib/draftStorage';
 import type { MatchTimelineDraft } from '#flib/matchTimelineDraft';
@@ -37,7 +43,7 @@ export function persistMatchTimelineDraft(
   const [writeFailed, setWriteFailed] = createSignal(false);
 
   const base = () => getValueHash(draft.original());
-  const storageKey = () => (loaded() ? matchUuid() : null);
+  const storageKey = createMemo(() => (loaded() ? matchUuid() : null));
 
   createEffect(
     on(storageKey, (uuid) => {
