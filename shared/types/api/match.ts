@@ -56,6 +56,8 @@ export const MatchStateErrorTypeEnum = {
 export const MatchStateErrorType = z.enum(MatchStateErrorTypeEnum);
 export type MatchStateErrorType = z.infer<typeof MatchStateErrorType>;
 
+export const MATCH_SIDE_MAX_PLAYERS = 4;
+
 export const Match = z.object({
   uuid: z.uuid(),
   tableUuid: z.uuid().nullish(),
@@ -75,8 +77,14 @@ export const Match = z.object({
 
   stakesModifier: z.number().int().min(1),
 
-  playersSide1: uuidArray.check(z.minLength(1), z.maxLength(4)),
-  playersSide2: uuidArray.check(z.minLength(1), z.maxLength(4)),
+  playersSide1: uuidArray.check(
+    z.minLength(1),
+    z.maxLength(MATCH_SIDE_MAX_PLAYERS),
+  ),
+  playersSide2: uuidArray.check(
+    z.minLength(1),
+    z.maxLength(MATCH_SIDE_MAX_PLAYERS),
+  ),
 
   spectators: uuidArray,
 
