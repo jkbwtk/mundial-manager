@@ -283,12 +283,13 @@ function getReferenceIssues(
 
 function getServerIssues(error: unknown): MatchTimelineDraftIssue[] {
   return parseServerFieldErrors(error).flatMap(([path, errorTypes]) => {
-    const [, eventUuid = null, field = null] = path.split('.');
+    const [scope, eventUuid = null, field = null] = path.split('.');
+    const isEventPath = scope === 'events';
 
     return errorTypes.map((errorType) => ({
       severity: ERROR,
-      eventUuid,
-      field,
+      eventUuid: isEventPath ? eventUuid : null,
+      field: isEventPath ? field : path,
       message: getMatchTimelineErrorMessage(errorType),
     }));
   });

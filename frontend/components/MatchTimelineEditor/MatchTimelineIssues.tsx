@@ -19,6 +19,20 @@ interface GroupedMessages {
 const TIMELINE_KEY = 'timeline';
 const EVENT_KEY = 'event';
 
+const MatchFieldNames: Record<string, string> = {
+  playersSide1: 'Side 1 players',
+  playersSide2: 'Side 2 players',
+  spectators: 'Spectators',
+  duration: 'Length',
+  startDate: 'Start date',
+  tableUuid: 'Table',
+  ballUuid: 'Ball',
+  status: 'Status',
+  side1Score: 'Side 1 score',
+  side2Score: 'Side 2 score',
+  pauseDuration: 'Pause duration',
+};
+
 const EventFieldNames: Record<string, string> = {
   uuid: 'Identifier',
   event: 'Event',
@@ -66,14 +80,17 @@ export const MatchTimelineIssues: Component<MatchTimelineIssuesProps> = (
     groupMessages(issues(), (issue) =>
       isEventScoped()
         ? (issue.field ?? EVENT_KEY)
-        : (issue.eventUuid ?? TIMELINE_KEY),
+        : (issue.eventUuid ?? issue.field ?? TIMELINE_KEY),
     ),
   );
 
   const fieldNames = createMemo(() => {
     if (isEventScoped()) return EventFieldNames;
 
-    const names: Record<string, string> = { [TIMELINE_KEY]: 'Timeline' };
+    const names: Record<string, string> = {
+      [TIMELINE_KEY]: 'Timeline',
+      ...MatchFieldNames,
+    };
 
     for (const issue of issues()) {
       if (issue.eventUuid === null) continue;
@@ -90,7 +107,7 @@ export const MatchTimelineIssues: Component<MatchTimelineIssuesProps> = (
   });
 
   const selectEvent = (key: string) => {
-    if (key === TIMELINE_KEY) return;
+    if (key === TIMELINE_KEY || key in MatchFieldNames) return;
 
     draft.setSelectedUuid(key);
   };
