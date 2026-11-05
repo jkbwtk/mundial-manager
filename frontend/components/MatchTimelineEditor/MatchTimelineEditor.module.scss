@@ -293,6 +293,13 @@
   flex-direction: column;
 }
 
+.lineup-side {
+  display: inline-flex;
+  align-items: center;
+
+  gap: cw(1);
+}
+
 .inspector {
   display: flex;
   flex-direction: column;
