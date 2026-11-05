@@ -21,7 +21,12 @@ export interface MatchTimelineTableProps {
 export const MatchTimelineTable: Component<MatchTimelineTableProps> = (
   props,
 ) => {
-  const lookup = createMatchTimelineLookup(() => props.timeline);
+  const timeline = createMemo(() => ({
+    ...props.timeline,
+    match: props.draft?.match() ?? props.timeline.match,
+  }));
+
+  const lookup = createMatchTimelineLookup(timeline);
   const reorder = createListReorder({
     onMove: (uuid, index) => props.draft?.moveEvent(uuid, index),
     onGrab: (uuid) => props.draft?.setSelectedUuid(uuid),

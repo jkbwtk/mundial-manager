@@ -1,4 +1,10 @@
-import { createContext, onCleanup, onMount, useContext } from 'solid-js';
+import {
+  createContext,
+  createMemo,
+  onCleanup,
+  onMount,
+  useContext,
+} from 'solid-js';
 import {
   MATCH_EVENT_COARSE_TIME_STEP_MS,
   MATCH_EVENT_TIME_STEP_MS,
@@ -40,7 +46,12 @@ export const MatchTimelineEditor: ParentComponent<MatchTimelineEditorProps> = (
 ) => {
   const [, { isActive: isModalActive }] = useModal();
 
-  const lookup = createMatchTimelineLookup(() => props.timeline);
+  const timeline = createMemo(() => ({
+    ...props.timeline,
+    match: props.draft.match() ?? props.timeline.match,
+  }));
+
+  const lookup = createMatchTimelineLookup(timeline);
   const removeEvent = useRemoveMatchEvent(props.draft);
 
   const handleShortcut = (ev: KeyboardEvent): boolean => {
