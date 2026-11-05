@@ -9,6 +9,7 @@ import z from 'zod';
 import { createDraftStore, persistDraft } from '#flib/draftStorage';
 import type { MatchTimelineDraft } from '#flib/matchTimelineDraft';
 import type { MatchEvent } from '#shared/types/api/matchEvent';
+import type { MatchTimelineMatchChanges } from '#shared/types/api/matchTimeline';
 import { getValueHash } from '#shared/utils';
 
 export interface RestoredMatchTimelineDraft {
@@ -28,9 +29,18 @@ const StoredMatchEvents = z.array(
   z.looseObject({ uuid: z.string(), type: z.string(), offset: z.number() }),
 ) as unknown as z.ZodType<MatchEvent[]>;
 
+const StoredMatchChanges = z.looseObject({
+  startDate: z.coerce.date().nullable().optional(),
+}) as unknown as z.ZodType<MatchTimelineMatchChanges>;
+
+const StoredMatchTimelineDraftState = z.object({
+  match: StoredMatchChanges,
+  events: StoredMatchEvents,
+});
+
 const matchTimelineDrafts = createDraftStore(
   'matchTimeline',
-  StoredMatchEvents,
+  StoredMatchTimelineDraftState,
 );
 
 export function persistMatchTimelineDraft(
@@ -42,7 +52,7 @@ export function persistMatchTimelineDraft(
     createSignal<RestoredMatchTimelineDraft | null>(null);
   const [writeFailed, setWriteFailed] = createSignal(false);
 
-  const base = () => getValueHash(draft.original());
+  const base = () => getValueHash([draft.original(), draft.originalMatch()]);
   const storageKey = createMemo(() => (loaded() ? matchUuid() : null));
 
   createEffect(
@@ -55,9 +65,7 @@ export function persistMatchTimelineDraft(
 
       if (stored === null) return;
 
-      if (getValueHash(stored.data) === getValueHash(draft.events())) {
-        return;
-      }
+      if (draft.isCurrentState(stored.data)) return;
 
       draft.restore(stored.data);
       setRestored({
@@ -72,7 +80,7 @@ export function persistMatchTimelineDraft(
     key: storageKey,
     isDirty: draft.isDirty,
     base,
-    snapshot: draft.events,
+    snapshot: draft.state,
     onWrite: (isWritten) => setWriteFailed(!isWritten),
   });
 

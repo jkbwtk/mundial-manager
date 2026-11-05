@@ -22,6 +22,7 @@ import {
   type MatchTimelineStep,
   validateMatchTimeline,
 } from '#shared/matchTimeline';
+import type { Match } from '#shared/types/api/match';
 import { MatchEvent } from '#shared/types/api/matchEvent';
 import {
   type MatchTimeline,
@@ -30,6 +31,7 @@ import {
   type MatchTimelineIssue,
   type MatchTimelineIssueSeverity,
   MatchTimelineIssueSeverityEnum,
+  type MatchTimelineMatchChanges,
   type MatchTimelineSave,
 } from '#shared/types/api/matchTimeline';
 import { clamp, getValueHash, memoizeByObject } from '#shared/utils';
@@ -50,6 +52,11 @@ export interface MatchTimelineDraftStep extends MatchTimelineStep<MatchEvent> {
   index: number;
 }
 
+export interface MatchTimelineDraftState {
+  match: MatchTimelineMatchChanges;
+  events: MatchEvent[];
+}
+
 export interface MatchTimelineDraftChanges {
   created: number;
   updated: number;
@@ -64,7 +71,10 @@ export type MatchEventPatch = MatchEventFieldsPatch<MatchEvent>;
 
 export interface MatchTimelineDraft {
   original: Accessor<MatchEvent[]>;
+  originalMatch: Accessor<Match | null>;
+  state: Accessor<MatchTimelineDraftState>;
   events: Accessor<MatchEvent[]>;
+  match: Accessor<Match | null>;
   steps: Accessor<MatchTimelineDraftStep[]>;
 
   getStep: (uuid: string) => MatchTimelineDraftStep | null;
@@ -88,7 +98,10 @@ export interface MatchTimelineDraft {
   isPausedAt: (offset: number) => boolean;
 
   changes: Accessor<MatchTimelineDraftChanges>;
+  matchChanges: Accessor<MatchTimelineMatchChanges>;
+  isMatchChanged: Accessor<boolean>;
   isDirty: Accessor<boolean>;
+  isCurrentState: (other: MatchTimelineDraftState) => boolean;
 
   issues: Accessor<MatchTimelineDraftIssue[]>;
   issueCounts: Accessor<MatchTimelineDraftIssueCounts>;
@@ -108,8 +121,8 @@ export interface MatchTimelineDraft {
   endTransaction: () => void;
 
   load: (timeline: MatchTimeline) => void;
-  restore: (events: MatchEvent[]) => void;
-  rebase: (sent: MatchEvent[], saved: MatchTimeline) => void;
+  restore: (state: MatchTimelineDraftState) => void;
+  rebase: (sent: MatchTimelineSave, saved: MatchTimeline) => void;
   discard: () => void;
   toSaveInput: () => MatchTimelineSave | null;
 
@@ -172,6 +185,19 @@ function getEventsByUuid(events: MatchEvent[]): Map<string, MatchEvent> {
 
 function getEventUuids(events: MatchEvent[]): Set<string> {
   return new Set(events.map((event) => event.uuid));
+}
+
+function getChangedMatchFields(
+  changes: MatchTimelineMatchChanges,
+  reference: MatchTimelineMatchChanges,
+): MatchTimelineMatchChanges {
+  return Object.fromEntries(
+    Object.entries(changes).filter(
+      ([field, value]) =>
+        getValueHash(value) !==
+        getValueHash(reference[field as keyof MatchTimelineMatchChanges]),
+    ),
+  );
 }
 
 function roundToStep(value: number, step: number): number {
@@ -325,7 +351,11 @@ export function createMatchTimelineDraft(
   timeline: Accessor<MatchTimeline | undefined>,
 ): MatchTimelineDraft {
   const [original, setOriginal] = createSignal<MatchEvent[]>([]);
-  const [events, setEvents] = createSignal<MatchEvent[]>([]);
+  const [originalMatch, setOriginalMatch] = createSignal<Match | null>(null);
+  const [state, setState] = createSignal<MatchTimelineDraftState>({
+    match: {},
+    events: [],
+  });
   const [serverIssues, setServerIssues] = createSignal<
     MatchTimelineDraftIssue[]
   >([]);
@@ -334,7 +364,25 @@ export function createMatchTimelineDraft(
   const [playhead, setPlayhead] = createSignal<number | null>(null);
   const [ripple, setRipple] = createSignal(false);
 
-  const history = createUndoHistory(events, (next) => setEvents(next));
+  const history = createUndoHistory(state, (next) => setState(next));
+
+  const events = createMemo(() => state().events);
+
+  const matchState = createMemo(() => state().match);
+
+  const match = createMemo(() => {
+    const base = originalMatch();
+
+    return base ? { ...base, ...matchState() } : null;
+  });
+
+  const matchChanges = createMemo(() => {
+    const base = originalMatch();
+
+    return base ? getChangedMatchFields(matchState(), base) : {};
+  });
+
+  const isMatchChanged = () => Object.keys(matchChanges()).length > 0;
 
   const steps = createMemo(() => getMatchTimelineDraftSteps(events()));
 
@@ -369,12 +417,25 @@ export function createMatchTimelineDraft(
   const isDirty = createMemo(() => {
     const { created, updated, removed } = changes();
 
-    return created + updated + removed > 0;
+    return created + updated + removed > 0 || isMatchChanged();
   });
+
+  const isCurrentState = (other: MatchTimelineDraftState) => {
+    const base = originalMatch();
+    const otherChanges = base
+      ? getChangedMatchFields(other.match, base)
+      : other.match;
+
+    return (
+      getValueHash({ match: otherChanges, events: other.events }) ===
+      getValueHash({ match: matchChanges(), events: events() })
+    );
+  };
 
   const issues = createMemo((): MatchTimelineDraftIssue[] => {
     const source = timeline();
-    const context = source ? getMatchTimelineContext(source.match) : {};
+    const current = match();
+    const context = current ? getMatchTimelineContext(current) : {};
     const timelineIssues = [
       ...validateMatchTimeline(events(), context),
       ...(source ? getReferenceIssues(source, events()) : []),
@@ -443,18 +504,26 @@ export function createMatchTimelineDraft(
     return reference ? reference.offset + MATCH_EVENT_TIME_STEP_MS : 0;
   };
 
-  const commit = (next: MatchEvent[]) => {
+  const commit = (next: MatchTimelineDraftState) => {
+    const base = originalMatch();
+    const changes = base ? getChangedMatchFields(next.match, base) : next.match;
+
     batch(() => {
-      history.commit(next);
+      history.commit({ ...next, match: changes });
       setServerIssues([]);
     });
+  };
+
+  const commitEvents = (next: MatchEvent[]) => {
+    commit({ ...state(), events: next });
   };
 
   const load = (source: MatchTimeline) => {
     batch(() => {
       history.reset();
       setOriginal(source.events);
-      setEvents(source.events);
+      setOriginalMatch(source.match);
+      setState({ match: {}, events: source.events });
       setServerIssues([]);
 
       if (!source.events.some((event) => event.uuid === selectedUuid())) {
@@ -463,12 +532,16 @@ export function createMatchTimelineDraft(
     });
   };
 
-  const rebase = (sent: MatchEvent[], saved: MatchTimeline) => {
+  const rebase = (sent: MatchTimelineSave, saved: MatchTimeline) => {
     history.cancelTransaction();
 
     batch(() => {
-      setEvents(rebaseEvents(events(), sent, saved.events));
+      setState({
+        match: getChangedMatchFields(state().match, saved.match),
+        events: rebaseEvents(events(), sent.events, saved.events),
+      });
       setOriginal(saved.events);
+      setOriginalMatch(saved.match);
       setServerIssues([]);
     });
   };
@@ -484,12 +557,16 @@ export function createMatchTimelineDraft(
 
     if (!source) return null;
 
-    return { matchUuid: source.match.uuid, events: sortedEvents() };
+    return {
+      matchUuid: source.match.uuid,
+      events: sortedEvents(),
+      match: isMatchChanged() ? matchChanges() : undefined,
+    };
   };
 
   const addEvent = (event: MatchEvent) => {
     batch(() => {
-      commit([...events(), event]);
+      commitEvents([...events(), event]);
       setSelectedUuid(event.uuid);
       setPlayhead(null);
     });
@@ -515,7 +592,7 @@ export function createMatchTimelineDraft(
     const neighbor = steps()[step.index + 1] ?? steps()[step.index - 1];
 
     batch(() => {
-      commit(events().filter((event) => event.uuid !== uuid));
+      commitEvents(events().filter((event) => event.uuid !== uuid));
 
       if (selectedUuid() === uuid) {
         setSelectedUuid(neighbor?.event.uuid ?? null);
@@ -535,7 +612,9 @@ export function createMatchTimelineDraft(
 
     if (isSameEvent(updated, current)) return;
 
-    commit(events().map((event) => (event.uuid === uuid ? updated : event)));
+    commitEvents(
+      events().map((event) => (event.uuid === uuid ? updated : event)),
+    );
   };
 
   const patchEvent = (uuid: string, patch: MatchEventPatch) => {
@@ -547,7 +626,7 @@ export function createMatchTimelineDraft(
 
     if (getEvent(uuid)?.offset === target) return;
 
-    const base = history.getTransactionBase() ?? events();
+    const base = history.getTransactionBase()?.events ?? events();
     const from = base.find((event) => event.uuid === uuid)?.offset;
 
     if (from === undefined) return;
@@ -556,7 +635,7 @@ export function createMatchTimelineDraft(
     const isShifted = (event: MatchEvent) =>
       event.uuid === uuid || (ripple() && event.offset > from);
 
-    commit(
+    commitEvents(
       base.map((event) =>
         isShifted(event) ? { ...event, offset: event.offset + shift } : event,
       ),
@@ -584,7 +663,7 @@ export function createMatchTimelineDraft(
       event.offset,
     );
 
-    commit(others.toSpliced(index, 0, { ...event, offset }));
+    commitEvents(others.toSpliced(index, 0, { ...event, offset }));
   };
 
   const shiftEvent = (uuid: string, direction: -1 | 1) => {
@@ -604,18 +683,29 @@ export function createMatchTimelineDraft(
       offset: neighbour.event.offset,
     };
 
-    commit(reordered);
+    commitEvents(reordered);
   };
 
   createEffect(
     on(timeline, (source) => {
-      if (source && !isDirty()) load(source);
+      if (!source) return;
+
+      if (isDirty()) {
+        setOriginalMatch(source.match);
+
+        return;
+      }
+
+      load(source);
     }),
   );
 
   return {
     original,
+    originalMatch,
+    state,
     events,
+    match,
     steps,
 
     getStep,
@@ -639,7 +729,10 @@ export function createMatchTimelineDraft(
     isPausedAt,
 
     changes,
+    matchChanges,
+    isMatchChanged,
     isDirty,
+    isCurrentState,
 
     issues,
     issueCounts,

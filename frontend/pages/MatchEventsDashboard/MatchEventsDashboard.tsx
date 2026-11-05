@@ -77,9 +77,12 @@ export const MatchEventsDashboard: Component = () => {
       [removed, 'removed'],
     ];
 
-    return counts
-      .flatMap(([count, label]) => (count > 0 ? [`${count} ${label}`] : []))
-      .join(', ');
+    return [
+      ...counts.flatMap(([count, label]) =>
+        count > 0 ? [`${count} ${label}`] : [],
+      ),
+      ...(draft.isMatchChanged() ? ['match changed'] : []),
+    ].join(', ');
   };
 
   const handleSave = useHandleButtonAction(
@@ -91,7 +94,7 @@ export const MatchEventsDashboard: Component = () => {
       try {
         const saved = await saveTimeline(input);
 
-        draft.rebase(input.events, saved);
+        draft.rebase(input, saved);
         actions.success('Match timeline saved successfully!');
       } catch (err) {
         if (draft.applyServerError(err)) {
