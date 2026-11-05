@@ -13,8 +13,9 @@ import {
   StrategyValidationError,
 } from '#blib/modelErrors';
 import {
-  getMatchTimelineContext,
+  type getMatchTimelineContext,
   isMatchTimelineError,
+  type MatchTimelineContext,
   type MatchTimelineEntry,
   sortMatchTimeline,
   validateMatchTimeline,
@@ -101,13 +102,12 @@ export class MatchTimelineModel extends MatchTimelineOps {
   }
 
   public static assertValidTimeline(
-    match: Parameters<typeof getMatchTimelineContext>[0],
+    context: MatchTimelineContext,
     events: MatchTimelineEntry[],
   ) {
-    const errors = validateMatchTimeline(
-      events,
-      getMatchTimelineContext(match),
-    ).filter(isMatchTimelineError);
+    const errors = validateMatchTimeline(events, context).filter(
+      isMatchTimelineError,
+    );
 
     if (errors.length > 0) {
       throw new StrategyValidationError(
@@ -169,7 +169,8 @@ export class MatchTimelineModel extends MatchTimelineOps {
           });
         }
 
-        MatchTimelineModel.assertValidTimeline(match, next.events);
+        // match dependent rules run in MatchModel after the match is written
+        MatchTimelineModel.assertValidTimeline({}, next.events);
       },
     },
   });

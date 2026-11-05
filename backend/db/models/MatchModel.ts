@@ -46,6 +46,7 @@ import type { MatchEvent, MatchSide } from '#shared/types/api/matchEvent';
 import type { MatchFullCreate } from '#shared/types/api/matchFull';
 import {
   MatchTimelineErrorTypeEnum,
+  type MatchTimelineMatchChanges,
   type MatchTimelineSave,
 } from '#shared/types/api/matchTimeline';
 import { SeasonConfig } from '#shared/types/api/season';
@@ -272,7 +273,7 @@ export class MatchModel extends MatchOps {
         leagueUuid,
         match,
         await MatchTimelineModel.saveForMatch(tx, leagueUuid, match, events),
-        matchData.status,
+        { status: matchData.status },
       );
     });
 
@@ -358,7 +359,7 @@ export class MatchModel extends MatchOps {
         data.events,
       );
 
-      await this.syncTimeline(tx, leagueUuid, match, events);
+      await this.syncTimeline(tx, leagueUuid, match, events, data.match);
 
       return this.getTimeline(tx, leagueUuid, match.uuid);
     });
@@ -370,13 +371,13 @@ export class MatchModel extends MatchOps {
     leagueUuid: string,
     match: MatchSelectSchema,
     events: MatchEvent[],
-    status?: MatchStatus,
+    changes: MatchTimelineMatchChanges & { status?: MatchStatus } = {},
   ) {
     const [side1Score, side2Score] = getMatchTimelineScore(events);
 
     return this.update(db, leagueUuid, {
       uuid: match.uuid,
-      status,
+      ...changes,
       pauseDuration: getMatchTimelinePauseDuration(events),
       side1Score,
       side2Score,
@@ -601,7 +602,10 @@ export class MatchModel extends MatchOps {
           updated.uuid,
         );
 
-        MatchTimelineModel.assertValidTimeline(updated, events);
+        MatchTimelineModel.assertValidTimeline(
+          getMatchTimelineContext(updated),
+          events,
+        );
       },
 
       queueStatusNotification: ({ leagueUuid, previous, updated }) => {
