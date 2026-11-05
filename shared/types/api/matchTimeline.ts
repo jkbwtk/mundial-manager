@@ -77,8 +77,21 @@ export const MatchTimelineByMatchId = z.object({
 });
 export type MatchTimelineByMatchId = z.infer<typeof MatchTimelineByMatchId>;
 
+export const MatchTimelineMatchChanges = Match.omit({
+  uuid: true,
+  syncId: true,
+  status: true,
+  side1Score: true,
+  side2Score: true,
+  pauseDuration: true,
+}).partial();
+export type MatchTimelineMatchChanges = z.infer<
+  typeof MatchTimelineMatchChanges
+>;
+
 export const MatchTimelineSave = z.object({
   matchUuid: z.uuid(),
   events: MatchEvent.array().max(1000),
+  match: MatchTimelineMatchChanges.optional(),
 });
 export type MatchTimelineSave = z.infer<typeof MatchTimelineSave>;
