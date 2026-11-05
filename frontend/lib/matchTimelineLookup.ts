@@ -1,6 +1,9 @@
+import { createAsync } from '@solidjs/router';
 import { type Accessor, createMemo } from 'solid-js';
 import { getTableSideColor } from '#flib/teamColors';
+import { queryPlayersByIds } from '#flib/trpcCalls';
 import { formatGoalTypeLabel, sortGoalTypeTree } from '#shared/goalTypes';
+import { getMatchPlayerUuids } from '#shared/matchPlayers';
 import { getMatchSidePlayers } from '#shared/matchTimeline';
 import type { GoalType } from '#shared/types/api/goalType';
 import type { MatchSide } from '#shared/types/api/matchEvent';
@@ -30,9 +33,44 @@ function getReferenceName(names: Map<string, string>, uuid: string): string {
 export function createMatchTimelineLookup(
   timeline: Accessor<MatchTimeline>,
 ): MatchTimelineLookup {
+  const timelinePlayerUuids = createMemo(
+    () => new Set(timeline().players.map((player) => player.uuid)),
+  );
+
+  const missingPlayerUuids = createMemo(
+    () =>
+      getMatchPlayerUuids(timeline().match).filter(
+        (uuid) => !timelinePlayerUuids().has(uuid),
+      ),
+    [],
+    { equals: (a, b) => a.join() === b.join() },
+  );
+
+  const missingPlayers = createAsync(
+    async () => {
+      const uuids = missingPlayerUuids();
+
+      if (uuids.length === 0) return [];
+
+      try {
+        return await queryPlayersByIds(uuids);
+      } catch (err) {
+        console.error('Match timeline player lookup error:', err);
+
+        return [];
+      }
+    },
+    { initialValue: [] },
+  );
+
   const playerNames = createMemo(
     () =>
-      new Map(timeline().players.map((player) => [player.uuid, player.name])),
+      new Map(
+        [...timeline().players, ...missingPlayers.latest].map((player) => [
+          player.uuid,
+          player.name,
+        ]),
+      ),
   );
 
   const ballNames = createMemo(
