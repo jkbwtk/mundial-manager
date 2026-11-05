@@ -7,6 +7,7 @@ import {
   MatchEventInspector,
   MatchEventQuickAdd,
   MatchEventScrubber,
+  MatchQuickActions,
   MatchTimelineEditor,
   MatchTimelineIssues,
   MatchTimelineSummary,
@@ -263,6 +264,10 @@ export const MatchEventsDashboard: Component = () => {
                   <Divider />
 
                   <MatchEventQuickAdd />
+
+                  <Divider class={style.dividerDashed} />
+
+                  <MatchQuickActions />
                 </Widget>
 
                 <Widget class={style.matchWidget} topLeftLabels="Match">
