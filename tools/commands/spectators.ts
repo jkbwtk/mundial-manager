@@ -9,7 +9,7 @@ import { logger } from '#shared/logger';
 import { getMatchPlayerUuids } from '#shared/matchPlayers';
 import { getStatsSessionKeys } from '#shared/stats/buckets';
 import { SeasonConfig } from '#shared/types/api/season';
-import { DryRunRollback } from '#tools/commands/import/utils';
+import { DryRunRollback } from '#tools/cli-utils';
 
 const SpectatorsOptions = z.object({
   dryRun: z.coerce.boolean(),

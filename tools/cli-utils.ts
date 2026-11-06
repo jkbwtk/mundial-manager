@@ -26,6 +26,8 @@ export interface RunCommandOptions {
   env?: Record<string, string>;
 }
 
+export class DryRunRollback extends Error {}
+
 export function spawnProcess(
   command: string,
   args: string[] = [],
