@@ -1,4 +1,5 @@
 import { createInsertSchema, createSelectSchema } from 'drizzle-orm/zod';
+import type z from 'zod';
 import { playersTable } from '#backend/db/schema';
 import { Labels } from '#shared/labels';
 
@@ -11,9 +12,9 @@ export const PlayerInsertSchema = createInsertSchema(playersTable, {
   $deletedAt: true,
   $updateCounter: true,
 });
-export type PlayerInsertSchema = ReturnType<typeof PlayerInsertSchema.parse>;
+export type PlayerInsertSchema = z.infer<typeof PlayerInsertSchema>;
 
 export const PlayerSelectSchema = createSelectSchema(playersTable, {
   labels: Labels,
 });
-export type PlayerSelectSchema = ReturnType<typeof PlayerSelectSchema.parse>;
+export type PlayerSelectSchema = z.infer<typeof PlayerSelectSchema>;
