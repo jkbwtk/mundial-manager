@@ -1,13 +1,9 @@
-import { createMemo, createSignal, For, getOwner } from 'solid-js';
+import { createMemo, createSignal, For } from 'solid-js';
 import { Button } from '#components/Button';
-import { MatchSaveConfirmModal } from '#components/MatchSaveConfirmModal';
 import { Divider } from '#components/Widget';
 import { useCalculatorHost } from '#flib/calculatorHost';
-import { convertCalculatorFinishEventToMatch } from '#flib/legacyMatches';
 import { createResilientAsync } from '#flib/resilientAsync';
 import { queryCalculatorUrl } from '#flib/trpcCalls';
-import { useModal } from '#providers/ModalProvider';
-import type { CalculatorFinishEvent } from '#shared/types/MundialCalculator';
 import style from './IframeTest.module.scss';
 
 const SIMULATOR_PATH = '/tests/calculator-simulator-test';
@@ -23,7 +19,6 @@ type HostState = (typeof HostStateEnum)[keyof typeof HostStateEnum];
 interface CalculatorHostFrameProps {
   src: string;
 
-  onFinishEvent: (event: CalculatorFinishEvent) => void;
   onStateChange: (state: HostState) => void;
 }
 
@@ -32,7 +27,6 @@ const CalculatorHostFrame: Component<CalculatorHostFrameProps> = (props) => {
 
   useCalculatorHost({
     iframe: () => ref,
-    onFinishEvent: props.onFinishEvent,
     onConnect: () => props.onStateChange(HostStateEnum.CONNECTED),
     onConnectError: (err) => {
       console.error('Calculator host connection error:', err);
@@ -52,9 +46,6 @@ const CalculatorHostFrame: Component<CalculatorHostFrameProps> = (props) => {
 };
 
 export const IframeTest: Component = () => {
-  const [, { open }] = useModal();
-  const owner = getOwner();
-
   const calculatorUrl = createResilientAsync(queryCalculatorUrl);
 
   const [index, setIndex] = createSignal(0);
@@ -62,17 +53,6 @@ export const IframeTest: Component = () => {
 
   const urls = () => [SIMULATOR_PATH, calculatorUrl.latest ?? ''];
   const url = createMemo(() => urls()[index()] ?? '');
-
-  const openMatchModal = (data: CalculatorFinishEvent) => {
-    open({
-      props: {
-        component: MatchSaveConfirmModal,
-        match: convertCalculatorFinishEventToMatch(data),
-      },
-      owner,
-      closeOnBackgroundClick: false,
-    });
-  };
 
   const switchUrl = () => {
     setState(HostStateEnum.CONNECTING);
@@ -91,13 +71,7 @@ export const IframeTest: Component = () => {
       <Divider />
       <div class={style.iframeContainer}>
         <For each={[url()]}>
-          {(src) => (
-            <CalculatorHostFrame
-              src={src}
-              onFinishEvent={openMatchModal}
-              onStateChange={setState}
-            />
-          )}
+          {(src) => <CalculatorHostFrame src={src} onStateChange={setState} />}
         </For>
       </div>
     </div>

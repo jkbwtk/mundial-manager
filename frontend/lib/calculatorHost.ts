@@ -29,14 +29,12 @@ import {
 } from '#shared/types/api/stats';
 import {
   type CalculatorApi,
-  CalculatorFinishEvent,
   LiveMatchPredictionInput,
 } from '#shared/types/MundialCalculator';
 
 export interface CalculatorHostOptions {
   iframe: () => HTMLIFrameElement;
 
-  onFinishEvent: (event: CalculatorFinishEvent) => void;
   onConnect?: () => void;
   onConnectError?: (err: unknown) => void;
 }
@@ -66,16 +64,6 @@ export function useCalculatorHost(options: CalculatorHostOptions): void {
   let isDisposed = false;
 
   const getOrigin = () => new URL(options.iframe().src).origin;
-
-  const receiveFinishEvent = (data: unknown) => {
-    const parsed = CalculatorFinishEvent.safeParse(data);
-
-    if (!parsed.success) {
-      throw new Error('Invalid calculator finish event');
-    }
-
-    options.onFinishEvent(parsed.data);
-  };
 
   const getLineupPrediction = (input: LiveMatchPredictionInput) => {
     const lineup = getSortedLineup(input);
@@ -121,8 +109,6 @@ export function useCalculatorHost(options: CalculatorHostOptions): void {
     getMatchTimeline: (matchUuid) => queryMatchTimeline(matchUuid),
     getMatchPreview: (lineup) =>
       queryMatchPreview(getSortedLineup(MatchPredictionQuery.parse(lineup))),
-
-    createLegacyMatch: receiveFinishEvent,
 
     createMatch,
     updateMatch,
@@ -170,15 +156,7 @@ export function useCalculatorHost(options: CalculatorHostOptions): void {
     }
 
     // A handshake after connecting means the calculator reloaded
-    if (isConnected && isPenpalHandshake(ev.data)) {
-      connectHost();
-
-      return;
-    }
-
-    const parsed = CalculatorFinishEvent.safeParse(ev.data);
-
-    if (parsed.success) options.onFinishEvent(parsed.data);
+    if (isConnected && isPenpalHandshake(ev.data)) connectHost();
   };
 
   onLeagueEvent('STATS', () => predictions.clear());

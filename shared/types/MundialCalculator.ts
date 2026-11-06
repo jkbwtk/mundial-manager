@@ -21,24 +21,6 @@ import type {
   MatchPreview,
 } from '#shared/types/api/stats';
 import type { Table } from '#shared/types/api/table';
-import { MatchEvent as LegacyMatchEvent } from '#shared/types/Sheets';
-
-export const CalculatorFinishEvent = z.object({
-  startedAt: z.number().int(), // unix timestamp
-
-  events: z
-    .array(LegacyMatchEvent)
-    .optional()
-    .nullable()
-    .default(null)
-    .catch(null),
-  history: z.array(z.string()).optional().nullable().default(null).catch(null),
-
-  scores: z.tuple([z.number().int(), z.number().int()]),
-  teams: z.tuple([z.array(z.string()), z.array(z.string())]),
-});
-
-export type CalculatorFinishEvent = z.infer<typeof CalculatorFinishEvent>;
 
 export const LiveMatchGoal = MatchEventGoal.pick({
   player: true,
@@ -81,8 +63,6 @@ export type CalculatorApi = {
   getMatchPrediction(
     input: LiveMatchPredictionInput,
   ): Promise<LiveMatchPrediction | null>;
-
-  createLegacyMatch(legacyMatch: CalculatorFinishEvent): void;
 
   getMatches(meta: MatchQueryMeta): Promise<MatchPaginated>;
   getMatchTimeline(matchUuid: string): Promise<MatchTimeline>;
