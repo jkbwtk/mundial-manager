@@ -1,6 +1,6 @@
 import { createAsync } from '@solidjs/router';
 import { type Accessor, createMemo } from 'solid-js';
-import { getTableSideColor } from '#flib/teamColors';
+import { getTableSideColor } from '#flib/entityColors';
 import { queryPlayersByIds } from '#flib/trpcCalls';
 import { formatGoalTypeLabel, sortGoalTypeTree } from '#shared/goalTypes';
 import { getMatchPlayerUuids } from '#shared/matchPlayers';

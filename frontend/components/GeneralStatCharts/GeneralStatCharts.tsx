@@ -15,9 +15,9 @@ import {
 import { Skeleton } from '#components/Skeleton';
 import { Widget } from '#components/Widget';
 import { divide } from '#flib/derivedStats';
+import { getSubjectColor, getTableSideColor } from '#flib/entityColors';
 import { useBallLookup, useTableLookup } from '#flib/entityLookup';
 import { createResilientAsync } from '#flib/resilientAsync';
-import { getSubjectColor, getTableSideColor } from '#flib/teamColors';
 import { queryGeneralStatsSeries, queryPeriodStats } from '#flib/trpcCalls';
 import { formatDuration } from '#shared/timeUtils';
 import type { GeneralStatsSeriesQuery } from '#shared/types/api/stats';

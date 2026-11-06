@@ -7,13 +7,13 @@ import { SimpleTable, type SimpleTableColumn } from '#components/SimpleTable';
 import { Skeleton } from '#components/Skeleton';
 import { Divider, Widget } from '#components/Widget';
 import { getRatingConfidence } from '#flib/derivedStats';
+import { getSubjectColor } from '#flib/entityColors';
 import {
   type EntityLookup,
   usePlayerLookup,
   useSeasonLookup,
 } from '#flib/entityLookup';
 import { createResilientAsync } from '#flib/resilientAsync';
-import { getSubjectColor } from '#flib/teamColors';
 import { queryPeriodStats } from '#flib/trpcCalls';
 import { useStatsPeriod } from '#providers/StatsPeriodProvider';
 import { defaultSeasonConfig } from '#shared/defaults/season';

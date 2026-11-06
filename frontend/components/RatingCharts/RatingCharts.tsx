@@ -13,11 +13,11 @@ import {
 import { InlineAction } from '#components/InlineAction';
 import { Skeleton } from '#components/Skeleton';
 import { Widget } from '#components/Widget';
+import { getSubjectColor } from '#flib/entityColors';
 import { type EntityLookup, usePlayerLookup } from '#flib/entityLookup';
 import { useLeagueTimeZone } from '#flib/leagueTimeZone';
 import { createResilientAsync } from '#flib/resilientAsync';
 import { getRatingHistoryQuery } from '#flib/statsPeriod';
-import { getSubjectColor } from '#flib/teamColors';
 import { queryRatingHistory } from '#flib/trpcCalls';
 import { useStatsPeriod } from '#providers/StatsPeriodProvider';
 import { formatDatetime } from '#shared/timeUtils';

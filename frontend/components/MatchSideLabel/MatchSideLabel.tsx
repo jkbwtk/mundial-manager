@@ -1,11 +1,11 @@
 import { For, type JSX, Show } from 'solid-js';
 import { ColorBlock } from '#components/ColorBlock';
+import { getTableSideColor } from '#flib/entityColors';
 import {
   type EntityLookup,
   usePlayerLookup,
   useTableLookup,
 } from '#flib/entityLookup';
-import { getTableSideColor } from '#flib/teamColors';
 import { getMatchSidePlayers } from '#shared/matchTimeline';
 import type { Match } from '#shared/types/api/match';
 import type { MatchSide } from '#shared/types/api/matchEvent';
