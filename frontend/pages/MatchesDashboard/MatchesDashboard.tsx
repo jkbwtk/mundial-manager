@@ -4,7 +4,6 @@ import { reconcile } from 'solid-js/store';
 import { ActionMenu } from '#components/ActionMenu';
 import { Button } from '#components/Button';
 import { useConfirmModal } from '#components/ConfirmModal';
-import { LegacyMatchImportModal } from '#components/LegacyMatchImportModal';
 import { LiveMatchClock } from '#components/LiveMatches';
 import { MatchCreatorModal } from '#components/MatchCreatorModal';
 import { MatchFilterWidget } from '#components/MatchFilterWidget';
@@ -81,16 +80,6 @@ export const MatchesDashboard: Component = () => {
     open({
       props: {
         component: MatchCreatorModal,
-      },
-      owner,
-      closeOnBackgroundClick: false,
-    });
-  };
-
-  const handleImportLegacyMatch = () => {
-    open({
-      props: {
-        component: LegacyMatchImportModal,
       },
       owner,
       closeOnBackgroundClick: false,
@@ -334,9 +323,6 @@ export const MatchesDashboard: Component = () => {
         actions={
           <Show when={can(PermissionEnum.MATCHES_CREATE)}>
             <Button onClick={handleCreateMatch}>Create Match</Button>
-            <Button severity="secondary" onClick={handleImportLegacyMatch}>
-              Import Match
-            </Button>
           </Show>
         }
       />
