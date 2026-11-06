@@ -82,9 +82,6 @@ const UserProfileTest = lazyRoute(
 const MatchTimelineTest = lazyRoute(
   import.meta.glob('#pages/MatchTimelineTest/MatchTimelineTest.tsx'),
 );
-const CreatedMatchesTest = lazyRoute(
-  import.meta.glob('#pages/CreatedMatchesTest/CreatedMatchesTest.tsx'),
-);
 const ToastTest = lazyRoute(import.meta.glob('#pages/ToastTest/ToastTest.tsx'));
 const PWATest = lazyRoute(import.meta.glob('#pages/PWATest/PWATest.tsx'));
 const DropdownTest = lazyRoute(
@@ -284,11 +281,6 @@ export const testRoutes: ExtendedRouteDefinition[] = [
     path: '/match-timeline-test',
     info: { name: 'Match Timeline Test' },
     component: MatchTimelineTest,
-  },
-  {
-    path: '/created-matches-test',
-    info: { name: 'Created Matches Test' },
-    component: CreatedMatchesTest,
   },
   {
     path: '/toast-test',
