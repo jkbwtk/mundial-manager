@@ -12,15 +12,6 @@ export const Environment = z.object({
   PRODUCTION: z.boolean().default(true),
 
   SERVER_PORT: z.coerce.number().int().positive().max(65535).default(5020),
-  GOOGLE_DOCS_API_EMAIL: z.email(),
-  GOOGLE_DOCS_API_KEY: z
-    .string()
-    .min(1)
-    .transform((val) => val.replace(/\\n/g, '\n')),
-  GOOGLE_DOCS_SPREADSHEET_ID: z.string().min(1),
-  DISCORD_WEBHOOK_ID: z.string().min(1).nullable().default(null),
-  DISCORD_WEBHOOK_TOKEN: z.string().min(1).nullable().default(null),
-  MANAGER_ICON_URL: z.string().url().nullable().default(null),
 
   POSTGRES_HOST: z.string().min(1),
   POSTGRES_PORT: z.coerce.number().int().positive().max(65535),
