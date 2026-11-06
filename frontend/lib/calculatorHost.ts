@@ -5,10 +5,10 @@ import { isServer } from 'solid-js/web';
 import { getSortedLineup } from '#flib/activeMatches';
 import { onLeagueEvent } from '#flib/leagueEvents';
 import {
-  actionCreateMatchWithWebhook,
+  actionCreateMatch,
   actionDeleteMatch,
   actionSaveMatchTimeline,
-  actionUpdateMatchWithWebhook,
+  actionUpdateMatch,
   queryActiveLeague,
   queryBalls,
   queryCurrentSeason,
@@ -51,8 +51,8 @@ function isPenpalHandshake(data: unknown): boolean {
 }
 
 export function useCalculatorHost(options: CalculatorHostOptions): void {
-  const createMatch = useAction(actionCreateMatchWithWebhook);
-  const updateMatch = useAction(actionUpdateMatchWithWebhook);
+  const createMatch = useAction(actionCreateMatch);
+  const updateMatch = useAction(actionUpdateMatch);
   const deleteMatch = useAction(actionDeleteMatch);
   const saveMatchTimeline = useAction(actionSaveMatchTimeline);
 
