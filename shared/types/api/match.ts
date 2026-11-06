@@ -111,11 +111,6 @@ export const MatchUpdate = Match.omit({ uuid: true, syncId: true })
   .extend({ uuid: z.uuid() });
 export type MatchUpdate = z.infer<typeof MatchUpdate>;
 
-export const MatchesBySyncIds = z.object({
-  syncIds: SyncId.array().max(500),
-});
-export type MatchesBySyncIds = z.infer<typeof MatchesBySyncIds>;
-
 export const MatchFilters = z.object({
   status: z
     .preprocess(
