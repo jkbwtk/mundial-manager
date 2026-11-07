@@ -105,16 +105,3 @@ export const MatchEvent = z.discriminatedUnion('type', [
   MatchEventSurrender,
 ]);
 export type MatchEvent = z.infer<typeof MatchEvent>;
-
-export const MatchEventCreate = z.discriminatedUnion('type', [
-  MatchEventGoal.omit({ uuid: true }),
-  MatchEventPositionChange.omit({ uuid: true }),
-  MatchEventBallOut.omit({ uuid: true }),
-  MatchEventBallChange.omit({ uuid: true }),
-  MatchEventEquipmentFailure.omit({ uuid: true }),
-  MatchEventPause.omit({ uuid: true }),
-  MatchEventResume.omit({ uuid: true }),
-  MatchEventCancel.omit({ uuid: true }),
-  MatchEventSurrender.omit({ uuid: true }),
-]);
-export type MatchEventCreate = z.infer<typeof MatchEventCreate>;

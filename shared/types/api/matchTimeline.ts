@@ -48,7 +48,6 @@ export const MatchTimelineIssue = z.object({
   errorType: MatchTimelineErrorType,
 
   eventUuid: z.string().nullable(),
-  eventIndex: z.number().int().nonnegative().nullable(),
   field: z.string().nullable(),
 });
 export type MatchTimelineIssue = z.infer<typeof MatchTimelineIssue>;

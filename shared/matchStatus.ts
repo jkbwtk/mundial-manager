@@ -3,7 +3,6 @@ import {
   getMatchTimelinePauseDuration,
   getMatchTimelineScore,
   hasOpenMatchPause,
-  type MatchTimelineEntry,
 } from '#shared/matchTimeline';
 import {
   LiveMatchStatuses,
@@ -13,6 +12,7 @@ import {
   type MatchStatus,
   MatchStatusEnum,
 } from '#shared/types/api/match';
+import type { MatchEvent } from '#shared/types/api/matchEvent';
 
 type MatchState = Pick<
   Match,
@@ -31,7 +31,7 @@ export interface MatchStateIssue {
 
 export interface MatchStatusContext {
   duration: number | null;
-  events: MatchTimelineEntry[];
+  events: MatchEvent[];
 }
 
 export function deriveMatchStatus(
@@ -61,7 +61,7 @@ export function deriveMatchStatus(
 
 function getMatchStatusIssue(
   match: MatchState,
-  events: MatchTimelineEntry[],
+  events: MatchEvent[],
 ): MatchStateErrorType | null {
   const derived = deriveMatchStatus(match.status, {
     duration: match.duration,
@@ -90,7 +90,7 @@ function getMatchStatusIssue(
 
 export function getMatchStateIssues(
   match: MatchState,
-  events: MatchTimelineEntry[],
+  events: MatchEvent[],
 ): MatchStateIssue[] {
   const issues: MatchStateIssue[] = [];
   const { SCHEDULED_WITH_SCORE, SCORE_DOES_NOT_MATCH_TIMELINE } =

@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import type { DB, TX } from '#backend/db/database';
 import { ModelOps } from '#backend/db/models/ModelOps';
 import { matchTimelinesTable } from '#backend/db/schema';
@@ -16,7 +15,6 @@ import {
   type getMatchTimelineContext,
   isMatchTimelineError,
   type MatchTimelineContext,
-  type MatchTimelineEntry,
   sortMatchTimeline,
   validateMatchTimeline,
 } from '#shared/matchTimeline';
@@ -41,15 +39,6 @@ const MatchTimelineOps = ModelOps({
 });
 
 export class MatchTimelineModel extends MatchTimelineOps {
-  protected static toStoredEvents(events: MatchTimelineEntry[]): MatchEvent[] {
-    const identified: MatchEvent[] = events.map((event) => ({
-      ...event,
-      uuid: event.uuid ?? randomUUID(),
-    }));
-
-    return sortMatchTimeline(identified);
-  }
-
   @ConvertDrizzleErrors()
   public static async getByMatchId(
     db: DB | TX,
@@ -103,7 +92,7 @@ export class MatchTimelineModel extends MatchTimelineOps {
 
   public static assertValidTimeline(
     context: MatchTimelineContext,
-    events: MatchTimelineEntry[],
+    events: MatchEvent[],
   ) {
     const errors = validateMatchTimeline(events, context).filter(
       isMatchTimelineError,
@@ -122,10 +111,10 @@ export class MatchTimelineModel extends MatchTimelineOps {
     db: DB | TX,
     leagueUuid: string,
     match: TimelineMatch,
-    events: MatchTimelineEntry[],
+    events: MatchEvent[],
   ): Promise<MatchEvent[]> {
     const instance = await db.transaction(async (tx) => {
-      const stored = this.toStoredEvents(events);
+      const stored = sortMatchTimeline(events);
       const existing = await this.getByMatchId(tx, leagueUuid, match.uuid);
 
       if (existing) {

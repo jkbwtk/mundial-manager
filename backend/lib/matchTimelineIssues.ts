@@ -1,5 +1,5 @@
 import type { ModelErrorField, ModelErrorFieldMap } from '#blib/modelErrors';
-import type { MatchTimelineEntry } from '#shared/matchTimeline';
+import type { MatchEvent } from '#shared/types/api/matchEvent';
 import {
   type MatchTimelineErrorType,
   MatchTimelineErrorTypeEnum,
@@ -13,11 +13,10 @@ export function convertTimelineIssuesToFields(
   const fields: Record<string, ModelErrorField[]> = {};
 
   for (const issue of issues) {
-    const eventKey = issue.eventUuid ?? issue.eventIndex;
     const key =
-      eventKey === null
+      issue.eventUuid === null
         ? 'events'
-        : ['events', eventKey, issue.field ?? 'event'].join('.');
+        : ['events', issue.eventUuid, issue.field ?? 'event'].join('.');
 
     const field = { value: issue.eventUuid, errorType: issue.errorType };
 
@@ -35,7 +34,7 @@ export interface MatchTimelineReferenceSets {
 }
 
 function getMissingReference(
-  event: MatchTimelineEntry,
+  event: MatchEvent,
   available: MatchTimelineReferenceSets,
 ): { errorType: MatchTimelineErrorType; field: string } | null {
   switch (event.type) {
@@ -70,10 +69,10 @@ function getMissingReference(
 }
 
 export function getMissingReferenceIssues(
-  events: MatchTimelineEntry[],
+  events: MatchEvent[],
   available: MatchTimelineReferenceSets,
 ): MatchTimelineIssue[] {
-  return events.flatMap((event, index) => {
+  return events.flatMap((event) => {
     const missing = getMissingReference(event, available);
 
     if (missing === null) return [];
@@ -82,8 +81,7 @@ export function getMissingReferenceIssues(
       {
         severity: MatchTimelineIssueSeverityEnum.WARNING,
         errorType: missing.errorType,
-        eventUuid: event.uuid ?? null,
-        eventIndex: index,
+        eventUuid: event.uuid,
         field: missing.field,
       },
     ];

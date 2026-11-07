@@ -1,7 +1,7 @@
 import { getModelErrorMessage } from '#shared/modelErrors';
 import type { Match } from '#shared/types/api/match';
 import type {
-  MatchEventCreate,
+  MatchEvent,
   MatchEventGoal,
   MatchEventType,
   MatchSide,
@@ -15,10 +15,6 @@ import {
 } from '#shared/types/api/matchTimeline';
 import type { MatchRules } from '#shared/types/api/season';
 
-export type MatchTimelineEntry = MatchEventCreate & {
-  uuid?: string;
-};
-
 export interface MatchTimelineContext {
   playersSide1?: string[];
   playersSide2?: string[];
@@ -26,7 +22,7 @@ export interface MatchTimelineContext {
   duration?: number | null;
 }
 
-export interface MatchTimelineStep<T extends MatchTimelineEntry> {
+export interface MatchTimelineStep<T extends MatchEvent> {
   event: T;
 
   elapsed: number;
@@ -65,16 +61,16 @@ export interface MatchGoalRun {
 }
 
 export interface MatchTimelineValidationState {
-  events: MatchTimelineEntry[];
-  steps: MatchTimelineStep<MatchTimelineEntry>[];
-  played: MatchTimelineStep<MatchTimelineEntry>[];
+  events: MatchEvent[];
+  steps: MatchTimelineStep<MatchEvent>[];
+  played: MatchTimelineStep<MatchEvent>[];
 
   context: MatchTimelineContext;
 
   report: (
     severity: MatchTimelineIssueSeverity,
     errorType: MatchTimelineErrorType,
-    event: MatchTimelineEntry | null,
+    event: MatchEvent | null,
     field?: string | null,
   ) => void;
 }
@@ -152,7 +148,7 @@ export function hasMatchTimelineErrors(
   return issues.some(isMatchTimelineError);
 }
 
-export function getMatchTimelineReferences(events: MatchTimelineEntry[]): {
+export function getMatchTimelineReferences(events: MatchEvent[]): {
   playerUuids: Set<string>;
   ballUuids: Set<string>;
   goalTypeUuids: Set<string>;
@@ -216,9 +212,7 @@ function getTieBreakPriority(type: MatchEventType): number {
   return MatchEndEventTypes.has(type) ? 1 : 0;
 }
 
-export function getMatchSurrenderSide(
-  events: MatchTimelineEntry[],
-): MatchSide | null {
+export function getMatchSurrenderSide(events: MatchEvent[]): MatchSide | null {
   const surrender = sortMatchTimeline(events).find(
     (event) => event.type === 'SURRENDER',
   );
@@ -228,7 +222,7 @@ export function getMatchSurrenderSide(
 
 export function getMatchWinningSide(
   match: Pick<Match, 'status' | 'side1Score' | 'side2Score'>,
-  events: MatchTimelineEntry[],
+  events: MatchEvent[],
 ): MatchSide | null {
   if (match.status === 'SURRENDERED') {
     const side = getMatchSurrenderSide(events);
@@ -245,7 +239,7 @@ export function getMatchWinningSide(
 
 export function getMatchRatedScore(
   match: Pick<Match, 'status' | 'side1Score' | 'side2Score'>,
-  events: MatchTimelineEntry[],
+  events: MatchEvent[],
   rules: MatchRules,
 ): [side1: number, side2: number] {
   const surrendered =
@@ -263,9 +257,7 @@ export function getMatchRatedScore(
     : [forfeitScore, loserScore];
 }
 
-export function sortMatchTimeline<T extends MatchTimelineEntry>(
-  events: T[],
-): T[] {
+export function sortMatchTimeline<T extends MatchEvent>(events: T[]): T[] {
   return events.toSorted(
     (a, b) =>
       a.offset - b.offset ||
@@ -273,7 +265,7 @@ export function sortMatchTimeline<T extends MatchTimelineEntry>(
   );
 }
 
-export function getMatchTimelineSteps<T extends MatchTimelineEntry>(
+export function getMatchTimelineSteps<T extends MatchEvent>(
   events: T[],
 ): MatchTimelineStep<T>[] {
   const score: [number, number] = [0, 0];
@@ -310,23 +302,19 @@ export function getMatchTimelineSteps<T extends MatchTimelineEntry>(
   });
 }
 
-export function getMatchTimelineScore(
-  events: MatchTimelineEntry[],
-): [number, number] {
+export function getMatchTimelineScore(events: MatchEvent[]): [number, number] {
   return getMatchTimelineSteps(events).at(-1)?.score ?? [0, 0];
 }
 
-export function getMatchTimelinePauseDuration(
-  events: MatchTimelineEntry[],
-): number {
+export function getMatchTimelinePauseDuration(events: MatchEvent[]): number {
   return getMatchTimelineSteps(events).at(-1)?.pauseDuration ?? 0;
 }
 
-export function hasOpenMatchPause(events: MatchTimelineEntry[]): boolean {
+export function hasOpenMatchPause(events: MatchEvent[]): boolean {
   return getMatchTimelineSteps(events).at(-1)?.pausedAfter ?? false;
 }
 
-export function getMatchTimelinePauses<T extends MatchTimelineEntry>(
+export function getMatchTimelinePauses<T extends MatchEvent>(
   steps: MatchTimelineStep<T>[],
 ): MatchTimelinePause[] {
   const pauses: MatchTimelinePause[] = [];
@@ -347,7 +335,7 @@ export function getMatchTimelinePauses<T extends MatchTimelineEntry>(
 
 export function getMatchLiveElapsed(
   startDate: Date,
-  events: MatchTimelineEntry[],
+  events: MatchEvent[],
   now: number,
 ): number {
   const elapsed = now - startDate.getTime();
@@ -371,7 +359,7 @@ export function isMatchPausedAt(
 }
 
 export function getMatchTimelineStats(
-  events: MatchTimelineEntry[],
+  events: MatchEvent[],
   duration: number | null,
 ): MatchTimelineStats {
   const steps = getMatchTimelineSteps(events);
@@ -433,7 +421,7 @@ export function getMatchTimelineStats(
   };
 }
 
-export function getMatchGoalRuns(events: MatchTimelineEntry[]): MatchGoalRun[] {
+export function getMatchGoalRuns(events: MatchEvent[]): MatchGoalRun[] {
   const runs: MatchGoalRun[] = [];
 
   let runSide: MatchSide | null = null;
@@ -512,7 +500,7 @@ export const matchTimelineValidationStrategies = {
   },
 
   pausesAreResumed: ({ played, report }) => {
-    let openPause: MatchTimelineEntry | null = null;
+    let openPause: MatchEvent | null = null;
 
     for (const step of played) {
       const { event } = step;
@@ -630,7 +618,7 @@ export const matchTimelineValidationStrategies = {
 } satisfies Record<string, MatchTimelineValidationStrategy>;
 
 export function validateMatchTimeline(
-  events: MatchTimelineEntry[],
+  events: MatchEvent[],
   context: MatchTimelineContext = {},
   strategies: Record<
     string,
@@ -642,10 +630,6 @@ export function validateMatchTimeline(
   if (events.length === 0) {
     return issues;
   }
-
-  const indices = new Map<MatchTimelineEntry, number>(
-    events.map((event, index) => [event, index]),
-  );
 
   const steps = getMatchTimelineSteps(events);
   const endIndex = steps.findIndex((step) =>
@@ -663,7 +647,6 @@ export function validateMatchTimeline(
         severity,
         errorType,
         eventUuid: event?.uuid ?? null,
-        eventIndex: event === null ? null : (indices.get(event) ?? null),
         field,
       });
     },
