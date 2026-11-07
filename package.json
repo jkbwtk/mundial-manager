@@ -22,7 +22,6 @@
     "prerender": "pnpm build && cross-env NODE_ENV=production tsx --env-file-if-exists=.env ./tools/prerenderPages.ts",
     "preview": "pnpm prerender && pnpm static",
     "lint": "biome check --write",
-    "test": "vitest",
     "visualize": "vite-bundle-visualizer -o bundle.html",
     "cli": "tsx --env-file-if-exists=.env ./tools/cli"
   },
