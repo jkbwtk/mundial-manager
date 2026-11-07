@@ -1,4 +1,4 @@
-import { randomInt } from 'node:crypto';
+import { randomInt, randomUUID } from 'node:crypto';
 import { faker } from '@faker-js/faker';
 import { eq } from 'drizzle-orm';
 import { db } from '#backend/db/database';
@@ -16,10 +16,7 @@ import {
   pickRandomWeighed,
   runWithProbability,
 } from '#shared/random';
-import type {
-  MatchEventCreate,
-  MatchEventType,
-} from '#shared/types/api/matchEvent';
+import type { MatchEvent, MatchEventType } from '#shared/types/api/matchEvent';
 import { MatchSideEnum } from '#shared/types/api/matchEvent';
 import { range } from '#shared/utils';
 import type { PopulateOptions } from '#tools/commands/populate';
@@ -49,7 +46,7 @@ const GoalTypeKeyProbabilities: Record<string, number> = {
 const DEFAULT_GOAL_TYPE_PROBABILITY = 0.01;
 
 interface MatchEventsResult {
-  events: MatchEventCreate[];
+  events: MatchEvent[];
   side1Score: number;
   side2Score: number;
   duration: number;
@@ -71,7 +68,7 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
   let offset = 0;
   let pauseDuration = 0;
 
-  const events: MatchEventCreate[] = [];
+  const events: MatchEvent[] = [];
 
   while (
     (side1Score < 10 && side2Score < 10) ||
@@ -101,6 +98,7 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
           if (scoringSide === MatchSideEnum.SIDE_1) {
             side1Score += 1;
             events.push({
+              uuid: randomUUID(),
               offset,
               type: 'GOAL',
               ownGoal: false,
@@ -112,6 +110,7 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
           } else {
             side2Score += 1;
             events.push({
+              uuid: randomUUID(),
               offset,
               type: 'GOAL',
               ownGoal: false,
@@ -126,6 +125,7 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
 
       case 'BALL_OUT':
         events.push({
+          uuid: randomUUID(),
           offset,
           type: 'BALL_OUT',
           labels: {},
@@ -134,6 +134,7 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
 
       case 'POSITION_CHANGE':
         events.push({
+          uuid: randomUUID(),
           offset,
           type: 'POSITION_CHANGE',
           side: pickRandom([MatchSideEnum.SIDE_1, MatchSideEnum.SIDE_2]),
@@ -143,6 +144,7 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
 
       case 'EQUIPMENT_FAILURE':
         events.push({
+          uuid: randomUUID(),
           offset,
           type: 'EQUIPMENT_FAILURE',
           details:
@@ -153,6 +155,7 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
 
       case 'PAUSE': {
         events.push({
+          uuid: randomUUID(),
           offset,
           type: 'PAUSE',
           details:
@@ -167,6 +170,7 @@ function generateMatchEvents(ctx: MatchEventContext): MatchEventsResult {
         pauseDuration += pause;
 
         events.push({
+          uuid: randomUUID(),
           offset,
           type: 'RESUME',
           labels: {},
