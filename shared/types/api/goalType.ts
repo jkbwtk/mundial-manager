@@ -1,7 +1,7 @@
 import z from 'zod';
-import { createQueryMeta } from '#backend/types/trpc';
 import { goalTypeCreateDefaults } from '#shared/defaults/goalType';
 import { Labels } from '#shared/labels';
+import { createQueryMeta } from '#shared/types/api/queryMeta';
 import { hexColor, PaginatedResponse, withDefaults } from '#shared/zod';
 
 export const GoalTypeKey = z

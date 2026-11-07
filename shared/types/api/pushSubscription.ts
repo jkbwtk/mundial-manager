@@ -1,11 +1,11 @@
 import z from 'zod';
-import { createQueryMeta } from '#backend/types/trpc';
 import { Labels } from '#shared/labels';
 import { Role } from '#shared/permissions';
 import {
   PushNotificationType,
   PushNotificationTypes,
 } from '#shared/types/api/pushNotification';
+import { createQueryMeta } from '#shared/types/api/queryMeta';
 
 export const PushSubscription = z.object({
   uuid: z.uuid(),

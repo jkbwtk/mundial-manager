@@ -1,8 +1,8 @@
 import z from 'zod';
 import type { ModelOps } from '#backend/db/models/ModelOps';
-import type { QueryMetaSchema } from '#backend/types/trpc';
 import { leaguePermissionProcedure } from '#blib/trpc';
 import type { PermissionRequirement } from '#shared/permissions';
+import type { QueryMetaSchema } from '#shared/types/api/queryMeta';
 import { PaginatedResponse, uuidArray } from '#shared/zod';
 
 const InstanceWithId = z.object({

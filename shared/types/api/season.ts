@@ -1,10 +1,10 @@
 import z from 'zod';
-import { createQueryMeta } from '#backend/types/trpc';
 import {
   defaultMatchRules,
   defaultStylePointsConfig,
 } from '#shared/defaults/season';
 import { Labels } from '#shared/labels';
+import { createQueryMeta } from '#shared/types/api/queryMeta';
 import { RatingSystemsConfig } from '#shared/types/stats/ratingSystem';
 import { PaginatedResponse } from '#shared/zod';
 

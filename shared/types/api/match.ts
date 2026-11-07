@@ -1,7 +1,7 @@
 import z from 'zod';
-import { createQueryMeta } from '#backend/types/trpc';
 import { matchCreateDefaults } from '#shared/defaults/match';
 import { Labels } from '#shared/labels';
+import { createQueryMeta } from '#shared/types/api/queryMeta';
 import { PaginatedResponse, uuidArray, withDefaults } from '#shared/zod';
 
 export const SyncId = z

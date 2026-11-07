@@ -2,7 +2,6 @@ import { randomUUID } from 'node:crypto';
 import z from 'zod';
 import { LeagueModel } from '#backend/db/models/LeagueModel';
 import { environment } from '#backend/environment';
-import { Pagination } from '#backend/types/trpc';
 import { getJWTCookieOptions, sign } from '#blib/jwt';
 import { createMagicLink } from '#blib/magicLink';
 import { permissionProcedure, router } from '#blib/trpc';
@@ -14,6 +13,7 @@ import {
   LeaguePaginated,
   LeagueUpdate,
 } from '#shared/types/api/league';
+import { Pagination } from '#shared/types/api/queryMeta';
 
 export const adminRouter = router({
   leagues: permissionProcedure(PermissionEnum.LEAGUES_READ)

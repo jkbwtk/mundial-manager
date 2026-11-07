@@ -22,7 +22,6 @@ import type {
   seasonsTable,
   tablesTable,
 } from '#backend/db/schema';
-import type { QueryMetaSchema } from '#backend/types/trpc';
 import {
   ConvertDrizzleErrors,
   DatabaseError,
@@ -30,6 +29,7 @@ import {
   NotFoundError,
 } from '#blib/modelErrors';
 import { ModelErrorTypeEnum } from '#shared/modelErrors';
+import type { QueryMetaSchema } from '#shared/types/api/queryMeta';
 
 type BaseModelType = { uuid: string; leagueUuid: string };
 

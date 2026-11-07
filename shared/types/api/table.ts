@@ -1,6 +1,6 @@
 import z from 'zod';
-import { createQueryMeta } from '#backend/types/trpc';
 import { Labels } from '#shared/labels';
+import { createQueryMeta } from '#shared/types/api/queryMeta';
 import { hexColor, PaginatedResponse } from '#shared/zod';
 
 export const Table = z.object({

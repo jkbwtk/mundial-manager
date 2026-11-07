@@ -1,10 +1,10 @@
 import z from 'zod';
-import { createQueryMeta } from '#backend/types/trpc';
 import { Ball } from '#shared/types/api/ball';
 import { GoalType } from '#shared/types/api/goalType';
 import { Match } from '#shared/types/api/match';
 import { MatchEvent } from '#shared/types/api/matchEvent';
 import { Player } from '#shared/types/api/player';
+import { createQueryMeta } from '#shared/types/api/queryMeta';
 import { MatchRules } from '#shared/types/api/season';
 import { Table } from '#shared/types/api/table';
 
