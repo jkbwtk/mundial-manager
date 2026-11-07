@@ -1,24 +1,17 @@
 import { and, count, eq, isNull } from 'drizzle-orm';
 import type { DB, TX } from '#backend/db/database';
-import { Model } from '#backend/db/Model';
 import { GoalTypeModel } from '#backend/db/models/GoalTypeModel';
 import { leaguesTable } from '#backend/db/schema';
-import type { LeagueSelectSchema } from '#backend/types/db/league';
 import {
   ConvertDrizzleErrors,
   DatabaseError,
   type ModelErrorFields,
   NotFoundError,
 } from '#blib/modelErrors';
-import {
-  League,
-  type LeagueCreate,
-  type LeagueUpdate,
-} from '#shared/types/api/league';
+import type { LeagueCreate, LeagueUpdate } from '#shared/types/api/league';
 
-export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
-  protected publicSchema = League;
-
+// biome-ignore lint/complexity/noStaticOnlyClass: yeah
+export class LeagueModel {
   @ConvertDrizzleErrors()
   public static async create(db: DB, data: LeagueCreate) {
     const [league] = await db.insert(leaguesTable).values(data).returning();
@@ -29,7 +22,7 @@ export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
 
     await GoalTypeModel.createDefaults(db, league.uuid);
 
-    return new LeagueModel(db, league);
+    return league;
   }
 
   @ConvertDrizzleErrors()
@@ -46,7 +39,7 @@ export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
       throw new NotFoundError('League not found', ['uuid']);
     }
 
-    return new LeagueModel(db, league);
+    return league;
   }
 
   @ConvertDrizzleErrors()
@@ -61,12 +54,12 @@ export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
       throw new NotFoundError('League not found', ['uuid']);
     }
 
-    return new LeagueModel(db, league);
+    return league;
   }
 
   @ConvertDrizzleErrors()
   public static async getById(db: DB | TX, uuid: string) {
-    const league = await db.query.leaguesTable.findFirst({
+    const instance = await db.query.leaguesTable.findFirst({
       where: {
         uuid,
         $deletedAt: {
@@ -75,11 +68,7 @@ export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
       },
     });
 
-    if (!league) {
-      return null;
-    }
-
-    return new LeagueModel(db, league);
+    return instance ?? null;
   }
 
   @ConvertDrizzleErrors()
@@ -88,18 +77,18 @@ export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
     uuid: string,
     errorFields: ModelErrorFields = ['uuid'],
   ) {
-    const league = await LeagueModel.getById(db, uuid);
+    const instance = await this.getById(db, uuid);
 
-    if (!league) {
+    if (!instance) {
       throw new NotFoundError('League not found', errorFields);
     }
 
-    return league;
+    return instance;
   }
 
   @ConvertDrizzleErrors()
   public static async getAll(db: DB | TX, limit?: number, offset?: number) {
-    const leagues = await db.query.leaguesTable.findMany({
+    return db.query.leaguesTable.findMany({
       limit,
       offset,
       where: {
@@ -111,8 +100,6 @@ export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
         $createdAt: 'asc',
       },
     });
-
-    return leagues.map((league) => new LeagueModel(db, league));
   }
 
   @ConvertDrizzleErrors()
@@ -124,6 +111,6 @@ export class LeagueModel extends Model<LeagueSelectSchema, typeof League> {
       .from(leaguesTable)
       .where(isNull(leaguesTable.$deletedAt));
 
-    return result.at(0)?.count ?? 0;
+    return Number(result.at(0)?.count ?? 0);
   }
 }

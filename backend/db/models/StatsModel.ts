@@ -322,7 +322,7 @@ export class StatsModel {
     );
 
     const engine = createStatsEngine({
-      timeZone: league.instance.timezone,
+      timeZone: league.timezone,
       seasons: seasons.map((season) => ({
         ...season,
         config: SeasonConfig.parse(season.config),
@@ -570,7 +570,7 @@ export class StatsModel {
     ]);
 
     const now = new Date();
-    const today = getStatsDayKey(now, league?.instance.timezone ?? 'UTC');
+    const today = getStatsDayKey(now, league?.timezone ?? 'UTC');
     const season = getStatsSeason({ startDate: now, labels: {} }, seasons);
     const { playerUuid } = query;
 

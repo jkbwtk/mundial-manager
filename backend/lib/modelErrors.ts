@@ -1,7 +1,6 @@
 import { TRPCError } from '@trpc/server';
 import { DrizzleQueryError } from 'drizzle-orm';
 import { DatabaseError as PgDatabaseError } from 'pg';
-import type { Model } from '#backend/db/Model';
 import { logger } from '#shared/logger';
 import { ModelErrorTypeEnum } from '#shared/modelErrors';
 import { ZodLikeError } from '#shared/zod';
@@ -276,7 +275,7 @@ export function ConvertDrizzleErrors() {
     _ctx: ClassMemberDecoratorContext,
   ) => {
     const wrappedMethod = async function (
-      this: typeof Model,
+      this: { name?: string },
       ...args: unknown[]
     ) {
       const label = this.name ?? 'unknown';

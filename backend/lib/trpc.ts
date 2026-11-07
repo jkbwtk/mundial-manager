@@ -6,6 +6,7 @@ import { LeagueModel } from '#backend/db/models/LeagueModel';
 import { StatsModel } from '#backend/db/models/StatsModel';
 import { HttpError } from '#backend/errors/http';
 import type { JWTContext } from '#backend/types/auth';
+import type { LeagueSelectSchema } from '#backend/types/db/league';
 import { runWithAfterCommit } from '#blib/afterCommit';
 import { getCookieSecurity, getJWTContextFromCookies } from '#blib/jwt';
 import { memoized } from '#blib/memoized';
@@ -20,7 +21,7 @@ import {
 export function createLeagueGetter(
   db: DB,
   jwt: Promise<JWTContext | null>,
-): () => Promise<LeagueModel | null> {
+): () => Promise<LeagueSelectSchema | null> {
   return memoized(async () => {
     const context = await jwt;
 

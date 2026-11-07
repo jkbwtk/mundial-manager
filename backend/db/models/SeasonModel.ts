@@ -49,7 +49,7 @@ export class SeasonModel extends SeasonOps {
     const league = await LeagueModel.getById(db, leagueUuid);
     const goalTypes = await GoalTypeModel.getAll(db, leagueUuid);
 
-    const config = data.config ?? league?.instance.seasonConfig;
+    const config = data.config ?? league?.seasonConfig;
     const next = getDayBounds(
       {
         ...data,
@@ -58,7 +58,7 @@ export class SeasonModel extends SeasonOps {
           goalTypes: getSeasonGoalTypes(goalTypes, config.goalTypes),
         },
       },
-      league?.instance.timezone,
+      league?.timezone,
     );
 
     return { next, row: next };
@@ -73,7 +73,7 @@ export class SeasonModel extends SeasonOps {
     const league = await LeagueModel.getById(db, leagueUuid);
     const next = getDayBounds(
       { ...previous, ...data } as SeasonCreate,
-      league?.instance.timezone,
+      league?.timezone,
     );
 
     return {

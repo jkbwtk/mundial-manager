@@ -71,7 +71,7 @@ export class MatchSessionModel {
 
     const keys = getStatsSessionKeys(
       sessionMatches,
-      league?.instance.timezone ?? 'UTC',
+      league?.timezone ?? 'UTC',
       seasons.map((season) => ({
         ...season,
         config: SeasonConfig.parse(season.config),

@@ -100,7 +100,7 @@ async function createMatchNotification(
 
   const side1 = getSideLabel(match.playersSide1);
   const side2 = getSideLabel(match.playersSide2);
-  const timeZone = league?.instance.timezone;
+  const timeZone = league?.timezone;
   const startDate = hasExactStartDate(match)
     ? `${formatKnownStartDate(match, timeZone)} ${formatExactStartTime(match, timeZone)}`
     : formatKnownStartDate(match, timeZone);

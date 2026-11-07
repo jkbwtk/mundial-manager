@@ -29,7 +29,7 @@ async function getSessionPresence(tx: TX, leagueUuid: string) {
 
   const keys = getStatsSessionKeys(
     matches,
-    league?.instance.timezone ?? 'UTC',
+    league?.timezone ?? 'UTC',
     seasons.map((season) => ({
       ...season,
       config: SeasonConfig.parse(season.config),

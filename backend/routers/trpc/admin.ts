@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import z from 'zod';
 import { LeagueModel } from '#backend/db/models/LeagueModel';
 import { environment } from '#backend/environment';
 import { Pagination } from '#backend/types/trpc';
@@ -10,56 +11,53 @@ import {
   League,
   LeagueCreate,
   LeagueLinkQuery,
+  LeaguePaginated,
   LeagueUpdate,
 } from '#shared/types/api/league';
 
 export const adminRouter = router({
   leagues: permissionProcedure(PermissionEnum.LEAGUES_READ)
     .input(Pagination.optional())
+    .output(LeaguePaginated)
     .query(async ({ ctx, input }) => {
-      const count = LeagueModel.count(ctx.db);
-      const leagues = LeagueModel.getAll(ctx.db, input?.limit, input?.offset);
+      const [total, data] = await Promise.all([
+        LeagueModel.count(ctx.db),
+        LeagueModel.getAll(ctx.db, input?.limit, input?.offset),
+      ]);
 
-      const [total, data] = await Promise.all([count, leagues]);
-
-      return {
-        data: data.map((l) => l.serialize()),
-        total,
-      };
+      return { data, total };
     }),
 
   createLeague: permissionProcedure(PermissionEnum.LEAGUES_CREATE)
     .input(LeagueCreate)
+    .output(League)
     .mutation(async ({ ctx, input }) => {
-      const league = await LeagueModel.create(ctx.db, input);
-
-      return league.serialize();
+      return LeagueModel.create(ctx.db, input);
     }),
 
   updateLeague: permissionProcedure(PermissionEnum.LEAGUES_UPDATE)
     .input(LeagueUpdate)
+    .output(League)
     .mutation(async ({ ctx, input }) => {
-      const league = await LeagueModel.update(ctx.db, input);
-
-      return league.serialize();
+      return LeagueModel.update(ctx.db, input);
     }),
 
   deleteLeague: permissionProcedure(PermissionEnum.LEAGUES_DELETE)
     .input(League.pick({ uuid: true }))
+    .output(League)
     .mutation(async ({ ctx, input }) => {
-      const league = await LeagueModel.delete(ctx.db, input.uuid);
-
-      return league.serialize();
+      return LeagueModel.delete(ctx.db, input.uuid);
     }),
 
   changeLeague$: permissionProcedure(PermissionEnum.LEAGUES_SWITCH)
     .input(League.pick({ uuid: true }))
+    .output(League)
     .mutation(async ({ ctx, input }) => {
       const league = await LeagueModel.getByIdOrThrow(ctx.db, input.uuid);
 
       const newJWT = await sign({
         ...ctx.jwt,
-        leagueUuid: league.instance.uuid,
+        leagueUuid: league.uuid,
       });
 
       ctx.cookies.set(
@@ -68,11 +66,12 @@ export const adminRouter = router({
         getJWTCookieOptions(ctx.cookieSecurity, new Date(ctx.jwt.exp * 1000)),
       );
 
-      return league.serialize();
+      return league;
     }),
 
   leagueLink: permissionProcedure(PermissionEnum.LEAGUES_INVITE)
     .input(LeagueLinkQuery)
+    .output(z.object({ link: z.url() }))
     .query(async ({ ctx, input }) => {
       const league = await LeagueModel.getByIdOrThrow(ctx.db, input.uuid);
 
@@ -83,7 +82,7 @@ export const adminRouter = router({
           origin: 'admin-league-link',
 
           role: input.role,
-          leagueUuid: league.instance.uuid,
+          leagueUuid: league.uuid,
 
           redirectTo: '/',
         },
