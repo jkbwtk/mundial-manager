@@ -43,6 +43,9 @@ materialSymbols.scss
 *.pem
 
 .claude/
+CLAUDE.md
+AGENTS.md
+
 .devcontainer/.gitconfig.host
 
 external/
