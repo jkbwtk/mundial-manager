@@ -12,8 +12,8 @@ import type {
   MatchTimelineDraftStep,
 } from '#flib/matchTimelineDraft';
 import type { MatchTimelineLookup } from '#flib/matchTimelineLookup';
-import type { SupportedMaterialSymbol } from '#flib/supportedMaterialSymbols';
 import { getMatchRatedScore } from '#shared/matchTimeline';
+import type { SupportedMaterialSymbol } from '#shared/materialSymbols';
 import type { MatchSide } from '#shared/types/api/matchEvent';
 import type { MatchTimelineIssueSeverity } from '#shared/types/api/matchTimeline';
 import { MatchEventDescription } from './MatchEventDescription';

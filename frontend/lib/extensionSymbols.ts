@@ -1,5 +1,5 @@
 import { getExtension } from '#flib/fileUtils';
-import type { SupportedMaterialSymbol } from '#flib/supportedMaterialSymbols';
+import type { SupportedMaterialSymbol } from '#shared/materialSymbols';
 
 const extensionMap: Partial<Record<SupportedMaterialSymbol, string[]>> = {
   description: ['txt'],

@@ -1,7 +1,7 @@
 import { For } from 'solid-js';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 
-import { SupportedMaterialSymbols } from '#flib/supportedMaterialSymbols';
+import { SupportedMaterialSymbols } from '#shared/materialSymbols';
 import style from './MaterialSymbolTest.module.scss';
 
 export const MaterialSymbolTest: Component = () => {

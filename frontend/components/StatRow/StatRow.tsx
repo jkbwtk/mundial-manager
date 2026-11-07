@@ -1,7 +1,7 @@
 import { For, type JSX, Show } from 'solid-js';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import { Divider } from '#components/Widget';
-import type { SupportedMaterialSymbol } from '#flib/supportedMaterialSymbols';
+import type { SupportedMaterialSymbol } from '#shared/materialSymbols';
 import style from './StatRow.module.scss';
 
 export interface StatRowItem {

@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import { For, Show } from 'solid-js';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import { customWidgetType } from '#components/Widget';
-import type { SupportedMaterialSymbol } from '#flib/supportedMaterialSymbols';
+import type { SupportedMaterialSymbol } from '#shared/materialSymbols';
 import type { Change, ChangeType, Version } from '#shared/types/Changelog';
 import style from './ChangelogModal.module.scss';
 

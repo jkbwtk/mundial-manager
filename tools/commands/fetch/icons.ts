@@ -1,11 +1,11 @@
 import { mkdirSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { logger } from '#shared/logger';
 import {
   MaterialSymbolCodepoints,
   SegmentedMaterialSymbols,
-} from '#flib/supportedMaterialSymbols';
-import { logger } from '#shared/logger';
+} from '#shared/materialSymbols';
 import { enumerate } from '#shared/utils';
 import { projectRoot } from '#tools/cli-utils';
 

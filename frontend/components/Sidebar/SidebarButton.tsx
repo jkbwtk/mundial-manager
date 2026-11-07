@@ -1,5 +1,5 @@
 import { MaterialSymbol } from '#components/MaterialSymbol';
-import type { SupportedMaterialSymbol } from '#flib/supportedMaterialSymbols';
+import type { SupportedMaterialSymbol } from '#shared/materialSymbols';
 import style from './Sidebar.module.scss';
 
 export interface SidebarButtonProps {

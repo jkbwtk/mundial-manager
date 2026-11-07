@@ -1,5 +1,5 @@
 import type { PathMatch, RouteDefinition } from '@solidjs/router';
-import type { SupportedMaterialSymbol } from '#flib/supportedMaterialSymbols';
+import type { SupportedMaterialSymbol } from '#shared/materialSymbols';
 import type { PermissionRequirement } from '#shared/permissions';
 
 export interface RouteInfo {

@@ -2,12 +2,12 @@ import { createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
 import { Button } from '#components/Button';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import { customWidgetType } from '#components/Widget';
-import type { SupportedMaterialSymbol } from '#flib/supportedMaterialSymbols';
 import type { ToastSeverity } from '#frontend/types';
 import {
   TOAST_ANIMATION_DURATION,
   type ToastInternalEntry,
 } from '#providers/ToastProvider';
+import type { SupportedMaterialSymbol } from '#shared/materialSymbols';
 import style from './ToastProvider.module.scss';
 
 const ListItemWidget = customWidgetType('li');

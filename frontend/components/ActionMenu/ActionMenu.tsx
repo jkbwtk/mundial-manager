@@ -2,7 +2,7 @@ import { createSignal, createUniqueId, For, type JSX } from 'solid-js';
 import { AnchoredPopup } from '#components/AnchoredPopup';
 import { Button } from '#components/Button';
 import { MaterialSymbol } from '#components/MaterialSymbol';
-import type { SupportedMaterialSymbol } from '#flib/supportedMaterialSymbols';
+import type { SupportedMaterialSymbol } from '#shared/materialSymbols';
 import style from './ActionMenu.module.scss';
 
 export interface ActionMenuItem {

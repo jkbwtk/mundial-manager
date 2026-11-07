@@ -1,5 +1,5 @@
-import type { SupportedMaterialSymbol } from '#flib/supportedMaterialSymbols';
 import { getGoalScoringSide, getMatchSidePlayers } from '#shared/matchTimeline';
+import type { SupportedMaterialSymbol } from '#shared/materialSymbols';
 import { formatDuration } from '#shared/timeUtils';
 import type { Match } from '#shared/types/api/match';
 import type {

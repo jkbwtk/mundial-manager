@@ -2,7 +2,7 @@ import { type JSX, mergeProps } from 'solid-js';
 import {
   getMaterialSymbolGlyph,
   type SupportedMaterialSymbol,
-} from '#flib/supportedMaterialSymbols';
+} from '#shared/materialSymbols';
 import { quickSwitch, type RequiredDefaults } from '#shared/utils';
 
 import style from './MaterialSymbol.module.scss';

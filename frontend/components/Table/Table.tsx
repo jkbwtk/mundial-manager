@@ -11,7 +11,7 @@ import {
   splitProps,
 } from 'solid-js';
 import { MaterialSymbol } from '#components/MaterialSymbol';
-import type { SupportedMaterialSymbol } from '#flib/supportedMaterialSymbols';
+import type { SupportedMaterialSymbol } from '#shared/materialSymbols';
 import type { RequiredDefaults } from '#shared/utils';
 import style from './Table.module.scss';
 
