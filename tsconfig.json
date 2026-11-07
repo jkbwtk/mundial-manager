@@ -1,85 +1,12 @@
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "target": "ES2024",
-    "useDefineForClassFields": true,
-    "lib": [
-      "ES2021",
-      "ES2023",
-      "DOM",
-      "DOM.Iterable",
-      "DOM.AsyncIterable"
-    ],
-    "types": [
-      "vite/client",
-      "vite-plugin-pwa/client"
-    ],
-    "module": "es2022",
-    "skipLibCheck": true,
-    /* Bundler mode */
-    "moduleResolution": "Bundler",
-    "allowImportingTsExtensions": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "preserve",
-    "jsxImportSource": "solid-js",
-    /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-    "strictNullChecks": true,
-    "noUncheckedIndexedAccess": true,
-    /* Paths */
-    "rootDir": "./",
-    "paths": {
-      "#components/*": [
-        "./frontend/components/*"
-      ],
-      "#pages/*": [
-        "./frontend/pages/*"
-      ],
-      "#styles/*": [
-        "./frontend/styles/*"
-      ],
-      "#assets/*": [
-        "./frontend/assets/*"
-      ],
-      "#providers/*": [
-        "./frontend/providers/*"
-      ],
-      "#preloaders/*": [
-        "./frontend/preloaders/*"
-      ],
-      "#flib/*": [
-        "./frontend/lib/*"
-      ],
-      "#frontend/*": [
-        "./frontend/*"
-      ],
-      "#blib/*": [
-        "./backend/lib/*"
-      ],
-      "#backend/*": [
-        "./backend/*"
-      ],
-      "#shared/*": [
-        "./shared/*"
-      ],
-      "#tools/*": [
-        "./tools/*"
-      ],
-      "#dist/*": [
-        "./dist/*"
-      ]
-    }
+    "tsBuildInfoFile": "./.tsbuild/root.tsbuildinfo"
   },
-  "include": [
-    "frontend/",
-    "backend/",
-    "shared/",
-    "tools/",
-    "vite.config.ts",
-    "dist/server/"
-  ],
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.shared.json" },
+    { "path": "./tsconfig.backend.json" },
+    { "path": "./tsconfig.frontend.json" }
+  ]
 }

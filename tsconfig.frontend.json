@@ -1,0 +1,53 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "types": [
+      "vite/client",
+      "vite-plugin-pwa/client"
+    ],
+    "composite": false,
+    "emitDeclarationOnly": false,
+    "declarationMap": false,
+    "noEmit": true,
+    "incremental": true,
+    "tsBuildInfoFile": "./.tsbuild/frontend.tsbuildinfo",
+    "disableSourceOfProjectReferenceRedirect": true,
+    "paths": {
+      "#components/*": [
+        "./frontend/components/*"
+      ],
+      "#pages/*": [
+        "./frontend/pages/*"
+      ],
+      "#styles/*": [
+        "./frontend/styles/*"
+      ],
+      "#assets/*": [
+        "./frontend/assets/*"
+      ],
+      "#providers/*": [
+        "./frontend/providers/*"
+      ],
+      "#preloaders/*": [
+        "./frontend/preloaders/*"
+      ],
+      "#flib/*": [
+        "./frontend/lib/*"
+      ],
+      "#frontend/*": [
+        "./frontend/*"
+      ],
+      "#shared/*": [
+        "./shared/*"
+      ],
+      "#backend/routers/trpc/app": [
+        "./backend/routers/trpc/app.ts"
+      ]
+    }
+  },
+  "include": ["frontend/", "frontend/**/*.json"],
+  "references": [
+    { "path": "./tsconfig.shared.json" },
+    { "path": "./tsconfig.backend.json" }
+  ]
+}

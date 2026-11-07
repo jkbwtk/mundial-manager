@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "outDir": "./.tsbuild/shared",
+    "tsBuildInfoFile": "./.tsbuild/shared.tsbuildinfo"
+  },
+  "include": ["shared/"]
+}

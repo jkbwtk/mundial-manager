@@ -69,6 +69,7 @@ export default defineConfig({
 
           typescript: {
             root: import.meta.dirname,
+            buildMode: true,
           },
         })
       : undefined,

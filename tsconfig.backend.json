@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "outDir": "./.tsbuild/backend",
+    "tsBuildInfoFile": "./.tsbuild/backend.tsbuildinfo"
+  },
+  "include": ["backend/", "tools/", "vite.config.ts"],
+  "references": [{ "path": "./tsconfig.shared.json" }]
+}

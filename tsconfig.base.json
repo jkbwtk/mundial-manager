@@ -1,0 +1,79 @@
+{
+  "compilerOptions": {
+    "target": "ES2024",
+    "useDefineForClassFields": true,
+    "lib": [
+      "ES2021",
+      "ES2023",
+      "ESNext.Collection",
+      "ESNext.Disposable",
+      "DOM",
+      "DOM.Iterable",
+      "DOM.AsyncIterable"
+    ],
+    "types": [],
+    "module": "es2022",
+    "skipLibCheck": true,
+    /* Bundler mode */
+    "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "strictNullChecks": true,
+    "noUncheckedIndexedAccess": true,
+    /* Project references */
+    "composite": true,
+    "emitDeclarationOnly": true,
+    "declarationMap": true,
+    /* Paths */
+    "rootDir": "./",
+    "paths": {
+      "#components/*": [
+        "./frontend/components/*"
+      ],
+      "#pages/*": [
+        "./frontend/pages/*"
+      ],
+      "#styles/*": [
+        "./frontend/styles/*"
+      ],
+      "#assets/*": [
+        "./frontend/assets/*"
+      ],
+      "#providers/*": [
+        "./frontend/providers/*"
+      ],
+      "#preloaders/*": [
+        "./frontend/preloaders/*"
+      ],
+      "#flib/*": [
+        "./frontend/lib/*"
+      ],
+      "#frontend/*": [
+        "./frontend/*"
+      ],
+      "#blib/*": [
+        "./backend/lib/*"
+      ],
+      "#backend/*": [
+        "./backend/*"
+      ],
+      "#shared/*": [
+        "./shared/*"
+      ],
+      "#tools/*": [
+        "./tools/*"
+      ],
+      "#dist/*": [
+        "./dist/*"
+      ]
+    }
+  }
+}
