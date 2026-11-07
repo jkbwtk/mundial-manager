@@ -6,7 +6,7 @@ import {
 import { Role, RoleEnum } from '#shared/permissions';
 import { DAY_MS } from '#shared/timeUtils';
 import { SeasonConfig } from '#shared/types/api/season';
-import { TimeZone, withDefaults } from '#shared/zod';
+import { PaginatedResponse, TimeZone, withDefaults } from '#shared/zod';
 
 export const League = z.object({
   uuid: z.uuid(),
@@ -21,6 +21,9 @@ export const League = z.object({
 });
 
 export type League = z.infer<typeof League>;
+
+export const LeaguePaginated = PaginatedResponse(League);
+export type LeaguePaginated = z.infer<typeof LeaguePaginated>;
 
 export const LeagueNullable = League.nullable();
 export type LeagueNullable = z.infer<typeof LeagueNullable>;
