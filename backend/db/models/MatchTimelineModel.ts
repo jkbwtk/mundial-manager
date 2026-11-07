@@ -3,7 +3,6 @@ import { ModelOps } from '#backend/db/models/ModelOps';
 import { matchTimelinesTable } from '#backend/db/schema';
 import {
   MatchTimelineInsertSchema,
-  MatchTimelineSelectSchema,
   MatchTimelineUpdateSchema,
 } from '#backend/types/db/matchTimeline';
 import { convertTimelineIssuesToFields } from '#blib/matchTimelineIssues';
@@ -30,12 +29,9 @@ type TimelineMatch = Parameters<typeof getMatchTimelineContext>[0] & {
 
 const MatchTimelineOps = ModelOps({
   table: matchTimelinesTable,
-  tableName: 'matchTimelinesTable',
-  selectSchema: MatchTimelineSelectSchema,
   createSchema: MatchTimelineInsertSchema,
   updateSchema: MatchTimelineUpdateSchema,
   queryMetaSchema: MatchTimelineQueryMeta,
-  publicSchema: MatchTimelineSelectSchema,
 });
 
 export class MatchTimelineModel extends MatchTimelineOps {

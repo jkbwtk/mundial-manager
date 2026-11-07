@@ -3,7 +3,7 @@ import { GoalTypeModel } from '#backend/db/models/GoalTypeModel';
 import { LeagueModel } from '#backend/db/models/LeagueModel';
 import { ModelOps } from '#backend/db/models/ModelOps';
 import { seasonsTable } from '#backend/db/schema';
-import { SeasonSelectSchema } from '#backend/types/db/season';
+import type { SeasonSelectSchema } from '#backend/types/db/season';
 import {
   ConvertDrizzleErrors,
   StrategyValidationError,
@@ -11,7 +11,6 @@ import {
 import { getSeasonGoalTypes } from '#shared/goalTypes';
 import { toZonedDayjs } from '#shared/timeUtils';
 import {
-  Season,
   SeasonCreate,
   SeasonQueryMeta,
   SeasonUpdate,
@@ -32,9 +31,6 @@ function getDayBounds<T extends SeasonDates>(
 
 const SeasonOps = ModelOps({
   table: seasonsTable,
-  tableName: 'seasonsTable',
-  publicSchema: Season,
-  selectSchema: SeasonSelectSchema,
   createSchema: SeasonCreate,
   updateSchema: SeasonUpdate,
   queryMetaSchema: SeasonQueryMeta,
@@ -46,19 +42,19 @@ export class SeasonModel extends SeasonOps {
     leagueUuid: string,
     data: SeasonCreate,
   ) {
-    const league = await LeagueModel.getById(db, leagueUuid);
+    const league = await LeagueModel.getByIdOrThrow(db, leagueUuid);
     const goalTypes = await GoalTypeModel.getAll(db, leagueUuid);
 
-    const config = data.config ?? league?.seasonConfig;
+    const config = data.config ?? league.seasonConfig;
     const next = getDayBounds(
       {
         ...data,
-        config: config && {
+        config: {
           ...config,
           goalTypes: getSeasonGoalTypes(goalTypes, config.goalTypes),
         },
       },
-      league?.timezone,
+      league.timezone,
     );
 
     return { next, row: next };

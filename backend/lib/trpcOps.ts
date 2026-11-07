@@ -1,5 +1,5 @@
 import z from 'zod';
-import type { ModelOps } from '#backend/db/models/ModelOps';
+import type { DB, TX } from '#backend/db/database';
 import { leaguePermissionProcedure } from '#blib/trpc';
 import type { PermissionRequirement } from '#shared/permissions';
 import type { QueryMetaSchema } from '#shared/types/api/queryMeta';
@@ -15,6 +15,8 @@ const InstancesWithIds = z.object({
 
 type UnionWithId = z.ZodDiscriminatedUnion<(typeof InstanceWithId)[], string>;
 
+type CrudSchema = z.ZodObject | z.ZodDiscriminatedUnion<z.ZodObject[], string>;
+
 export interface CrudPermissions {
   read: PermissionRequirement;
   create: PermissionRequirement;
@@ -22,78 +24,95 @@ export interface CrudPermissions {
   delete: PermissionRequirement;
 }
 
+export interface CrudModel<Row, Data, UpdateData, Meta> {
+  count: (db: DB | TX, leagueUuid: string, meta?: Meta) => Promise<number>;
+  getAll: (db: DB | TX, leagueUuid: string, meta?: Meta) => Promise<Row[]>;
+  getByIdOrThrow: (
+    db: DB | TX,
+    leagueUuid: string,
+    uuid: string,
+  ) => Promise<Row>;
+  getByIds: (
+    db: DB | TX,
+    leagueUuid: string,
+    uuids: Iterable<string>,
+  ) => Promise<Row[]>;
+  create: (db: DB | TX, leagueUuid: string, data: Data) => Promise<Row>;
+  update: (db: DB | TX, leagueUuid: string, data: UpdateData) => Promise<Row>;
+  delete: (db: DB | TX, leagueUuid: string, uuid: string) => Promise<Row>;
+}
+
 export interface CreateCrudOpsMetadata<
   PublicSchema extends typeof InstanceWithId | UnionWithId,
-  CreateSchema extends
-    | z.ZodObject
-    | z.ZodDiscriminatedUnion<z.ZodObject[], string>,
+  CreateSchema extends CrudSchema,
   UpdateSchema extends typeof InstanceWithId | UnionWithId,
-  Model extends ReturnType<typeof ModelOps>,
+  QueryMetaSchemaType extends QueryMetaSchema,
+  Row extends z.input<PublicSchema> & { uuid: string },
 > {
   publicSchema: PublicSchema;
   createSchema: CreateSchema;
   updateSchema: UpdateSchema;
-  model: Model;
-  queryMetaSchema: QueryMetaSchema;
+  model: CrudModel<
+    Row,
+    z.infer<CreateSchema>,
+    z.infer<UpdateSchema>,
+    z.infer<QueryMetaSchemaType>
+  >;
+  queryMetaSchema: QueryMetaSchemaType;
   permissions: CrudPermissions;
 }
 
 export function createCrudOps<
   PublicSchema extends typeof InstanceWithId | UnionWithId,
-  CreateSchema extends
-    | z.ZodObject
-    | z.ZodDiscriminatedUnion<z.ZodObject[], string>,
+  CreateSchema extends CrudSchema,
   UpdateSchema extends typeof InstanceWithId | UnionWithId,
-  Model extends ReturnType<typeof ModelOps>,
+  QueryMetaSchemaType extends QueryMetaSchema,
+  Row extends z.input<PublicSchema> & { uuid: string },
 >(
   metadata: CreateCrudOpsMetadata<
     PublicSchema,
     CreateSchema,
     UpdateSchema,
-    Model
+    QueryMetaSchemaType,
+    Row
   >,
 ) {
+  const { publicSchema, createSchema, updateSchema, queryMetaSchema } =
+    metadata;
+
+  const toOutput = (value: unknown) => value as never;
+
   const readProcedure = leaguePermissionProcedure(metadata.permissions.read);
 
   return {
     getAll: readProcedure
-      .input(metadata.queryMetaSchema.optional())
-      .output(PaginatedResponse(metadata.publicSchema))
-      // @ts-expect-error
+      .input(queryMetaSchema.optional())
+      .output(PaginatedResponse(publicSchema))
       .query(async ({ ctx, input }) => {
         const [instances, total] = await Promise.all([
           metadata.model.getAll(ctx.db, ctx.league.uuid, input),
           metadata.model.count(ctx.db, ctx.league.uuid, input),
         ]);
 
-        return {
-          data: await Promise.all(
-            instances.map((instance) =>
-              metadata.model.mapToPublic(ctx.db, instance),
-            ),
-          ),
-          total,
-        };
+        return { data: instances, total };
       }),
 
     getById: readProcedure
       .input(InstanceWithId)
-      .output(metadata.publicSchema)
-      // @ts-expect-error
+      .output(publicSchema)
       .query(async ({ ctx, input }) => {
-        const instance = await metadata.model.getByIdOrThrow(
-          ctx.db,
-          ctx.league.uuid,
-          input.uuid,
+        return toOutput(
+          await metadata.model.getByIdOrThrow(
+            ctx.db,
+            ctx.league.uuid,
+            input.uuid,
+          ),
         );
-
-        return metadata.model.mapToPublic(ctx.db, instance);
       }),
 
     getByIds: readProcedure
       .input(InstancesWithIds)
-      .output(metadata.publicSchema.array())
-      // @ts-expect-error
+      .output(publicSchema.array())
       .query(async ({ ctx, input }) => {
         const instances = await metadata.model.getByIds(
           ctx.db,
@@ -104,53 +123,42 @@ export function createCrudOps<
           instances.map((instance) => [instance.uuid, instance]),
         );
 
-        return Promise.all(
-          input.uuids
-            .flatMap((uuid) => instancesByUuid.get(uuid) ?? [])
-            .map((instance) => metadata.model.mapToPublic(ctx.db, instance)),
-        );
+        return input.uuids.flatMap((uuid) => instancesByUuid.get(uuid) ?? []);
       }),
 
     create: leaguePermissionProcedure(metadata.permissions.create)
-      .input(metadata.createSchema)
-      .output(metadata.publicSchema)
-      // @ts-expect-error
+      .input(createSchema)
+      .output(publicSchema)
       .mutation(async ({ ctx, input }) => {
-        const instance = await metadata.model.create(
-          ctx.db,
-          ctx.league.uuid,
-          input,
+        return toOutput(
+          await metadata.model.create(
+            ctx.db,
+            ctx.league.uuid,
+            input as z.infer<CreateSchema>,
+          ),
         );
-
-        return metadata.model.mapToPublic(ctx.db, instance);
       }),
 
     update: leaguePermissionProcedure(metadata.permissions.update)
-      .input(metadata.updateSchema)
-      .output(metadata.publicSchema)
-      // @ts-expect-error
+      .input(updateSchema)
+      .output(publicSchema)
       .mutation(async ({ ctx, input }) => {
-        const instance = await metadata.model.update(
-          ctx.db,
-          ctx.league.uuid,
-          input,
+        return toOutput(
+          await metadata.model.update(
+            ctx.db,
+            ctx.league.uuid,
+            input as z.infer<UpdateSchema>,
+          ),
         );
-
-        return metadata.model.mapToPublic(ctx.db, instance);
       }),
 
     delete: leaguePermissionProcedure(metadata.permissions.delete)
       .input(InstanceWithId)
-      .output(metadata.publicSchema)
-      // @ts-expect-error
+      .output(publicSchema)
       .mutation(async ({ ctx, input }) => {
-        const instance = await metadata.model.delete(
-          ctx.db,
-          ctx.league.uuid,
-          input.uuid,
+        return toOutput(
+          await metadata.model.delete(ctx.db, ctx.league.uuid, input.uuid),
         );
-
-        return metadata.model.mapToPublic(ctx.db, instance);
       }),
   };
 }

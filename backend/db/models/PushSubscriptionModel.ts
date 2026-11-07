@@ -2,12 +2,10 @@ import type { DB, TX } from '#backend/db/database';
 import { ModelOps } from '#backend/db/models/ModelOps';
 import { pushSubscriptionsTable } from '#backend/db/schema';
 import { environment } from '#backend/environment';
-import { PushSubscriptionSelectSchema } from '#backend/types/db/pushSubscription';
 import { ConvertDrizzleErrors } from '#blib/modelErrors';
 import type { Role } from '#shared/permissions';
 import type { PushNotificationType } from '#shared/types/api/pushNotification';
 import {
-  PushSubscription,
   PushSubscriptionCreate,
   type PushSubscriptionCurrent,
   PushSubscriptionQueryMeta,
@@ -23,9 +21,6 @@ export interface PushSubscriptionClient {
 
 const PushSubscriptionOps = ModelOps({
   table: pushSubscriptionsTable,
-  tableName: 'pushSubscriptionsTable',
-  publicSchema: PushSubscription,
-  selectSchema: PushSubscriptionSelectSchema,
   createSchema: PushSubscriptionCreate,
   updateSchema: PushSubscriptionUpdate,
   queryMetaSchema: PushSubscriptionQueryMeta,

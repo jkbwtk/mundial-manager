@@ -1,10 +1,8 @@
 import { ModelOps } from '#backend/db/models/ModelOps';
 import { tablesTable } from '#backend/db/schema';
 import { createTextSearchSql } from '#backend/db/utils';
-import { TableSelectSchema } from '#backend/types/db/table';
 import { StrategyValidationError } from '#blib/modelErrors';
 import {
-  Table,
   TableCreate,
   TableQueryMeta,
   TableUpdate,
@@ -12,9 +10,6 @@ import {
 
 const TableOps = ModelOps({
   table: tablesTable,
-  tableName: 'tablesTable',
-  publicSchema: Table,
-  selectSchema: TableSelectSchema,
   createSchema: TableCreate,
   updateSchema: TableUpdate,
   queryMetaSchema: TableQueryMeta,

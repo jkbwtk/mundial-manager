@@ -2,14 +2,13 @@ import type { DB, TX } from '#backend/db/database';
 import { ModelOps } from '#backend/db/models/ModelOps';
 import { goalTypesTable } from '#backend/db/schema';
 import { createTextSearchSql } from '#backend/db/utils';
-import { GoalTypeSelectSchema } from '#backend/types/db/goalType';
+import type { GoalTypeSelectSchema } from '#backend/types/db/goalType';
 import {
   ConvertDrizzleErrors,
   StrategyValidationError,
 } from '#blib/modelErrors';
 import { defaultGoalTypes } from '#shared/defaults/goalType';
 import {
-  GoalType,
   GoalTypeCreate,
   GoalTypeQueryMeta,
   GoalTypeUpdate,
@@ -17,9 +16,6 @@ import {
 
 const GoalTypeOps = ModelOps({
   table: goalTypesTable,
-  tableName: 'goalTypesTable',
-  publicSchema: GoalType,
-  selectSchema: GoalTypeSelectSchema,
   createSchema: GoalTypeCreate,
   updateSchema: GoalTypeUpdate,
   queryMetaSchema: GoalTypeQueryMeta,

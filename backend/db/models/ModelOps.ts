@@ -1,4 +1,5 @@
 import {
+  type AnyColumn,
   and,
   asc,
   count,
@@ -8,20 +9,11 @@ import {
   inArray,
   isNull,
   type SQL,
-  sql,
 } from 'drizzle-orm';
+import type { PgTable } from 'drizzle-orm/pg-core';
 import type z from 'zod';
 import type { DB, TX } from '#backend/db/database';
-import type {
-  ballsTable,
-  goalTypesTable,
-  matchesTable,
-  matchTimelinesTable,
-  playersTable,
-  pushSubscriptionsTable,
-  seasonsTable,
-  tablesTable,
-} from '#backend/db/schema';
+import type * as schema from '#backend/db/schema';
 import {
   ConvertDrizzleErrors,
   DatabaseError,
@@ -31,17 +23,38 @@ import {
 import { ModelErrorTypeEnum } from '#shared/modelErrors';
 import type { QueryMetaSchema } from '#shared/types/api/queryMeta';
 
-type BaseModelType = { uuid: string; leagueUuid: string };
+type Schema = typeof schema;
 
-export type LeagueScopedTablesUnion =
-  | typeof seasonsTable
-  | typeof tablesTable
-  | typeof ballsTable
-  | typeof goalTypesTable
-  | typeof playersTable
-  | typeof matchesTable
-  | typeof matchTimelinesTable
-  | typeof pushSubscriptionsTable;
+type LeagueScopedShape = PgTable & {
+  uuid: AnyColumn;
+  leagueUuid: AnyColumn;
+  $deletedAt: AnyColumn;
+};
+
+export type LeagueScopedTable = {
+  [Key in keyof Schema]: Schema[Key] extends LeagueScopedShape
+    ? Schema[Key]
+    : never;
+}[keyof Schema];
+
+type ModelSchema = z.ZodObject | z.ZodDiscriminatedUnion<z.ZodObject[], string>;
+
+type SortField<QueryMetaSchemaType extends QueryMetaSchema> = NonNullable<
+  z.infer<QueryMetaSchemaType>['sorting']
+>['field'];
+
+type SortFieldsCheck<
+  Table extends LeagueScopedTable,
+  QueryMetaSchemaType extends QueryMetaSchema,
+> =
+  Exclude<
+    SortField<QueryMetaSchemaType>,
+    keyof Table['$inferSelect']
+  > extends never
+    ? unknown
+    : {
+        queryMetaSchema: `Unknown sort field: ${Exclude<SortField<QueryMetaSchemaType>, keyof Table['$inferSelect'] | symbol>}`;
+      };
 
 export type StrategyContext<Fields> = {
   db: DB | TX;
@@ -82,24 +95,12 @@ export type StrategyContextOf<
 > = Parameters<NonNullable<ModelStrategies<Data, Row>[Kind]>[string]>[0];
 
 export interface ModelOpsMetadata<
-  Table extends LeagueScopedTablesUnion,
-  TableName extends keyof DB['query'],
-  PublicSchema extends
-    | z.ZodObject
-    | z.ZodDiscriminatedUnion<z.ZodObject[], string>,
-  SelectSchema extends BaseModelType,
-  CreateSchema extends
-    | z.ZodObject
-    | z.ZodDiscriminatedUnion<z.ZodObject[], string>,
-  UpdateSchema extends
-    | z.ZodObject
-    | z.ZodDiscriminatedUnion<z.ZodObject[], string>,
+  Table extends LeagueScopedTable,
+  CreateSchema extends ModelSchema,
+  UpdateSchema extends ModelSchema,
   QueryMetaSchemaType extends QueryMetaSchema,
 > {
   table: Table;
-  tableName: TableName;
-  publicSchema: PublicSchema;
-  selectSchema: z.ZodType<SelectSchema>;
   createSchema: CreateSchema;
   updateSchema: UpdateSchema;
   queryMetaSchema: QueryMetaSchemaType;
@@ -115,64 +116,70 @@ export interface ModelOpsMetadata<
 }
 
 export function ModelOps<
-  Table extends LeagueScopedTablesUnion,
-  TableName extends keyof DB['query'],
-  PublicSchema extends
-    | z.ZodObject
-    | z.ZodDiscriminatedUnion<z.ZodObject[], string>,
-  SelectSchema extends BaseModelType,
-  CreateSchema extends
-    | z.ZodObject
-    | z.ZodDiscriminatedUnion<z.ZodObject[], string>,
-  UpdateSchema extends
-    | z.ZodObject
-    | z.ZodDiscriminatedUnion<z.ZodObject[], string>,
+  Table extends LeagueScopedTable,
+  CreateSchema extends ModelSchema,
+  UpdateSchema extends ModelSchema,
   QueryMetaSchemaType extends QueryMetaSchema,
 >(
   metadata: ModelOpsMetadata<
     Table,
-    TableName,
-    PublicSchema,
-    SelectSchema,
     CreateSchema,
     UpdateSchema,
     QueryMetaSchemaType
-  >,
+  > &
+    SortFieldsCheck<Table, QueryMetaSchemaType>,
 ) {
+  type Row = Table['$inferSelect'];
+  type InsertRow = Omit<Table['$inferInsert'], 'leagueUuid'>;
+  type Data = z.infer<CreateSchema>;
+  type Meta = z.infer<QueryMetaSchemaType>;
+
+  const table: LeagueScopedTable = metadata.table;
+  const columns: Record<string, AnyColumn> = getColumns(table);
+
+  const getFilters = (leagueUuid: string, meta: Meta) =>
+    and(
+      eq(table.leagueUuid, leagueUuid),
+      isNull(table.$deletedAt),
+      metadata.searchSql && meta.search
+        ? metadata.searchSql.where(meta.search)
+        : undefined,
+      metadata.filterSql?.(metadata.table, meta),
+    );
+
+  const getOrderBy = (meta: Meta): SQL[] => {
+    if (metadata.searchSql && meta.search) {
+      const { ranking, orderBy } = metadata.searchSql;
+
+      return [desc(ranking(meta.search)), ...orderBy, asc(table.uuid)];
+    }
+
+    const field = meta.sorting?.field ?? '$createdAt';
+    const column = columns[field];
+
+    if (column === undefined) {
+      throw new DatabaseError('Unknown sort field', {
+        sorting: { value: field, errorType: ModelErrorTypeEnum.INVALID_FORMAT },
+      });
+    }
+
+    return [meta.sorting?.direction === 'desc' ? desc(column) : asc(column)];
+  };
+
   // biome-ignore lint/complexity/noStaticOnlyClass: yeah
   class ModelOps {
-    protected static readonly table = metadata.table;
-    protected static readonly tableUnion: LeagueScopedTablesUnion =
-      metadata.table;
-    protected static readonly tableName = metadata.tableName;
-    protected static readonly publicSchema = metadata.publicSchema;
-    protected static readonly selectSchema = metadata.selectSchema;
-    protected static readonly createSchema = metadata.createSchema;
-    protected static readonly updateSchema = metadata.updateSchema;
-    protected static readonly queryMetaSchema = metadata.queryMetaSchema;
-    protected static readonly searchSql = metadata.searchSql;
-
     @ConvertDrizzleErrors()
     public static async count(
       db: DB | TX,
       leagueUuid: string,
-      meta: z.infer<QueryMetaSchemaType> = {} as z.infer<QueryMetaSchemaType>,
+      meta: Meta = {} as Meta,
     ) {
       const request = await db
         .select({
           count: count(),
         })
-        .from(ModelOps.tableUnion)
-        .where(
-          and(
-            eq(ModelOps.tableUnion.leagueUuid, leagueUuid),
-            isNull(ModelOps.tableUnion.$deletedAt),
-            ModelOps.searchSql && meta.search
-              ? ModelOps.searchSql.where(meta.search)
-              : undefined,
-            metadata.filterSql?.(ModelOps.table, meta),
-          ),
-        );
+        .from(table)
+        .where(getFilters(leagueUuid, meta));
 
       return Number(request[0]?.count ?? 0);
     }
@@ -181,77 +188,36 @@ export function ModelOps<
     public static async getAll(
       db: DB | TX,
       leagueUuid: string,
-      meta: z.infer<QueryMetaSchemaType> = {} as z.infer<QueryMetaSchemaType>,
+      meta: Meta = {} as Meta,
     ) {
-      if (ModelOps.searchSql && meta.search) {
-        const { ranking, where, orderBy } = ModelOps.searchSql;
+      const instances = db
+        .select()
+        .from(table)
+        .where(getFilters(leagueUuid, meta))
+        .orderBy(...getOrderBy(meta))
+        .$dynamic();
 
-        const instances = db
-          .select({
-            ...getColumns(ModelOps.tableUnion),
-            rank: ranking(meta.search),
-          })
-          .from(ModelOps.tableUnion)
-          .where(
-            and(
-              eq(ModelOps.tableUnion.leagueUuid, leagueUuid),
-              isNull(ModelOps.tableUnion.$deletedAt),
-              where(meta.search),
-              metadata.filterSql?.(ModelOps.table, meta),
-            ),
-          )
-          .orderBy((t) => [
-            desc(t.rank),
-            ...orderBy,
-            asc(ModelOps.tableUnion.uuid),
-          ])
-          .$dynamic();
-
-        if (meta.pagination) {
-          instances.limit(meta.pagination.limit).offset(meta.pagination.offset);
-        }
-
-        return (await instances) as unknown as SelectSchema[];
+      if (meta.pagination) {
+        instances.limit(meta.pagination.limit).offset(meta.pagination.offset);
       }
 
-      const instances = await db.query[ModelOps.tableName]
-        // @ts-expect-error
-        .findMany({
-          where: {
-            leagueUuid,
-            $deletedAt: {
-              isNull: true,
-            },
-            RAW: (table: Table) =>
-              metadata.filterSql?.(table, meta) ?? sql`true`,
-          },
-          orderBy: {
-            [meta.sorting?.field ?? '$createdAt']:
-              meta.sorting?.direction ?? 'asc',
-          },
-          limit: meta.pagination?.limit,
-          offset: meta.pagination?.offset,
-        });
-
-      return instances as unknown as SelectSchema[];
+      return (await instances) as Row[];
     }
 
     @ConvertDrizzleErrors()
     public static async getById(db: DB | TX, leagueUuid: string, uuid: string) {
-      const instance = await db.query[ModelOps.tableName]
-        // @ts-expect-error
-        .findFirst({
-          where: {
-            uuid,
-            leagueUuid,
+      const [instance] = await db
+        .select()
+        .from(table)
+        .where(
+          and(
+            eq(table.leagueUuid, leagueUuid),
+            eq(table.uuid, uuid),
+            isNull(table.$deletedAt),
+          ),
+        );
 
-            $deletedAt: {
-              isNull: true,
-            },
-          },
-        });
-
-      return (instance as unknown as SelectSchema) ?? null;
+      return (instance as Row | undefined) ?? null;
     }
 
     @ConvertDrizzleErrors()
@@ -280,25 +246,23 @@ export function ModelOps<
 
       if (uniqueUuids.length === 0) return [];
 
-      const instances = await db.query[ModelOps.tableName]
-        // @ts-expect-error
-        .findMany({
-          where: {
-            leagueUuid,
-            uuid: { in: uniqueUuids },
+      const instances = await db
+        .select()
+        .from(table)
+        .where(
+          and(
+            eq(table.leagueUuid, leagueUuid),
+            inArray(table.uuid, uniqueUuids),
+            isNull(table.$deletedAt),
+          ),
+        );
 
-            $deletedAt: {
-              isNull: true,
-            },
-          },
-        });
-
-      return instances as unknown as SelectSchema[];
+      return instances as Row[];
     }
 
     protected static async runStrategies<Kind extends ModelStrategyKind>(
       kind: Kind,
-      context: StrategyContextOf<z.infer<CreateSchema>, SelectSchema, Kind>,
+      context: StrategyContextOf<Data, Row, Kind>,
     ) {
       const strategies = (this.strategies[kind] ?? {}) as Record<
         string,
@@ -313,29 +277,25 @@ export function ModelOps<
     protected static async prepareCreate(
       _db: DB | TX,
       _leagueUuid: string,
-      data: z.infer<CreateSchema>,
-    ): Promise<{ next: z.infer<CreateSchema>; row: object }> {
-      return { next: data, row: data };
+      data: Data,
+    ): Promise<{ next: Data; row: InsertRow }> {
+      return { next: data, row: data as InsertRow };
     }
 
     protected static async prepareUpdate(
       _db: DB | TX,
       _leagueUuid: string,
-      previous: SelectSchema,
-      data: Record<string, unknown>,
-    ): Promise<{ next: z.infer<CreateSchema>; row: object }> {
+      previous: Row,
+      data: Partial<Data>,
+    ): Promise<{ next: Data; row: Partial<InsertRow> }> {
       return {
-        next: { ...previous, ...data } as z.infer<CreateSchema>,
-        row: data,
+        next: { ...previous, ...data } as Data,
+        row: data as Partial<InsertRow>,
       };
     }
 
     @ConvertDrizzleErrors()
-    public static async create(
-      db: DB | TX,
-      leagueUuid: string,
-      data: z.infer<CreateSchema>,
-    ) {
+    public static async create(db: DB | TX, leagueUuid: string, data: Data) {
       const instance = await db.transaction(async (tx) => {
         const { next, row } = await this.prepareCreate(tx, leagueUuid, data);
 
@@ -352,11 +312,10 @@ export function ModelOps<
           next,
         });
 
-        const [created] = await tx
-          .insert(ModelOps.tableUnion)
-          // biome-ignore lint/suspicious/noExplicitAny: row shape is defined by the model
-          .values({ ...row, leagueUuid } as any)
-          .returning();
+        const [created] = (await tx
+          .insert(table)
+          .values({ ...row, leagueUuid } as LeagueScopedTable['$inferInsert'])
+          .returning()) as Row[];
 
         if (!created) {
           throw new DatabaseError('Failed to create instance', {});
@@ -365,13 +324,13 @@ export function ModelOps<
         await this.runStrategies('postCreate', {
           db: tx,
           leagueUuid,
-          created: created as unknown as SelectSchema,
+          created,
         });
 
         return created;
       });
 
-      return instance as unknown as SelectSchema;
+      return instance;
     }
 
     @ConvertDrizzleErrors()
@@ -380,20 +339,16 @@ export function ModelOps<
       leagueUuid: string,
       data: z.infer<UpdateSchema>,
     ) {
-      const { uuid, ...updateData } = data;
+      const { uuid, ...updateData } = data as { uuid: string } & Partial<Data>;
 
       const instance = await db.transaction(async (tx) => {
-        const previous = await ModelOps.getByIdOrThrow(
-          tx,
-          leagueUuid,
-          uuid as string,
-        );
+        const previous = await ModelOps.getByIdOrThrow(tx, leagueUuid, uuid);
 
         const { next, row } = await this.prepareUpdate(
           tx,
           leagueUuid,
           previous,
-          updateData,
+          updateData as Partial<Data>,
         );
 
         await this.runStrategies('preWrite', {
@@ -410,17 +365,17 @@ export function ModelOps<
           previous,
         });
 
-        const [updated] = await tx
-          .update(ModelOps.tableUnion)
-          .set(row)
+        const [updated] = (await tx
+          .update(table)
+          .set(row as Partial<LeagueScopedTable['$inferInsert']>)
           .where(
             and(
-              eq(ModelOps.tableUnion.leagueUuid, leagueUuid),
-              eq(ModelOps.tableUnion.uuid, uuid as string),
-              isNull(ModelOps.tableUnion.$deletedAt),
+              eq(table.leagueUuid, leagueUuid),
+              eq(table.uuid, uuid),
+              isNull(table.$deletedAt),
             ),
           )
-          .returning();
+          .returning()) as Row[];
 
         if (!updated) {
           throw new DatabaseError('Failed to update instance', {
@@ -431,14 +386,14 @@ export function ModelOps<
         await this.runStrategies('postUpdate', {
           db: tx,
           leagueUuid,
-          updated: updated as unknown as SelectSchema,
+          updated,
           previous,
         });
 
         return updated;
       });
 
-      return instance as unknown as SelectSchema;
+      return instance;
     }
 
     @ConvertDrizzleErrors()
@@ -452,17 +407,17 @@ export function ModelOps<
           previous,
         });
 
-        const [deleted] = await tx
-          .update(ModelOps.tableUnion)
+        const [deleted] = (await tx
+          .update(table)
           .set({ $deletedAt: new Date() })
           .where(
             and(
-              eq(ModelOps.tableUnion.leagueUuid, leagueUuid),
-              eq(ModelOps.tableUnion.uuid, uuid),
-              isNull(ModelOps.tableUnion.$deletedAt),
+              eq(table.leagueUuid, leagueUuid),
+              eq(table.uuid, uuid),
+              isNull(table.$deletedAt),
             ),
           )
-          .returning();
+          .returning()) as Row[];
 
         if (!deleted) {
           throw new DatabaseError('Failed to delete instance', {
@@ -473,102 +428,22 @@ export function ModelOps<
         await this.runStrategies('postDelete', {
           db: tx,
           leagueUuid,
-          deleted: deleted as unknown as SelectSchema,
+          deleted,
         });
 
         return deleted;
       });
 
-      return instance as unknown as SelectSchema;
-    }
-
-    @ConvertDrizzleErrors()
-    public static async createMany(
-      db: DB | TX,
-      leagueUuid: string,
-      data: z.infer<CreateSchema>[],
-    ) {
-      if (data.length === 0) return [];
-
-      const rows: object[] = [];
-
-      for (const item of data) {
-        const { row } = await this.prepareCreate(db, leagueUuid, item);
-
-        rows.push({ ...row, leagueUuid });
-      }
-
-      const created = await db
-        .insert(ModelOps.tableUnion)
-        // biome-ignore lint/suspicious/noExplicitAny :yeah
-        .values(rows as any)
-        .returning();
-
-      return created as unknown as SelectSchema[];
-    }
-
-    @ConvertDrizzleErrors()
-    public static async updateMany(
-      db: DB | TX,
-      leagueUuid: string,
-      updates: readonly { uuid: string; data: z.infer<CreateSchema> }[],
-    ) {
-      for (const { uuid, data } of updates) {
-        const { row } = await this.prepareCreate(db, leagueUuid, data);
-
-        await db
-          .update(ModelOps.tableUnion)
-          .set(row)
-          .where(
-            and(
-              eq(ModelOps.tableUnion.leagueUuid, leagueUuid),
-              eq(ModelOps.tableUnion.uuid, uuid),
-              isNull(ModelOps.tableUnion.$deletedAt),
-            ),
-          );
-      }
-    }
-
-    @ConvertDrizzleErrors()
-    public static async deleteMany(
-      db: DB | TX,
-      leagueUuid: string,
-      uuids: string[],
-    ) {
-      if (uuids.length === 0) return [];
-
-      const deleted = await db
-        .update(ModelOps.tableUnion)
-        .set({ $deletedAt: new Date() })
-        .where(
-          and(
-            eq(ModelOps.tableUnion.leagueUuid, leagueUuid),
-            inArray(ModelOps.tableUnion.uuid, [...uuids]),
-            isNull(ModelOps.tableUnion.$deletedAt),
-          ),
-        )
-        .returning();
-
-      return deleted as unknown as SelectSchema[];
-    }
-
-    @ConvertDrizzleErrors()
-    public static async mapToPublic(
-      _db: DB | TX,
-      data: SelectSchema,
-    ): Promise<z.infer<PublicSchema>> {
-      return data as unknown as z.infer<PublicSchema>;
+      return instance;
     }
 
     public static defineStrategies(
-      strategies: ModelStrategies<z.infer<CreateSchema>, SelectSchema>,
-      // biome-ignore lint/suspicious/noExplicitAny: yeah
-    ): ModelStrategies<any, any> {
+      strategies: ModelStrategies<Data, Row>,
+    ): ModelStrategies<Data, Row> {
       return strategies;
     }
 
-    // biome-ignore lint/suspicious/noExplicitAny: yeah
-    public static strategies: ModelStrategies<any, any> = {};
+    public static strategies: ModelStrategies<Data, Row> = {};
   }
 
   return ModelOps;

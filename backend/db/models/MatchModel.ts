@@ -8,7 +8,7 @@ import { PlayerModel } from '#backend/db/models/PlayerModel';
 import { SeasonModel } from '#backend/db/models/SeasonModel';
 import { TableModel } from '#backend/db/models/TableModel';
 import { matchesTable, teamConfigurationsTable } from '#backend/db/schema';
-import { MatchSelectSchema } from '#backend/types/db/match';
+import type { MatchSelectSchema } from '#backend/types/db/match';
 import { queueActiveMatchesPublish } from '#blib/activeMatches';
 import { queueMatchNotification } from '#blib/matchNotifications';
 import { getMissingReferenceIssues } from '#blib/matchTimelineIssues';
@@ -36,7 +36,6 @@ import {
 import { getStatsMatchSpan } from '#shared/stats/buckets';
 import {
   LiveMatchStatuses,
-  Match,
   MatchCreate,
   MatchQueryMeta,
   type MatchStatus,
@@ -53,9 +52,6 @@ import { SeasonConfig } from '#shared/types/api/season';
 
 const MatchOps = ModelOps({
   table: matchesTable,
-  tableName: 'matchesTable',
-  publicSchema: Match,
-  selectSchema: MatchSelectSchema,
   createSchema: MatchCreate,
   updateSchema: MatchUpdate,
   queryMetaSchema: MatchQueryMeta,
