@@ -12,9 +12,11 @@ export type ModalOpenOptions<T extends ValidComponent> = {
   closeOnBackgroundClick?: boolean;
 };
 
-export interface ModalEntry<T extends ValidComponent = ValidComponent> {
+type ModalEntryComponent = Component<Record<string, unknown>>;
+
+export interface ModalEntry {
   id: string;
-  props: DynamicProps<T>;
+  props: DynamicProps<ModalEntryComponent>;
   owner: () => ModalOwner | null;
   closeModal: (returnValue?: unknown) => void;
   closeOnBackgroundClick: boolean;

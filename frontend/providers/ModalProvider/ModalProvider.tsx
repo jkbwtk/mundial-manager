@@ -69,7 +69,7 @@ export const ModalProvider: ParentComponent = (props) => {
 
     const entry: ModalEntry = {
       id,
-      props: options.props,
+      props: options.props as ModalEntry['props'],
       owner: () => owner,
       closeModal: closeFactory(id, options.afterClose),
       closeOnBackgroundClick: options.closeOnBackgroundClick ?? true,
