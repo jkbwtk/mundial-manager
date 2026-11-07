@@ -143,7 +143,7 @@ export class MatchModel extends MatchOps {
     };
   }
 
-  protected static override async prepareCreate(
+  public static override async prepareCreate(
     db: DB | TX,
     leagueUuid: string,
     data: MatchCreate,
@@ -162,7 +162,7 @@ export class MatchModel extends MatchOps {
     };
   }
 
-  protected static override async prepareUpdate(
+  public static override async prepareUpdate(
     db: DB | TX,
     leagueUuid: string,
     previous: MatchSelectSchema,

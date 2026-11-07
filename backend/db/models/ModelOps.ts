@@ -260,7 +260,7 @@ export function ModelOps<
       return instances as Row[];
     }
 
-    protected static async runStrategies<Kind extends ModelStrategyKind>(
+    public static async runStrategies<Kind extends ModelStrategyKind>(
       kind: Kind,
       context: StrategyContextOf<Data, Row, Kind>,
     ) {
@@ -274,7 +274,7 @@ export function ModelOps<
       }
     }
 
-    protected static async prepareCreate(
+    public static async prepareCreate(
       _db: DB | TX,
       _leagueUuid: string,
       data: Data,
@@ -282,7 +282,7 @@ export function ModelOps<
       return { next: data, row: data as InsertRow };
     }
 
-    protected static async prepareUpdate(
+    public static async prepareUpdate(
       _db: DB | TX,
       _leagueUuid: string,
       previous: Row,

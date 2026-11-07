@@ -37,7 +37,7 @@ const SeasonOps = ModelOps({
 });
 
 export class SeasonModel extends SeasonOps {
-  protected static override async prepareCreate(
+  public static override async prepareCreate(
     db: DB | TX,
     leagueUuid: string,
     data: SeasonCreate,
@@ -60,7 +60,7 @@ export class SeasonModel extends SeasonOps {
     return { next, row: next };
   }
 
-  protected static override async prepareUpdate(
+  public static override async prepareUpdate(
     db: DB | TX,
     leagueUuid: string,
     previous: SeasonSelectSchema,

@@ -1,3 +1,5 @@
+// lets declaration emit name tRPC's inferParser in createCrudOps
+import type {} from '@trpc/server/unstable-core-do-not-import';
 import z from 'zod';
 import type { DB, TX } from '#backend/db/database';
 import { leaguePermissionProcedure } from '#blib/trpc';
