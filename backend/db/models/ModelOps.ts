@@ -12,7 +12,6 @@ import {
 } from 'drizzle-orm';
 import type z from 'zod';
 import type { DB, TX } from '#backend/db/database';
-import type { BaseModelType } from '#backend/db/Instance';
 import type {
   ballsTable,
   goalTypesTable,
@@ -31,6 +30,8 @@ import {
   NotFoundError,
 } from '#blib/modelErrors';
 import { ModelErrorTypeEnum } from '#shared/modelErrors';
+
+type BaseModelType = { uuid: string; leagueUuid: string };
 
 export type LeagueScopedTablesUnion =
   | typeof seasonsTable
