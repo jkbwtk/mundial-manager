@@ -1,4 +1,4 @@
-import type { Dayjs } from 'dayjs';
+import type { ConfigType, Dayjs, OpUnitType, QUnitType } from 'dayjs';
 import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import { DAY_MS } from '#shared/timeUtils';
@@ -7,15 +7,14 @@ dayjs.extend(isoWeek);
 
 type Unit = 'workDay' | 'workDays';
 
+type DiffDate = ConfigType;
+type DiffUnit = QUnitType | OpUnitType | Unit;
+
 declare module 'dayjs' {
   interface Dayjs {
     isWorkDay(): boolean;
 
-    diff(
-      date?: ConfigType,
-      unit?: QUnitType | OpUnitType | Unit,
-      float?: boolean,
-    ): number;
+    diff(date?: DiffDate, unit?: DiffUnit, float?: boolean): number;
   }
 }
 

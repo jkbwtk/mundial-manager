@@ -1,3 +1,7 @@
+/// <reference types="dayjs/plugin/duration" preserve="true" />
+/// <reference types="dayjs/plugin/weekOfYear" preserve="true" />
+/// <reference types="dayjs/plugin/utc" preserve="true" />
+/// <reference types="dayjs/plugin/timezone" preserve="true" />
 import dayjs, { type Dayjs } from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import timezone from 'dayjs/plugin/timezone';
