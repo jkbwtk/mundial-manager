@@ -42,6 +42,8 @@ services:
         condition: service_started
         restart: true
     environment: &node-env
+      - LOG_LEVEL=${LOG_LEVEL:-http}
+      - LOG_FORMAT=${LOG_FORMAT:-json}
       - NGINX_PARAM_KEY=${NGINX_PARAM_KEY}
       - NGINX_SECRET=${NGINX_SECRET}
       - POSTGRES_HOST=db

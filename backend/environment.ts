@@ -1,6 +1,25 @@
 import { z } from 'zod';
 import { EnvironmentConfigurationError } from '#backend/errors/configuration';
+import {
+  LogFormat,
+  LogFormatEnum,
+  LogLevel,
+  LogLevelEnum,
+} from '#backend/types/logger';
 import { lazyObject } from '#blib/lazyObject';
+
+function isProductionEnvironment(): boolean {
+  return String(process.env.NODE_ENV).toLowerCase() === 'production';
+}
+
+const LoggerEnvironment = z.object({
+  LOG_LEVEL: LogLevel.default(() =>
+    isProductionEnvironment() ? LogLevelEnum.HTTP : LogLevelEnum.LOG_QUERY,
+  ),
+  LOG_FORMAT: LogFormat.default(() =>
+    isProductionEnvironment() ? LogFormatEnum.JSON : LogFormatEnum.PRETTY,
+  ),
+});
 
 const optionalString = z
   .string()
@@ -60,6 +79,8 @@ export const Environment = z.object({
     (subject) => subject === null || /^(mailto:|https:\/\/)/.test(subject),
     'VAPID subject must be a mailto: or https:// URL',
   ),
+
+  ...LoggerEnvironment.shape,
 });
 
 export type Environment = z.infer<typeof Environment>;
@@ -67,7 +88,7 @@ export type Environment = z.infer<typeof Environment>;
 export const environment = lazyObject(() => {
   const parsedEnvironment = Environment.safeParse({
     ...process.env,
-    PRODUCTION: String(process.env.NODE_ENV).toLowerCase() === 'production',
+    PRODUCTION: isProductionEnvironment(),
   });
 
   if (!parsedEnvironment.success) {
@@ -109,3 +130,7 @@ export const environment = lazyObject(() => {
 
   return parsedEnvironment.data;
 });
+
+export function getLoggerDefaults(): z.infer<typeof LoggerEnvironment> {
+  return LoggerEnvironment.parse({});
+}
