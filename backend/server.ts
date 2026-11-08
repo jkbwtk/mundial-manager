@@ -50,4 +50,6 @@ main().catch((err) => {
     label: ['server'],
     error: err,
   });
+
+  process.exitCode = 1;
 });

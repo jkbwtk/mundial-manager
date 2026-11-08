@@ -27,4 +27,6 @@ main().catch((err) => {
     label: ['worker'],
     error: err,
   });
+
+  process.exitCode = 1;
 });
