@@ -1,5 +1,5 @@
 import EventEmitter from 'node:events';
-import { formatWithOptions } from 'node:util';
+import { formatWithOptions, inspect } from 'node:util';
 import colors from '@colors/colors/safe';
 import chalk from 'chalk';
 import { configure as configureStringify } from 'safe-stable-stringify';
@@ -13,13 +13,16 @@ import {
   type JsonOptions,
   LEVEL,
   type LevelLogEntry,
+  type LevelLogFunction,
   type LogCallback,
   type LogEntry,
+  type LogError,
   type LoggerLevelMethods,
   type LoggerMethods,
   type LoggerOptions,
   type LogLevel,
   type LogLevels,
+  type LogRecord,
   MESSAGE,
   type MergedOptions,
   type OmitMetadata,
@@ -51,6 +54,18 @@ export declare interface Logger<
     entry: LogEntry<T>,
   ): void;
 }
+
+const CoreFields = new Set([
+  'level',
+  'message',
+  'label',
+  'error',
+  'time',
+  'runtime',
+  'pid',
+]);
+
+const MAX_CAUSE_DEPTH = 5;
 
 // biome-ignore lint/suspicious/noUnsafeDeclarationMerging: it's what it's
 export class Logger<
@@ -188,6 +203,10 @@ export class Logger<
     const assembled = this.options.format.assemble(entry, this.getContext());
 
     if (assembled === null) {
+      for (const output of this.options.outputs) {
+        output.logFallback(this.getContext(), entry);
+      }
+
       return;
     }
 
@@ -200,22 +219,21 @@ export class Logger<
 
   public registerLevelFunction<
     K extends keyof LoggerLevelMethods<T>,
-    P extends (
-      callback: LogCallback,
-      level: keyof LoggerLevelMethods<T>,
-      ...args: never[]
-    ) => void,
+    P extends (log: LevelLogFunction<T>, ...args: never[]) => void,
   >(level: K, func: P): Logger<T, Omit<F, K> & Record<K, OmitMetadata<P>>> {
     const ctx = this.copy() as Logger<
       T,
       Omit<F, K> & Record<K, OmitMetadata<P>>
     >;
 
-    ctx.logFunctions[level] = func.bind(
+    const log = ctx.defaultLevelFunction.bind(
       ctx,
       ctx.logCallback.bind(ctx),
       level,
-    ) as (Omit<F, K> & Record<K, OmitMetadata<P>>)[K];
+    ) as LevelLogFunction<T>;
+
+    ctx.logFunctions[level] = ((...args: never[]) =>
+      func(log, ...args)) as (Omit<F, K> & Record<K, OmitMetadata<P>>)[K];
 
     return ctx;
   }
@@ -330,7 +348,7 @@ export class Logger<
 
     entry.message = formatWithOptions(
       {
-        colors: true,
+        colors: chalk.level > 0,
         depth: 3,
         breakLength: Number.POSITIVE_INFINITY,
       },
@@ -345,17 +363,23 @@ export class Logger<
     entry: TransformableEntry,
     _context: LoggerOptions,
   ): TransformableEntry {
-    let message = entry.message;
+    const message = entry.message;
 
     for (const arg of entry[ARGS]) {
-      if (typeof arg === 'object' && arg !== null) {
-        if ('message' in arg) {
-          message += ' ';
-          message += arg.message;
-        }
+      if (arg instanceof Error) {
+        entry.error ??= arg;
 
-        // biome-ignore lint/style/noParameterAssign: it's what it's
-        entry = Object.assign(entry, arg);
+        continue;
+      }
+
+      if (typeof arg === 'object' && arg !== null) {
+        const {
+          message: _message,
+          level: _level,
+          ...fields
+        } = arg as Record<string, unknown>;
+
+        Object.assign(entry, fields);
       }
     }
 
@@ -365,57 +389,87 @@ export class Logger<
   }
 
   public static processError(
-    errorLevel: string,
     entry: TransformableEntry,
     _context: LoggerOptions,
   ): TransformableEntry {
-    if (entry[LEVEL] !== errorLevel) {
-      return entry;
+    if (entry.error !== undefined) {
+      entry.error = Logger.normalizeError(entry.error);
     }
-
-    if (entry.error === undefined) {
-      return entry;
-    }
-
-    const error = Logger.convertError(entry.error);
-    const cleanStackTrace = error.stack?.split('\n').slice(1).join('\n');
-
-    entry.errorName = error.name;
-    entry.errorMessage = error.message;
-    entry.errorStack = error.stack;
-    entry.errorStackClean = cleanStackTrace;
-
-    entry.message += ', ';
-    entry.message += chalk.red.bold(
-      `${entry.errorName}: ${entry.errorMessage}`,
-    );
-    entry.message += chalk.red.italic(`\n${cleanStackTrace}`);
-    entry.message = entry.message.trim();
 
     return entry;
   }
 
-  private static convertError(error: unknown): Error {
+  public static normalizeError(error: unknown, depth = 0): LogError {
     if (error instanceof z.ZodError) {
-      return new Error(z.prettifyError(error));
-    }
-
-    if (error instanceof Error) {
-      return error;
+      return {
+        type: 'ZodError',
+        message: z.prettifyError(error),
+        issues: error.issues,
+      };
     }
 
     if (typeof error === 'string') {
-      return new Error(error);
+      return { type: 'Error', message: error };
     }
 
-    return new Error('Unknown error');
+    if (!(error instanceof Error)) {
+      return {
+        type:
+          typeof error === 'object' && error !== null ? 'Object' : typeof error,
+        message: inspect(error, {
+          depth: 3,
+          breakLength: Number.POSITIVE_INFINITY,
+        }),
+      };
+    }
+
+    const { name, message, stack, cause, ...fields } = error as Error & {
+      cause?: unknown;
+    };
+
+    return {
+      type: name,
+      message,
+      stack,
+      ...fields,
+      ...(cause === undefined || depth >= MAX_CAUSE_DEPTH
+        ? {}
+        : { cause: Logger.normalizeError(cause, depth + 1) }),
+    };
+  }
+
+  public static getFields(entry: TransformableEntry): Record<string, unknown> {
+    return Object.fromEntries(
+      Object.entries(entry).filter(([key]) => !CoreFields.has(key)),
+    );
+  }
+
+  public static formatError(error: LogError): string {
+    const { type, message, stack, cause, ...fields } = error;
+    const frames = stack?.split('\n').slice(1).join('\n');
+
+    let text = chalk.red.bold(`${type}: ${message}`);
+
+    if (frames) {
+      text += `\n${chalk.red.italic(frames)}`;
+    }
+
+    if (Object.keys(fields).length > 0) {
+      text += `\n${inspect(fields, { colors: chalk.level > 0, depth: 3 })}`;
+    }
+
+    if (cause !== undefined) {
+      text += `\n${chalk.red('Caused by')} ${Logger.formatError(cause)}`;
+    }
+
+    return text;
   }
 
   public static addMetadata(
     entry: TransformableEntry,
     _context: LoggerOptions,
   ): TransformableEntry {
-    entry.time = Date.now();
+    entry.time = new Date().toISOString();
     entry.runtime = process.uptime();
     entry.pid = process.pid;
 
@@ -439,8 +493,8 @@ export class Logger<
       message += `[${chalk.gray(entry.runtime.toFixed(3))}]`;
     }
 
-    if (typeof entry.time === 'number') {
-      message += `[${chalk.gray(new Date(entry.time).toISOString())}]`;
+    if (typeof entry.time === 'string') {
+      message += `[${chalk.gray(entry.time)}]`;
     }
 
     message += `[${coloredLevel}]`;
@@ -453,7 +507,40 @@ export class Logger<
     message += ' ';
     message += entry.message;
 
+    const fields = Logger.getFields(entry);
+
+    if (Object.keys(fields).length > 0) {
+      message += ` ${inspect(fields, {
+        colors: chalk.level > 0,
+        depth: 3,
+        breakLength: Number.POSITIVE_INFINITY,
+      })}`;
+    }
+
+    if (entry.error !== undefined) {
+      message += `, ${Logger.formatError(entry.error as LogError)}`;
+    }
+
     return message;
+  }
+
+  public static toRecord(
+    entry: TransformableEntry,
+    _context: LoggerOptions,
+  ): LogRecord {
+    return {
+      time:
+        typeof entry.time === 'string' ? entry.time : new Date().toISOString(),
+      level: String(entry.level),
+      message: Logger.removeColors(entry.message),
+      ...(entry.label === undefined
+        ? {}
+        : { label: arrayFrom(entry.label).join(':') }),
+      ...Logger.getFields(entry),
+      ...(entry.error === undefined ? {} : { error: entry.error as LogError }),
+      ...(typeof entry.runtime === 'number' ? { runtime: entry.runtime } : {}),
+      ...(typeof entry.pid === 'number' ? { pid: entry.pid } : {}),
+    };
   }
 
   public static jsonReplacer(_key: string, value: unknown): unknown {
@@ -466,14 +553,14 @@ export class Logger<
 
   public static json(
     options: JsonOptions,
-    entry: TransformableEntry,
+    value: object,
     _context: LoggerOptions,
   ): string {
     const stringify = configureStringify(options);
 
     return (
       stringify(
-        entry,
+        value,
         options.replacer ?? Logger.jsonReplacer,
         options.space,
       ) ?? 'STRINGIFY_ERROR'

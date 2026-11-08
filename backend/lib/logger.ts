@@ -1,12 +1,7 @@
 import chalk from 'chalk';
 import { Logger } from '#shared/logger/Logger';
 import { ConsoleOutput } from '#shared/logger/outputs/ConsoleOutput';
-import {
-  ARGS,
-  LEVEL,
-  MESSAGE,
-  type TransformableEntry,
-} from '#shared/logger/types';
+import { ARGS, LEVEL, type TransformableEntry } from '#shared/logger/types';
 
 export type HTTPLogEntry = {
   method: string;
@@ -81,6 +76,7 @@ const prettyRequest = (requestLevel: string, entry: TransformableEntry) => {
   message += chalk.cyan(`${chalk.bold.italic(request.contentLength)} bytes`);
 
   entry.message = message;
+  delete entry.request;
 
   return entry;
 };
@@ -106,9 +102,12 @@ const pretyCall = (requestLevel: string, entry: TransformableEntry) => {
   );
 
   entry.message = message;
+  delete entry.request;
 
   return entry;
 };
+
+const StderrLevels = ['error', 'warn'];
 
 const prettyFormat = Logger.createOutputAssembler()
   .chain(prettyRequest.bind(null, 'http'))
@@ -158,7 +157,7 @@ const instance = new Logger({
     .chain(colorStrings.bind(null, chalk.cyan))
     .chain(Logger.processArgs)
     .chain(Logger.processSplats)
-    .chain(Logger.processError.bind(null, 'error'))
+    .chain(Logger.processError)
     .chain(Logger.addMetadata),
   outputs: [
     new ConsoleOutput({
@@ -174,74 +173,26 @@ const instance = new Logger({
         'time',
         'logQuery',
       ],
+      stderrLevels: StderrLevels,
     }),
   ],
 })
-  .registerLevelFunction('http', (callback, level, request: HTTPLogEntry) => {
-    if (level !== 'http') return;
-
-    callback({
-      level,
-      message: 'HTTP Request',
-      request: Object.assign({}, request),
-      [LEVEL]: level,
-      [MESSAGE]: 'HTTP Request',
-      [ARGS]: [],
-    });
-  })
-  .registerLevelFunction('trpc', (callback, level, request: TrpcLogEntry) => {
-    if (level !== 'trpc') {
-      return;
-    }
-
-    callback({
-      level,
-      message: 'tRPC Request',
-      request: Object.assign({}, request),
-      [LEVEL]: level,
-      [MESSAGE]: 'tRPC Request',
-      [ARGS]: [],
-    });
-  })
-  .registerLevelFunction(
-    'time',
-    (
-      callback,
-      level,
-      name: string,
-      start: number,
-      finish: number = performance.now(),
-    ) => {
-      if (level !== 'time') {
-        return;
-      }
-
-      const message = chalk.gray(`Timer ${name} took %o ms`);
-
-      callback({
-        level,
-        message,
-        [LEVEL]: level,
-        [MESSAGE]: message,
-        [ARGS]: [Math.round((finish - start) * 1000) / 1000],
-      });
-    },
+  .registerLevelFunction('http', (log, request: HTTPLogEntry) =>
+    log('HTTP Request', { request: { ...request } }),
+  )
+  .registerLevelFunction('trpc', (log, request: TrpcLogEntry) =>
+    log('tRPC Request', { request: { ...request } }),
   )
   .registerLevelFunction(
-    'logQuery',
-    (callback, level, query: string, _params: unknown[]) => {
-      if (level !== 'logQuery') return;
-
-      const message = chalk.gray(`Query: ${query.trimEnd()}`);
-
-      callback({
-        level,
-        message,
-        [LEVEL]: level,
-        [MESSAGE]: message,
-        [ARGS]: [],
-      });
-    },
+    'time',
+    (log, name: string, start: number, finish: number = performance.now()) =>
+      log(
+        chalk.gray(`Timer ${name} took %o ms`),
+        Math.round((finish - start) * 1000) / 1000,
+      ),
+  )
+  .registerLevelFunction('logQuery', (log, query: string, _params: unknown[]) =>
+    log(chalk.gray(`Query: ${query.trimEnd()}`)),
   );
 
 export const logger = instance.logFunctions;
