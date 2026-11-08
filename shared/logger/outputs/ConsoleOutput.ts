@@ -1,11 +1,14 @@
 import { LoggerOutput } from '#shared/logger/outputs/LoggerOutput';
-import type {
-  LoggerOptions,
-  OutputOptions,
-  TransformableEntry,
+import {
+  LEVEL,
+  type LoggerOptions,
+  type OutputOptions,
+  type TransformableEntry,
 } from '#shared/logger/types';
 
-type ConsoleOutputOptions = OutputOptions;
+type ConsoleOutputOptions = OutputOptions & {
+  stderrLevels?: string[];
+};
 
 export class ConsoleOutput extends LoggerOutput {
   protected options: ConsoleOutputOptions;
@@ -22,13 +25,19 @@ export class ConsoleOutput extends LoggerOutput {
     }
 
     const copy = { ...entry };
-    const result = this.options.format.assemble(copy, context);
 
-    if (result === null) {
-      return;
+    this.write(
+      entry,
+      this.options.format.assemble(copy, context) ?? this.formatFallback(entry),
+    );
+  }
+
+  protected override write(entry: TransformableEntry, line: string): void {
+    if (this.options.stderrLevels?.includes(String(entry[LEVEL]))) {
+      console.error(line);
+    } else {
+      console.log(line);
     }
-
-    console.log(result);
   }
 
   public close(): void {

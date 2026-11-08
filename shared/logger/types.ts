@@ -122,4 +122,5 @@ export type JsonOptions = StringifyOptions & {
 export type OutputOptions = {
   format: Assembler<TransformableEntry, LoggerOptions, string>;
   level: string | number | string[];
+  fallback?: (entry: TransformableEntry) => string;
 };

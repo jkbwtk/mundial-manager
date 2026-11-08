@@ -1,6 +1,7 @@
 import {
   LEVEL,
   type LoggerOptions,
+  MESSAGE,
   type OutputOptions,
   type TransformableEntry,
 } from '#shared/logger/types';
@@ -14,6 +15,24 @@ export abstract class LoggerOutput {
 
   public close(): void {
     throw new Error('Method not implemented.');
+  }
+
+  public logFallback(context: LoggerOptions, entry: TransformableEntry): void {
+    if (!this.canLog(context, entry)) return;
+
+    this.write(entry, this.formatFallback(entry));
+  }
+
+  protected write(_entry: TransformableEntry, _line: string): void {
+    throw new Error('Method not implemented.');
+  }
+
+  protected formatFallback(entry: TransformableEntry): string {
+    try {
+      if (this.options.fallback) return this.options.fallback(entry);
+    } catch {}
+
+    return `[${String(entry[LEVEL]).toUpperCase()}] ${String(entry[MESSAGE])} (log formatting failed)`;
   }
 
   protected canLog(context: LoggerOptions, entry: TransformableEntry): boolean {
