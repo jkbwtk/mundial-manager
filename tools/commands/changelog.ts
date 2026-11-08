@@ -3,7 +3,7 @@ import type { Command } from 'commander';
 import { Argument } from 'commander';
 import type { SemVer } from 'semver';
 import { z } from 'zod';
-import { logger } from '#shared/logger';
+import { logger } from '#blib/logger';
 import {
   type Change,
   Changelog,

@@ -1,8 +1,8 @@
 import { createExpressMiddleware } from '@trpc/server/adapters/express';
 import { Router } from 'express';
 import { appRouter } from '#backend/routers/trpc/app';
+import { logger } from '#blib/logger';
 import { createBaseContext } from '#blib/trpc';
-import { logger } from '#shared/logger';
 
 export function createTRPCRouter() {
   const trpcRouter = Router();

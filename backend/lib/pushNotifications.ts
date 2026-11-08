@@ -3,7 +3,7 @@ import type { DB } from '#backend/db/database';
 import { PushSubscriptionModel } from '#backend/db/models/PushSubscriptionModel';
 import { environment } from '#backend/environment';
 import type { PushSubscriptionSelectSchema } from '#backend/types/db/pushSubscription';
-import { logger } from '#shared/logger';
+import { logger } from '#blib/logger';
 import {
   hasPermissions,
   type Permission,

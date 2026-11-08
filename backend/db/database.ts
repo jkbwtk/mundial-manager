@@ -4,7 +4,7 @@ import { Pool } from 'pg';
 import { relations } from '#backend/db/relations';
 import { environment } from '#backend/environment';
 import { lazyObject } from '#blib/lazyObject';
-import { logger } from '#shared/logger';
+import { logger } from '#blib/logger';
 
 export const db = lazyObject(() => {
   const client = new Pool({

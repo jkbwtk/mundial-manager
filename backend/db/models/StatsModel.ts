@@ -21,8 +21,8 @@ import {
   seasonsTable,
 } from '#backend/db/schema';
 import { publishLeagueEvent } from '#blib/leagueEvents';
+import { logger } from '#blib/logger';
 import { ConvertDrizzleErrors, NotFoundError } from '#blib/modelErrors';
-import { logger } from '#shared/logger';
 import { getStatsDayKey, getStatsSeason } from '#shared/stats/buckets';
 import { calculateHeadToHead } from '#shared/stats/headToHead';
 import { getMatchPrediction } from '#shared/stats/matchPrediction';

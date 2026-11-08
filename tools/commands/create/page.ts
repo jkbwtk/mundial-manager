@@ -1,7 +1,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { Environment, FileSystemLoader } from 'nunjucks';
-import { logger } from '#shared/logger';
+import { logger } from '#blib/logger';
 import { projectRoot } from '#tools/cli-utils';
 import type { CreateOptions } from '#tools/commands/create';
 

@@ -1,6 +1,6 @@
 import path from 'node:path';
 import type { RouteDefinition } from '@solidjs/router';
-import { logger } from '#shared/logger';
+import { logger } from '#blib/logger';
 import { arrayFrom } from '#shared/utils';
 
 // @ts-expect-error

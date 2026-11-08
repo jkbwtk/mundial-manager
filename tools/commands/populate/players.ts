@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '#backend/db/database';
 import { PlayerModel } from '#backend/db/models/PlayerModel';
 import { playersTable } from '#backend/db/schema';
-import { logger } from '#shared/logger';
+import { logger } from '#blib/logger';
 import { range } from '#shared/utils';
 import type { PopulateOptions } from '#tools/commands/populate';
 

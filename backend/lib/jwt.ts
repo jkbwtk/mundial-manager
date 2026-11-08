@@ -8,8 +8,8 @@ import * as jose from 'jose';
 import { environment } from '#backend/environment';
 import { InsecureConnectionError } from '#backend/errors/http';
 import { JWTContext } from '#backend/types/auth';
+import { logger } from '#blib/logger';
 import { memoized } from '#blib/memoized';
-import { logger } from '#shared/logger';
 
 export type CookieSecurity =
   | { type: 'secure' }

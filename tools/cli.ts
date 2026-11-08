@@ -3,7 +3,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { Command } from 'commander';
 import { z } from 'zod';
-import { logger } from '#shared/logger';
+import { logger } from '#blib/logger';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

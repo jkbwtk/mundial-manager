@@ -10,8 +10,8 @@ import {
   getJWTCookieOptions,
   sign,
 } from '#blib/jwt';
+import { logger } from '#blib/logger';
 import { MAGIC_LINK_TOKEN_KEY } from '#blib/magicLink';
-import { logger } from '#shared/logger';
 
 export async function createMagicRouter() {
   const magicRouter = Router();

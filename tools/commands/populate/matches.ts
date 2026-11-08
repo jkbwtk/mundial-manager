@@ -8,7 +8,7 @@ import { MatchModel } from '#backend/db/models/MatchModel';
 import { PlayerModel } from '#backend/db/models/PlayerModel';
 import { TableModel } from '#backend/db/models/TableModel';
 import { matchesTable } from '#backend/db/schema';
-import { logger } from '#shared/logger';
+import { logger } from '#blib/logger';
 import {
   nonLinearRandomInt,
   pickRandom,

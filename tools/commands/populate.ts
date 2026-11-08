@@ -1,7 +1,7 @@
 import { type Command, Option } from 'commander';
 import z from 'zod';
 import { db } from '#backend/db/database';
-import { logger } from '#shared/logger';
+import { logger } from '#blib/logger';
 import { populateBalls } from '#tools/commands/populate/balls';
 import { populateMatches } from '#tools/commands/populate/matches';
 import { populatePlayers } from '#tools/commands/populate/players';

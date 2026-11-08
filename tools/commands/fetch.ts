@@ -1,5 +1,5 @@
 import { Argument, type Command } from 'commander';
-import { logger } from '#shared/logger';
+import { logger } from '#blib/logger';
 import { fetchFonts } from '#tools/commands/fetch/fonts';
 import { fetchIcons } from '#tools/commands/fetch/icons';
 

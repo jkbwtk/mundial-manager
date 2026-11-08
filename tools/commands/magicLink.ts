@@ -3,8 +3,8 @@ import type { Command } from 'commander';
 import z from 'zod';
 import { db } from '#backend/db/database';
 import { LeagueModel } from '#backend/db/models/LeagueModel';
+import { logger } from '#blib/logger';
 import { createMagicLink } from '#blib/magicLink';
-import { logger } from '#shared/logger';
 import { Role, RoleEnum, Roles } from '#shared/permissions';
 
 const MagicLinkOptions = z

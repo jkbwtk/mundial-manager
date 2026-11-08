@@ -3,7 +3,7 @@ import type { Command } from 'commander';
 import { readMigrationFiles } from 'drizzle-orm/migrator';
 import { migrate } from 'drizzle-orm/pg-core';
 import { db } from '#backend/db/database';
-import { logger } from '#shared/logger';
+import { logger } from '#blib/logger';
 import { projectRoot } from '#tools/cli-utils';
 
 async function runMigrations(migrationsFolder: string) {

@@ -5,7 +5,7 @@ import { db, type TX } from '#backend/db/database';
 import { matchOrderBy } from '#backend/db/matchOrder';
 import { LeagueModel } from '#backend/db/models/LeagueModel';
 import { matchesTable } from '#backend/db/schema';
-import { logger } from '#shared/logger';
+import { logger } from '#blib/logger';
 import { getMatchPlayerUuids } from '#shared/matchPlayers';
 import { getStatsSessionKeys } from '#shared/stats/buckets';
 import { SeasonConfig } from '#shared/types/api/season';

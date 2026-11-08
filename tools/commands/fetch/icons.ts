@@ -1,7 +1,7 @@
 import { mkdirSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { logger } from '#shared/logger';
+import { logger } from '#blib/logger';
 import {
   MaterialSymbolCodepoints,
   SegmentedMaterialSymbols,

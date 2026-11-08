@@ -1,7 +1,7 @@
 import express from 'express';
 import { environment } from '#backend/environment';
+import { logger } from '#blib/logger';
 import { applyKeepAliveTimeout } from '#blib/utils';
-import { logger } from '#shared/logger';
 import { createDevRouter } from './routers/devRouter';
 
 const app = express();

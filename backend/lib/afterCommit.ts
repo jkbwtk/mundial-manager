@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
-import { logger } from '#shared/logger';
+import { logger } from '#blib/logger';
 
 interface AfterCommitEntry {
   value: unknown;

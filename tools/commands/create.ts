@@ -1,6 +1,6 @@
 import { Argument, type Command } from 'commander';
 import z from 'zod';
-import { logger } from '#shared/logger';
+import { logger } from '#blib/logger';
 import { createComponent } from '#tools/commands/create/component';
 import { createPage } from '#tools/commands/create/page';
 

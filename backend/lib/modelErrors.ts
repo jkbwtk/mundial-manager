@@ -1,7 +1,7 @@
 import { TRPCError } from '@trpc/server';
 import { DrizzleQueryError } from 'drizzle-orm';
 import { DatabaseError as PgDatabaseError } from 'pg';
-import { logger } from '#shared/logger';
+import { logger } from '#blib/logger';
 import { ModelErrorTypeEnum } from '#shared/modelErrors';
 import { ZodLikeError } from '#shared/zod';
 

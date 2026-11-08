@@ -1,6 +1,6 @@
 import { getAMQPChannel } from '#backend/amqp/amqp';
 import { environment } from '#backend/environment';
-import { logger } from '#shared/logger';
+import { logger } from '#blib/logger';
 
 async function main() {
   if (environment.RABBITMQ_ENABLED === false) {

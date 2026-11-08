@@ -4,7 +4,7 @@ import { basename, join } from 'node:path';
 import fontverter from 'fontverter';
 import hbPromise from 'harfbuzzjs';
 import subsetFont from 'subset-font';
-import { logger } from '#shared/logger';
+import { logger } from '#blib/logger';
 import { projectRoot } from '#tools/cli-utils';
 
 type CodePointRange = [from: number, to: number];

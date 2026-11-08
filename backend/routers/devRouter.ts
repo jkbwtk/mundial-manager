@@ -8,6 +8,7 @@ import { createMagicRouter } from '#backend/routers/magic/magicRouter';
 import { appRouter } from '#backend/routers/trpc/app';
 import { createTRPCRouter } from '#backend/routers/trpc/trpcRouter';
 import { getCookieSecurity } from '#blib/jwt';
+import { logger } from '#blib/logger';
 import {
   createErrorMiddleware,
   createResponseAbortSignal,
@@ -15,7 +16,6 @@ import {
   requestLogger,
 } from '#blib/middlewares';
 import { createLeagueGetter } from '#blib/trpc';
-import { logger } from '#shared/logger';
 import { pageErrorScript } from '#shared/pageError';
 import {
   createFetchEvent,

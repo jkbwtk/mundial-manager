@@ -9,9 +9,9 @@ import type { JWTContext } from '#backend/types/auth';
 import type { LeagueSelectSchema } from '#backend/types/db/league';
 import { runWithAfterCommit } from '#blib/afterCommit';
 import { getCookieSecurity, getJWTContextFromCookies } from '#blib/jwt';
+import { logger } from '#blib/logger';
 import { memoized } from '#blib/memoized';
 import { ModelError } from '#blib/modelErrors';
-import { logger } from '#shared/logger';
 import {
   hasPermissions,
   type PermissionRequirement,

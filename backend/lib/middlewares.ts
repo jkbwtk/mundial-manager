@@ -10,7 +10,7 @@ import onHeaders from 'on-headers';
 import z from 'zod';
 import { HttpError } from '#backend/errors/http';
 import { getJWTContextFromCookies } from '#blib/jwt';
-import { logger } from '#shared/logger';
+import { logger } from '#blib/logger';
 import type { PageError } from '#shared/pageError';
 
 declare global {

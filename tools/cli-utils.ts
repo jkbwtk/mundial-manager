@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import semver, { type SemVer } from 'semver';
-import { logger } from '#shared/logger';
+import { logger } from '#blib/logger';
 import {
   Changelog,
   type ReleaseType,

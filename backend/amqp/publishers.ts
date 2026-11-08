@@ -8,7 +8,7 @@ import {
   isAMQPEnabled,
 } from '#backend/amqp/amqp';
 import { isTransaction } from '#backend/db/database';
-import { logger } from '#shared/logger';
+import { logger } from '#blib/logger';
 import { shortUUID } from '#shared/utils';
 
 interface AMQPMessage<T extends object> {
