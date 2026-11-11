@@ -79,6 +79,15 @@
 
   transition: translate 0.2s ease-in-out, visibility 0.2s;
 
+  .in-development {
+    width: 100%;
+    height: fit-content;
+
+    text-align: center;
+    margin-top: auto;
+    margin-bottom: ch(1);
+  }
+
   &.open {
     translate: 0 0;
     visibility: visible;

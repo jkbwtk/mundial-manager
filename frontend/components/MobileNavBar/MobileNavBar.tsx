@@ -4,12 +4,15 @@ import {
   createSignal,
   createUniqueId,
   type JSX,
+  Match,
   on,
   onCleanup,
   Show,
+  Switch,
 } from 'solid-js';
 import { isServer } from 'solid-js/web';
 import { Breadcrumbs } from '#components/Breadcrumbs';
+import { BuildDetails } from '#components/BuildDetails';
 import { AnchorButton, Button } from '#components/Button';
 import { LogoSmall } from '#components/LogoSmall';
 import { MaterialSymbol } from '#components/MaterialSymbol';
@@ -17,8 +20,11 @@ import { useNotificationSettingsModal } from '#components/NotificationSettingsMo
 import { PermissionGuard } from '#components/PermissionGuard';
 import { Sidebar, SidebarButton } from '#components/Sidebar';
 import { Divider } from '#components/Widget';
+import { prereleaseBuildInfo } from '#flib/buildInfo';
 import { useCan } from '#flib/identity';
+import { isDev } from '#flib/utils';
 import { routes } from '#frontend/routes';
+import { useChangelog } from '#providers/ChangelogProvider';
 import { MatchRecordingPermissions, PermissionEnum } from '#shared/permissions';
 import style from './MobileNavBar.module.scss';
 
@@ -30,6 +36,7 @@ export interface MobileNavBarProps {
 export const MobileNavBar: Component<MobileNavBarProps> = (props) => {
   const can = useCan();
   const location = useLocation();
+  const [, { latestVersion, latestCommitHash }] = useChangelog();
   const openNotificationSettings = useNotificationSettingsModal();
 
   const id = createUniqueId();
@@ -133,6 +140,23 @@ export const MobileNavBar: Component<MobileNavBarProps> = (props) => {
             />
           </PermissionGuard>
         </Sidebar>
+
+        <div class={style.inDevelopment}>
+          <Switch
+            fallback={
+              <div>
+                v{latestVersion()} ({latestCommitHash()})
+              </div>
+            }
+          >
+            <Match when={isDev()}>
+              <div>Development build</div>
+            </Match>
+            <Match when={prereleaseBuildInfo()}>
+              {(buildInfo) => <BuildDetails buildInfo={buildInfo()} />}
+            </Match>
+          </Switch>
+        </div>
       </aside>
     </>
   );
