@@ -46,7 +46,8 @@ $animation-easing: ease-in-out;
 
   --animation-duration: var(--toast-animation-duration, #{$animation-duration});
 
-  animation: enter-horizontal var(--animation-duration) $animation-easing forwards;
+  animation: enter-horizontal var(--animation-duration) $animation-easing
+    forwards;
 
   transition:
     border-color var(--animation-duration) $animation-easing,
@@ -56,7 +57,8 @@ $animation-easing: ease-in-out;
     opacity var(--animation-duration) $animation-easing;
 
   &.leaving {
-    animation: leave-horizontal var(--animation-duration) $animation-easing forwards;
+    animation: leave-horizontal var(--animation-duration) $animation-easing
+      forwards;
   }
 }
 

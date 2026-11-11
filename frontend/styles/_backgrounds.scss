@@ -9,7 +9,13 @@ $backgroundPixel: 0.1rem;
 @mixin stripedBackground($color: $stripeColor) {
   border-radius: $borderRadius;
 
-  background-image: repeating-linear-gradient(45deg, $color 0, $color 0.1rem, transparent 0, transparent 50%);
+  background-image: repeating-linear-gradient(
+    45deg,
+    $color 0,
+    $color 0.1rem,
+    transparent 0,
+    transparent 50%
+  );
   background-size: 1rem 1rem;
 }
 
@@ -39,14 +45,23 @@ $backgroundPixel: 0.1rem;
 @mixin scanlineBackground($color: $textDimColor) {
   $period: snapToPixel(ch(0.25));
 
-  background-image: repeating-linear-gradient(to bottom, $color 0 $backgroundPixel, transparent $backgroundPixel $period);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    $color 0 $backgroundPixel,
+    transparent $backgroundPixel $period
+  );
 }
 
 @mixin textLineBackground($color: $textDimColor) {
   $top: snapToPixel(ch(0.25));
   $bottom: snapToPixel(ch(0.75));
 
-  background-image: linear-gradient(to bottom, transparent $top, $color $top $bottom, transparent $bottom);
+  background-image: linear-gradient(
+    to bottom,
+    transparent $top,
+    $color $top $bottom,
+    transparent $bottom
+  );
   background-size: 100% ch(1);
 }
 
@@ -56,8 +71,14 @@ $backgroundPixel: 0.1rem;
   background-color: $color;
 
   mask:
-    linear-gradient(to right, #000 calc(100% - $backgroundPixel), transparent 0) 0 0 / $width ch(1),
-    linear-gradient(to bottom, #000 calc(100% - $backgroundPixel), transparent 0) 0 0 / $width ch(1);
+    linear-gradient(to right, #000 calc(100% - $backgroundPixel), transparent 0)
+      0 0 / $width ch(1),
+    linear-gradient(
+        to bottom,
+        #000 calc(100% - $backgroundPixel),
+        transparent 0
+      )
+      0 0 / $width ch(1);
   mask-composite: intersect;
 }
 
@@ -68,9 +89,20 @@ $backgroundPixel: 0.1rem;
   background-color: $color;
 
   mask:
-    linear-gradient(to right, transparent 15%, #000 calc(15% + $backgroundPixel) calc(85% - $backgroundPixel), transparent 85%) 0 0 / cw(1)
-      ch(1),
-    linear-gradient(to bottom, transparent $top, #000 $top $bottom, transparent $bottom) 0 0 / 100% ch(1);
+    linear-gradient(
+        to right,
+        transparent 15%,
+        #000 calc(15% + $backgroundPixel) calc(85% - $backgroundPixel),
+        transparent 85%
+      )
+      0 0 / cw(1) ch(1),
+    linear-gradient(
+        to bottom,
+        transparent $top,
+        #000 $top $bottom,
+        transparent $bottom
+      )
+      0 0 / 100% ch(1);
   mask-composite: intersect;
 }
 
@@ -81,9 +113,25 @@ $backgroundPixel: 0.1rem;
   background-color: $color;
 
   mask:
-    linear-gradient(to bottom, transparent $top, #000 $top $bottom, transparent $bottom) 0 0 / 100% ch(1),
-    linear-gradient(to right, #000 calc(cw(6) - $backgroundPixel), transparent cw(6)) 0 0 / cw(7) 100%,
-    linear-gradient(to right, #000 calc(cw(10) - $backgroundPixel), transparent cw(10)) cw(3) 0 / cw(11) 100%;
+    linear-gradient(
+        to bottom,
+        transparent $top,
+        #000 $top $bottom,
+        transparent $bottom
+      )
+      0 0 / 100% ch(1),
+    linear-gradient(
+        to right,
+        #000 calc(cw(6) - $backgroundPixel),
+        transparent cw(6)
+      )
+      0 0 / cw(7) 100%,
+    linear-gradient(
+        to right,
+        #000 calc(cw(10) - $backgroundPixel),
+        transparent cw(10)
+      )
+      cw(3) 0 / cw(11) 100%;
   mask-composite: intersect;
 }
 
@@ -95,7 +143,11 @@ $backgroundPixel: 0.1rem;
 }
 
 @mixin leaderBackground($color: $textDimColor) {
-  background-image: radial-gradient(circle at 50% 75%, $color 0.06rem, transparent 0.16rem);
+  background-image: radial-gradient(
+    circle at 50% 75%,
+    $color 0.06rem,
+    transparent 0.16rem
+  );
   background-size: cw(1) ch(1);
 }
 
@@ -103,13 +155,26 @@ $backgroundPixel: 0.1rem;
   $period: snapToPixel(cw(0.75));
 
   background-image:
-    repeating-linear-gradient(45deg, transparent 0, $color $backgroundPixel, transparent $backgroundPixel * 2, transparent $period),
-    repeating-linear-gradient(-45deg, transparent 0, $color $backgroundPixel, transparent $backgroundPixel * 2, transparent $period);
+    repeating-linear-gradient(
+      45deg,
+      transparent 0,
+      $color $backgroundPixel,
+      transparent $backgroundPixel * 2,
+      transparent $period
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      transparent 0,
+      $color $backgroundPixel,
+      transparent $backgroundPixel * 2,
+      transparent $period
+    );
 }
 
 @mixin noiseBackground($color: $textDimColor) {
   background-image:
-    radial-gradient(circle, $color 0.05rem, transparent 0.12rem), radial-gradient(circle, $color 0.05rem, transparent 0.12rem),
+    radial-gradient(circle, $color 0.05rem, transparent 0.12rem),
+    radial-gradient(circle, $color 0.05rem, transparent 0.12rem),
     radial-gradient(circle, $color 0.05rem, transparent 0.12rem);
   background-position:
     0 0,
@@ -123,6 +188,7 @@ $backgroundPixel: 0.1rem;
 
 @mixin gridBackground($color: $textDimColor) {
   background-image:
-    linear-gradient(to right, $color $backgroundPixel, transparent 0), linear-gradient(to bottom, $color $backgroundPixel, transparent 0);
+    linear-gradient(to right, $color $backgroundPixel, transparent 0),
+    linear-gradient(to bottom, $color $backgroundPixel, transparent 0);
   background-size: snapToPixel(cw(1)) ch(1);
 }
