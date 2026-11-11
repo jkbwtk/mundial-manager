@@ -1,6 +1,7 @@
 import { type Accessor, createEffect, on, onCleanup, onMount } from 'solid-js';
 import { isServer } from 'solid-js/web';
 import z from 'zod';
+import { getStorage } from '#flib/utils';
 import { jsonCodec } from '#shared/zod';
 
 export interface StoredDraft<T> {
@@ -33,16 +34,6 @@ export interface DraftPersistence {
 const STORAGE_PREFIX = 'draft:';
 const WRITE_DELAY_MS = 1000;
 const MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
-
-function getStorage(): Storage | null {
-  if (isServer) return null;
-
-  try {
-    return window.localStorage;
-  } catch {
-    return null;
-  }
-}
 
 export function createDraftStore<T>(
   namespace: string,

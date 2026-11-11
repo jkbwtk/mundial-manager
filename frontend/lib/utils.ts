@@ -1,4 +1,5 @@
 import type { JSX } from 'solid-js';
+import { isServer } from 'solid-js/web';
 import { useSSRUtils } from '#providers/SSRUtilsProvider';
 
 const EditableTagNames = ['INPUT', 'TEXTAREA', 'SELECT'];
@@ -113,4 +114,14 @@ export function isEditableTarget(target: EventTarget | null): boolean {
     target instanceof HTMLElement &&
     (target.isContentEditable || EditableTagNames.includes(target.tagName))
   );
+}
+
+export function getStorage(): Storage | null {
+  if (isServer) return null;
+
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
+  }
 }
