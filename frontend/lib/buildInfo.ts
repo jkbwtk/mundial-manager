@@ -1,4 +1,4 @@
-import { BuildInfo } from '#frontend/types';
+import { BuildChannelEnum, BuildInfo } from '#frontend/types';
 
 export function getBuildInfo(): BuildInfo | null {
   const buildInfo = BuildInfo.safeParse({
@@ -13,3 +13,13 @@ export function getBuildInfo(): BuildInfo | null {
 
   return buildInfo.success ? buildInfo.data : null;
 }
+
+export const prereleaseBuildInfo = () => {
+  const buildInfo = getBuildInfo();
+
+  if (buildInfo?.channel === BuildChannelEnum.RELEASE) {
+    return null;
+  }
+
+  return buildInfo;
+};
