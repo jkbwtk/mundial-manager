@@ -23,6 +23,10 @@ export function toJson(data: unknown): string {
   return JSON.stringify(data, null, 2);
 }
 
+export function prefersReducedMotion(): boolean {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
 export function isMobile(): boolean {
   const [state] = useSSRUtils();
   const userAgent = state.userAgent ?? navigator.userAgent;
