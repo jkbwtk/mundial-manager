@@ -175,6 +175,8 @@ export const playersTable = pgTable(
     alias: t.text().notNull(),
     color: t.text().notNull(), // #RRGGBBAA
 
+    disabled: t.boolean().notNull().default(false),
+
     labels: t.jsonb().$type<Labels>().notNull().default(sql`'{}'::jsonb`),
 
     searchVectors: tsvector()
