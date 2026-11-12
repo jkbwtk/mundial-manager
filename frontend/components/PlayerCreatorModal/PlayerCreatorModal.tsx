@@ -61,6 +61,10 @@ export const PlayerCreatorModal: Component<PlayerCreatorModalProps> = (
           label: 'Color',
           type: 'color',
         },
+        disabled: {
+          label: 'Disabled',
+          type: 'checkbox',
+        },
         labels: {
           label: 'Labels',
           type: 'record',
