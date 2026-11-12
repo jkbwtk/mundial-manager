@@ -173,7 +173,7 @@
     background-color: color-mix(
       in srgb,
       var(--widget-border-color) 10%,
-      #101010 90%
+      $labelColor 90%
     );
 
     color: $textBrightColor;

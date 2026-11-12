@@ -4,6 +4,8 @@
 @use './materialSymbols.scss';
 
 :root {
+  @include app.themeTokens(app.$chromePalette);
+
   font-size: app.$baseFontSize;
 
   @supports (-moz-appearance: none) {

@@ -24,7 +24,7 @@
 
   flex-shrink: 0;
 
-  background-color: rgba($backgroundColor, 0.5);
+  background-color: color-mix(in srgb, $backgroundColor 50%, transparent);
   backdrop-filter: blur(1rem);
 
   padding: ch(1) cw(2);
@@ -54,7 +54,7 @@
 
   overflow: clip;
 
-  background-color: rgba($backgroundColor, 0.5);
+  background-color: color-mix(in srgb, $backgroundColor 50%, transparent);
   backdrop-filter: blur(1rem);
 }
 
