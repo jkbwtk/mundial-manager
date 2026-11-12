@@ -31,23 +31,23 @@
 }
 
 .primary {
-  background-color: $gray;
+  background-color: $textColor;
   color: $backgroundColor;
 
   @media (hover: hover) {
     &:hover {
-      background-color: $grayBright;
+      background-color: $textBrightColor;
       color: $backgroundColor;
     }
   }
 
   &:focus {
-    background-color: $grayBright;
+    background-color: $textBrightColor;
     color: $backgroundColor;
   }
 
   &:active {
-    background-color: $gray;
+    background-color: $textColor;
     color: $backgroundColor;
   }
 }
@@ -57,18 +57,18 @@
 
   @media (hover: hover) {
     &:hover {
-      background-color: $grayBright;
+      background-color: $textBrightColor;
       color: $backgroundColor;
     }
   }
 
   &:focus {
-    background-color: $grayBright;
+    background-color: $textBrightColor;
     color: $backgroundColor;
   }
 
   &:active {
-    background-color: $gray;
+    background-color: $textColor;
     color: $backgroundColor;
   }
 }

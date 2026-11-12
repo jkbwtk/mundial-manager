@@ -32,13 +32,13 @@
 
   @media (hover: hover) {
     &:hover {
-      background-color: $gray;
+      background-color: $textColor;
       color: $backgroundColor;
     }
   }
 
   &:focus-visible {
-    background-color: $gray;
+    background-color: $textColor;
     color: $backgroundColor;
 
     &::before {
@@ -72,7 +72,7 @@
 }
 
 .trigger-open {
-  background-color: $gray;
+  background-color: $textColor;
   color: $backgroundColor;
 }
 
@@ -123,7 +123,7 @@
 }
 
 .option-active {
-  background-color: $gray;
+  background-color: $textColor;
   color: $backgroundColor;
 }
 
