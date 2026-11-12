@@ -4,7 +4,7 @@
 @use './materialSymbols.scss';
 
 :root {
-  @include app.themeTokens(app.$chromePalette);
+  @include app.themeTokens(app.$chromePalette, app.$styleHooks);
 
   font-size: app.$baseFontSize;
 

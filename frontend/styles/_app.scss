@@ -48,6 +48,24 @@ $modalColor: var(--modal-color);
 $stripeColor: var(--stripe-color);
 $labelColor: var(--label-color);
 
+$styleHooks: (
+  frame-style: solid,
+  frame-glow: none,
+  frame-surface: none,
+  label-fill: none,
+  logo-fill: linear-gradient(currentColor, currentColor),
+  backdrop-tint: none,
+  ambient-intensity: 1,
+);
+
+$frameStyle: var(--frame-style);
+$frameGlow: var(--frame-glow);
+$frameSurface: var(--frame-surface);
+$labelFill: var(--label-fill);
+$backdropTint: var(--backdrop-tint);
+$ambientIntensity: var(--ambient-intensity);
+$logoFill: var(--logo-fill);
+
 $gold: #d4af37;
 $silver: #b8bfc2;
 $bronze: #cd7f32;

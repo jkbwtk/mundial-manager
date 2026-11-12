@@ -3,4 +3,8 @@
 .logo {
   font-weight: bold;
   color: $yellowBright;
+
+  background: $logoFill;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }

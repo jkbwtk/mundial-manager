@@ -62,7 +62,7 @@
     overflow: hidden;
 
     --widget-border-color: #{$borderColor};
-    --widget-border-style: solid;
+    --widget-border-style: #{$frameStyle};
     --widget-border-width: #{$borderSize};
     --widget-border-radius: #{$borderRadius};
     --modal-padding-x-units: 2;
@@ -198,6 +198,7 @@
     border-style: var(--widget-border-style);
     border-width: var(--widget-border-width);
     border-radius: var(--widget-border-radius);
+    box-shadow: $frameGlow;
   }
 
   &.narrow {

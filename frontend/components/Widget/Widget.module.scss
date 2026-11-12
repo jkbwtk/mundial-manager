@@ -19,6 +19,7 @@
   );
   font-weight: bold;
 
+  background-image: $labelFill;
   border-radius: $borderRadius;
 
   & ~ & {
@@ -37,11 +38,14 @@
 
   padding: ch(1) cw(1);
 
+  background: $frameSurface no-repeat center / calc(100% - cw(1))
+    calc(100% - ch(1));
+
   :where(&) {
     overflow: hidden;
 
     --widget-border-color: #{$borderColor};
-    --widget-border-style: solid;
+    --widget-border-style: #{$frameStyle};
     --widget-border-width: #{$borderSize};
     --widget-border-radius: #{$borderRadius};
   }
@@ -131,6 +135,7 @@
     border-style: var(--widget-border-style);
     border-width: var(--widget-border-width);
     border-radius: var(--widget-border-radius);
+    box-shadow: $frameGlow;
   }
 
   &.center-labels {

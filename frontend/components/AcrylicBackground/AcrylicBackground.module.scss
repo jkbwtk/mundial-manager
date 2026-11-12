@@ -27,6 +27,7 @@
   height: 100%;
 
   background-color: color-mix(in srgb, $backgroundColor 75%, transparent);
+  background-image: var(--ambient-backdrop, none), $backdropTint;
 }
 
 .noise-pattern {
