@@ -36,6 +36,7 @@ export async function populatePlayers(options: PopulateOptions): Promise<void> {
           length: { min: 3, max: 5 },
         }),
         color: faker.color.rgb({ format: 'hex' }),
+        disabled: false,
         labels: {},
       }),
     ),
