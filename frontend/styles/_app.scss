@@ -1,4 +1,5 @@
 @use 'sass:color';
+@use 'sass:math';
 @use 'sass:meta';
 
 $gray: #767676;
@@ -81,6 +82,8 @@ $defaultIconSize: 1.4rem;
 $borderRadius: 0.3rem;
 $borderSize: 0.1rem;
 
+$ambientFrame: 50ms;
+
 :root {
   --console-unit-height: round(#{$defaultFontSize} * 1.32, 1px);
   --console-unit-width: #{$defaultFontSize * 0.6};
@@ -95,6 +98,10 @@ $borderSize: 0.1rem;
 @mixin themeTokens($palette: (), $hooks: ()) {
   @include customProperties($palette, '-color');
   @include customProperties($hooks);
+}
+
+@function ambientSteps($duration, $frames: 1) {
+  @return steps(math.round(math.div($duration, $ambientFrame * $frames)));
 }
 
 @function ch($units, $fontSize: $defaultFontSize) {
