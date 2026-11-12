@@ -28,6 +28,9 @@
       "#providers/*": [
         "./frontend/providers/*"
       ],
+      "#themes/*": [
+        "./frontend/themes/*"
+      ],
       "#preloaders/*": [
         "./frontend/preloaders/*"
       ],

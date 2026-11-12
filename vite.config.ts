@@ -113,6 +113,7 @@ export default defineConfig({
       { find: '#assets', replacement: resolve('frontend/assets') },
       { find: '#flib', replacement: resolve('frontend/lib') },
       { find: '#providers', replacement: resolve('frontend/providers') },
+      { find: '#themes', replacement: resolve('frontend/themes') },
       { find: '#preloaders', replacement: resolve('frontend/preloaders') },
       { find: '#routes', replacement: resolve('frontend/routes') },
       { find: '#shared', replacement: resolve('shared') },
