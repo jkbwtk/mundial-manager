@@ -81,6 +81,14 @@ export const PlayersDashboard: Component = () => {
       transform: (val) => <ColorBlock color={val} />,
     },
     {
+      key: 'disabled',
+      header: 'Disabled',
+      align: 'center',
+      width: 10,
+      sortable: true,
+      transform: (val) => (val ? 'Yes' : 'No'),
+    },
+    {
       key: 'edit',
       header: 'Edit',
       align: 'center',
