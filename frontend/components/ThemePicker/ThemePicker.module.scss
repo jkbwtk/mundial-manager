@@ -1,0 +1,17 @@
+@use 'app' as *;
+
+.theme-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: cw(1);
+}
+
+.label {
+  color: $textDimColor;
+}
