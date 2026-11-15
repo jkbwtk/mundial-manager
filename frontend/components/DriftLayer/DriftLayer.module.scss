@@ -1,0 +1,65 @@
+@use 'app' as *;
+
+.drift-layer {
+  display: contents;
+}
+
+.particle {
+  position: fixed;
+  top: 0;
+  z-index: -8000;
+
+  background-size: 100% 100%;
+
+  pointer-events: none;
+
+  animation: drift-down linear infinite;
+
+  &.dot {
+    border-radius: 50%;
+  }
+
+  &.up {
+    animation-name: drift-up;
+  }
+
+  &.front {
+    z-index: 9997;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .particle {
+    transform: translate3d(0, var(--rest-y), 0);
+
+    animation: none;
+  }
+}
+
+@keyframes drift-down {
+  0% {
+    transform: translate3d(0, -5vh, 0) rotate(0);
+  }
+
+  50% {
+    transform: translate3d(var(--sway), 50vh, 0) rotate(calc(var(--spin) / 2));
+  }
+
+  100% {
+    transform: translate3d(0, 105vh, 0) rotate(var(--spin));
+  }
+}
+
+@keyframes drift-up {
+  0% {
+    transform: translate3d(0, 105vh, 0) rotate(0);
+  }
+
+  50% {
+    transform: translate3d(var(--sway), 50vh, 0) rotate(calc(var(--spin) / 2));
+  }
+
+  100% {
+    transform: translate3d(0, -5vh, 0) rotate(var(--spin));
+  }
+}
