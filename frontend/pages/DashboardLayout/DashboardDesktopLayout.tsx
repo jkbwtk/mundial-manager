@@ -7,10 +7,9 @@ import { useNotificationSettingsModal } from '#components/NotificationSettingsMo
 import { PermissionGuard } from '#components/PermissionGuard';
 import { Sidebar, SidebarButton } from '#components/Sidebar';
 import { Divider } from '#components/Widget';
-import { getBuildInfo } from '#flib/buildInfo';
+import { prereleaseBuildInfo } from '#flib/buildInfo';
 import { isDev } from '#flib/utils';
 import { routes } from '#frontend/routes';
-import { BuildChannelEnum } from '#frontend/types';
 import { useChangelog } from '#providers/ChangelogProvider';
 import { PermissionEnum } from '#shared/permissions';
 import style from './DashboardLayout.module.scss';
@@ -18,16 +17,6 @@ import style from './DashboardLayout.module.scss';
 export const DashboardDesktopLayout: ParentComponent = (props) => {
   const [, { latestVersion, latestCommitHash }] = useChangelog();
   const openNotificationSettings = useNotificationSettingsModal();
-
-  const prereleaseBuildInfo = () => {
-    const buildInfo = getBuildInfo();
-
-    if (buildInfo?.channel === BuildChannelEnum.RELEASE) {
-      return null;
-    }
-
-    return buildInfo;
-  };
 
   return (
     <div class={style.desktopContainer}>
