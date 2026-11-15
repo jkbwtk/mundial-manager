@@ -1,0 +1,45 @@
+@use 'app' as *;
+
+.glyph-burst {
+  position: fixed;
+  z-index: 9997;
+
+  width: 0;
+  height: 0;
+
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  translate: -50% -50%;
+
+  font-weight: bold;
+  white-space: pre;
+
+  animation: burst-fly var(--burst-duration) cubic-bezier(0.15, 0.7, 0.3, 1)
+    forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .particle {
+    display: none;
+  }
+}
+
+@keyframes burst-fly {
+  from {
+    transform: translate3d(0, 0, 0) rotate(0) scale(0.4);
+    opacity: 1;
+  }
+
+  70% {
+    opacity: 1;
+  }
+
+  to {
+    transform: translate3d(var(--dx), calc(var(--dy) + 4rem), 0)
+      rotate(var(--rotation)) scale(1.2);
+    opacity: 0;
+  }
+}
