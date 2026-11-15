@@ -5,6 +5,7 @@ import { Router } from '@solidjs/router';
 import { ErrorBoundary, isServer, Show, Suspense } from 'solid-js/web';
 import { AcrylicBackground } from '#components/AcrylicBackground';
 import { DevGrid } from '#components/DevGrid';
+import { ThemeLayer } from '#components/ThemeLayer';
 import { isDev, isMobile } from '#flib/utils';
 import FatalErrorPage from '#pages/FatalErrorPage/FatalErrorPage';
 import { errors, GenericErrorPage } from '#pages/GenericErrorPage';
@@ -16,6 +17,7 @@ import {
   SSRUtilsProvider,
   type SSRUtilsProviderProps,
 } from '#providers/SSRUtilsProvider/SSRUtilsProvider';
+import { ThemeProvider } from '#providers/ThemeProvider';
 import { ToastProvider } from '#providers/ToastProvider';
 import { routes } from './routes';
 
@@ -40,26 +42,29 @@ const App: Component<AppProps> = (props) => {
           <Suspense>
             <MetaProvider>
               <ConsoleUnitPrototypeProvider>
-                <ToastProvider>
-                  <ModalProvider>
-                    <ChangelogProvider>
-                      <ModalDispatcher>
-                        <AcrylicBackground />
-                        <Show when={isDev()}>
-                          <DevGrid />
-                        </Show>
+                <ThemeProvider>
+                  <ToastProvider>
+                    <ModalProvider>
+                      <ChangelogProvider>
+                        <ModalDispatcher>
+                          <AcrylicBackground />
+                          <ThemeLayer />
+                          <Show when={isDev()}>
+                            <DevGrid />
+                          </Show>
 
-                        <Router
-                          url={isServer ? props.url : ''}
-                          root={RootLayout}
-                          preload={!isMobile()}
-                        >
-                          {routes}
-                        </Router>
-                      </ModalDispatcher>
-                    </ChangelogProvider>
-                  </ModalProvider>
-                </ToastProvider>
+                          <Router
+                            url={isServer ? props.url : ''}
+                            root={RootLayout}
+                            preload={!isMobile()}
+                          >
+                            {routes}
+                          </Router>
+                        </ModalDispatcher>
+                      </ChangelogProvider>
+                    </ModalProvider>
+                  </ToastProvider>
+                </ThemeProvider>
               </ConsoleUnitPrototypeProvider>
             </MetaProvider>
           </Suspense>
