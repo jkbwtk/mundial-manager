@@ -1,0 +1,40 @@
+@use 'app' as *;
+
+.bokeh {
+  display: contents;
+}
+
+.circle {
+  position: fixed;
+  z-index: -8550;
+
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--bokeh-color) 55%, transparent) 0%,
+    color-mix(in srgb, var(--bokeh-color) 35%, transparent) 55%,
+    color-mix(in srgb, var(--bokeh-color) 60%, transparent) 64%,
+    transparent 68%
+  );
+  border-radius: 50%;
+  opacity: calc(0.35 * #{$ambientIntensity});
+
+  pointer-events: none;
+
+  animation: bokeh-float infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .circle {
+    animation: none;
+  }
+}
+
+@keyframes bokeh-float {
+  from {
+    transform: translate3d(0, 0, 0) scale(0.9);
+  }
+
+  to {
+    transform: translate3d(var(--drift-x), var(--drift-y), 0) scale(1.1);
+  }
+}
