@@ -1,0 +1,89 @@
+@use 'app' as *;
+
+.edge-strand {
+  display: flex;
+
+  :where(&) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+
+    width: 100%;
+  }
+
+  height: var(--height);
+
+  overflow: hidden;
+
+  background: var(--segment) 0 0 / var(--spacing) 100% repeat-x;
+
+  pointer-events: none;
+  user-select: none;
+}
+
+.item {
+  position: relative;
+  flex-shrink: 0;
+
+  width: var(--spacing);
+  height: 100%;
+
+  &::before,
+  &::after {
+    content: '';
+
+    position: absolute;
+    left: 50%;
+    translate: -50% 0;
+  }
+
+  &::before {
+    top: calc(var(--item-top) + var(--item-height) / 2 - var(--item-glow) / 2);
+
+    width: var(--item-glow);
+    height: var(--item-glow);
+
+    background: radial-gradient(
+      circle,
+      color-mix(
+        in srgb,
+        var(--item-color) calc(55% * #{$ambientIntensity}),
+        transparent
+      ),
+      transparent 70%
+    );
+  }
+
+  &::after {
+    top: var(--item-top);
+
+    width: var(--item-width);
+    height: var(--item-height);
+
+    background: var(--item-overlay) 0 0 / 100% 100%, var(--item-color);
+    mask: var(--item-mask) 0 0 / 100% 100%;
+  }
+
+  &.twinkle {
+    animation: item-twinkle var(--twinkle-duration) var(--twinkle-steps)
+      infinite alternate;
+    animation-delay: var(--twinkle-delay);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item.twinkle {
+    animation: none;
+  }
+}
+
+@keyframes item-twinkle {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0.35;
+  }
+}
