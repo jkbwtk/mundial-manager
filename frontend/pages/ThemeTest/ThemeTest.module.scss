@@ -1,0 +1,30 @@
+@use 'app' as *;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: ch(1);
+
+  max-height: 100%;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  scrollbar-gutter: stable;
+}
+
+.widget {
+  width: round(down, 100%, cw(1));
+}
+
+.row {
+  margin-bottom: ch(0.5);
+}
+
+.dim {
+  color: $textDimColor;
+}
+
+.modal {
+  --modal-width: #{cw(40)};
+}
