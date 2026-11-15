@@ -1,4 +1,5 @@
 import { createSignal, type JSX, onCleanup, onMount } from 'solid-js';
+import { useTheme } from '#providers/ThemeProvider';
 import style from './Spinner.module.scss';
 
 export interface SpinnerProps {
@@ -10,13 +11,17 @@ const SPINNER_FRAMES = ['|', '/', '-', '\\'];
 const SPINNER_INTERVAL = 200; // milliseconds
 
 export const Spinner: Component<SpinnerProps> = (props) => {
+  const [themeState] = useTheme();
+
   const [spinnerIndex, setSpinnerIndex] = createSignal(0);
+
+  const frames = () => themeState.decorations?.spinnerFrames ?? SPINNER_FRAMES;
 
   let interval: ReturnType<typeof setInterval> | undefined;
 
   onMount(() => {
     interval = setInterval(() => {
-      setSpinnerIndex((prev) => (prev + 1) % SPINNER_FRAMES.length);
+      setSpinnerIndex((prev) => prev + 1);
     }, SPINNER_INTERVAL);
   });
 
@@ -32,7 +37,7 @@ export const Spinner: Component<SpinnerProps> = (props) => {
         ...(props.classList ?? {}),
       }}
     >
-      {SPINNER_FRAMES[spinnerIndex()]}
+      {frames()[spinnerIndex() % frames().length]}
     </span>
   );
 };
