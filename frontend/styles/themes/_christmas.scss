@@ -1,0 +1,86 @@
+@use 'app' as *;
+
+$christmasRed: #c8283a;
+$christmasRedBright: #ee4357;
+$christmasSnow: #f4f7f5;
+$christmasGold: #c9a961;
+
+@function christmasGlow($color, $percent) {
+  @return color-mix(
+    in srgb,
+    #{$color} calc(var(--ambient-intensity) * #{$percent}),
+    transparent
+  );
+}
+
+:root[data-theme='CHRISTMAS'] {
+  @include themeTokens(
+    $palette: (
+      text: #9fb2a6,
+      text-bright: $christmasSnow,
+      text-dim: #4b6354,
+      primary: $christmasRed,
+      primary-bright: $christmasRedBright,
+      background: #07100b,
+      border: #7a6533,
+      divider: #234030,
+      modal: #050b07,
+      stripe: #11231a,
+      label: #0c1a12,
+    ),
+    $hooks: (
+      logo-fill:
+        repeating-linear-gradient(
+          115deg,
+          $christmasSnow 0 0.4rem,
+          $christmasRed 0.4rem 0.8rem
+        ),
+      frame-glow: 0 0 1.2rem christmasGlow($christmasGold, 10%),
+      frame-surface:
+        radial-gradient(
+          ellipse 70% 3rem at 50% 0,
+          christmasGlow($christmasGold, 12%),
+          transparent
+        ),
+      label-fill:
+        repeating-linear-gradient(
+          135deg,
+          transparent 0 0.5rem,
+          rgba($christmasRed, 0.22) 0.5rem 0.9rem
+        ),
+      backdrop-tint: linear-gradient(rgba(#b9d4ff, 0.06), rgba(#0b1a2b, 0.25)),
+      ambient-intensity: 0.55,
+    )
+  );
+
+  ::selection {
+    background-color: $christmasRed;
+    color: $christmasSnow;
+  }
+}
+
+:root[data-theme='CHRISTMAS'][data-theme-phase='dusk'] {
+  @include themeTokens(
+    $hooks: (
+      backdrop-tint:
+        linear-gradient(
+          rgba(#2c2350, 0.34),
+          rgba(#2c2350, 0.12) 65%,
+          rgba(#d0704a, 0.14)
+        ),
+      ambient-intensity: 0.9,
+    )
+  );
+}
+
+:root[data-theme='CHRISTMAS'][data-theme-phase='night'] {
+  @include themeTokens(
+    $palette: (
+      border: #a68943,
+    ),
+    $hooks: (
+      backdrop-tint: linear-gradient(rgba(#061428, 0.45), rgba(#1c0f08, 0.3)),
+      ambient-intensity: 1.3,
+    )
+  );
+}

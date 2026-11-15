@@ -2,6 +2,7 @@
 @use 'fontFaces.scss';
 
 @use './materialSymbols.scss';
+@use 'themes/christmas';
 
 :root {
   @include app.themeTokens(app.$chromePalette, app.$styleHooks);
