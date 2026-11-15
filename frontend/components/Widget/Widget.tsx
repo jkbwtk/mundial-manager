@@ -1,6 +1,7 @@
 import type { JSX, ValidComponent } from 'solid-js';
 import { children, For, mergeProps, splitProps } from 'solid-js';
 import { Dynamic, type DynamicProps } from 'solid-js/web';
+import { ThemeSlot } from '#components/ThemeSlot';
 import style from './Widget.module.scss';
 
 export type Widget<T extends ValidComponent> = DynamicProps<T> & {
@@ -58,6 +59,8 @@ export function BaseWidget<T extends ValidComponent>(userProps: Widget<T>) {
       }}
       component={props.component ?? defaultComponent}
     >
+      <ThemeSlot name="widget" />
+
       {props.children}
 
       <div class={style.topLabels}>

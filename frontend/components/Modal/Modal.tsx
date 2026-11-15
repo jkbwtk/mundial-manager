@@ -8,6 +8,7 @@ import {
   splitProps,
 } from 'solid-js';
 import { Button } from '#components/Button';
+import { ThemeSlot } from '#components/ThemeSlot';
 import type { WidgetPropsWithoutComponent } from '#components/Widget';
 import { useConsoleUnitPrototype } from '#providers/ConsoleUnitPrototypeProvider';
 import { useModalActions } from '#providers/ModalProvider';
@@ -177,6 +178,8 @@ export const Modal: Component<ModalProps> = (userProps) => {
         ...(props.classList ?? {}),
       }}
     >
+      <ThemeSlot name="modal" />
+
       <div class={style.contentContainer}>{props.children}</div>
 
       <Show when={footer()}>
