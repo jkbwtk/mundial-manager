@@ -6,6 +6,8 @@ import { LogoSmall } from '#components/LogoSmall';
 import { useNotificationSettingsModal } from '#components/NotificationSettingsModal';
 import { PermissionGuard } from '#components/PermissionGuard';
 import { Sidebar, SidebarButton } from '#components/Sidebar';
+import { ThemePicker } from '#components/ThemePicker';
+import { ThemeSlot } from '#components/ThemeSlot';
 import { Divider } from '#components/Widget';
 import { prereleaseBuildInfo } from '#flib/buildInfo';
 import { isDev } from '#flib/utils';
@@ -47,7 +49,10 @@ export const DashboardDesktopLayout: ParentComponent = (props) => {
             />
           </PermissionGuard>
         </Sidebar>
+
         <div class={style.inDevelopment}>
+          <ThemeSlot name="sidebar" />
+          <ThemePicker />
           <Switch
             fallback={
               <div>

@@ -19,6 +19,8 @@ import { MaterialSymbol } from '#components/MaterialSymbol';
 import { useNotificationSettingsModal } from '#components/NotificationSettingsModal';
 import { PermissionGuard } from '#components/PermissionGuard';
 import { Sidebar, SidebarButton } from '#components/Sidebar';
+import { ThemePicker } from '#components/ThemePicker';
+import { ThemeSlot } from '#components/ThemeSlot';
 import { Divider } from '#components/Widget';
 import { prereleaseBuildInfo } from '#flib/buildInfo';
 import { useCan } from '#flib/identity';
@@ -142,6 +144,8 @@ export const MobileNavBar: Component<MobileNavBarProps> = (props) => {
         </Sidebar>
 
         <div class={style.inDevelopment}>
+          <ThemeSlot name="sidebar" />
+          <ThemePicker />
           <Switch
             fallback={
               <div>
