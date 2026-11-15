@@ -2,8 +2,15 @@ import { NoHydration, renderToString, renderToStringAsync } from 'solid-js/web';
 import z from 'zod';
 import { AcrylicBackground } from '#components/AcrylicBackground';
 import { getRenderedModules } from '#flib/lazyRoute';
+import {
+  getThemePhase,
+  readThemeCookies,
+  resolveTheme,
+  ThemeDefinitions,
+} from '#flib/themes';
 import App from '#frontend/App';
 import { routes } from '#frontend/routes';
+import { ThemeEnum } from '#frontend/types';
 import { GenericErrorPage } from '#pages/GenericErrorPage';
 import { SSRUtilsProvider } from '#providers/SSRUtilsProvider/SSRUtilsProvider';
 import {
@@ -11,6 +18,7 @@ import {
   type SSRRenderErrorFunction,
   type SSRRenderFunction,
 } from '#shared/solidSSR';
+import { getZonedCalendar } from '#shared/timeUtils';
 
 const DEFAULT_TITLE = 'Mundial Manager';
 
@@ -32,6 +40,15 @@ export const render: SSRRenderFunction = async (
   let title = DEFAULT_TITLE;
 
   const userAgent = fetchEvent.request.header('user-agent');
+  const cookies = fetchEvent.request.header('cookie');
+
+  const themeCookies = readThemeCookies(cookies);
+  const now = getZonedCalendar(
+    Date.now(),
+    themeCookies.themeTimeZone ?? undefined,
+  );
+  const theme = resolveTheme(themeCookies.theme, now);
+  const themePhase = getThemePhase(theme, now);
 
   const setResponseStatus = (next: number) => {
     status = responseStatusSchema.safeParse(next).data;
@@ -49,6 +66,7 @@ export const render: SSRRenderFunction = async (
       <App
         url={url}
         ssrProps={{
+          cookies,
           setResponseStatus,
           setTitle,
           trpcCaller,
@@ -62,6 +80,9 @@ export const render: SSRRenderFunction = async (
     html,
     status,
     title,
+    theme,
+    themeColor: ThemeDefinitions[theme].browserColor,
+    themePhase: themePhase ?? '',
     modules: getRenderedModules(fetchEvent.locals),
   };
 };
@@ -76,7 +97,13 @@ export const renderError: SSRRenderErrorFunction = (pageError) => {
     </NoHydration>
   ));
 
-  return { html, title: DEFAULT_TITLE };
+  return {
+    html,
+    title: DEFAULT_TITLE,
+    theme: ThemeEnum.DEFAULT,
+    themeColor: ThemeDefinitions.DEFAULT.browserColor,
+    themePhase: '',
+  };
 };
 
 export { routes };

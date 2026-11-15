@@ -16,6 +16,9 @@ export interface SSRRenderReturn {
   html: string;
   status?: number;
   title: string;
+  theme: string;
+  themeColor: string;
+  themePhase: string;
   modules: string[];
 }
 
@@ -27,7 +30,10 @@ export type SSRRenderFunction = (
 
 export type SSRRenderErrorFunction = (
   pageError: PageError,
-) => Pick<SSRRenderReturn, 'html' | 'title'>;
+) => Pick<
+  SSRRenderReturn,
+  'html' | 'title' | 'theme' | 'themeColor' | 'themePhase'
+>;
 
 export function provideRequestEvent<T, R>(
   init: T,
