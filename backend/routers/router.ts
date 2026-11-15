@@ -132,6 +132,9 @@ export async function createRouter() {
 
     const html = template
       .replace('<!--app-title-->', rendered.title)
+      .replace('<!--app-theme-->', rendered.theme)
+      .replace('<!--app-theme-color-->', rendered.themeColor)
+      .replace('<!--app-theme-phase-->', rendered.themePhase)
       .replace('<!--app-head-->', head)
       .replace('</head>', `${getModulePreloads(rendered.modules)}</head>`)
       .replace('<!--app-html-->', () => rendered.html);
@@ -148,6 +151,9 @@ export async function createRouter() {
 
         return template
           .replace('<!--app-title-->', rendered.title)
+          .replace('<!--app-theme-->', rendered.theme)
+          .replace('<!--app-theme-color-->', rendered.themeColor)
+          .replace('<!--app-theme-phase-->', rendered.themePhase)
           .replace('<!--app-head-->', pageErrorScript)
           .replace('<!--app-html-->', () => rendered.html);
       },

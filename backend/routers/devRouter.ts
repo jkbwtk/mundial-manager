@@ -82,6 +82,9 @@ export async function createDevRouter() {
 
       const html = transformedTemplate
         .replace('<!--app-title-->', rendered.title)
+        .replace('<!--app-theme-->', rendered.theme)
+        .replace('<!--app-theme-color-->', rendered.themeColor)
+        .replace('<!--app-theme-phase-->', rendered.themePhase)
         .replace('<!--app-head-->', generateHydrationScript())
         .replace('<!--app-html-->', () => rendered.html);
 
@@ -110,6 +113,9 @@ export async function createDevRouter() {
 
         return transformedTemplate
           .replace('<!--app-title-->', rendered.title)
+          .replace('<!--app-theme-->', rendered.theme)
+          .replace('<!--app-theme-color-->', rendered.themeColor)
+          .replace('<!--app-theme-phase-->', rendered.themePhase)
           .replace('<!--app-head-->', pageErrorScript)
           .replace('<!--app-html-->', () => rendered.html);
       },
