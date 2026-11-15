@@ -58,6 +58,27 @@ function getZonedParts(
   return parts;
 }
 
+export interface ZonedCalendar {
+  year: number;
+  month: number; // 1-12
+  day: number;
+  hour: number;
+}
+
+export function getZonedCalendar(
+  timestamp: Date | number, // epoch milliseconds when a number
+  timeZone?: string,
+): ZonedCalendar {
+  const parts = getZonedParts(timestamp, timeZone);
+
+  return {
+    year: Number(parts.year),
+    month: Number(parts.month),
+    day: Number(parts.day),
+    hour: Number(parts.hour),
+  };
+}
+
 export function toZonedDayjs(
   date: Date | number | Dayjs, // epoch milliseconds when a number
   timeZone?: string,
