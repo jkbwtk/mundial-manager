@@ -9,9 +9,10 @@ import {
 import type { ECharts } from 'echarts/core';
 import * as echarts from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
-import { createEffect, onCleanup, onMount } from 'solid-js';
+import { createEffect, on, onCleanup, onMount } from 'solid-js';
 import type { ChartOptions } from '#components/EChartWrapper';
-import { defaultTheme } from '#flib/chartTheme';
+import { defaultTheme, resolveChartColors } from '#flib/chartTheme';
+import { useTheme } from '#providers/ThemeProvider';
 import style from './EChartWrapper.module.scss';
 
 export interface EChartWrapperProps {
@@ -20,8 +21,6 @@ export interface EChartWrapperProps {
   classList?: Record<string, boolean>;
   onChartReady?: (chart: ECharts) => void;
 }
-
-echarts.registerTheme('default', defaultTheme);
 
 echarts.use([
   GridComponent,
@@ -36,12 +35,14 @@ echarts.use([
 ]);
 
 export const EChartWrapper: Component<EChartWrapperProps> = (props) => {
+  const [themeState] = useTheme();
+
   let wrapperRef!: HTMLDivElement;
   let chartRef!: HTMLDivElement;
   let chart: ECharts | null = null;
 
   onMount(() => {
-    chart = echarts.init(chartRef, 'default');
+    chart = echarts.init(chartRef, resolveChartColors(defaultTheme));
 
     let resizeTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -73,9 +74,19 @@ export const EChartWrapper: Component<EChartWrapperProps> = (props) => {
     });
   });
 
-  createEffect(() => {
-    chart?.setOption(props.config, { notMerge: true });
-  });
+  createEffect(
+    on(
+      () => themeState.theme,
+      () => chart?.setTheme(resolveChartColors(defaultTheme)),
+      { defer: true },
+    ),
+  );
+
+  createEffect(
+    on([() => props.config, () => themeState.theme], ([config]) =>
+      chart?.setOption(resolveChartColors(config), { notMerge: true }),
+    ),
+  );
 
   return (
     <div

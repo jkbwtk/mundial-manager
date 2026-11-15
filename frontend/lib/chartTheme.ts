@@ -1,5 +1,7 @@
 import variables from '#styles/variables.module.scss';
 
+const CssVariableRegex = /^var\((--[\w-]+)\)$/;
+
 const defaultFontSize =
   Number.parseFloat(variables.defaultFontSize) *
   Number.parseFloat(variables.baseFontSize);
@@ -382,3 +384,37 @@ export const defaultTheme = {
     bottom: '0%',
   },
 };
+
+function resolveValue(value: unknown, styles: CSSStyleDeclaration): unknown {
+  if (typeof value === 'string') {
+    const variable = CssVariableRegex.exec(value)?.at(1);
+    if (variable === undefined) return value;
+
+    return styles.getPropertyValue(variable).trim() || value;
+  }
+
+  if (Array.isArray(value)) {
+    if (typeof value[0] === 'number') return value;
+
+    return value.map((entry) => resolveValue(entry, styles));
+  }
+
+  if (
+    value !== null &&
+    typeof value === 'object' &&
+    Object.getPrototypeOf(value) === Object.prototype
+  ) {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, entry]) => [
+        key,
+        key === 'data' ? entry : resolveValue(entry, styles),
+      ]),
+    );
+  }
+
+  return value;
+}
+
+export function resolveChartColors<T>(value: T): T {
+  return resolveValue(value, getComputedStyle(document.documentElement)) as T;
+}
