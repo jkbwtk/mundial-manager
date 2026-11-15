@@ -1,0 +1,145 @@
+@use 'app' as *;
+
+$christmasOrnamentCount: 14;
+$christmasUnlitOrnamentColor: #f4f7f540;
+
+$gold: #e3c06f;
+
+.snow-cap {
+  top: calc(ch(0.5) - var(--widget-border-width) / 2 - var(--height));
+  left: cw(0.5);
+  z-index: auto;
+
+  width: calc(100% - cw(1));
+
+  opacity: 0.85;
+  filter: drop-shadow(0 0.1rem 0.15rem rgba(#9fc4ff, 0.4));
+}
+
+.flake {
+  mask: url('/frontend/assets/images/drift/flake.svg') 0 0 / 100% 100%;
+}
+
+.modal-lights {
+  top: ch(1);
+  left: calc(cw(1) / 2);
+
+  width: calc(100% - cw(1));
+}
+
+.garland {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9996;
+}
+
+.hat-anchor {
+  position: relative;
+}
+
+.hat {
+  position: absolute;
+  top: 0.1rem;
+  left: -0.5rem;
+
+  width: 1.8rem;
+  height: auto;
+
+  rotate: -10deg;
+
+  pointer-events: none;
+}
+
+.tree {
+  display: block;
+
+  width: 8rem;
+  margin: 0 auto 1rem;
+
+  transition: transform 0.2s;
+
+  @media (hover: hover) {
+    &:hover {
+      transform: scale(1.06);
+    }
+  }
+
+  &:focus-visible {
+    transform: scale(1.06);
+  }
+}
+
+.tree-art {
+  :global(.presents) {
+    opacity: 0;
+  }
+
+  :global(svg) {
+    display: block;
+
+    width: 100%;
+    height: auto;
+
+    overflow: visible;
+  }
+
+  :global(.tree-star) {
+    fill: rgba($gold, 0.35);
+  }
+
+  :global(.ornament) {
+    animation: ornament-twinkle 1.8s ambientSteps(1.8s, 2) infinite alternate;
+  }
+
+  @for $index from 1 through $christmasOrnamentCount {
+    :global(.ornament):nth-of-type(#{$index}) {
+      animation-delay: (($index - 1) * 7 % 10) * -0.3s;
+    }
+  }
+
+  @for $lit from 0 to $christmasOrnamentCount {
+    &[data-lit='#{$lit}'] :global(.ornament):nth-of-type(n + #{$lit + 1}) {
+      fill: $christmasUnlitOrnamentColor;
+
+      animation: none;
+    }
+  }
+
+  &[data-lit='#{$christmasOrnamentCount}'] :global(.presents) {
+    opacity: 1;
+  }
+
+  &[data-lit='#{$christmasOrnamentCount}'] :global(.tree-star) {
+    fill: $gold;
+
+    animation: star-pulse 2.4s ambientSteps(2.4s, 2) infinite alternate;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tree-art[data-lit] :global(.ornament),
+  .tree-art[data-lit] :global(.tree-star) {
+    animation: none;
+  }
+}
+
+@keyframes star-pulse {
+  from {
+    opacity: 0.7;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ornament-twinkle {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0.3;
+  }
+}

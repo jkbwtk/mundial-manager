@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 110">
+  <defs>
+    <linearGradient id="christmas-tree-needles" x1="0" x2="1">
+      <stop offset="0" stop-color="#4b9e69"/>
+      <stop offset="0.55" stop-color="#2c7148"/>
+      <stop offset="1" stop-color="#1b4d31"/>
+    </linearGradient>
+    <linearGradient id="christmas-tree-pot" x1="0" x2="1">
+      <stop offset="0" stop-color="#c4384a"/>
+      <stop offset="1" stop-color="#7e1d2b"/>
+    </linearGradient>
+    <radialGradient id="christmas-tree-red" cx="0.35" cy="0.3" r="0.75">
+      <stop offset="0" stop-color="#ffa3ad"/>
+      <stop offset="0.5" stop-color="#ee4357"/>
+      <stop offset="1" stop-color="#9e1c2c"/>
+    </radialGradient>
+    <radialGradient id="christmas-tree-gold" cx="0.35" cy="0.3" r="0.75">
+      <stop offset="0" stop-color="#fff1c4"/>
+      <stop offset="0.5" stop-color="#e3c06f"/>
+      <stop offset="1" stop-color="#9c7524"/>
+    </radialGradient>
+    <radialGradient id="christmas-tree-blue" cx="0.35" cy="0.3" r="0.75">
+      <stop offset="0" stop-color="#d4ebff"/>
+      <stop offset="0.5" stop-color="#6bb6ff"/>
+      <stop offset="1" stop-color="#2a66a8"/>
+    </radialGradient>
+    <radialGradient id="christmas-tree-white" cx="0.35" cy="0.3" r="0.75">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.5" stop-color="#f4f7f5"/>
+      <stop offset="1" stop-color="#a9b6b1"/>
+    </radialGradient>
+    <linearGradient id="christmas-tree-present-shade" x1="0" x2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.15"/>
+      <stop offset="0.6" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0.35"/>
+    </linearGradient>
+    <clipPath id="christmas-tree-lower"><path d="M50 46C64.7 67.6 83.6 91 92 94Q83.6 98.5 75.2 94Q66.8 98.5 58.4 94Q50 98.5 41.6 94Q33.2 98.5 24.8 94Q16.4 98.5 8 94C16.4 91 35.3 67.6 50 46Z"/></clipPath>
+    <clipPath id="christmas-tree-middle"><path d="M50 28C61.2 47.8 75.6 69 82 72Q74 76.5 66 72Q58 76.5 50 72Q42 76.5 34 72Q26 76.5 18 72C24.4 69 38.8 47.8 50 28Z"/></clipPath>
+  </defs>
+  <g class="presents">
+    <rect x="15" y="98" width="12" height="11" rx="0.8" fill="#2d6fb5"/>
+    <rect x="15" y="98" width="12" height="11" rx="0.8" fill="url(#christmas-tree-present-shade)"/>
+    <path d="M21.0 98V109M15 102.62H27" stroke="#f4f7f5" stroke-width="1.3"/>
+    <path d="M21.0 98C17.8 94.4 16.6 97.6 21.0 98C24.2 94.4 25.4 97.6 21.0 98Z" fill="none" stroke="#f4f7f5" stroke-width="1.1" stroke-linejoin="round"/>
+    <rect x="25" y="102" width="8" height="7" rx="0.8" fill="#e3c06f"/>
+    <rect x="25" y="102" width="8" height="7" rx="0.8" fill="url(#christmas-tree-present-shade)"/>
+    <path d="M29.0 102V109M25 104.94H33" stroke="#c8283a" stroke-width="1.3"/>
+    <path d="M29.0 102C25.8 98.4 24.6 101.6 29.0 102C32.2 98.4 33.4 101.6 29.0 102Z" fill="none" stroke="#c8283a" stroke-width="1.1" stroke-linejoin="round"/>
+    <rect x="68" y="100" width="10" height="9" rx="0.8" fill="#c8283a"/>
+    <rect x="68" y="100" width="10" height="9" rx="0.8" fill="url(#christmas-tree-present-shade)"/>
+    <path d="M73.0 100V109M68 103.78H78" stroke="#e3c06f" stroke-width="1.3"/>
+    <path d="M73.0 100C69.8 96.4 68.6 99.6 73.0 100C76.2 96.4 77.4 99.6 73.0 100Z" fill="none" stroke="#e3c06f" stroke-width="1.1" stroke-linejoin="round"/>
+    <rect x="78.5" y="103.5" width="7" height="5.5" rx="0.8" fill="#f4f7f5"/>
+    <rect x="78.5" y="103.5" width="7" height="5.5" rx="0.8" fill="url(#christmas-tree-present-shade)"/>
+    <path d="M82.0 103.5V109.0M78.5 105.81H85.5" stroke="#2f7a4d" stroke-width="1.3"/>
+    <path d="M82.0 103.5C78.8 99.9 77.6 103.1 82.0 103.5C85.2 99.9 86.4 103.1 82.0 103.5Z" fill="none" stroke="#2f7a4d" stroke-width="1.1" stroke-linejoin="round"/>
+  </g>
+  <path d="M45 88h10v14h-10z" fill="#4a2f1c"/>
+  <path d="M50 88h5v14h-5z" fill="#33200f"/>
+  <path d="M35 99h30l-3.5 10h-23z" fill="url(#christmas-tree-pot)"/>
+  <path d="M35.8 101.5h28.4" stroke="#e3c06f" stroke-width="1.4"/>
+  <path d="M50 46C64.7 67.6 83.6 91 92 94Q83.6 98.5 75.2 94Q66.8 98.5 58.4 94Q50 98.5 41.6 94Q33.2 98.5 24.8 94Q16.4 98.5 8 94C16.4 91 35.3 67.6 50 46Z" fill="url(#christmas-tree-needles)"/>
+  <path d="M50 31C61.2 50.8 75.6 72 82 75Q74 79.5 66 75Q58 79.5 50 75Q42 79.5 34 75Q26 79.5 18 75C24.4 72 38.8 50.8 50 31Z" fill="#0b2416" fill-opacity="0.45" clip-path="url(#christmas-tree-lower)"/>
+  <path d="M50 28C61.2 47.8 75.6 69 82 72Q74 76.5 66 72Q58 76.5 50 72Q42 76.5 34 72Q26 76.5 18 72C24.4 69 38.8 47.8 50 28Z" fill="url(#christmas-tree-needles)"/>
+  <path d="M50 15C57.7 32.1 67.6 50 72 53Q64.7 57.5 57.3 53Q50 57.5 42.7 53Q35.3 57.5 28 53C32.4 50 42.3 32.1 50 15Z" fill="#0b2416" fill-opacity="0.45" clip-path="url(#christmas-tree-middle)"/>
+  <path d="M50 12C57.7 29.1 67.6 47 72 50Q64.7 54.5 57.3 50Q50 54.5 42.7 50Q35.3 54.5 28 50C32.4 47 42.3 29.1 50 12Z" fill="url(#christmas-tree-needles)"/>
+  <path d="M36 37Q50 43 63 33M27 61Q50 70 72 54M17 86Q50 96 83 77" fill="none" stroke="#e3c06f" stroke-opacity="0.85" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="0 3.2"/>
+  <g>
+    <circle class="ornament" cx="46" cy="31" r="3.4" fill="url(#christmas-tree-red)"/>
+    <circle class="ornament" cx="55" cy="39" r="3.4" fill="url(#christmas-tree-gold)"/>
+    <circle class="ornament" cx="43" cy="45" r="3.4" fill="url(#christmas-tree-blue)"/>
+    <circle class="ornament" cx="36" cy="58" r="3.4" fill="url(#christmas-tree-white)"/>
+    <circle class="ornament" cx="52" cy="59" r="3.4" fill="url(#christmas-tree-red)"/>
+    <circle class="ornament" cx="64" cy="55" r="3.4" fill="url(#christmas-tree-gold)"/>
+    <circle class="ornament" cx="44" cy="66" r="3.4" fill="url(#christmas-tree-blue)"/>
+    <circle class="ornament" cx="60" cy="67" r="3.4" fill="url(#christmas-tree-white)"/>
+    <circle class="ornament" cx="28" cy="80" r="3.4" fill="url(#christmas-tree-red)"/>
+    <circle class="ornament" cx="43" cy="78" r="3.4" fill="url(#christmas-tree-gold)"/>
+    <circle class="ornament" cx="58" cy="82" r="3.4" fill="url(#christmas-tree-blue)"/>
+    <circle class="ornament" cx="72" cy="79" r="3.4" fill="url(#christmas-tree-white)"/>
+    <circle class="ornament" cx="36" cy="89" r="3.4" fill="url(#christmas-tree-red)"/>
+    <circle class="ornament" cx="63" cy="89" r="3.4" fill="url(#christmas-tree-gold)"/>
+  </g>
+  <path class="tree-star" d="M50 1L52.2 6.9L58.6 7.2L53.6 11.2L55.3 17.3L50 13.8L44.7 17.3L46.4 11.2L41.4 7.2L47.8 6.9Z" fill="#e3c06f" stroke="#fff3c4" stroke-opacity="0.5" stroke-width="0.6" stroke-linejoin="round"/>
+</svg>

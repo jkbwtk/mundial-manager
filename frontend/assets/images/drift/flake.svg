@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1.1 -1.1 2.2 2.2">
+  <defs>
+    <path id="arm" d="M0 -.18V-1M0 -.5L-.2 -.68M0 -.5L.2 -.68M0 -.74L-.13 -.86M0 -.74L.13 -.86"/>
+  </defs>
+  <g fill="none" stroke="#000" stroke-width="0.13" stroke-linecap="round" stroke-linejoin="round">
+    <use href="#arm"/>
+    <use href="#arm" transform="rotate(60)"/>
+    <use href="#arm" transform="rotate(120)"/>
+    <use href="#arm" transform="rotate(180)"/>
+    <use href="#arm" transform="rotate(240)"/>
+    <use href="#arm" transform="rotate(300)"/>
+    <path d="M0 -.2L.17 -.1L.17 .1L0 .2L-.17 .1L-.17 -.1Z" stroke-width="0.1"/>
+  </g>
+</svg>

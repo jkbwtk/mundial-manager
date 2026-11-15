@@ -1,3 +1,4 @@
+import { importWithRetry } from '#flib/lazyRoute';
 import {
   Theme,
   ThemeCookies,
@@ -17,11 +18,25 @@ export const ThemeDefinitions: Record<Theme, ThemeDefinition> = {
     label: 'Default',
     browserColor: '#a62130',
   },
+  CHRISTMAS: {
+    label: 'Christmas',
+    browserColor: '#1f5c3a',
+    window: { start: [12, 1], end: [1, 6], peak: [12, 24] },
+    phases: [
+      { name: 'dusk', hours: [15, 17] },
+      { name: 'night', hours: [17, 7] },
+    ],
+    loadDecorations: () =>
+      importWithRetry(
+        () => import('#themes/Christmas/christmasDecorations'),
+      ).then((m) => m.christmasDecorations),
+  },
 };
 
 export const ThemePreferenceLabels: Record<ThemePreference, string> = {
   AUTO: 'Auto',
   DEFAULT: ThemeDefinitions.DEFAULT.label,
+  CHRISTMAS: ThemeDefinitions.CHRISTMAS.label,
 };
 
 function getDate(year: number, [month, day]: ThemeMonthDay): number {

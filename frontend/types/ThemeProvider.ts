@@ -3,6 +3,7 @@ import { TimeZone } from '#shared/zod';
 
 export const ThemeEnum = {
   DEFAULT: 'DEFAULT',
+  CHRISTMAS: 'CHRISTMAS',
 } as const;
 
 export const Theme = z.enum(ThemeEnum);
