@@ -3,6 +3,7 @@ import { createContext, useContext } from 'solid-js';
 import { createStore } from 'solid-js/store';
 
 export interface SSRUtilsContextState {
+  cookies?: string;
   responseStatus?: number;
   title?: string;
   trpcCaller?: ReturnType<AnyRouter['createCaller']>;
@@ -21,6 +22,7 @@ export type SSRUtilsContextValue = [
 
 function createDefaultState(): SSRUtilsContextState {
   return {
+    cookies: undefined,
     responseStatus: undefined,
     title: undefined,
     trpcCaller: undefined,
@@ -43,6 +45,7 @@ const SSRUtilsContext = createContext<SSRUtilsContextValue>([
 ]);
 
 export interface SSRUtilsProviderProps {
+  cookies?: string;
   setResponseStatus?: (status: number) => void;
   setTitle?: (title: string) => void;
   trpcCaller?: ReturnType<AnyRouter['createCaller']>;
@@ -54,6 +57,7 @@ export const SSRUtilsProvider: ParentComponent<SSRUtilsProviderProps> = (
 ) => {
   const [state, setState] = createStore<SSRUtilsContextState>({
     ...createDefaultState(),
+    cookies: props.cookies,
     trpcCaller: props.trpcCaller,
     userAgent: props.userAgent,
   });
