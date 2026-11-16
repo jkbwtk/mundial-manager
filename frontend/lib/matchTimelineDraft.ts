@@ -753,7 +753,7 @@ export function createMatchTimelineDraft(
         spectators: current.spectators.filter((uuid) => uuid !== to),
       },
       events: events().map((event) =>
-        event.type === 'GOAL' && event.player === from
+        'player' in event && event.player === from
           ? { ...event, player: to }
           : event,
       ),
@@ -790,7 +790,7 @@ export function createMatchTimelineDraft(
         [toKey]: [...current[toKey], player],
       },
       events: events().map((event) =>
-        event.type === 'GOAL' && event.player === player
+        'player' in event && event.player === player
           ? { ...event, side }
           : event,
       ),
