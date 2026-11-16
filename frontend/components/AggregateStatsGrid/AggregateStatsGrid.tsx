@@ -88,6 +88,14 @@ function getSections(
         value: perMatch(stats.eventTypesCount.POSITION_CHANGE ?? 0),
       },
       { label: 'Own Goals/Match', value: perMatch(stats.ownGoalCount) },
+      {
+        label: 'Yellow Cards/Match',
+        value: perMatch(stats.eventTypesCount.YELLOW_CARD ?? 0),
+      },
+      {
+        label: 'Red Cards/Match',
+        value: perMatch(stats.eventTypesCount.RED_CARD ?? 0),
+      },
       { label: 'Lead Changes/Match', value: perMatch(stats.leadChanges) },
       { label: 'Biggest Lead', value: stats.biggestLead || null },
     ],

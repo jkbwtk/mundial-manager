@@ -123,6 +123,8 @@ const sections: PlayerProfileRow[][] = [
     },
     { label: 'Goals Scored', getValue: (profile) => profile.all?.goals },
     { label: 'Own Goals', getValue: (profile) => profile.all?.ownGoals },
+    { label: 'Yellow Cards', getValue: (profile) => profile.all?.yellowCards },
+    { label: 'Red Cards', getValue: (profile) => profile.all?.redCards },
   ],
   [
     {
