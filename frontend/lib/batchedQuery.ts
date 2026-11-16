@@ -1,3 +1,4 @@
+import { isServer } from 'solid-js/web';
 import { getChunks } from '#shared/utils';
 
 const MAX_BATCH_SIZE = 500;
@@ -10,6 +11,10 @@ interface PendingRequest<T> {
 export function createBatchLoader<T extends { uuid: string }>(
   fetchMany: (uuids: string[]) => Promise<T[]>,
 ): (uuid: string) => Promise<T | null> {
+  if (isServer) {
+    return async (uuid) => (await fetchMany([uuid]))[0] ?? null;
+  }
+
   let pending = new Map<string, PendingRequest<T>[]>();
   let scheduled = false;
 
