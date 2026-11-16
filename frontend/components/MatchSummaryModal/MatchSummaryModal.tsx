@@ -125,6 +125,8 @@ const MatchSummary: Component<MatchSummaryProps> = (props) => {
   const stats = createMemo(() =>
     getMatchTimelineStats(props.timeline.events, match().duration),
   );
+  const cards = () =>
+    (stats().counts.YELLOW_CARD ?? 0) + (stats().counts.RED_CARD ?? 0);
 
   const surrender = createMemo(() => {
     if (match().status !== 'SURRENDERED') return null;
@@ -295,6 +297,7 @@ const MatchSummary: Component<MatchSummaryProps> = (props) => {
                   value: stats().counts.POSITION_CHANGE ?? 0,
                   label: 'pos. changes',
                 },
+                ...(cards() > 0 ? [{ value: cards(), label: 'cards' }] : []),
               ]}
             />
           }

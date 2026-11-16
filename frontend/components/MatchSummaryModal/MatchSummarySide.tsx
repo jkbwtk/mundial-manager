@@ -4,12 +4,18 @@ import { MaterialSymbol } from '#components/MaterialSymbol';
 import { PlayerLink } from '#components/PlayerLink';
 import { StatRow } from '#components/StatRow';
 import { Divider, Widget } from '#components/Widget';
-import { MatchSideLabels } from '#flib/matchEvents';
+import {
+  MatchEventTypeLabels,
+  MatchEventTypeSymbolColors,
+  MatchEventTypeSymbols,
+  MatchSideLabels,
+} from '#flib/matchEvents';
 import type { MatchTimelineLookup } from '#flib/matchTimelineLookup';
 import {
   getMatchGoalRuns,
   getMatchSurrenderSide,
   getMatchWinningSide,
+  sortMatchTimeline,
 } from '#shared/matchTimeline';
 import type { GoalType } from '#shared/types/api/goalType';
 import type { MatchSide } from '#shared/types/api/matchEvent';
@@ -61,10 +67,20 @@ interface MatchSummaryPlayer {
   goals: number;
   ownGoals: number;
   share: number;
+  cards: MatchSummaryCard[];
 
   streaks: Record<number, number>;
   goalTypes: MatchSummaryGoalTypeCount[];
 }
+
+type MatchSummaryCard = 'YELLOW_CARD' | 'RED_CARD';
+
+interface MatchSummaryCardCount {
+  type: MatchSummaryCard;
+  count: number;
+}
+
+const MatchSummaryCards: MatchSummaryCard[] = ['YELLOW_CARD', 'RED_CARD'];
 
 const MatchSummaryStreaks = [
   { length: 3, label: 'triple' },
@@ -132,12 +148,25 @@ export const MatchSummarySide: Component<MatchSummarySideProps> = (props) => {
     return winner === props.side ? 'Won' : 'Lost';
   };
 
+  const cardCounts = createMemo((): MatchSummaryCardCount[] =>
+    MatchSummaryCards.flatMap((type) => {
+      const count = timeline().events.filter(
+        (event) => event.type === type && event.side === props.side,
+      ).length;
+
+      return count > 0 ? [{ type, count }] : [];
+    }),
+  );
+
   const players = createMemo((): MatchSummaryPlayer[] => {
     const goalTypes = new Map(
       props.lookup.goalTypes().map((goalType) => [goalType.uuid, goalType]),
     );
     const goals = timeline().events.flatMap((event) =>
       event.type === 'GOAL' ? [event] : [],
+    );
+    const cards = sortMatchTimeline(timeline().events).flatMap((event) =>
+      event.type === 'YELLOW_CARD' || event.type === 'RED_CARD' ? [event] : [],
     );
     const runs = getMatchGoalRuns(timeline().events);
     const uuids = props.lookup.getSortedSidePlayers(props.side);
@@ -174,6 +203,9 @@ export const MatchSummarySide: Component<MatchSummarySideProps> = (props) => {
         goals: playerGoals.length - ownGoals,
         ownGoals,
         share: scored === 0 ? 0 : (playerGoals.length - ownGoals) / scored,
+        cards: cards.flatMap((card) =>
+          card.player === uuid ? [card.type] : [],
+        ),
 
         streaks,
         goalTypes: [...goalTypeCounts].flatMap(([goalTypeUuid, count]) => {
@@ -235,16 +267,41 @@ export const MatchSummarySide: Component<MatchSummarySideProps> = (props) => {
       }}
       style={{ '--team-color': props.lookup.getSideColor(props.side) }}
       topLeftLabels={
-        <Show
-          when={isSurrendered()}
-          fallback={<span class={style.teamName}>{result()}</span>}
-        >
-          <span
-            classList={{ [style.teamName]: true, [style.surrenderChip]: true }}
+        <>
+          <Show
+            when={isSurrendered()}
+            fallback={<span class={style.teamName}>{result()}</span>}
           >
-            <MaterialSymbol symbol="flag" color="inherit" /> Surrendered
-          </span>
-        </Show>
+            <span
+              classList={{
+                [style.teamName]: true,
+                [style.surrenderChip]: true,
+              }}
+            >
+              <MaterialSymbol symbol="flag" color="inherit" /> Surrendered
+            </span>
+          </Show>
+
+          <For each={cardCounts()}>
+            {(card) => (
+              <span
+                title={MatchEventTypeLabels[card.type]}
+                classList={{
+                  [style.teamName]: true,
+                  [style.yellowCardChip]: card.type === 'YELLOW_CARD',
+                  [style.redCardChip]: card.type === 'RED_CARD',
+                }}
+              >
+                <MaterialSymbol
+                  filled
+                  symbol={MatchEventTypeSymbols[card.type]}
+                  color="inherit"
+                />{' '}
+                {card.count}
+              </span>
+            )}
+          </For>
+        </>
       }
       topRightLabels={
         <Show when={odds()}>
@@ -331,6 +388,20 @@ export const MatchSummarySide: Component<MatchSummarySideProps> = (props) => {
                         uuid={player.uuid}
                         name={props.lookup.getPlayerName(player.uuid)}
                       />
+                      <For each={player.cards}>
+                        {(card) => (
+                          <>
+                            {' '}
+                            <span title={MatchEventTypeLabels[card]}>
+                              <MaterialSymbol
+                                filled
+                                symbol={MatchEventTypeSymbols[card]}
+                                color={MatchEventTypeSymbolColors[card]}
+                              />
+                            </span>
+                          </>
+                        )}
+                      </For>
                     </strong>
 
                     <span>

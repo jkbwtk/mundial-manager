@@ -66,8 +66,13 @@
   background-color: var(--team-color);
   border-radius: $borderRadius;
 
-  &.surrender-chip {
+  &.surrender-chip,
+  &.yellow-card-chip {
     background-color: $yellowBright;
+  }
+
+  &.red-card-chip {
+    background-color: $redBright;
   }
 }
 
