@@ -113,11 +113,8 @@ export const MatchEventInspector: Component<MatchEventInspectorProps> = (
 
   const handleSideChange = (side: MatchSide) => {
     draft.updateEvent(props.uuid, (event) => {
-      if (event.type === 'POSITION_CHANGE' || event.type === 'SURRENDER') {
-        return { ...event, side };
-      }
-
-      if (event.type !== 'GOAL') return event;
+      if (!('side' in event)) return event;
+      if (!('player' in event)) return { ...event, side };
 
       const players = lookup.getSidePlayers(side);
 
@@ -241,40 +238,58 @@ export const MatchEventInspector: Component<MatchEventInspectorProps> = (
             />
           </FieldShell>
 
+          <Show
+            when={narrowMatchEvent(
+              current().event,
+              'GOAL',
+              'YELLOW_CARD',
+              'RED_CARD',
+            )}
+          >
+            {(playerEvent) => (
+              <>
+                <FieldShell path="side" label="Player side" required>
+                  <ButtonGroup
+                    ariaLabel="Player side"
+                    options={sideOptions()}
+                    value={playerEvent().side}
+                    invalid={isInvalid('side')}
+                    onChange={handleSideChange}
+                  />
+                </FieldShell>
+
+                <FieldShell path="player" label="Player" required>
+                  <span class={style.buttonRow}>
+                    <ButtonGroup
+                      ariaLabel="Player"
+                      options={playerOptionsBySide()[playerEvent().side]}
+                      value={playerEvent().player}
+                      invalid={isInvalid('player')}
+                      onChange={(player) =>
+                        draft.patchEvent(props.uuid, { player })
+                      }
+                    />
+
+                    <Show
+                      when={isForeignPlayer(
+                        playerEvent().side,
+                        playerEvent().player,
+                      )}
+                    >
+                      <span class={style.invalidValue}>
+                        {lookup.getPlayerName(playerEvent().player)}
+                      </span>
+                    </Show>
+                  </span>
+                </FieldShell>
+              </>
+            )}
+          </Show>
+
           <Switch>
             <Match when={narrowMatchEvent(current().event, 'GOAL')}>
               {(goal) => (
                 <>
-                  <FieldShell path="side" label="Player side" required>
-                    <ButtonGroup
-                      ariaLabel="Player side"
-                      options={sideOptions()}
-                      value={goal().side}
-                      invalid={isInvalid('side')}
-                      onChange={handleSideChange}
-                    />
-                  </FieldShell>
-
-                  <FieldShell path="player" label="Player" required>
-                    <span class={style.buttonRow}>
-                      <ButtonGroup
-                        ariaLabel="Player"
-                        options={playerOptionsBySide()[goal().side]}
-                        value={goal().player}
-                        invalid={isInvalid('player')}
-                        onChange={(player) =>
-                          draft.patchEvent(props.uuid, { player })
-                        }
-                      />
-
-                      <Show when={isForeignPlayer(goal().side, goal().player)}>
-                        <span class={style.invalidValue}>
-                          {lookup.getPlayerName(goal().player)}
-                        </span>
-                      </Show>
-                    </span>
-                  </FieldShell>
-
                   <FieldShell inline path="ownGoal" label="Own goal" required>
                     <Input
                       classList={fieldInputClassList}
@@ -362,6 +377,8 @@ export const MatchEventInspector: Component<MatchEventInspectorProps> = (
                 'PAUSE',
                 'CANCEL',
                 'SURRENDER',
+                'YELLOW_CARD',
+                'RED_CARD',
               )}
             >
               {(detailed) => (

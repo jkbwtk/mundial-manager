@@ -1,5 +1,5 @@
 import { Match, Show, Switch } from 'solid-js';
-import { narrowMatchEvent } from '#flib/matchEvents';
+import { MatchEventTypeLabels, narrowMatchEvent } from '#flib/matchEvents';
 import type { MatchTimelineLookup } from '#flib/matchTimelineLookup';
 import type { MatchEvent } from '#shared/types/api/matchEvent';
 import { MatchSideName } from './MatchSideName';
@@ -91,6 +91,16 @@ export const MatchEventDescription: Component<MatchEventDescriptionProps> = (
           <MatchSideName side={surrender().side} lookup={props.lookup} />{' '}
           surrendered
           <Details text={surrender().details} />
+        </>
+      )}
+    </Match>
+
+    <Match when={narrowMatchEvent(props.event, 'YELLOW_CARD', 'RED_CARD')}>
+      {(card) => (
+        <>
+          {MatchEventTypeLabels[card().type]} for{' '}
+          <strong>{props.lookup.getPlayerName(card().player)}</strong>
+          <Details text={card().details} />
         </>
       )}
     </Match>
