@@ -192,3 +192,8 @@ $backgroundPixel: 0.1rem;
     linear-gradient(to bottom, $color $backgroundPixel, transparent 0);
   background-size: snapToPixel(cw(1)) ch(1);
 }
+
+@mixin dotGridBackground($color: $grayDim) {
+  background-image: radial-gradient(circle, $color 0.1rem, transparent 0.12rem);
+  background-size: snapToPixel(cw(2)) ch(1);
+}
