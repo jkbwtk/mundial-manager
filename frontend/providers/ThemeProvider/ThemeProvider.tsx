@@ -271,10 +271,14 @@ export const ThemeProvider: ParentComponent = (props) => {
         };
 
         if (window.requestIdleCallback === undefined) {
-          const timeoutRef = setTimeout(load, DECORATIONS_IDLE_TIMEOUT_MS);
+          let timeoutRef: ReturnType<typeof setTimeout> | undefined;
+          const frameRef = requestAnimationFrame(() => {
+            timeoutRef = setTimeout(load, 0);
+          });
 
           onCleanup(() => {
             cancelled = true;
+            cancelAnimationFrame(frameRef);
             clearTimeout(timeoutRef);
           });
 
