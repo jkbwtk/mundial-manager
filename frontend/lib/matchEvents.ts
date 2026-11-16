@@ -1,3 +1,4 @@
+import type { SymbolColorType } from '#components/MaterialSymbol';
 import { getGoalScoringSide, getMatchSidePlayers } from '#shared/matchTimeline';
 import type { SupportedMaterialSymbol } from '#shared/materialSymbols';
 import { formatDuration } from '#shared/timeUtils';
@@ -31,6 +32,8 @@ export const MatchEventTypeLabels: Record<MatchEventType, string> = {
   RESUME: 'Resume',
   CANCEL: 'Cancel',
   SURRENDER: 'Surrender',
+  YELLOW_CARD: 'Yellow card',
+  RED_CARD: 'Red card',
 };
 
 export const MatchEventTypeSymbols: Record<
@@ -46,6 +49,15 @@ export const MatchEventTypeSymbols: Record<
   RESUME: 'play_arrow',
   CANCEL: 'cancel',
   SURRENDER: 'flag',
+  YELLOW_CARD: 'crop_portrait',
+  RED_CARD: 'crop_portrait',
+};
+
+export const MatchEventTypeSymbolColors: Partial<
+  Record<MatchEventType, SymbolColorType>
+> = {
+  YELLOW_CARD: 'yellow',
+  RED_CARD: 'red',
 };
 
 export const MatchSideLabels: Record<MatchSide, string> = {
@@ -59,6 +71,8 @@ export function getMatchEventLane(event: MatchEvent): MatchSide | null {
       return getGoalScoringSide(event);
     case 'POSITION_CHANGE':
     case 'SURRENDER':
+    case 'YELLOW_CARD':
+    case 'RED_CARD':
       return event.side;
     default:
       return null;
@@ -122,6 +136,16 @@ export function createMatchEvent(
 
     case 'SURRENDER':
       return { ...base, type, side, details: null };
+
+    case 'YELLOW_CARD':
+    case 'RED_CARD':
+      return {
+        ...base,
+        type,
+        side,
+        player: sidePlayers[0] ?? '',
+        details: null,
+      };
 
     default:
       return { ...base, type };

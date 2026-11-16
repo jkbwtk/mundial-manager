@@ -82,6 +82,7 @@ export const MaterialSymbolCodepoints = {
   flag: 'f0c6',
   cancel: 'e888',
   change_circle: 'e2e7',
+  crop_portrait: 'e3c5',
 } as const;
 
 export type SupportedMaterialSymbol = keyof typeof MaterialSymbolCodepoints;

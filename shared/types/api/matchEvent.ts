@@ -21,6 +21,8 @@ export const MatchEventTypeEnum = {
   RESUME: 'RESUME',
   CANCEL: 'CANCEL',
   SURRENDER: 'SURRENDER',
+  YELLOW_CARD: 'YELLOW_CARD',
+  RED_CARD: 'RED_CARD',
 } as const;
 
 export const MatchEventType = z.enum(MatchEventTypeEnum);
@@ -93,6 +95,22 @@ export const MatchEventSurrender = MatchEventBase.extend({
 });
 export type MatchEventSurrender = z.infer<typeof MatchEventSurrender>;
 
+export const MatchEventYellowCard = MatchEventBase.extend({
+  type: z.literal(MatchEventTypeEnum.YELLOW_CARD),
+  player: z.uuid(), // player uuid
+  side: MatchSide,
+  details: z.string().nullable().default(null),
+});
+export type MatchEventYellowCard = z.infer<typeof MatchEventYellowCard>;
+
+export const MatchEventRedCard = MatchEventBase.extend({
+  type: z.literal(MatchEventTypeEnum.RED_CARD),
+  player: z.uuid(), // player uuid
+  side: MatchSide,
+  details: z.string().nullable().default(null),
+});
+export type MatchEventRedCard = z.infer<typeof MatchEventRedCard>;
+
 export const MatchEvent = z.discriminatedUnion('type', [
   MatchEventGoal,
   MatchEventPositionChange,
@@ -103,5 +121,7 @@ export const MatchEvent = z.discriminatedUnion('type', [
   MatchEventResume,
   MatchEventCancel,
   MatchEventSurrender,
+  MatchEventYellowCard,
+  MatchEventRedCard,
 ]);
 export type MatchEvent = z.infer<typeof MatchEvent>;

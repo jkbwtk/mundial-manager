@@ -93,6 +93,8 @@ export const MatchTimelineRow: Component<MatchTimelineRowProps> = (props) => {
         [style.selected]: isSelected(),
         [style.paused]: props.step.paused,
         [style.surrendered]: props.step.event.type === 'SURRENDER',
+        [style.yellowCarded]: props.step.event.type === 'YELLOW_CARD',
+        [style.redCarded]: props.step.event.type === 'RED_CARD',
         [style.dragged]: props.reorder.isDragged(uuid()),
         [style.dropBefore]: props.reorder.isDropTarget(uuid(), 'before'),
         [style.dropAfter]: props.reorder.isDropTarget(uuid(), 'after'),

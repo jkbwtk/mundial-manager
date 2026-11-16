@@ -17,6 +17,8 @@ const EventTypeClasses: Record<MatchEventType, string> = {
   RESUME: style.resume,
   CANCEL: style.cancel,
   SURRENDER: style.surrender,
+  YELLOW_CARD: style.yellowCard,
+  RED_CARD: style.redCard,
 };
 
 export const MatchEventSymbol: Component<MatchEventSymbolProps> = (props) => (

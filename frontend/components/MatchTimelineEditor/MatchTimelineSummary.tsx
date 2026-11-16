@@ -5,7 +5,11 @@ import { DeltaDisplay } from '#components/DeltaDisplay';
 import { MatchSideName } from '#components/MatchTimelineTable';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import { Divider } from '#components/Widget';
-import { MatchEventTypeLabels, MatchEventTypeSymbols } from '#flib/matchEvents';
+import {
+  MatchEventTypeLabels,
+  MatchEventTypeSymbolColors,
+  MatchEventTypeSymbols,
+} from '#flib/matchEvents';
 import { getMatchTimelineStats } from '#shared/matchTimeline';
 import { formatDuration } from '#shared/timeUtils';
 import { MatchEventTypeEnum, MatchSides } from '#shared/types/api/matchEvent';
@@ -184,7 +188,10 @@ export const MatchTimelineSummary: Component = () => {
           <For each={presentTypes()}>
             {(type) => (
               <span title={MatchEventTypeLabels[type]}>
-                <MaterialSymbol symbol={MatchEventTypeSymbols[type]} />
+                <MaterialSymbol
+                  symbol={MatchEventTypeSymbols[type]}
+                  color={MatchEventTypeSymbolColors[type]}
+                />
                 {stats().counts[type]}
               </span>
             )}
