@@ -55,6 +55,15 @@ function getMissingReference(
 
       return null;
 
+    case 'YELLOW_CARD':
+    case 'RED_CARD':
+      if (available.players.has(event.player)) return null;
+
+      return {
+        errorType: MatchTimelineErrorTypeEnum.PLAYERS_NOT_FOUND,
+        field: 'player',
+      };
+
     case 'BALL_CHANGE':
       if (available.balls.has(event.ball)) return null;
 
