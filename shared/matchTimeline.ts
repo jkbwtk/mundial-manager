@@ -93,7 +93,7 @@ const MatchTimelineErrorMessages: Record<MatchTimelineErrorType, string> = {
   RESUME_WITHOUT_PAUSE: 'Match is resumed without being paused',
   PAUSE_NOT_RESUMED: 'Pause is never resumed',
   EVENT_DURING_PAUSE: 'Event happens while the match is paused',
-  GOAL_PLAYER_NOT_IN_SIDE: 'Player does not play on the selected side',
+  PLAYER_NOT_IN_SIDE: 'Player does not play on the selected side',
   GOAL_TYPE_DUPLICATE: 'Goal type is listed more than once',
   PLAYERS_NOT_FOUND: 'Player no longer exists',
   BALL_NOT_FOUND: 'Ball no longer exists',
@@ -158,9 +158,9 @@ export function getMatchTimelineReferences(events: MatchEvent[]): {
   const goalTypeUuids = new Set<string>();
 
   for (const event of events) {
-    if (event.type === 'GOAL') {
-      playerUuids.add(event.player);
+    if ('player' in event) playerUuids.add(event.player);
 
+    if (event.type === 'GOAL') {
       for (const uuid of event.goalType) {
         goalTypeUuids.add(uuid);
       }
@@ -577,13 +577,13 @@ export const matchTimelineValidationStrategies = {
     }
   },
 
-  goalPlayersBelongToSide: ({ events, context, report }) => {
+  playersBelongToSide: ({ events, context, report }) => {
     const { playersSide1, playersSide2 } = context;
 
     if (playersSide1 === undefined || playersSide2 === undefined) return;
 
     for (const event of events) {
-      if (event.type !== 'GOAL') continue;
+      if (!('player' in event)) continue;
 
       const sidePlayers = getMatchSidePlayers(
         { playersSide1, playersSide2 },
@@ -593,7 +593,7 @@ export const matchTimelineValidationStrategies = {
       if (!sidePlayers.includes(event.player)) {
         report(
           ERROR,
-          MatchTimelineErrorTypeEnum.GOAL_PLAYER_NOT_IN_SIDE,
+          MatchTimelineErrorTypeEnum.PLAYER_NOT_IN_SIDE,
           event,
           'player',
         );
