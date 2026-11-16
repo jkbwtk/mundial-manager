@@ -21,6 +21,11 @@ import { Divider, Widget } from '#components/Widget';
 import { useSeasonLookup } from '#flib/entityLookup';
 import { useLeagueTimeZone } from '#flib/leagueTimeZone';
 import {
+  MatchEventTypeLabels,
+  MatchEventTypeSymbolColors,
+  MatchEventTypeSymbols,
+} from '#flib/matchEvents';
+import {
   createMatchTimelineLookup,
   type MatchTimelineLookup,
 } from '#flib/matchTimelineLookup';
@@ -38,9 +43,10 @@ import {
   getMatchSurrenderSide,
   getMatchTimelineStats,
   getMatchWinningSide,
+  sortMatchTimeline,
 } from '#shared/matchTimeline';
 import { formatDuration } from '#shared/timeUtils';
-import type { MatchSide } from '#shared/types/api/matchEvent';
+import type { MatchEventType, MatchSide } from '#shared/types/api/matchEvent';
 import type { MatchTimeline } from '#shared/types/api/matchTimeline';
 import style from './MatchStats.module.scss';
 
@@ -53,6 +59,7 @@ interface MatchSideRowProps {
   side: MatchSide;
   winner: boolean;
   surrendered: boolean;
+  cards: MatchEventType[];
 }
 
 const SurrenderFlag: Component = () => (
@@ -74,6 +81,20 @@ const MatchSideRow: Component<MatchSideRowProps> = (props) => (
     <Show when={props.surrendered}>
       <SurrenderFlag />
     </Show>
+    <For each={props.cards}>
+      {(card) => (
+        <>
+          {' '}
+          <span title={MatchEventTypeLabels[card]}>
+            <MaterialSymbol
+              filled
+              symbol={MatchEventTypeSymbols[card]}
+              color={MatchEventTypeSymbolColors[card]}
+            />
+          </span>
+        </>
+      )}
+    </For>
   </strong>
 );
 
@@ -99,6 +120,14 @@ const MatchStatsDetails: Component<MatchStatsDetailsProps> = (props) => {
   const stats = createMemo(() =>
     getMatchTimelineStats(props.timeline.events, match().duration ?? null),
   );
+  const cards = createMemo(() =>
+    sortMatchTimeline(props.timeline.events).flatMap((event) =>
+      event.type === 'YELLOW_CARD' || event.type === 'RED_CARD' ? [event] : [],
+    ),
+  );
+
+  const getSideCards = (side: MatchSide) =>
+    cards().flatMap((card) => (card.side === side ? [card.type] : []));
 
   const balls = createMemo(() => {
     const usedUuids = new Set([
@@ -144,6 +173,7 @@ const MatchStatsDetails: Component<MatchStatsDetailsProps> = (props) => {
           side="SIDE_1"
           winner={winner() === 'SIDE_1'}
           surrendered={surrendered() === 'SIDE_1'}
+          cards={getSideCards('SIDE_1')}
         />
 
         <span>Side 2:</span>
@@ -152,6 +182,7 @@ const MatchStatsDetails: Component<MatchStatsDetailsProps> = (props) => {
           side="SIDE_2"
           winner={winner() === 'SIDE_2'}
           surrendered={surrendered() === 'SIDE_2'}
+          cards={getSideCards('SIDE_2')}
         />
 
         <span>Score:</span>
