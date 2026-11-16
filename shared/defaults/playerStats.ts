@@ -19,6 +19,9 @@ export const defaultPlayerStats: PlayerStats = {
   stylePoints: 0,
   mostStylePointsInMatch: null,
 
+  yellowCards: 0,
+  redCards: 0,
+
   playtime: 0,
   participationTime: 0,
 

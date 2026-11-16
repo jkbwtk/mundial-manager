@@ -19,6 +19,9 @@ export const PlayerStats = z.object({
   stylePoints: z.number(),
   mostStylePointsInMatch: z.number().nullable(),
 
+  yellowCards: z.number().int().nonnegative(),
+  redCards: z.number().int().nonnegative(),
+
   playtime: z.number().nonnegative(), // milliseconds
   participationTime: z.number().nonnegative(), // milliseconds
 

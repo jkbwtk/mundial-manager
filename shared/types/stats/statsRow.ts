@@ -43,6 +43,9 @@ export interface StatsRowPlayer {
   ownGoals: number;
   goalTypes: string[];
   stylePoints: number;
+
+  yellowCards: number;
+  redCards: number;
 }
 
 export interface StatsRowBall {

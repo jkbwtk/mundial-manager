@@ -66,6 +66,10 @@ export function calculateStatsRowPlayers(
       event.type === 'GOAL' && event.player === uuid ? [event] : [],
     );
     const scored = goals.filter((event) => !event.ownGoal);
+    const countCards = (type: 'YELLOW_CARD' | 'RED_CARD') =>
+      match.events.filter(
+        (event) => event.type === type && event.player === uuid,
+      ).length;
 
     return {
       uuid,
@@ -77,6 +81,9 @@ export function calculateStatsRowPlayers(
       ownGoals: goals.length - scored.length,
       goalTypes: scored.flatMap((event) => event.goalType),
       stylePoints: stylePoints[uuid] ?? 0,
+
+      yellowCards: countCards('YELLOW_CARD'),
+      redCards: countCards('RED_CARD'),
     };
   };
 
@@ -146,6 +153,9 @@ export function calculatePlayerStats(
           player.stylePoints,
           Math.max,
         ),
+
+    yellowCards: previous.yellowCards + player.yellowCards,
+    redCards: previous.redCards + player.redCards,
 
     playtime: previous.playtime + playtime,
     participationTime: previous.participationTime + player.presence,
