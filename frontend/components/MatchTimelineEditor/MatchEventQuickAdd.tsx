@@ -29,6 +29,10 @@ const QuickAddEntries: QuickAddEntry[] = [
   { type: 'CANCEL' },
   { type: 'SURRENDER', side: 'SIDE_1' },
   { type: 'SURRENDER', side: 'SIDE_2' },
+  { type: 'YELLOW_CARD', side: 'SIDE_1' },
+  { type: 'YELLOW_CARD', side: 'SIDE_2' },
+  { type: 'RED_CARD', side: 'SIDE_1' },
+  { type: 'RED_CARD', side: 'SIDE_2' },
 ];
 
 export const MatchEventQuickAdd: Component = () => {
