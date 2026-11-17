@@ -19,6 +19,18 @@
   min-width: 0;
 }
 
+.status-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9001;
+
+  height: env(safe-area-inset-top);
+
+  background-color: $backgroundColor;
+}
+
 .tab-bar {
   position: fixed;
   left: 0;
