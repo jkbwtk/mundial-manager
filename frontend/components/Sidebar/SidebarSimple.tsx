@@ -1,6 +1,5 @@
 import { A } from '@solidjs/router';
 import style from '#components/Sidebar/Sidebar.module.scss';
-import { hasAuxRoutes } from '#flib/solidHelpers';
 import { joinPaths } from '#flib/utils';
 import type { ExtendedRouteDefinition } from '#frontend/types';
 import { SidebarBase } from './SidebarBase';
@@ -11,11 +10,13 @@ export interface SidebarSimpleProps {
 }
 
 export const SidebarSimple: Component<SidebarSimpleProps> = (props) => {
+  const href = () => joinPaths(...props.pathFragments, props.route.path ?? '');
+
   return (
     <A
-      href={joinPaths(...props.pathFragments, props.route.path ?? '')}
+      href={href()}
       draggable={false}
-      end={!hasAuxRoutes(props.route)}
+      end={href() === '/'}
       classList={{
         'no-style': true,
         [style.routeLink]: true,
