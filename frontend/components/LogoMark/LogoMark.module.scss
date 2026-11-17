@@ -1,0 +1,14 @@
+@use 'app' as *;
+
+.logo-mark {
+  display: inline-block;
+  flex-shrink: 0;
+
+  width: cw(2);
+  height: ch(1);
+
+  color: $yellowBright;
+  background: $logoFill;
+
+  mask: url('/frontend/assets/images/logoMark.svg') center / contain no-repeat;
+}
