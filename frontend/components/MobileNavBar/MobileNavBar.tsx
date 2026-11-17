@@ -1,19 +1,18 @@
-import { useLocation } from '@solidjs/router';
+import { A, useLocation } from '@solidjs/router';
 import {
   createEffect,
   createSignal,
   createUniqueId,
+  For,
   type JSX,
   Match,
   on,
   onCleanup,
-  Show,
   Switch,
 } from 'solid-js';
 import { isServer } from 'solid-js/web';
 import { Breadcrumbs } from '#components/Breadcrumbs';
 import { BuildDetails } from '#components/BuildDetails';
-import { AnchorButton, Button } from '#components/Button';
 import { LogoSmall } from '#components/LogoSmall';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import { useNotificationSettingsModal } from '#components/NotificationSettingsModal';
@@ -27,13 +26,54 @@ import { useCan } from '#flib/identity';
 import { isDev } from '#flib/utils';
 import { routes } from '#frontend/routes';
 import { useChangelog } from '#providers/ChangelogProvider';
-import { MatchRecordingPermissions, PermissionEnum } from '#shared/permissions';
+import type { SupportedMaterialSymbol } from '#shared/materialSymbols';
+import {
+  MatchRecordingPermissions,
+  PermissionEnum,
+  type PermissionRequirement,
+} from '#shared/permissions';
 import style from './MobileNavBar.module.scss';
 
 export interface MobileNavBarProps {
   class?: string;
   classList?: JSX.CustomAttributes<HTMLElement>['classList'];
 }
+
+interface MobileNavBarTab {
+  href: string;
+  label: string;
+  symbol: SupportedMaterialSymbol;
+  permission: PermissionRequirement;
+  record?: boolean;
+}
+
+const MobileNavBarTabs: MobileNavBarTab[] = [
+  {
+    href: '/',
+    label: 'Home',
+    symbol: 'home',
+    permission: PermissionEnum.STATS_READ,
+  },
+  {
+    href: '/matches',
+    label: 'Matches',
+    symbol: 'gps_fixed',
+    permission: PermissionEnum.MATCHES_READ,
+  },
+  {
+    href: '/mundial-calculator',
+    label: 'Record',
+    symbol: 'timer_play',
+    permission: MatchRecordingPermissions,
+    record: true,
+  },
+  {
+    href: '/players',
+    label: 'Players',
+    symbol: 'groups',
+    permission: PermissionEnum.PLAYERS_READ,
+  },
+];
 
 export const MobileNavBar: Component<MobileNavBarProps> = (props) => {
   const can = useCan();
@@ -82,34 +122,46 @@ export const MobileNavBar: Component<MobileNavBarProps> = (props) => {
         }}
       >
         <div class={style.bar}>
-          <Button
-            type="button"
-            severity="secondary"
-            padding={0}
-            aria-label="Menu"
-            aria-expanded={open()}
-            aria-controls={`${id}-drawer`}
-            onClick={toggleMenu}
-          >
-            <MaterialSymbol symbol={open() ? 'close' : 'menu'} />
-          </Button>
-
           <Breadcrumbs class={style.breadcrumbs} />
-
-          <Show when={can(MatchRecordingPermissions)}>
-            <AnchorButton
-              href="/mundial-calculator"
-              severity="secondary"
-              padding={0}
-              aria-label="Record match"
-            >
-              <span class={style.record}>+</span>
-            </AnchorButton>
-          </Show>
         </div>
 
         <Divider />
       </header>
+
+      <nav class={style.tabBar} aria-label="Main">
+        <For each={MobileNavBarTabs.filter((tab) => can(tab.permission))}>
+          {(tab) => (
+            <A
+              href={tab.href}
+              end={tab.href === '/'}
+              classList={{
+                'no-style': true,
+                [style.tab]: true,
+                [style.record]: tab.record === true,
+              }}
+            >
+              <MaterialSymbol symbol={tab.symbol} />
+              <span class={style.tabLabel}>{tab.label}</span>
+            </A>
+          )}
+        </For>
+
+        <button
+          type="button"
+          classList={{
+            'no-style': true,
+            [style.tab]: true,
+            [style.tabOpen]: open(),
+          }}
+          aria-label="Menu"
+          aria-expanded={open()}
+          aria-controls={`${id}-drawer`}
+          onClick={toggleMenu}
+        >
+          <MaterialSymbol symbol={open() ? 'close' : 'menu'} />
+          <span class={style.tabLabel}>Menu</span>
+        </button>
+      </nav>
 
       <div
         aria-hidden="true"

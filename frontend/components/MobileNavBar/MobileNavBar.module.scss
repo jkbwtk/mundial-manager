@@ -29,8 +29,64 @@
   white-space: nowrap;
 }
 
-.record {
-  color: $greenBright;
+.tab-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9001;
+
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+
+  padding: ch(0.25) 0 calc(#{ch(0.25)} + env(safe-area-inset-bottom));
+
+  background-color: color-mix(in srgb, $backgroundColor 85%, transparent);
+  backdrop-filter: blur(1rem);
+  box-shadow: inset 0 $borderSize 0 0 $borderColor;
+}
+
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: auto;
+
+  margin: 0 cw(0.5);
+  padding: ch(0.25) 0;
+
+  border-radius: $borderRadius;
+
+  color: $textColor;
+
+  transition: background-color 0.1s, color 0.1s;
+
+  &:focus-visible {
+    background-color: $textBrightColor;
+    color: $backgroundColor;
+  }
+
+  &:global(.active),
+  &.tab-open {
+    background-color: $primaryColor;
+    color: $backgroundColor;
+
+    --material-symbol-fill: 1;
+  }
+
+  &.record {
+    color: $greenBright;
+  }
+
+  &.record:global(.active) {
+    background-color: $green;
+    color: $backgroundColor;
+  }
+}
+
+.tab-label {
+  white-space: nowrap;
 }
 
 .backdrop {
@@ -56,7 +112,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  bottom: 0;
+  bottom: var(--mobile-nav-height, 0);
   z-index: 9000;
 
   display: flex;
@@ -65,8 +121,7 @@
 
   width: cw(28);
   max-width: 85dvw;
-  padding: calc(#{ch(0.5)} + env(safe-area-inset-top)) cw(1)
-    calc(#{ch(1)} + env(safe-area-inset-bottom));
+  padding: calc(#{ch(0.5)} + env(safe-area-inset-top)) cw(1) ch(1);
 
   overflow-y: auto;
   overscroll-behavior: contain;
