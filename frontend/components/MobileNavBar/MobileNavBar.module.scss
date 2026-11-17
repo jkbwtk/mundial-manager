@@ -1,32 +1,22 @@
 @use 'app' as *;
 
 .container {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-
-  padding-top: calc(ch(0.5) + env(safe-area-inset-top));
-
-  background-color: color-mix(in srgb, $backgroundColor 50%, transparent);
-  backdrop-filter: blur(1rem);
+  padding-top: calc(#{ch(0.5)} + env(safe-area-inset-top));
 }
 
 .bar {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: cw(1);
 
-  height: ch(1);
   padding: 0 cw(1);
 }
 
 .breadcrumbs {
   flex: 1;
+  flex-wrap: wrap;
 
   min-width: 0;
-
-  overflow: hidden;
-  white-space: nowrap;
 }
 
 .tab-bar {

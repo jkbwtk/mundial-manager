@@ -8,11 +8,14 @@ import {
   Match,
   on,
   onCleanup,
+  Suspense,
   Switch,
 } from 'solid-js';
 import { isServer } from 'solid-js/web';
 import { Breadcrumbs } from '#components/Breadcrumbs';
 import { BuildDetails } from '#components/BuildDetails';
+import { LiveMatchBadge } from '#components/LiveMatches';
+import { LogoMark } from '#components/LogoMark';
 import { LogoSmall } from '#components/LogoSmall';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import { useNotificationSettingsModal } from '#components/NotificationSettingsModal';
@@ -122,7 +125,13 @@ export const MobileNavBar: Component<MobileNavBarProps> = (props) => {
         }}
       >
         <div class={style.bar}>
+          <LogoMark />
           <Breadcrumbs class={style.breadcrumbs} />
+          <PermissionGuard permission={PermissionEnum.MATCHES_READ}>
+            <Suspense>
+              <LiveMatchBadge />
+            </Suspense>
+          </PermissionGuard>
         </div>
 
         <Divider />
