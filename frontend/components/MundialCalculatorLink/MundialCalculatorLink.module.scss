@@ -2,6 +2,7 @@
 
 .container {
   position: fixed;
+  z-index: 10;
 
   bottom: ch(1);
   right: cw(1);
@@ -15,8 +16,10 @@
 
   transition: background-color 0.1s ease-in-out;
 
-  &:hover {
-    background-color: $greenBright;
+  @media (hover: hover) {
+    &:hover {
+      background-color: $greenBright;
+    }
   }
 }
 
