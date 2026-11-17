@@ -300,3 +300,27 @@
     opacity: 0.3;
   }
 }
+
+.badge {
+  display: flex;
+  align-items: center;
+  gap: cw(1);
+
+  padding: 0 cw(0.5);
+
+  white-space: nowrap;
+
+  color: $textColor;
+  border-radius: $borderRadius;
+
+  transition: background-color 0.1s, color 0.1s;
+
+  &:focus-visible {
+    background-color: $textBrightColor;
+    color: $backgroundColor;
+
+    * {
+      color: $backgroundColor;
+    }
+  }
+}
