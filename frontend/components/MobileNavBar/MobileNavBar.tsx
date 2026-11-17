@@ -137,8 +137,6 @@ export const MobileNavBar: Component<MobileNavBarProps> = (props) => {
         <Divider />
       </header>
 
-      <div class={style.statusBar} aria-hidden="true" />
-
       <nav class={style.tabBar} aria-label="Main">
         <For each={MobileNavBarTabs.filter((tab) => can(tab.permission))}>
           {(tab) => (
