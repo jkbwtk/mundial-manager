@@ -40,7 +40,7 @@
 
 .mobile-controls {
   position: sticky;
-  bottom: var(--mobile-nav-height, 0);
+  bottom: calc(var(--mobile-nav-height, 0px) + env(safe-area-inset-bottom));
   z-index: 10;
 
   display: flex;

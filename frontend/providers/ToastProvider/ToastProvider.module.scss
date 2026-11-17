@@ -6,7 +6,9 @@ $animation-easing: ease-in-out;
 
 .container {
   position: fixed;
-  bottom: ch(1);
+  bottom: calc(
+    #{ch(1)} + var(--mobile-nav-height, 0px) + env(safe-area-inset-bottom)
+  );
   right: cw(1);
   z-index: 9999;
 
