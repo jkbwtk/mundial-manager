@@ -7,7 +7,6 @@ import {
   Match,
   on,
   onCleanup,
-  onMount,
   Show,
   Switch,
 } from 'solid-js';
@@ -31,8 +30,6 @@ import { useChangelog } from '#providers/ChangelogProvider';
 import { MatchRecordingPermissions, PermissionEnum } from '#shared/permissions';
 import style from './MobileNavBar.module.scss';
 
-const MOBILE_NAV_BAR_SYMBOL_FONT = '1em "Material Symbols Rounded"';
-
 export interface MobileNavBarProps {
   class?: string;
   classList?: JSX.CustomAttributes<HTMLElement>['classList'];
@@ -47,7 +44,6 @@ export const MobileNavBar: Component<MobileNavBarProps> = (props) => {
   const id = createUniqueId();
 
   const [open, setOpen] = createSignal(false);
-  const [drawerRender, setDrawerRender] = createSignal(0);
 
   const toggleMenu = () => setOpen((isOpen) => !isOpen);
   const closeMenu = () => setOpen(false);
@@ -75,13 +71,6 @@ export const MobileNavBar: Component<MobileNavBarProps> = (props) => {
       onCleanup(() => document.removeEventListener('keydown', handleKeyDown));
     }),
   );
-
-  onMount(() => {
-    document.fonts
-      .load(MOBILE_NAV_BAR_SYMBOL_FONT)
-      .then(() => setDrawerRender((count) => count + 1))
-      .catch((err) => console.error('Symbol font load error:', err));
-  });
 
   return (
     <>
@@ -138,46 +127,40 @@ export const MobileNavBar: Component<MobileNavBarProps> = (props) => {
           [style.open]: open(),
         }}
       >
-        <Show when={drawerRender() + 1} keyed>
-          {(_render) => (
-            <>
-              <div class={style.logo}>
-                <LogoSmall />
+        <div class={style.logo}>
+          <LogoSmall />
+        </div>
+
+        <Divider />
+
+        <Sidebar routes={routes}>
+          <PermissionGuard permission={PermissionEnum.MATCHES_READ}>
+            <SidebarButton
+              symbol="notifications"
+              label="Notifications"
+              onClick={handleOpenNotificationSettings}
+            />
+          </PermissionGuard>
+        </Sidebar>
+
+        <div class={style.inDevelopment}>
+          <ThemeSlot name="sidebar" />
+          <ThemePicker />
+          <Switch
+            fallback={
+              <div>
+                v{latestVersion()} ({latestCommitHash()})
               </div>
-
-              <Divider />
-
-              <Sidebar routes={routes}>
-                <PermissionGuard permission={PermissionEnum.MATCHES_READ}>
-                  <SidebarButton
-                    symbol="notifications"
-                    label="Notifications"
-                    onClick={handleOpenNotificationSettings}
-                  />
-                </PermissionGuard>
-              </Sidebar>
-
-              <div class={style.inDevelopment}>
-                <ThemeSlot name="sidebar" />
-                <ThemePicker />
-                <Switch
-                  fallback={
-                    <div>
-                      v{latestVersion()} ({latestCommitHash()})
-                    </div>
-                  }
-                >
-                  <Match when={isDev()}>
-                    <div>Development build</div>
-                  </Match>
-                  <Match when={prereleaseBuildInfo()}>
-                    {(buildInfo) => <BuildDetails buildInfo={buildInfo()} />}
-                  </Match>
-                </Switch>
-              </div>
-            </>
-          )}
-        </Show>
+            }
+          >
+            <Match when={isDev()}>
+              <div>Development build</div>
+            </Match>
+            <Match when={prereleaseBuildInfo()}>
+              {(buildInfo) => <BuildDetails buildInfo={buildInfo()} />}
+            </Match>
+          </Switch>
+        </div>
       </aside>
     </>
   );
