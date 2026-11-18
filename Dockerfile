@@ -45,7 +45,7 @@ FROM nginx:alpine-slim AS runtime
 ENV NGINX_ENVSUBST_OUTPUT_DIR=/etc/nginx/
 
 RUN touch /tmp/.apk-start && \
-  apk add --no-cache bash tini nodejs-current && \
+  apk add --no-cache bash tini nodejs-current zlib openssl musl && \
   rm /usr/bin/node /var/log/apk.log && \
   mkdir /app && \
   find / -xdev -newer /tmp/.apk-start -exec touch -h -d @0 {} + && \
