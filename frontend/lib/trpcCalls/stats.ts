@@ -10,6 +10,8 @@ import {
   PeriodMatch,
   type PeriodMatchQuery,
   PeriodStats,
+  PlayerPresence,
+  type PlayerPresenceQuery,
   PlayerProfileStats,
   RatingHistory,
   type RatingHistoryQuery,
@@ -53,6 +55,12 @@ export const queryPlayerProfileStats = query(async (playerUuid: string) => {
 
   return PlayerProfileStats.parse(stats);
 }, 'queryPlayerProfileStats');
+
+export const queryPlayerPresence = query(async (input: PlayerPresenceQuery) => {
+  const presence = await trpcClient.stats.getPlayerPresence.query(input);
+
+  return PlayerPresence.parse(presence);
+}, 'queryPlayerPresence');
 
 export const queryMatchPrediction = query(
   async (input: MatchPredictionQuery) => {
@@ -112,6 +120,7 @@ export const StatsQueryKeys = [
   'queryPeriodStats',
   'queryPeriodMatch',
   'queryPlayerProfileStats',
+  'queryPlayerPresence',
   'queryHeadToHead',
   'queryMatchPrediction',
   'queryMatchPreview',
