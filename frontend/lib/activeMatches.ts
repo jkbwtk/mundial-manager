@@ -4,6 +4,7 @@ import {
   createMemo,
   createSignal,
   on,
+  onCleanup,
   onMount,
 } from 'solid-js';
 import { onLeagueEvent } from '#flib/leagueEvents';
@@ -41,23 +42,37 @@ export function getSortedLineup(
   };
 }
 
+const [pushedActiveMatches, setPushedActiveMatches] = createSignal<
+  ActiveMatch[] | null
+>(null);
+
+let activeMatchesSubscribers = 0;
+
 export function useActiveMatches(): Accessor<ActiveMatch[]> {
   const initial = createResilientAsync(queryActiveMatches);
-  const [pushed, setPushed] = createSignal<ActiveMatch[] | null>(null);
 
   createEffect(
     on(
       () => initial.latest,
-      () => setPushed(null),
+      () => setPushedActiveMatches(null),
       { defer: true },
     ),
   );
 
   onMount(() => {
-    onLeagueEvent('ACTIVE_MATCHES', (event) => setPushed(event.matches));
+    activeMatchesSubscribers += 1;
+    onLeagueEvent('ACTIVE_MATCHES', (event) =>
+      setPushedActiveMatches(event.matches),
+    );
+
+    onCleanup(() => {
+      activeMatchesSubscribers -= 1;
+
+      if (activeMatchesSubscribers === 0) setPushedActiveMatches(null);
+    });
   });
 
-  return () => pushed() ?? initial.latest ?? [];
+  return () => pushedActiveMatches() ?? initial.latest ?? [];
 }
 
 export function isActiveMatchStale(active: ActiveMatch, now: number): boolean {
