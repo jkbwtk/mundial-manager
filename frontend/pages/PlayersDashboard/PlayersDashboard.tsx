@@ -5,6 +5,7 @@ import { ColorBlock } from '#components/ColorBlock';
 import { useConfirmModal } from '#components/ConfirmModal';
 import { Paginator } from '#components/Paginator';
 import { PlayerCreatorModal } from '#components/PlayerCreatorModal';
+import { PresenceLogModal } from '#components/PresenceLogModal';
 import { type Column, Table } from '#components/Table';
 import { Divider } from '#components/Widget';
 import { useCan } from '#flib/identity';
@@ -87,6 +88,26 @@ export const PlayersDashboard: Component = () => {
       width: 10,
       sortable: true,
       transform: (val) => (val ? 'Yes' : 'No'),
+    },
+    {
+      key: 'presence',
+      header: 'Presence',
+      align: 'center',
+      width: 12,
+      transform: (_, item: Player) => (
+        <Button
+          severity="secondary"
+          disabled={!can(PermissionEnum.STATS_READ)}
+          onClick={() =>
+            open({
+              props: { component: PresenceLogModal, playerUuid: item.uuid },
+              owner,
+            })
+          }
+        >
+          Presence
+        </Button>
+      ),
     },
     {
       key: 'edit',

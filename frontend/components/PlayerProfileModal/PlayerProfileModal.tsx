@@ -5,6 +5,7 @@ import { DeltaDisplay } from '#components/DeltaDisplay';
 import { Modal } from '#components/Modal';
 import { PlayerLink } from '#components/PlayerLink';
 import { PlayerPickerModal } from '#components/PlayerPickerModal';
+import { PresenceLogModal } from '#components/PresenceLogModal';
 import { SimpleTable, type SimpleTableColumn } from '#components/SimpleTable';
 import { Skeleton } from '#components/Skeleton';
 import { Divider } from '#components/Widget';
@@ -338,10 +339,25 @@ export const PlayerProfileModal: Component<PlayerProfileModalProps> = (
     });
   };
 
+  const openPresenceLogModal = () => {
+    open({
+      props: {
+        component: PresenceLogModal,
+        playerUuid: selectedPlayer(),
+      },
+      owner,
+    });
+  };
+
   return (
     <Modal
       class={style.modal}
       topLeftLabels="Player Profile"
+      bottomLeftLabels={[
+        <Button severity="secondary" onClick={openPresenceLogModal}>
+          Presence Log
+        </Button>,
+      ]}
       bottomRightLabels={[
         <Show when={comparedPlayer()}>
           <Button severity="secondary" onClick={clearComparison}>
