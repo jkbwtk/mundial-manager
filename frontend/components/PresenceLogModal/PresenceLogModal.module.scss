@@ -1,0 +1,93 @@
+@use 'app' as *;
+
+.modal {
+  --modal-width: #{cw(60)};
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+
+  padding-bottom: ch(1);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  margin-bottom: ch(1);
+}
+
+.label {
+  color: $textBrightColor;
+}
+
+.dim {
+  color: $textDimColor;
+}
+
+.content {
+  transition: opacity 0.2s ease-in-out;
+}
+
+.pending {
+  opacity: 0.5;
+}
+
+.divider {
+  --divider-border-style: dashed;
+}
+
+.day {
+  padding: 0 cw(1);
+
+  &.empty {
+    color: $textDimColor;
+  }
+}
+
+.day-header {
+  display: flex;
+  justify-content: space-between;
+
+  .day:not(.empty) & {
+    color: $textBrightColor;
+  }
+}
+
+.session {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: cw(1);
+
+  padding-left: cw(1);
+}
+
+.time {
+  width: cw(13);
+
+  text-align: left;
+
+  &:enabled {
+    text-decoration: dashed underline;
+  }
+
+  @media (hover: hover) {
+    &:enabled:hover {
+      color: $textBrightColor;
+    }
+  }
+}
+
+.value {
+  display: inline-flex;
+  align-items: center;
+  gap: cw(1);
+}
+
+.notice {
+  color: $textDimColor;
+  font-style: italic;
+  text-align: center;
+}
