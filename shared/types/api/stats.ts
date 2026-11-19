@@ -142,6 +142,35 @@ export const PlayerProfileStats = z.object({
 });
 export type PlayerProfileStats = z.infer<typeof PlayerProfileStats>;
 
+export const PlayerPresenceQuery = z.object({
+  playerUuid: z.uuid(),
+  week: z.string().max(255).optional(), // latest when omitted
+});
+export type PlayerPresenceQuery = z.infer<typeof PlayerPresenceQuery>;
+
+export const PlayerPresenceSession = z.object({
+  day: z.string(),
+  matchUuid: z.uuid(), // first match of the player in the session
+
+  startDate: z.coerce.date(),
+  endDate: z.coerce.date(),
+
+  playingTime: z.number().nonnegative(), // milliseconds
+  spectatingTime: z.number().nonnegative(), // milliseconds
+
+  matches: z.number().int().nonnegative(),
+  spectatedMatches: z.number().int().nonnegative(),
+});
+export type PlayerPresenceSession = z.infer<typeof PlayerPresenceSession>;
+
+export const PlayerPresence = z.object({
+  weeks: z.string().array(),
+  week: z.string().nullable(),
+
+  sessions: PlayerPresenceSession.array(),
+});
+export type PlayerPresence = z.infer<typeof PlayerPresence>;
+
 export const GeneralStatsSeriesFieldEnum = {
   matches: 'matches',
   cancelledMatches: 'cancelledMatches',
