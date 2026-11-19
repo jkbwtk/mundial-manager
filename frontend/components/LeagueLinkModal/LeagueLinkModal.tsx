@@ -12,6 +12,7 @@ import style from './LeagueLinkModal.module.scss';
 
 const LeagueLinkRoleLabels: Record<LeagueLinkRole, string> = {
   MEMBER: 'Member',
+  RECORDER: 'Recorder',
   VIEWER: 'Viewer',
 };
 

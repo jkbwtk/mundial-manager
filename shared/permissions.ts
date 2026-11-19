@@ -4,6 +4,7 @@ import { arrayFrom } from '#shared/utils';
 export const RoleEnum = {
   ADMIN: 'ADMIN',
   MEMBER: 'MEMBER',
+  RECORDER: 'RECORDER',
   VIEWER: 'VIEWER',
 } as const;
 
@@ -47,6 +48,8 @@ export const PermissionEnum = {
   MATCHES_UPDATE: 'MATCHES_UPDATE',
   MATCHES_DELETE: 'MATCHES_DELETE',
 
+  PRESENCE_UPDATE: 'PRESENCE_UPDATE',
+
   GOAL_TYPES_READ: 'GOAL_TYPES_READ',
   GOAL_TYPES_CREATE: 'GOAL_TYPES_CREATE',
   GOAL_TYPES_UPDATE: 'GOAL_TYPES_UPDATE',
@@ -88,12 +91,21 @@ const LeaguePermissions = Permissions.filter(
   (permission) => !GlobalPermissions.includes(permission),
 );
 
+const ViewerPermissions = LeaguePermissions.filter((permission) =>
+  permission.endsWith('_READ'),
+);
+
 export const RolePermissions: Record<Role, Permission[]> = {
   ADMIN: Permissions,
   MEMBER: LeaguePermissions,
-  VIEWER: LeaguePermissions.filter((permission) =>
-    permission.endsWith('_READ'),
-  ),
+  RECORDER: [
+    ...new Set([
+      ...ViewerPermissions,
+      ...MatchRecordingPermissions,
+      PermissionEnum.PRESENCE_UPDATE,
+    ]),
+  ],
+  VIEWER: ViewerPermissions,
 };
 
 export function getGrantedPermissions(
