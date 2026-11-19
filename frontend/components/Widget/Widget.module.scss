@@ -159,10 +159,12 @@
   }
 }
 
+:where(.container > :not(.top-labels, .bottom-labels)) {
+  transition: opacity 0.2s ease-in-out;
+}
+
 .pending > :not(.top-labels, .bottom-labels) {
   opacity: 0.5;
-
-  transition: opacity 0.2s ease-in-out;
 }
 
 .divider {
