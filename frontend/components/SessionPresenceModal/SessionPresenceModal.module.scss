@@ -34,6 +34,16 @@
   }
 }
 
+.player-link {
+  text-decoration: dashed underline;
+
+  @media (hover: hover) {
+    &:hover {
+      color: $textBrightColor;
+    }
+  }
+}
+
 .played {
   color: $primaryBrightColor;
 }

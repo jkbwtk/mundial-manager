@@ -4,6 +4,7 @@ import {
   createEffect,
   createMemo,
   createSignal,
+  getOwner,
   on,
   Show,
 } from 'solid-js';
@@ -11,6 +12,7 @@ import { Button } from '#components/Button';
 import { FieldShell, fieldInputClassList } from '#components/Form';
 import { Input } from '#components/Input';
 import { Modal } from '#components/Modal';
+import { PresenceLogModal } from '#components/PresenceLogModal';
 import { MultiResourcePicker } from '#components/ResourcePicker';
 import { StatRow } from '#components/StatRow';
 import { SummaryRow } from '#components/SummaryRow';
@@ -25,7 +27,7 @@ import {
   queryPlayers,
   queryPlayersByIds,
 } from '#flib/trpcCalls';
-import { useModalActions } from '#providers/ModalProvider';
+import { useModal, useModalActions } from '#providers/ModalProvider';
 import { useToast } from '#providers/ToastProvider';
 import { formatExactStartTime } from '#shared/matchLabels';
 import { isMatchPlayer } from '#shared/matchPlayers';
@@ -45,6 +47,8 @@ export const SessionPresenceModal: Component<SessionPresenceModalProps> = (
 ) => {
   const [, actions] = useToast();
   const { closeModal } = useModalActions();
+  const [, { open }] = useModal();
+  const owner = getOwner();
   const timeZone = useLeagueTimeZone();
 
   const session = createResilientAsync(
@@ -200,6 +204,20 @@ export const SessionPresenceModal: Component<SessionPresenceModalProps> = (
       key: 'name',
       header: 'Player',
       align: 'left',
+      transform: (name, player: Player) => (
+        <button
+          class={style.playerLink}
+          type="button"
+          onClick={() =>
+            open({
+              props: { component: PresenceLogModal, playerUuid: player.uuid },
+              owner,
+            })
+          }
+        >
+          {name}
+        </button>
+      ),
     },
     ...matches().map(
       (match): Column => ({
