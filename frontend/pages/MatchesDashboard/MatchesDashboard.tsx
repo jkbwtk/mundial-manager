@@ -281,7 +281,7 @@ export const MatchesDashboard: Component = () => {
               label: 'Presence',
               symbol: 'groups',
               disabled: !can([
-                PermissionEnum.MATCHES_UPDATE,
+                PermissionEnum.PRESENCE_UPDATE,
                 PermissionEnum.PLAYERS_READ,
               ]),
               onSelect: () => openPresence(item),
