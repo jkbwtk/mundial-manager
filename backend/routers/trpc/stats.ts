@@ -12,6 +12,8 @@ import {
   PeriodMatchQuery,
   PeriodStats,
   PeriodStatsQuery,
+  PlayerPresence,
+  PlayerPresenceQuery,
   PlayerProfileStats,
   PlayerProfileStatsQuery,
   RatingHistory,
@@ -54,6 +56,13 @@ export const statsRouter = router({
     .output(PlayerProfileStats)
     .query(async ({ ctx, input }) => {
       return StatsModel.getPlayerProfileStats(ctx.db, ctx.league.uuid, input);
+    }),
+
+  getPlayerPresence: leaguePermissionProcedure(PermissionEnum.STATS_READ)
+    .input(PlayerPresenceQuery)
+    .output(PlayerPresence)
+    .query(async ({ ctx, input }) => {
+      return StatsModel.getPlayerPresence(ctx.db, ctx.league.uuid, input);
     }),
 
   getHeadToHead: leaguePermissionProcedure(PermissionEnum.STATS_READ)

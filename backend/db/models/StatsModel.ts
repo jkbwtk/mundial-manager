@@ -23,13 +23,18 @@ import {
 import { publishLeagueEvent } from '#blib/leagueEvents';
 import { logger } from '#blib/logger';
 import { ConvertDrizzleErrors, NotFoundError } from '#blib/modelErrors';
-import { getStatsDayKey, getStatsSeason } from '#shared/stats/buckets';
+import {
+  getStatsDayKey,
+  getStatsSeason,
+  getStatsWeekKey,
+} from '#shared/stats/buckets';
 import { calculateHeadToHead } from '#shared/stats/headToHead';
 import { getMatchPrediction } from '#shared/stats/matchPrediction';
 import {
   calculateLineupHeadToHead,
   calculateMatchPreviewPlayer,
 } from '#shared/stats/matchPreview';
+import { calculatePlayerPresenceSessions } from '#shared/stats/presence';
 import { getStatsRatingState } from '#shared/stats/ratingStats';
 import {
   getStatsPeriodKeys,
@@ -62,6 +67,8 @@ import type {
   PeriodMatchQuery,
   PeriodStats,
   PeriodStatsQuery,
+  PlayerPresence,
+  PlayerPresenceQuery,
   PlayerProfileStats,
   PlayerProfileStatsQuery,
   RatingHistory,
@@ -600,6 +607,28 @@ export class StatsModel {
         (entry) => entry.uuid === playerUuid,
       ),
       headToHead: calculateHeadToHead(getHeadToHeadMatches(rows), playerUuid),
+    };
+  }
+
+  public static async getPlayerPresence(
+    db: DB,
+    leagueUuid: string,
+    query: PlayerPresenceQuery,
+  ): Promise<PlayerPresence> {
+    const rows = await this.getRows(db, leagueUuid);
+    const sessions = calculatePlayerPresenceSessions(rows, query.playerUuid);
+    const weeks = [
+      ...new Set(sessions.map((session) => getStatsWeekKey(session.day))),
+    ];
+    const week = query.week ?? weeks.at(-1) ?? null;
+
+    return {
+      weeks,
+      week,
+
+      sessions: sessions.filter(
+        (session) => getStatsWeekKey(session.day) === week,
+      ),
     };
   }
 
