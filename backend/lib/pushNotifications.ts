@@ -5,10 +5,10 @@ import { environment } from '#backend/environment';
 import type { PushSubscriptionSelectSchema } from '#backend/types/db/pushSubscription';
 import { logger } from '#blib/logger';
 import {
+  getGrantedPermissions,
   hasPermissions,
   type Permission,
   PermissionEnum,
-  RolePermissions,
 } from '#shared/permissions';
 import { DAY_MS, msToSeconds } from '#shared/timeUtils';
 import {
@@ -115,7 +115,7 @@ export async function sendLeaguePushNotification(
     await PushSubscriptionModel.getAllByNotificationType(db, leagueUuid, type)
   ).filter((subscription) =>
     hasPermissions(
-      RolePermissions[subscription.role],
+      getGrantedPermissions(subscription.role, true),
       PushNotificationPermissions[type],
     ),
   );

@@ -13,9 +13,9 @@ import { logger } from '#blib/logger';
 import { memoized } from '#blib/memoized';
 import { ModelError } from '#blib/modelErrors';
 import {
+  getGrantedPermissions,
   hasPermissions,
   type PermissionRequirement,
-  RolePermissions,
 } from '#shared/permissions';
 
 export function createLeagueGetter(
@@ -67,7 +67,9 @@ function assertPermissions(
   jwt: JWTContext,
   required: PermissionRequirement,
 ): void {
-  if (hasPermissions(RolePermissions[jwt.role], required)) return;
+  const granted = getGrantedPermissions(jwt.role, jwt.leagueUuid !== null);
+
+  if (hasPermissions(granted, required)) return;
 
   throw new TRPCError({
     code: 'FORBIDDEN',
