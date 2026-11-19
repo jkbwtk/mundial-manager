@@ -2,8 +2,9 @@ import { getExactStartDate } from '#shared/matchLabels';
 import { getMatchTimelineSteps } from '#shared/matchTimeline';
 import { getStatsMatchEnd, getStatsMatchSpan } from '#shared/stats/buckets';
 import type { MatchEventPause } from '#shared/types/api/matchEvent';
+import type { PlayerPresenceSession } from '#shared/types/api/stats';
 import type { StatsBucketMatch } from '#shared/types/stats/bucket';
-import type { StatsMatch } from '#shared/types/stats/statsRow';
+import type { StatsMatch, StatsRow } from '#shared/types/stats/statsRow';
 
 export function getStatsSessionSpan(
   matches: StatsBucketMatch[],
@@ -48,4 +49,55 @@ export function getStatsPauseAbsence(
   }
 
   return match.pauseDuration - present;
+}
+
+export function calculatePlayerPresenceSessions(
+  rows: StatsRow[],
+  playerUuid: string,
+): PlayerPresenceSession[] {
+  const sessions = new Map<string, PlayerPresenceSession>();
+
+  for (const row of rows) {
+    const player = row.players.find((entry) => entry.uuid === playerUuid);
+    const { startDate } = row.match;
+
+    if (
+      player === undefined ||
+      row.sessionKey === null ||
+      row.day === null ||
+      startDate === null
+    ) {
+      continue;
+    }
+
+    const session = sessions.get(row.sessionKey) ?? {
+      day: row.day,
+      matchUuid: row.match.uuid,
+
+      startDate,
+      endDate: startDate,
+
+      playingTime: 0,
+      spectatingTime: 0,
+
+      matches: 0,
+      spectatedMatches: 0,
+    };
+
+    session.endDate = new Date(
+      startDate.getTime() + getStatsMatchSpan(row.match),
+    );
+
+    if (player.side === null) {
+      session.spectatingTime += player.presence;
+      session.spectatedMatches += 1;
+    } else {
+      session.playingTime += player.presence;
+      session.matches += 1;
+    }
+
+    sessions.set(row.sessionKey, session);
+  }
+
+  return [...sessions.values()];
 }
