@@ -58,6 +58,17 @@
 
   padding: ch(2) cw(1) ch(1) cw(1);
 
+  transition: opacity 0.15s ease-out, translate 0.15s ease-out;
+
+  @starting-style {
+    opacity: 0;
+    translate: 0 ch(1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+
   :where(&) {
     overflow: hidden;
 
