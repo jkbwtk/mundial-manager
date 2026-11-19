@@ -22,7 +22,10 @@ export const matchSessionsRouter = router({
       );
     }),
 
-  saveSpectators: leaguePermissionProcedure(PermissionEnum.MATCHES_UPDATE)
+  saveSpectators: leaguePermissionProcedure([
+    PermissionEnum.PRESENCE_UPDATE,
+    PermissionEnum.PLAYERS_READ,
+  ])
     .input(MatchSessionSpectatorsSave)
     .output(MatchSession)
     .mutation(async ({ ctx, input }) => {
