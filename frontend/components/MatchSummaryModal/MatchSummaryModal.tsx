@@ -5,6 +5,7 @@ import { LiveMatchClock, LiveWinBar } from '#components/LiveMatches';
 import { MatchTimelineModal } from '#components/MatchTimelineModal';
 import { MaterialSymbol } from '#components/MaterialSymbol';
 import { Modal } from '#components/Modal';
+import { SessionPresenceModal } from '#components/SessionPresenceModal';
 import { Spinner } from '#components/Spinner';
 import { StatRow } from '#components/StatRow';
 import {
@@ -13,6 +14,7 @@ import {
   useLiveMatchPrediction,
 } from '#flib/activeMatches';
 import { useTableLookup } from '#flib/entityLookup';
+import { useCan } from '#flib/identity';
 import { useLeagueTimeZone } from '#flib/leagueTimeZone';
 import { formatElapsed } from '#flib/matchEvents';
 import {
@@ -36,6 +38,7 @@ import {
   getMatchTimelineSteps,
   getMatchWinningSide,
 } from '#shared/matchTimeline';
+import { PermissionEnum } from '#shared/permissions';
 import { formatDate, formatDuration } from '#shared/timeUtils';
 import type { ActiveMatch } from '#shared/types/api/activeMatch';
 import type { MatchStatus } from '#shared/types/api/match';
@@ -369,6 +372,7 @@ export const MatchSummaryModal: Component<MatchSummaryModalProps> = (props) => {
   const [, { open }] = useModal();
   const activeMatches = useActiveMatches();
   const owner = getOwner();
+  const can = useCan();
 
   const timeline = createResilientAsync(
     () => props.matchUuid,
@@ -420,6 +424,14 @@ export const MatchSummaryModal: Component<MatchSummaryModalProps> = (props) => {
     });
   };
 
+  const openPresence = () => {
+    open({
+      props: { component: SessionPresenceModal, matchUuid: props.matchUuid },
+      owner,
+      closeOnBackgroundClick: false,
+    });
+  };
+
   createEffect(
     on(
       () => active() === null,
@@ -434,13 +446,23 @@ export const MatchSummaryModal: Component<MatchSummaryModalProps> = (props) => {
     <Modal
       class={style.modal}
       topLeftLabels="Match Summary"
-      bottomLeftLabels={
+      bottomLeftLabels={[
         <Show when={(source()?.events.length ?? 0) > 0}>
           <Button severity="secondary" onClick={openTimeline}>
             Timeline
           </Button>
-        </Show>
-      }
+        </Show>,
+        <Show
+          when={can([
+            PermissionEnum.PRESENCE_UPDATE,
+            PermissionEnum.PLAYERS_READ,
+          ])}
+        >
+          <Button severity="secondary" onClick={openPresence}>
+            Presence
+          </Button>
+        </Show>,
+      ]}
     >
       <Show
         when={source()}
