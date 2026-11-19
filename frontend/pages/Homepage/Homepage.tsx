@@ -13,7 +13,7 @@ import { SeasonProgress } from '#components/SeasonProgress';
 import { SeasonSummaryActivator } from '#components/SeasonSummaryActivator';
 import { TableStats } from '#components/TableStats';
 import { UpcomingMatches } from '#components/UpcomingMatches';
-import { PermissionEnum } from '#shared/permissions';
+import { MatchRecordingPermissions, PermissionEnum } from '#shared/permissions';
 import style from './Homepage.module.scss';
 
 export const Homepage: Component = () => (
@@ -67,7 +67,9 @@ export const Homepage: Component = () => (
     </section>
 
     <DesktopOnly>
-      <MundialCalculatorLink />
+      <PermissionGuard permission={MatchRecordingPermissions}>
+        <MundialCalculatorLink />
+      </PermissionGuard>
     </DesktopOnly>
   </div>
 );
